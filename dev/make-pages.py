@@ -3,6 +3,7 @@
 Edit the TOOLS table below, run `python3 dev/make-pages.py` from the repo root, commit the html files.
 merge.html is hand-written and not touched."""
 import pathlib
+import re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 SPRITE = '<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>'
@@ -335,7 +336,7 @@ def page(t):
   <div class="wrap">
     <a class="brand" href="./" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
     <nav class="links" aria-label="Main">
-      <a href="tools.html">Tools</a>
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <a class="opt" href="./#privacy">Privacy</a>
     </nav>
     <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
@@ -407,6 +408,7 @@ def page(t):
 {qp}
 <script src="assets/tools.js"></script>
 <script src="assets/palette.js"></script>
+<script src="assets/menu.js"></script>
 <script src="assets/common.js"></script>
 <script src="assets/kit.js"></script>
 <script src="assets/{t['engine']}.js"></script>
@@ -414,9 +416,21 @@ def page(t):
 </html>
 '''
 
+SLUGS = dict(re.findall(r"id: '([^']+)', slug: '([^']+)'", (ROOT / 'assets' / 'tools.js').read_text()))
+
+def up(html):
+    """Tool pages live in /<keyword>/index.html, one folder below the site root."""
+    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"')):
+        html = html.replace(a, b)
+    return html
+
+def write_tool(t, html):
+    d = ROOT / SLUGS[t['id']]; d.mkdir(exist_ok=True)
+    (d / 'index.html').write_text(up(html))
+
 for t in TOOLS:
-    (ROOT / f"{t['id']}.html").write_text(page(t))
-    print('wrote', t['id'] + '.html')
+    write_tool(t, page(t))
+    print('wrote', SLUGS[t['id']] + '/')
 
 # ---------------- editor pages (one editor, five entry points) ----------------
 ICO = {
@@ -463,7 +477,7 @@ def editor_page(t):
   <div class="wrap">
     <a class="brand" href="./" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
     <nav class="links" aria-label="Main">
-      <a href="tools.html">Tools</a>
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <a class="opt" href="./#privacy">Privacy</a>
     </nav>
     <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
@@ -554,6 +568,7 @@ def editor_page(t):
 <script src="assets/vendor/pdf.min.js"></script>
 <script src="assets/tools.js"></script>
 <script src="assets/palette.js"></script>
+<script src="assets/menu.js"></script>
 <script src="assets/common.js"></script>
 <script src="assets/kit.js"></script>
 <script src="assets/editor.js"></script>
@@ -561,5 +576,5 @@ def editor_page(t):
 </html>
 '''
 for t in EDITORS:
-    (ROOT / f"{t['id']}.html").write_text(editor_page(t))
-    print('wrote', t['id'] + '.html (editor)')
+    write_tool(t, editor_page(t))
+    print('wrote', SLUGS[t['id']] + '/ (editor)')

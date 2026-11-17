@@ -23,3 +23,23 @@ kbd,.k{display:inline-flex;align-items:center;justify-content:center;min-width:2
 .pal-foot{display:flex;gap:18px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--line);background:var(--mist);font-size:12.5px;color:var(--muted)}
 .pal-foot span:last-child{margin-left:auto}
 @media (max-width:640px){.sbtn .sl,.sbtn .k{display:none}.sbtn{padding:0 12px}.pl{display:none}.pal{padding-top:6vh}}
+.mbtn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font:600 15px/1 var(--font);color:var(--ink);opacity:.78;cursor:pointer}
+.mbtn:hover,.mbtn[aria-expanded=true]{opacity:1}
+.mbtn svg{width:12px;height:12px;transition:transform .2s}
+.mbtn[aria-expanded=true] svg{transform:rotate(180deg)}
+.mega{position:absolute;left:0;right:0;top:100%;z-index:39;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 40px 60px -40px #0b122040;max-height:calc(100vh - 80px);overflow:auto}
+.mega[hidden]{display:none}
+.mega-in{width:min(1200px,100% - 2*max(4vw,16px));margin-inline:auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:28px;padding-top:30px;padding-bottom:34px}
+.mcol h3{margin:0 0 10px;font:700 12px/1 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.mcol a{display:block;padding:5px 0;font-size:14.5px;color:var(--text);text-decoration:none}
+.mcol a:hover{color:var(--magenta)}
+.mmore{border-left:1px solid var(--line);padding-left:28px}
+.msoon{display:block;padding:5px 0;font-size:14.5px;color:var(--muted)}
+.msoon em{font-style:normal;font-size:12px;font-weight:600;margin-left:6px}
+.mcol a.mall{margin-top:12px;font-weight:650;color:var(--magenta)}
+.nav.menu-open{background:#fff;box-shadow:0 1px 0 var(--line)}
+@media (max-width:1000px){.mega-in{grid-template-columns:repeat(2,minmax(0,1fr))}.mmore{border-left:0;padding-left:0}}
+@media (max-width:560px){.mega-in{grid-template-columns:minmax(0,1fr)}}
+.mcol.wide{grid-column:span 2}.mcol.wide .mlist{column-count:2;column-gap:28px}.mcol .mlist a{break-inside:avoid}
+@media (max-width:1000px){.mega-in{grid-template-columns:repeat(2,minmax(0,1fr))}.mcol.wide{grid-column:1/-1}}
+@media (max-width:560px){.mega-in{grid-template-columns:minmax(0,1fr)}.mcol.wide .mlist{column-count:1}}

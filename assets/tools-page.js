@@ -8,7 +8,7 @@ inkFlow(document.getElementById('ink'), { start: 19 });
         const tag = t.ready ? '' : 'Coming soon';
         const inner = `<span class="ic">${diliaIcon(t.icon)}</span><b>${t.name}</b><span>${t.desc}</span>${tag ? `<em>${tag}</em>` : ''}`;
         return t.ready
-          ? `<a class="tile ready" id="${t.id}" href="${t.id}.html" data-s="${(t.name + ' ' + t.desc).toLowerCase()}">${inner}</a>`
+          ? `<a class="tile ready" id="${t.id}" href="${diliaUrl(t)}" data-s="${(t.name + ' ' + t.desc).toLowerCase()}">${inner}</a>`
           : `<div class="tile soon${t.server ? ' srv' : ''}" id="${t.id}" data-s="${(t.name + ' ' + t.desc).toLowerCase()}" aria-disabled="true">${inner}</div>`;
       }).join('')}</div>
     </section>`).join('') + '<p class="none" id="none">No tool matches that search.</p>';

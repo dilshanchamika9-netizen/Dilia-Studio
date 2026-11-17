@@ -9,11 +9,11 @@
 
   const QUICK = ['merge', 'compress', 'sign', 'edit', 'pdf2img', 'ocr'];
   const quick = document.getElementById('quick');
-  QUICK.forEach(id => { const a = el('a', '', byId[id].name); a.href = id + '.html'; quick.append(a); });
+  QUICK.forEach(id => { const a = el('a', '', byId[id].name); a.href = diliaUrl(byId[id]); quick.append(a); });
 
   const pg = document.getElementById('pgrid');
   ['merge', 'compress', 'edit', 'sign', 'split', 'pdf2img', 'img2pdf', 'ocr'].forEach(id => {
-    const t = byId[id], a = el('a', 'pcard'); a.href = id + '.html';
+    const t = byId[id], a = el('a', 'pcard'); a.href = diliaUrl(t);
     const i = el('span', 'pi'); i.innerHTML = diliaIcon(t.icon);
     a.append(i, el('b', '', t.name), el('span', 'd', t.desc)); pg.append(a);
   });
@@ -55,7 +55,7 @@
       document.getElementById('fit-s').textContent = (same.length > 1 ? same.length + ' files, ' : size(same[0].size) + ', ') + 'read in this tab only. Pick what to do. Your file is passed to the next page on this device and is never uploaded.';
       (k === 'pdf' ? PDF_TOOLS : IMG_TOOLS).map(id => byId[id]).filter(t => t && t.ready && (same.length === 1 || /^(merge|img2pdf|scan|mix)$/.test(t.id))).forEach(t => {
         const b = el('button'); b.type = 'button'; b.append(el('b', '', t.name), el('small', '', t.desc));
-        b.addEventListener('click', async () => { b.disabled = true; try { await DiliaHandoff.put(same); } catch (err) { /* private mode: tool opens empty */ } location.href = t.id + '.html'; });
+        b.addEventListener('click', async () => { b.disabled = true; try { await DiliaHandoff.put(same); } catch (err) { /* private mode: tool opens empty */ } location.href = diliaUrl(t); });
         g.append(b);
       });
     }

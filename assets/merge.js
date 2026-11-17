@@ -1,6 +1,6 @@
 {
 const $ = s => document.querySelector(s);
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 
 const COLORS = ['#e5007d', '#009fe3', '#f0a800', '#7a5cff', '#ff5a36', '#00a88f', '#0b1220'];
 const files = [];            // {id,name,size,bytes,lib,js,count,color}

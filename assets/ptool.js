@@ -2,7 +2,7 @@
    The page sets <body data-tool="..."> and supplies the controls; this file does the rest. */
 {
 const { $, kb, plural, esc, COLORS, toast, save, cleanName, parseRanges, compress, zip } = Kit;
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 
 const MODE = document.body.dataset.tool;
 const CFG = {

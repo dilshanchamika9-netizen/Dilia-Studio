@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Compare two PDFs - Free Online | Dilia Studio</title>
+<meta name="description" content="Compare two PDFs in your browser with Dilia Studio. Nothing is uploaded.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/work.css">
+</head>
+<body class="work" data-tool="compare">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav solid" data-solid="1">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../#privacy">Privacy</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main class="ws-page">
+  <div class="ws-head wrap">
+    <div>
+      <p class="crumb"><a href="../tools.html">Tools</a><span>/</span>Compare</p>
+      <h1>Compare two PDFs</h1>
+      <p class="lead">See what changed between two versions of a PDF: changed words and a marked-up copy of every page.</p>
+    </div>
+  </div>
+
+  <div class="ws wrap" id="ws" data-state="empty">
+    <section class="board" aria-label="Compare two PDFs">
+      <label class="dropzone" for="pick" id="dropzone">
+        <span class="dz-art" aria-hidden="true">
+          <span class="dz-page p1"></span><span class="dz-page p2"></span><span class="dz-page p3"><svg viewBox="0 0 24 24"><path d="M12 16V5m0 0-4.5 4.5M12 5l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </span>
+        <b>Drop two PDF files here</b>
+        <span>or <u>choose a file</u> from your device</span>
+        <small>The file is read by your browser and never uploaded.</small>
+      </label>
+      <input id="pick" class="vh" type="file" accept="application/pdf,.pdf" multiple>
+
+      <div class="bar-tools" id="toolbar">
+        <p class="tip">First file: original. Second file: changed version.</p>
+        <div class="acts"><button class="btn ghost sm" type="button" id="swap">Swap order</button><label class="btn ghost sm" for="pick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add PDF</label></div>
+      </div>
+      <div class="optbar"><p class="tip wide">The report lists changed words page by page and marks every difference on a copy of each page. Pages are matched by number. Scans have no text, so only the marks are compared.</p><p class="err" id="err" hidden></p></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <aside class="side" aria-label="Settings">
+      <div class="side-in">
+        <h2>Your new PDF</h2>
+        <dl class="sum">
+          <div><dt id="l1">Files</dt><dd id="s1">0</dd></div>
+          <div><dt id="l2">Pages out</dt><dd id="s2">0</dd></div>
+          <div><dt id="l3">Size in</dt><dd id="s3">0</dd></div>
+        </dl>
+        <label class="field" for="outName">File name
+          <span class="name"><input id="outName" type="text" value="Dilia-compared" spellcheck="false" autocomplete="off"><em id="ext">.pdf</em></span>
+        </label>
+        <button class="btn go" type="button" id="go" disabled>
+          <span class="go-l">Compare and download</span>
+          <span class="go-p" aria-hidden="true"><i id="prog"></i></span>
+        </button>
+        <p class="note" id="note">Add a file to start.</p>
+        <div class="done" id="done" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#e5007d"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><b id="doneName"></b><span id="doneInfo"></span>
+            <p><a href="#" id="again">Download again</a><button type="button" id="reset">Start over</button></p></div>
+        </div>
+        <p class="safe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.4 3 7.8 7 9 4-1.2 7-4.6 7-9V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Processed in this tab. Nothing is uploaded.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
+
+<script src="../assets/vendor/pdf-lib.min.js"></script>
+<script src="../assets/vendor/pdf.min.js"></script>
+<script src="../assets/vendor/Sortable.min.js"></script>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/kit.js"></script>
+<script src="../assets/mixer.js"></script>
+</body>
+</html>

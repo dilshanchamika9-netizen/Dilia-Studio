@@ -31,7 +31,7 @@
       list.textContent = '';
       items.forEach((t, i) => {
         const a = el(t.ready ? 'a' : 'div', 'pr' + (i === sel ? ' on' : '') + (t.ready ? '' : ' soon'));
-        if (t.ready) a.href = t.id + '.html';
+        if (t.ready) a.href = diliaUrl(t);
         a.setAttribute('role', 'option'); a.id = 'pr-' + i; a.setAttribute('aria-selected', i === sel ? 'true' : 'false');
         const ic = el('span', 'pi'); ic.innerHTML = window.diliaIcon ? diliaIcon(t.icon) : '';
         const tx = el('span', 'pt'); tx.append(el('b', '', t.name), el('small', '', t.desc));
@@ -49,7 +49,7 @@
     input.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown') { e.preventDefault(); if (items.length) { sel = (sel + 1) % items.length; mark(); } }
       else if (e.key === 'ArrowUp') { e.preventDefault(); if (items.length) { sel = (sel - 1 + items.length) % items.length; mark(); } }
-      else if (e.key === 'Enter') { const t = items[sel]; if (t && t.ready) location.href = t.id + '.html'; }
+      else if (e.key === 'Enter') { const t = items[sel]; if (t && t.ready) location.href = diliaUrl(t); }
     });
     run();
     return { run };

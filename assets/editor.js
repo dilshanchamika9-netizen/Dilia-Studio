@@ -2,7 +2,7 @@
    Positions are stored in "view points": the page as it is shown (rotation applied), 1 unit = 1 PDF point, origin top-left. */
 {
 const { $, kb, plural, esc, toast, save, cleanName } = Kit;
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 
 const START = document.body.dataset.tool;              // edit | add | forms | sign | annotate
 const ws = $('#ws'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog'), outName = $('#outName');

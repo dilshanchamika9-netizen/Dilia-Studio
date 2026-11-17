@@ -1,7 +1,7 @@
 /* Whole-file tools: password protect, remove password, compress. One PDF at a time. */
 {
 const { $, kb, plural, esc, toast, save, cleanName } = Kit;
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 
 const MODE = document.body.dataset.tool;
 const CFG = {
@@ -23,7 +23,7 @@ const lvl = () => document.querySelector('input[name=lv]:checked').value;
 /* ---------- qpdf (WebAssembly) ---------- */
 async function qpdf(args, input) {
   const logs = [];
-  const m = await Module({ locateFile: () => 'assets/vendor/qpdf.wasm', noInitialRun: true, print: t => logs.push(t), printErr: t => logs.push(t) });
+  const m = await Module({ locateFile: () => DROOT + 'assets/vendor/qpdf.wasm', noInitialRun: true, print: t => logs.push(t), printErr: t => logs.push(t) });
   m.FS.writeFile('/in.pdf', input);
   let code;
   try { code = m.callMain(args); } catch (e) { code = typeof e === 'number' ? e : (e && typeof e.status === 'number' ? e.status : 2); }
@@ -189,7 +189,7 @@ async function ocrFile() {
   let cur = 0, done = 0, words = 0;
   note.textContent = 'Loading the text engine (first time only)...';
   const mk = Tesseract.createWorker('eng', 1, {
-    workerPath: 'assets/vendor/ocr/worker.min.js', corePath: 'assets/vendor/ocr/tesseract-core-simd-lstm.wasm.js', langPath: 'assets/vendor/ocr', gzip: true, workerBlobURL: false,
+    workerPath: DROOT + 'assets/vendor/ocr/worker.min.js', corePath: DROOT + 'assets/vendor/ocr/tesseract-core-simd-lstm.wasm.js', langPath: DROOT + 'assets/vendor/ocr', gzip: true, workerBlobURL: false,
     logger: m => { if (m.status === 'recognizing text') prog.style.width = Math.round(10 + 82 * (done + m.progress) / todo.length) + '%'; }
   });
   mk.catch(() => {});
