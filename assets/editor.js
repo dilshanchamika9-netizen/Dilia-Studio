@@ -19,23 +19,97 @@ let hist = [], fut = [];
 
 /* ---------- fonts (metrics come from pdf-lib so the saved file matches the screen) ---------- */
 const FAM = {
-  helv:  { css: 'Helvetica, Arial, "Liberation Sans", sans-serif', base: .93, std: ['Helvetica', 'HelveticaBold'] },
-  times: { css: '"Times New Roman", Times, "Liberation Serif", serif', base: .92, std: ['TimesRoman', 'TimesRomanBold'] },
-  cour:  { css: '"Courier New", Courier, "Liberation Mono", monospace', base: .86, std: ['Courier', 'CourierBold'] }
+  helv:  { css: 'Helvetica, Arial, "Liberation Sans", sans-serif', base: .93, std: ['Helvetica', 'HelveticaBold', 'HelveticaOblique', 'HelveticaBoldOblique'] },
+  times: { css: '"Times New Roman", Times, "Liberation Serif", serif', base: .92, std: ['TimesRoman', 'TimesRomanBold', 'TimesRomanItalic', 'TimesRomanBoldItalic'] },
+  cour:  { css: '"Courier New", Courier, "Liberation Mono", monospace', base: .86, std: ['Courier', 'CourierBold', 'CourierOblique', 'CourierBoldOblique'] }
 };
 const metric = {};
 PDFLib.PDFDocument.create().then(async d => {
   for (const f in FAM) for (const k of FAM[f].std) metric[k] = await d.embedFont(PDFLib.StandardFonts[k]);
   layoutAll();
 });
-const fontKey = o => FAM[o.fam].std[o.bold ? 1 : 0];
+const fontKey = o => FAM[o.fam].std[(o.bold ? 1 : 0) + (o.ital ? 2 : 0)];
+const useO = o => !!(o.useOrig && o.of && ofontOf(o));
+const cssFont = (o, px) => useO(o) ? `400 normal ${px}px/${LH} "${o.of.l}", ${FAM[o.fam].css}` : `${o.bold ? 700 : 400} ${o.ital ? 'italic' : 'normal'} ${px}px/${LH} ${FAM[o.fam].css}`;
+const mcx = document.createElement('canvas').getContext('2d');
+
+/* ---------- original fonts: reuse the font embedded in the PDF when we can ---------- */
+const ofCache = new Map();
+const PN = PDFLib.PDFName, PDct = PDFLib.PDFDict;
+function pageFontDict(lib, i) {
+  let node = lib.getPage(i).node;
+  for (let g = 0; node && g < 20; g++) {
+    const r = node.get(PN.of('Resources')), rd = r && lib.context.lookup(r);
+    if (rd instanceof PDct) { const f = rd.get(PN.of('Font')), fd = f && lib.context.lookup(f); if (fd instanceof PDct) return fd; }
+    const pr = node.get(PN.of('Parent')); node = pr && lib.context.lookup(pr);
+  }
+  return null;
+}
+const hexOf = (n, w) => n.toString(16).toUpperCase().padStart(w * 2, '0');
+function parseToUnicode(txt) {                       // char -> hex string of the font code
+  const map = new Map(); let w = 1;
+  const cs = /begincodespacerange\s*<([0-9a-fA-F]+)>/.exec(txt); if (cs) w = Math.max(1, cs[1].length / 2);
+  const chr = h => { let r = ''; for (let k = 0; k + 4 <= h.length; k += 4) r += String.fromCharCode(parseInt(h.slice(k, k + 4), 16)); return h.length === 2 ? String.fromCharCode(parseInt(h, 16)) : r; };
+  const put = (ch, code) => { if (ch && [...ch].length === 1 && !map.has(ch)) map.set(ch, hexOf(code, w)); };
+  for (const m of txt.matchAll(/beginbfchar([\s\S]*?)endbfchar/g))
+    for (const q of m[1].matchAll(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/g)) put(chr(q[2]), parseInt(q[1], 16));
+  for (const m of txt.matchAll(/beginbfrange([\s\S]*?)endbfrange/g))
+    for (const q of m[1].matchAll(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*(\[[^\]]*\]|<[0-9a-fA-F]+>)/g)) {
+      const lo = parseInt(q[1], 16), hi = parseInt(q[2], 16); if (hi - lo > 65535) continue;
+      if (q[3][0] === '[') { const arr = [...q[3].matchAll(/<([0-9a-fA-F]+)>/g)]; arr.forEach((a, k) => put(chr(a[1]), lo + k)); }
+      else { const d = q[3].slice(1, -1), base = chr(d); if (!base) continue; for (let c = lo; c <= hi; c++) put(String.fromCharCode(base.charCodeAt(0) + c - lo), c); }
+    }
+  return { map, w };
+}
+function findOrig(lib, i, base, cache) {              // the PDF's own font object for pdf.js font name `base`
+  const key = i + ':' + base;
+  if (cache && ofCache.has(key)) return ofCache.get(key);
+  let res = null;
+  try {
+    const fd = pageFontDict(lib, i), strip = n => String(n).replace(/^\/?[A-Z]{6}\+/, '');
+    if (fd) for (const [k, v] of fd.entries()) {
+      const d = lib.context.lookup(v); if (!(d instanceof PDct)) continue;
+      const bf = d.get(PN.of('BaseFont')); if (!bf) continue;
+      const nm = bf.decodeText(); if (nm !== base && strip(nm) !== strip(base)) continue;
+      const st = d.get(PN.of('Subtype')); if (st && String(st.decodeText()) === 'Type3') continue;
+      const tu = d.get(PN.of('ToUnicode')), ts = tu && lib.context.lookup(tu); if (!ts) continue;
+      const txt = new TextDecoder('latin1').decode(PDFLib.decodePDFRawStream(ts).decode());
+      const { map } = parseToUnicode(txt); if (map.size < 2) continue;
+      res = { key: k, map }; break;
+    }
+  } catch (e) { res = null; }
+  if (cache) ofCache.set(key, res);
+  return res;
+}
+const ofontOf = o => o.of && findOrig(doc.lib, o.p, o.of.n, true);
+const missing = o => { const f = ofontOf(o); if (!f) return ''; const b = new Set(); for (const ch of o.text.replace(/\n/g, '')) if (!f.map.has(ch)) b.add(ch); return [...b].join(' '); };
+function sampleColors(p, t) {                         // text colour and background colour from the rendered page
+  const out = { fg: '#000000', bg: '#ffffff' };
+  try {
+    const c = pv[p].canvas; if (!c || !c.width) return out;
+    const k = c.width / pv[p].w;
+    const x0 = Math.max(0, Math.floor(t.x * k) - 2), y0 = Math.max(0, Math.floor((t.base - t.size * .85) * k) - 2);
+    const w = Math.max(2, Math.min(c.width - x0, Math.ceil(t.w * k) + 4)), h = Math.max(2, Math.min(c.height - y0, Math.ceil(t.size * 1.05 * k) + 4));
+    const d = c.getContext('2d').getImageData(x0, y0, w, h).data;
+    const px = (x, y) => { const j = (y * w + x) * 4; return [d[j], d[j + 1], d[j + 2]]; };
+    const cs = [px(0, 0), px(w - 1, 0), px(0, h - 1), px(w - 1, h - 1)];
+    const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+    const bg = cs[0]; if (cs.every(q => dist(q, bg) < 24)) out.bg = '#' + bg.map(v => v.toString(16).padStart(2, '0')).join('');
+    const ref = cs.every(q => dist(q, bg) < 24) ? bg : [255, 255, 255];
+    let mx = 0; for (let j = 0; j < d.length; j += 4) mx = Math.max(mx, dist([d[j], d[j + 1], d[j + 2]], ref));
+    if (mx > 120) { let r = 0, g = 0, b = 0, n = 0; for (let j = 0; j < d.length; j += 4) { const v = [d[j], d[j + 1], d[j + 2]]; if (dist(v, ref) >= mx * .85) { r += v[0]; g += v[1]; b += v[2]; n++; } } out.fg = '#' + [r, g, b].map(v => Math.round(v / n).toString(16).padStart(2, '0')).join(''); }
+  } catch (e) { /* keep defaults */ }
+  return out;
+}
 const LH = 1.2;
 function textBox(o) {                  // width/height of a text object in points
   const f = metric[fontKey(o)], lines = o.text.split('\n');
   let w = 0;
+  if (useO(o) && !missing(o)) { mcx.font = `400 ${o.size}px "${o.of.l}"`; for (const l of lines) w = Math.max(w, mcx.measureText(l).width); return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH }; }
   for (const l of lines) { try { w = Math.max(w, f ? f.widthOfTextAtSize(l, o.size) : l.length * o.size * .55); } catch (e) { w = Math.max(w, l.length * o.size * .6); } }
   return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH };
 }
+const warnOrig = o => { const m = useO(o) && missing(o); return m ? `Not in the original font: ${m}. Drawn in ${{ helv: 'Sans', times: 'Serif', cour: 'Mono' }[o.fam]} instead.` : ''; };
 function badChars(o) {
   const f = metric[fontKey(o)]; if (!f) return '';
   const bad = new Set();
@@ -136,7 +210,7 @@ function objHTML(o) {
   const sel_ = o.id === sel ? ' sel' : '', handle = o.id === sel && o.type !== 'text' && o.type !== 'note' ? '<i class="rh" data-h="1"></i>' : '';
   if (o.type === 'text') {
     const bad = badChars(o);
-    return `<div class="obj otext${sel_}${bad ? ' bad' : ''}" data-id="${o.id}" style="${st};font:${o.bold ? 700 : 400} ${o.size * S}px/${LH} ${FAM[o.fam].css};color:${o.color}"><div class="tx" spellcheck="false">${esc(o.text)}</div></div>`;
+    return `<div class="obj otext${sel_}${bad ? ' bad' : ''}" data-id="${o.id}" style="${st};font:${cssFont(o, o.size * S)};color:${o.color}"><div class="tx" spellcheck="false">${esc(o.text)}</div></div>`;
   }
   if (o.type === 'image' || o.type === 'sign') return `<div class="obj oimg${sel_}" data-id="${o.id}" style="${st}"><img src="${imgs.get(o.img).url}" alt="" draggable="false">${handle}</div>`;
   if (o.type === 'draw') {
@@ -209,10 +283,10 @@ async function loadText(p) {
       if (Math.abs(t[1]) > .01 || Math.abs(t[2]) > .01 || t[0] <= 0) continue;            // only straight, upright text
       const fh = Math.hypot(t[2], t[3]) || Math.abs(t[3]);
       const style = tc.styles[it.fontName] || {};
-      let bold = false;
-      try { const fo = p.page.commonObjs.has(it.fontName) && p.page.commonObjs.get(it.fontName); bold = !!fo && /bold|black|heavy|semibold/i.test(fo.name || ''); } catch (e) { /* unknown */ }
-      p.text.push({ str: it.str, x: t[4], base: t[5], w: it.width * p.vp.scale, size: fh,
-        fam: /mono/i.test(style.fontFamily) ? 'cour' : /serif/i.test(style.fontFamily) && !/sans/i.test(style.fontFamily) ? 'times' : 'helv', bold });
+      let bold = false, ital = false, fn = '', ln = '';
+      try { const fo = p.page.commonObjs.has(it.fontName) && p.page.commonObjs.get(it.fontName); if (fo) { fn = fo.name || ''; ln = fo.loadedName || ''; bold = /bold|black|heavy|semibold|demi/i.test(fn) || !!fo.bold; ital = /italic|oblique/i.test(fn) || !!fo.italic; } } catch (e) { /* unknown */ }
+      const fam = /mono|courier|consolas/i.test(fn + style.fontFamily) ? 'cour' : (/times|serif|georgia|garamond|palatino|cambria|book/i.test(fn) || /serif/i.test(style.fontFamily)) && !/sans/i.test(fn + style.fontFamily) ? 'times' : 'helv';
+      p.text.push({ str: it.str, x: t[4], base: t[5], w: it.width * p.vp.scale, size: fh, fam, bold, ital, fn, ln });
     }
   } catch (e) { /* no text */ }
   drawTextHits();
@@ -231,8 +305,10 @@ function editExisting(p, k) {
   commit();
   t.used = true;
   const pad = t.size * .08;
-  objs.push({ id: 'o' + (++seq), p, type: 'whiteout', x: t.x - pad, y: t.base - t.size * .92, w: t.w + pad * 2, h: t.size * 1.2, color: '#ffffff' });
-  const o = { id: 'o' + (++seq), p, type: 'text', text: t.str, size: Math.round(t.size * 10) / 10, fam: t.fam, bold: t.bold, color: '#000000', x: t.x, y: t.base - t.size * FAM[t.fam].base };
+  const cl = sampleColors(p, t);
+  objs.push({ id: 'o' + (++seq), p, type: 'whiteout', x: t.x - pad, y: t.base - t.size * .92, w: t.w + pad * 2, h: t.size * 1.2, color: cl.bg });
+  const o = { id: 'o' + (++seq), p, type: 'text', text: t.str, size: Math.round(t.size * 10) / 10, fam: t.fam, bold: t.bold, ital: t.ital, color: cl.fg, x: t.x, y: t.base - t.size * FAM[t.fam].base };
+  if (t.fn && t.ln && findOrig(doc.lib, p, t.fn, true)) { o.of = { n: t.fn, l: t.ln }; o.useOrig = true; }
   Object.assign(o, textBox(o)); objs.push(o);
   sel = o.id; drawObjs(); drawTextHits(); startEdit(o.id); props(); summary();
 }
@@ -399,15 +475,16 @@ function props(soft) {
   const o = sel && objOf(sel);
   propsEl.classList.toggle('on', !!o);
   if (!o) { propsEl.innerHTML = `<span class="ptip">${esc(TIPS[tool] || '')}</span>`; return; }
-  if (soft && o.type === 'text') { const b = badChars(o); const w = $('#pWarn'); if (w) { w.hidden = !b; w.textContent = b ? `Not supported: ${b}` : ''; } return; }
+  if (soft && o.type === 'text') { const b = badChars(o), wo = warnOrig(o); const w = $('#pWarn'); if (w) { w.hidden = !(b || wo); w.textContent = b ? `Not supported: ${b}` : wo; } return; }
   const label = { text: 'Text', image: 'Image', sign: 'Signature', highlight: 'Highlight', box: 'Box', whiteout: 'White-out', redact: 'Redaction', draw: 'Drawing', note: 'Note' }[o.type];
   let h = `<b class="pt">${label}</b>`;
   if (o.type === 'text') {
     const b = badChars(o);
-    h += `<select class="dd sm" id="pFam" aria-label="Font"><option value="helv"${o.fam === 'helv' ? ' selected' : ''}>Sans</option><option value="times"${o.fam === 'times' ? ' selected' : ''}>Serif</option><option value="cour"${o.fam === 'cour' ? ' selected' : ''}>Mono</option></select>
+    const uo = useO(o), sl = (v) => !uo && o.fam === v ? ' selected' : '';
+    h += `<select class="dd sm" id="pFam" aria-label="Font">${o.of ? `<option value="orig"${uo ? ' selected' : ''}>Original font</option>` : ''}<option value="helv"${sl('helv')}>Sans</option><option value="times"${sl('times')}>Serif</option><option value="cour"${sl('cour')}>Mono</option></select>
       <span class="name sz"><input id="pSize" type="number" min="4" max="200" step="1" value="${Math.round(o.size)}" aria-label="Size"><em>pt</em></span>
-      <button type="button" class="pbtn${o.bold ? ' on' : ''}" id="pBold" aria-pressed="${o.bold}"><b>B</b></button>${sw(COLS, o.color)}
-      <span class="pwarn" id="pWarn"${b ? '' : ' hidden'}>${b ? 'Not supported: ' + esc(b) : ''}</span>`;
+      ${uo ? '' : `<button type="button" class="pbtn${o.bold ? ' on' : ''}" id="pBold" aria-pressed="${!!o.bold}"><b>B</b></button><button type="button" class="pbtn${o.ital ? ' on' : ''}" id="pItal" aria-pressed="${!!o.ital}"><i>I</i></button>`}${sw(COLS, o.color)}
+      <span class="pwarn" id="pWarn"${b || warnOrig(o) ? '' : ' hidden'}>${esc(b ? 'Not supported: ' + b : warnOrig(o))}</span>`;
   } else if (o.type === 'highlight') h += sw(HCOLS, o.color);
   else if (o.type === 'box') h += sw(COLS, o.color) + `<select class="dd sm" id="pLw" aria-label="Line"><option value="1"${o.lw == 1 ? ' selected' : ''}>Thin</option><option value="2"${o.lw == 2 ? ' selected' : ''}>Medium</option><option value="4"${o.lw == 4 ? ' selected' : ''}>Thick</option></select>`;
   else if (o.type === 'draw') h += sw(COLS, o.color) + `<select class="dd sm" id="pLw" aria-label="Line"><option value="1"${o.lw == 1 ? ' selected' : ''}>Thin</option><option value="2"${o.lw == 2 ? ' selected' : ''}>Medium</option><option value="4"${o.lw == 4 ? ' selected' : ''}>Thick</option></select>`;
@@ -419,6 +496,7 @@ propsEl.addEventListener('click', e => {
   const o = objOf(sel); if (!o) return;
   const c = e.target.closest('.pcol');
   if (c) { commit(); o.color = c.dataset.col; if (o.type === 'box') lastBox = o.color; if (o.type === 'draw') lastDraw.color = o.color; redrawOne(o); props(); }
+  if (e.target.closest('#pItal')) { commit(); o.ital = !o.ital; Object.assign(o, textBox(o)); redrawOne(o); props(); summary(); }
   if (e.target.closest('#pBold')) { commit(); o.bold = !o.bold; Object.assign(o, textBox(o)); redrawOne(o); props(); summary(); }
   if (e.target.closest('#pDel')) remove();
   if (e.target.closest('#pDup')) duplicate();
@@ -427,7 +505,7 @@ propsEl.addEventListener('change', e => {
   const o = objOf(sel); if (!o) return;
   const t = e.target;
   if (t.type === 'color') { commit(); o.color = t.value; redrawOne(o); props(); return; }
-  if (t.id === 'pFam') { commit(); o.fam = t.value; Object.assign(o, textBox(o)); }
+  if (t.id === 'pFam') { commit(); if (t.value === 'orig') o.useOrig = true; else { o.useOrig = false; o.fam = t.value; } Object.assign(o, textBox(o)); }
   if (t.id === 'pSize') { const v = Math.max(4, Math.min(200, +t.value || o.size)); commit(); o.size = v; Object.assign(o, textBox(o)); }
   if (t.id === 'pLw') { commit(); o.lw = +t.value; if (o.type === 'draw') lastDraw.lw = o.lw; }
   redrawOne(o); props(); summary();
@@ -547,7 +625,7 @@ if (rq) {
         anyText = true;
         const hay = t.str.toLowerCase(), nd = q.toLowerCase(); let k = hay.indexOf(nd);
         while (k !== -1) {
-          cx.font = `${t.size}px ${FAM[t.fam].css}`;
+          cx.font = `${t.size}px ${t.ln ? '"' + t.ln + '", ' : ''}${FAM[t.fam].css}`;
           const all = cx.measureText(t.str).width || 1, a = cx.measureText(t.str.slice(0, k)).width, b = cx.measureText(t.str.slice(0, k + nd.length)).width;
           const pad = t.size * .14;
           let x0 = t.x + t.w * a / all - pad, x1 = t.x + t.w * b / all + pad;
@@ -638,7 +716,20 @@ async function build_() {
     for (const o of list) {
       if (o.type === 'redact') continue;
       if (o.type === 'text') {
-        const f = await font(fontKey(o)), c = rgb(o.color);
+        const c = rgb(o.color), of = useO(o) && !missing(o) ? findOrig(out, i, o.of.n, false) : null;
+        if (of && o.text.split('\n').every(l => [...l].every(ch => of.map.has(ch)))) {
+          pg.node.normalize();
+          const fk = findOrig(out, i, o.of.n, false); if (!fk) continue;
+          const a = pv[i].rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+          o.text.split('\n').forEach((line, k) => {
+            if (!line) return;
+            const [x, y] = U(o.x, o.y + o.size * FAM[o.fam].base + k * o.size * LH);
+            pg.pushOperators(PDFLib.pushGraphicsState(), PDFLib.beginText(), PDFLib.setFillingRgbColor(c.red, c.green, c.blue), PDFLib.setFontAndSize(fk.key, o.size),
+              PDFLib.setTextMatrix(ca, sa, -sa, ca, x, y), PDFLib.showText(PDFLib.PDFHexString.of([...line].map(ch => fk.map.get(ch)).join(''))), PDFLib.endText(), PDFLib.popGraphicsState());
+          });
+          continue;
+        }
+        const f = await font(fontKey(o));
         o.text.split('\n').forEach((line, k) => {
           if (!line) return;
           const [x, y] = U(o.x, o.y + o.size * FAM[o.fam].base + k * o.size * LH);
@@ -658,7 +749,7 @@ async function build_() {
         pg.node.addAnnot(out.context.register(a));
       } else {
         const [x, y] = U(o.x, o.y + o.h), opt = { x, y, width: o.w, height: o.h, rotate: rot };
-        if (o.type === 'whiteout') pg.drawRectangle({ ...opt, color: rgb('#ffffff') });
+        if (o.type === 'whiteout') pg.drawRectangle({ ...opt, color: rgb(o.color || '#ffffff') });
         else if (o.type === 'highlight') pg.drawRectangle({ ...opt, color: rgb(o.color), opacity: .45, blendMode: PDFLib.BlendMode.Multiply });
         else pg.drawRectangle({ ...opt, borderColor: rgb(o.color), borderWidth: o.lw });
       }

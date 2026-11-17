@@ -578,3 +578,15 @@ def editor_page(t):
 for t in EDITORS:
     write_tool(t, editor_page(t))
     print('wrote', SLUGS[t['id']] + '/ (editor)')
+
+# Old flat addresses (/edit.html) forward to the keyword address, so saved links and bookmarks keep working.
+OLD = '''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Moved</title>
+<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=%s/">
+<link rel="canonical" href="%s/"></head>
+<body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
+'''
+for tid, slug in SLUGS.items():
+    if tid in ('merge',) or not (ROOT / slug).is_dir(): continue
+    (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
+(ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
