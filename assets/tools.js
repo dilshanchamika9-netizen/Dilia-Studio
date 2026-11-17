@@ -23,7 +23,9 @@ window.DILIA_TOOLS = [
     { id: 'meta', name: 'Edit properties', desc: 'Change title, author and keywords.', ready: 1, icon: 'M4 6h16M4 12h10M4 18h13' },
     { id: 'flatten', name: 'Flatten', desc: 'Make form entries and marks permanent.', ready: 1, icon: 'M4 8l8-4 8 4-8 4zM4 13l8 4 8-4M4 17l8 4 8-4' },
     { id: 'extractimg', name: 'Extract images', desc: 'Save the pictures inside a PDF.', ready: 1, icon: 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M15 8.5h.01' },
-    { id: 'bookmarks', name: 'Add bookmarks', desc: 'Add a clickable outline.', ready: 1, icon: 'M6 3h12v18l-6-4-6 4z' }
+    { id: 'bookmarks', name: 'Add bookmarks', desc: 'Add a clickable outline.', ready: 1, icon: 'M6 3h12v18l-6-4-6 4z' },
+    { id: 'mix', name: 'Alternate and mix', desc: 'Interleave pages from two or more PDFs.', ready: 1, icon: 'M4 5h7v6H4zM13 13h7v6h-7zM13 5h7v6h-7zM4 13h7v6H4z' },
+    { id: 'insert', name: 'Insert or replace pages', desc: 'Put pages from one PDF into another.', ready: 1, icon: 'M4 4h9v16H4zM16 8h4M18 6v4M16 15h4' }
   ]],
   ['Convert', [
     { id: 'img2pdf', name: 'Images to PDF', desc: 'Turn JPG and PNG photos into one PDF.', ready: 1, icon: 'M3 5h12v10H3zM3 12l4-3 4 3M14 13h4l3 3v5h-7z' },

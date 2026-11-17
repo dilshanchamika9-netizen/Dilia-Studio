@@ -64,6 +64,12 @@ OPT_BM = ('<div class="optfield wide"><label class="lbl" for="bmText">One bookma
   '<textarea id="bmText" rows="7" spellcheck="false" placeholder="Introduction | 1&#10;Chapter 1 | 3&#10;-Background | 4&#10;Chapter 2 | 9"></textarea></div>'
   '<div class="optfield wide"><button class="btn ghost sm" type="button" id="bmAuto">Use the first line of every page</button> <button class="btn ghost sm" type="button" id="bmCur">Load existing bookmarks</button></div>'
   '<p class="err" id="err" hidden></p>')
+OPT_MIX = (numf('mN', 'Pages taken at a time', 1, 1, 50) + '<div class="optfield">' + chk('mRev', 'Reverse every file after the first') + '</div>'
+  + '<p class="tip wide">Page 1 of each file in turn, then page 2, and so on. Reverse is for double-sided scans: scan the fronts, then the backs, and the pages interleave in the right order.</p><p class="err" id="err" hidden></p>')
+OPT_INS = ('<div class="optfield wide"><span class="lbl">What to do</span><div class="chips"><label class="chip"><input type="radio" name="ia" value="insert" checked><span>Insert pages</span></label><label class="chip"><input type="radio" name="ia" value="replace"><span>Replace pages</span></label></div></div>'
+  + numf('iAt', 'Insert after page', 1, 0, 9999) + '<div class="optfield grow"><label class="lbl" for="iRep">Pages of the main PDF to replace</label><span class="name"><input id="iRep" type="text" placeholder="3-5" spellcheck="false" autocomplete="off"></span></div>'
+  + '<div class="optfield grow"><label class="lbl" for="iSrc">Pages to take from the second file (empty for all)</label><span class="name"><input id="iSrc" type="text" placeholder="all pages" spellcheck="false" autocomplete="off"></span></div>'
+  + '<p class="err" id="err" hidden></p>')
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -165,6 +171,12 @@ TOOLS = [
  dict(id='bookmarks', name='Add bookmarks to PDF', crumb='Bookmarks', kind='pdf', engine='ptool',
       lead='Add a clickable outline to a PDF so readers can jump to chapters.',
       drop='Drop a PDF here', acts=[], opt=OPT_BM, ext='pdf', defname='Dilia-bookmarked', field='File name', go='Add bookmarks and download'),
+ dict(id='mix', name='Alternate and mix PDFs', crumb='Alternate and mix', kind='multi', engine='mixer', tip='Add two or more PDFs. Drag to set the order.', sort='sortAz', sortl='Sort A to Z',
+      lead='Interleave pages from two or more PDFs: page 1 of each file, then page 2 of each. Also joins front and back scans of a double-sided document.',
+      drop='Drop PDF files here', acts=[], opt=OPT_MIX, ext='pdf', defname='Dilia-mixed', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Mix and download'),
+ dict(id='insert', name='Insert or replace pages', crumb='Insert or replace', kind='multi', engine='mixer', tip='The first file is the main PDF. The second gives the pages.', sort='swap', sortl='Swap order',
+      lead='Put pages from one PDF into another at the spot you choose, or swap some pages of a PDF for pages from a second file.',
+      drop='Drop two PDF files here', acts=[], opt=OPT_INS, ext='pdf', defname='Dilia-inserted', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Save new PDF'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -199,12 +211,15 @@ def page(t):
     img = t['kind'] == 'img'
     isfile = t['kind'] == 'file'
     accept = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif' if img else 'application/pdf,.pdf'
-    multi = ' multiple' if img else ''
+    multi = ' multiple' if img or t['kind'] == 'multi' else ''
     small = 'JPG, PNG, WebP, GIF, BMP and AVIF. Nothing is uploaded.' if img else 'The file is read by your browser and never uploaded.'
     choose = 'choose images' if img else 'choose a file'
     if isfile:
         bar_left = '<b class="fn" id="fname"></b>'
         bar_acts = '<label class="btn ghost sm" for="pick">Change PDF</label>'
+    elif t['kind'] == 'multi':
+        bar_left = f'<p class="tip">{t["tip"]}</p>'
+        bar_acts = (f'<button class="btn ghost sm" type="button" id="{t["sort"]}">{t["sortl"]}</button>') + f'<label class="btn ghost sm" for="pick">{PLUS}Add PDF</label>'
     elif img:
         bar_left = '<p class="tip">Drag images to set the page order.</p>'
         bar_acts = f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
