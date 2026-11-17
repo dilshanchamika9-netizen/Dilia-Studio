@@ -9,7 +9,7 @@ base = (ROOT / 'pdf-reader' / 'index.html').read_text()
 head, rest = base.split('<main', 1); tail = rest.split('</main>', 1)[1]
 def shell(depth):
     up = '../' * depth
-    h = head.replace('../assets/', up + 'assets/').replace('href="../"', f'href="{up}"').replace('href="../#', f'href="{up}#').replace('href="../tools.html"', f'href="{up}tools.html"')
+    h = head.replace('../assets/', up + 'assets/').replace('href="../"', f'href="{up}"').replace('href="../#', f'href="{up}#').replace('href="../tools.html"', f'href="{up}tools.html"').replace('href="../blog/"', f'href="{up}blog/"')
     h = re.sub(r'<link rel="stylesheet" href="[^"]*work\.css">\s*<link rel="stylesheet" href="[^"]*viewer\.css">', f'<link rel="stylesheet" href="{up}assets/blog.css">', h)
     h = h.replace('<body class="work"', '<body class="blog"')
     t = tail.replace('../assets/', up + 'assets/').replace('<script src="' + up + 'assets/viewer.js"></script>', '').replace('<script src="../assets/viewer.js"></script>', '')
