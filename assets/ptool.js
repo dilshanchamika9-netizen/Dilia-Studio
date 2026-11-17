@@ -25,10 +25,11 @@ const fmt = () => document.querySelector('input[name=fmt]:checked').value;
 
 const ws = $('#ws'), grid = $('#grid'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog');
 const rng = $('#rng'), errBox = $('#err'), outName = $('#outName'), ext = $('#ext');
-let doc = null, pages = [], busy = false, lastUrl = null, parts = [];
+let doc = null, pages = [], busy = false, lastUrl = null, parts = [], partNames = [], cpTok = 0, pageTextCache = [];
 const T = Kit.thumbs(idx => Kit.renderThumb(doc.js, idx));
 const base = () => doc ? doc.name.replace(/\.pdf$/i, '') : '';
-const outExt = () => MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fmt() : 'zip') : MODE === 'split' && parts.length !== 1 ? 'zip' : 'pdf';
+const smode = () => { const r = document.querySelector('input[name=sm]:checked'); return r ? r.value : ''; };
+const outExt = () => MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fmt() : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
 
 /* ---------- loading ---------- */
 async function load(list) {
@@ -40,7 +41,7 @@ async function load(list) {
   ws.classList.remove('working');
   if (r.err) { toast(r.err, true); return; }
   if (doc && doc.js) doc.js.destroy();
-  T.clear(); doc = r;
+  T.clear(); doc = r; pageTextCache = [];
   pages = Array.from({ length: doc.count }, (_, i) => ({ i, rot: 0, flag: DEFAULT_ALL }));
   outName.value = base() + CFG.suffix;
   if (rng) rng.value = DEFAULT_ALL ? compress(pages.map(p => p.i)) : '';
@@ -138,9 +139,13 @@ function summary(flagged = [], rotated = [], moved = []) {
       ok = moved.length > 0;
       msg = ok ? 'Pages will be saved in the order shown.' : 'Drag pages to a new position.';
     } else {
-      $('#s2').textContent = parts.length; $('#s3').textContent = size;
+      const sm = smode();
+      $('#s2').textContent = sm === 'half' ? pages.length * 2 : sm === 'size' ? '?' : parts.length; $('#s3').textContent = size;
       ok = parts.length > 0;
-      msg = ok ? (parts.length === 1 ? 'One file will be saved as a PDF.' : `${plural(parts.length, 'file')} will be saved together in one ZIP.`) : 'Choose how to split the PDF.';
+      msg = !ok ? 'Choose how to split the PDF.'
+        : sm === 'half' ? `Each page is cut in two: ${plural(pages.length * 2, 'page')} in one PDF.`
+        : sm === 'size' ? 'The number of files is worked out when you save.'
+        : parts.length === 1 ? 'One file will be saved as a PDF.' : `${plural(parts.length, 'file')} will be saved together in one ZIP.`;
     }
   } else { $('#s2').textContent = 0; $('#s3').textContent = 0; }
   if (ext) ext.textContent = '.' + outExt();
@@ -162,20 +167,69 @@ function flagsFromText() {
 function syncText() { if (rng) { rng.value = compress(pages.filter(p => p.flag).map(p => p.i)); showErr(''); } }
 
 /* ---------- split rules ---------- */
-function computeParts() {
+const slug = t => (t || '').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 60);
+async function pageText(i) {
+  if (pageTextCache[i] === undefined) {
+    const pg = await doc.js.getPage(i + 1), tc = await pg.getTextContent();
+    pageTextCache[i] = tc.items.map(t => t.str).join(' ').toLowerCase();
+  }
+  return pageTextCache[i];
+}
+async function bookmarkStarts() {
+  const out = await doc.js.getOutline();
+  if (!out || !out.length) return null;
+  const starts = [];
+  for (const it of out) {
+    try {
+      let d = it.dest; if (typeof d === 'string') d = await doc.js.getDestination(d);
+      if (!d) continue;
+      const idx = typeof d[0] === 'object' && d[0] !== null ? await doc.js.getPageIndex(d[0]) : d[0];
+      if (Number.isInteger(idx) && idx >= 0 && idx < doc.count) starts.push({ i: idx, title: it.title });
+    } catch (e) { /* bookmark points nowhere: skip it */ }
+  }
+  return starts.length ? starts : null;
+}
+function fromStarts(starts) {                           // [{i,title}] sorted by page -> parts
+  const u = []; for (const s0 of starts) if (!u.length || u[u.length - 1].i !== s0.i) u.push(s0);
+  if (u[0].i > 0) u.unshift({ i: 0, title: 'Start' });
+  u.forEach((s0, k) => {
+    const end = k + 1 < u.length ? u[k + 1].i : doc.count;
+    parts.push(Array.from({ length: end - s0.i }, (_, q) => s0.i + q)); partNames.push(slug(s0.title));
+  });
+}
+async function computeParts() {
   if (MODE !== 'split' || !doc) return;
-  const mode = document.querySelector('input[name=sm]:checked').value, all = pages.map(p => p.i);
-  showErr(''); parts = [];
+  const tok = ++cpTok, mode = smode(), all = pages.map(p => p.i);
+  showErr(''); parts = []; partNames = [];
   if (mode === 'every') parts = all.map(i => [i]);
   else if (mode === 'n') {
     const n = Math.floor(+$('#nIn').value);
     if (!(n >= 1)) showErr('Enter a number of pages, 1 or more.');
     else for (let i = 0; i < all.length; i += n) parts.push(all.slice(i, i + n));
+  } else if (mode === 'oddeven') {
+    parts = [all.filter(i => i % 2 === 0), all.filter(i => i % 2 === 1)].filter(l => l.length);
+    partNames = parts.length === 2 ? ['odd pages', 'even pages'] : ['odd pages'];
+  } else if (mode === 'half') parts = [all];
+  else if (mode === 'size') { if (!(+$('#szIn').value > 0)) showErr('Enter a size in MB, more than 0.'); else parts = [all]; }
+  else if (mode === 'bookmarks') {
+    const st = await bookmarkStarts(); if (tok !== cpTok) return;
+    if (!st) showErr('This PDF has no bookmarks to split by.'); else fromStarts(st.sort((x, y) => x.i - y.i));
+  } else if (mode === 'text') {
+    const q = $('#tIn').value.trim().toLowerCase();
+    if (!q) showErr('Type the text that starts each new file.');
+    else {
+      ws.classList.add('working'); const hits = [];
+      for (let i = 0; i < doc.count; i++) { if ((await pageText(i)).includes(q)) hits.push({ i, title: '' }); if (tok !== cpTok) { ws.classList.remove('working'); return; } }
+      ws.classList.remove('working');
+      if (!hits.length) showErr('No page contains that text. Scanned pages have no text to search: run OCR first.');
+      else { fromStarts(hits); partNames = partNames.map(() => ''); }
+    }
   } else {
     const r = parseRanges(rng.value, doc.count);
     if (r.err) showErr(r.err);
     else parts = r.entries.map(([a, b]) => Array.from({ length: b - a + 1 }, (_, k) => a - 1 + k));
   }
+  if (tok !== cpTok) return;
   document.querySelectorAll('[data-for]').forEach(e => e.classList.toggle('dim', e.dataset.for !== mode));
   clearDone(); paint();
 }
@@ -220,6 +274,8 @@ if (rng) rng.addEventListener('input', () => MODE === 'split' ? (document.queryS
 if (MODE === 'split') {
   document.querySelectorAll('input[name=sm]').forEach(r => r.addEventListener('change', computeParts));
   $('#nIn').addEventListener('input', () => { document.querySelector('input[value=n]').checked = true; computeParts(); });
+  const wire = (id, val_) => $('#' + id).addEventListener(id === 'hdir' ? 'change' : 'input', () => { document.querySelector(`input[value=${val_}]`).checked = true; computeParts(); });
+  wire('szIn', 'size'); wire('tIn', 'text'); wire('hdir', 'half');
 }
 
 
@@ -356,6 +412,44 @@ async function stamp() {
 
 /* ---------- building the result ---------- */
 const tick = () => new Promise(r => setTimeout(r, 0));
+async function halfSplit() {
+  const out = await PDFLib.PDFDocument.create(), dir = $('#hdir').value;
+  for (let n = 0; n < pages.length; n++) {
+    const i = pages[n].i, b = pageBox(i), vertical = dir === 'lr' || (dir === 'auto' && b.vw >= b.vh);
+    for (let k = 0; k < 2; k++) {
+      const [pg] = await out.copyPages(doc.lib, [i]);
+      const [vx0, vy0, vx1, vy1] = vertical ? [k * b.vw / 2, 0, (k + 1) * b.vw / 2, b.vh] : [0, (1 - k) * b.vh / 2, b.vw, (2 - k) * b.vh / 2];
+      const p1 = toUser(b, vx0, vy0), p2 = toUser(b, vx1, vy1);
+      const box = [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1]), Math.abs(p2[0] - p1[0]), Math.abs(p2[1] - p1[1])];
+      pg.setCropBox(...box); pg.setMediaBox(...box); out.addPage(pg);
+    }
+    prog.style.width = Math.round(8 + 84 * (n + 1) / pages.length) + '%'; if (n % 4 === 3) await tick();
+  }
+  out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+  return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: plural(pages.length * 2, 'page') };
+}
+async function sizeSplit() {
+  const limit = +$('#szIn').value * 1048576, N = pages.length, files = [], range = (a, b) => Array.from({ length: b - a + 1 }, (_, q) => pages[a + q].i);
+  let s0 = 0, oversize = 0;
+  const trial = async (a, b) => { const o = await subset(range(a, b)); return await o.save(); };
+  while (s0 < N) {
+    let best = await trial(s0, s0), e = s0;
+    if (best.length > limit) oversize++;
+    else {
+      let step = 1, lo = s0, hiFail = N;                   // grow, then binary search the last page that still fits
+      while (lo + step < N) { const t = await trial(s0, lo + step); if (t.length <= limit) { best = t; lo += step; step *= 2; } else { hiFail = lo + step; break; } }
+      let l = lo, h = Math.min(hiFail, N);
+      while (h - l > 1) { const m = (l + h) >> 1, t = await trial(s0, m); if (t.length <= limit) { best = t; l = m; } else h = m; }
+      e = l;
+    }
+    files.push({ pages: e - s0 + 1, data: best }); s0 = e + 1;
+    prog.style.width = Math.round(8 + 84 * s0 / N) + '%'; await tick();
+  }
+  const pad = String(files.length).length, named = files.map((f, k) => ({ name: `${base()}-part-${String(k + 1).padStart(pad, '0')}.pdf`, data: f.data }));
+  const extra = oversize ? ` ${plural(oversize, 'page')} alone ${oversize === 1 ? 'is' : 'are'} bigger than the limit.` : '';
+  if (named.length === 1) return { blob: new Blob([named[0].data], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: 'Already within the limit.' + extra };
+  return { blob: zip(named), name: cleanName(outName.value, CFG.fallback, 'zip'), info: `${plural(named.length, 'PDF')} in one ZIP.` + extra };
+}
 async function subset(idxs) {
   const out = await PDFLib.PDFDocument.create();
   const copied = await out.copyPages(doc.lib, idxs);
@@ -398,10 +492,13 @@ async function build() {
     return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: `${plural(pages.length, 'page')}` };
   }
   if (MODE === 'split') {
+    const sm = smode();
+    if (sm === 'half') return halfSplit();
+    if (sm === 'size') return sizeSplit();
     const files = [], pad = String(parts.length).length;
     for (let k = 0; k < parts.length; k++) {
-      const out = await subset(parts[k]);
-      files.push({ name: `${base()}-part-${String(k + 1).padStart(pad, '0')}.pdf`, data: await out.save() });
+      const out = await subset(parts[k]), nm = partNames[k], no = String(k + 1).padStart(pad, '0');
+      files.push({ name: sm === 'oddeven' ? `${base()}-${nm.replace(' ', '-')}.pdf` : nm ? `${base()}-${no}-${nm}.pdf` : `${base()}-part-${no}.pdf`, data: await out.save() });
       prog.style.width = Math.round(8 + 84 * (k + 1) / parts.length) + '%'; await tick();
     }
     if (files.length === 1) return { blob: new Blob([files[0].data], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: plural(parts[0].length, 'page') };

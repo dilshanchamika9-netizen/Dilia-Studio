@@ -53,6 +53,11 @@
   <label class="radio"><input type="radio" name="sm" value="every" checked><b>Every page</b><small>One PDF per page.</small></label>
   <label class="radio" data-for="n"><input type="radio" name="sm" value="n"><b>Every N pages</b><small>Equal chunks. The last one may be shorter.</small><span class="name"><input id="nIn" type="number" min="1" step="1" value="2" aria-label="Pages per file"></span></label>
   <label class="radio" data-for="ranges"><input type="radio" name="sm" value="ranges"><b>Custom ranges</b><small>Each range becomes its own file, e.g. 1-3, 4-6, 7.</small><span class="name"><input id="rng" type="text" placeholder="1-3, 4-6, 7-" spellcheck="false" autocomplete="off" aria-label="Page ranges"></span></label>
+  <label class="radio"><input type="radio" name="sm" value="oddeven"><b>Odd and even pages</b><small>Two files: pages 1, 3, 5... and 2, 4, 6...</small></label>
+  <label class="radio" data-for="size"><input type="radio" name="sm" value="size"><b>By file size</b><small>Each file stays under this size.</small><span class="name"><input id="szIn" type="number" min="0.1" step="0.1" value="5" aria-label="Maximum size in MB"></span></label>
+  <label class="radio" data-for="bookmarks"><input type="radio" name="sm" value="bookmarks"><b>By bookmarks</b><small>A new file at each top-level bookmark.</small></label>
+  <label class="radio" data-for="text"><input type="radio" name="sm" value="text"><b>By text</b><small>A new file at every page that contains this text.</small><span class="name"><input id="tIn" type="text" placeholder="e.g. Invoice No." spellcheck="false" autocomplete="off" aria-label="Text that starts a new file"></span></label>
+  <label class="radio" data-for="half"><input type="radio" name="sm" value="half"><b>Cut each page in half</b><small>For two-page scans. One PDF with twice the pages.</small><span class="name"><select id="hdir" aria-label="Direction"><option value="auto">Automatic</option><option value="lr">Left and right</option><option value="tb">Top and bottom</option></select></span></label>
 </div><p class="err" id="err" hidden></p></div>
       <div class="grid" id="grid"></div>
     </section>

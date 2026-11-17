@@ -234,3 +234,4 @@ body.work{background:var(--mist)}
 .hint{margin:10px 0 0;font-size:13.5px;color:var(--muted);max-width:46em}
 .optbar .radios{margin-top:0}
 .bar-tools .acts{margin-left:auto}
+.radio .name select{width:100%;border:0;background:transparent;padding:9px 12px;font:inherit;font-size:15px;color:var(--ink);outline:0;appearance:none;-webkit-appearance:none;cursor:pointer}
