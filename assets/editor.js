@@ -74,11 +74,25 @@ function findOrig(lib, i, base, cache) {              // the PDF's own font obje
       const nm = bf.decodeText(); if (nm !== base && strip(nm) !== strip(base)) continue;
       const st = d.get(PN.of('Subtype')); if (st && String(st.decodeText()) === 'Type3') continue;
       const tu = d.get(PN.of('ToUnicode')), ts = tu && lib.context.lookup(tu);
-      if (!ts) {                                       // no text map: a plain WinAnsi font (often not embedded) maps characters to codes directly
-        const en = d.get(PN.of('Encoding')), ens = en && en instanceof PDFLib.PDFName ? en.decodeText() : '';
-        if (ens !== 'WinAnsiEncoding' || !(st && /^(Type1|TrueType)$/.test(String(st.decodeText())))) continue;
-        const wa = lib.context.lookup(d.get(PN.of('Widths'))), fc = d.get(PN.of('FirstChar')), first = fc && fc.asNumber ? fc.asNumber() : 0, map = new Map(), dec = new TextDecoder('windows-1252');
-        for (let c = 32; c < 256; c++) { const wv = wa && wa.get && wa.get(c - first); const wn = wv && wv.asNumber ? wv.asNumber() : 0; if (!(wn > 0)) continue; const ch = dec.decode(new Uint8Array([c])); if (ch.length === 1 && !map.has(ch)) map.set(ch, hexOf(c, 1)); }
+      if (!ts) {                                       // no text map: a simple font whose codes follow a known encoding (often not embedded)
+        if (!(st && /^(Type1|TrueType|MMType1)$/.test(String(st.decodeText())))) continue;
+        const en = d.get(PN.of('Encoding')), eo = en && lib.context.lookup(en), skip = new Set(); let ens = '';
+        if (eo instanceof PN) ens = eo.decodeText();
+        else if (eo instanceof PDct) {
+          const be = eo.get(PN.of('BaseEncoding')); ens = be ? be.decodeText() : '';
+          const df = eo.get(PN.of('Differences')), da = df && lib.context.lookup(df);
+          if (da && da.size) { let c = 0; for (let q = 0; q < da.size(); q++) { const e = lib.context.lookup(da.get(q)); if (e && e.asNumber) c = e.asNumber(); else { skip.add(c); c++; } } }
+        }
+        const enc = ens === 'WinAnsiEncoding' ? 'windows-1252' : ens === 'MacRomanEncoding' ? 'macintosh' : (ens === '' || ens === 'StandardEncoding') && !eo ? 'ascii' : '';
+        if (!enc) continue;
+        const wa = lib.context.lookup(d.get(PN.of('Widths'))), fc = d.get(PN.of('FirstChar')), first = fc && fc.asNumber ? fc.asNumber() : 0, map = new Map(), dec = new TextDecoder(enc === 'ascii' ? 'windows-1252' : enc), top = enc === 'ascii' ? 127 : 255;
+        const std14 = /^(Helvetica|Times|Courier|Arial|Symbol|ZapfDingbats)/.test(strip(nm));
+        for (let c = 32; c <= top; c++) {
+          if (skip.has(c)) continue;
+          const wv = wa && wa.get && wa.get(c - first), wn = wv && wv.asNumber ? wv.asNumber() : 0;
+          if (!(wn > 0) && !(std14 && !wa)) continue;
+          const ch = dec.decode(new Uint8Array([c])); if (ch.length === 1 && !map.has(ch)) map.set(ch, hexOf(c, 1));
+        }
         if (map.size < 20) continue;
         const fdsc = d.get(PN.of('FontDescriptor')), fdd = fdsc && lib.context.lookup(fdsc), emb = fdd && fdd.get && (fdd.get(PN.of('FontFile')) || fdd.get(PN.of('FontFile2')) || fdd.get(PN.of('FontFile3')));
         res = { key: k, map, sub: !emb }; break;

@@ -9,12 +9,12 @@
     watermark: 'stamp draft confidential', number: 'page numbers', crop: 'trim margins', word: 'docx office convert', text: 'pdf to text txt'
   };
   const isDeep = location.pathname.split('/').filter(Boolean).length > 1;
-  const all = () => (window.DILIA_TOOLS || []).flatMap(([g, list]) => list.map(t => ({ ...t, group: g, line: 'Dilia Studio', hay: (t.name + ' ' + t.desc + ' ' + g + ' ' + (KEYS[t.id] || '')).toLowerCase() })));
+  const all = () => (window.DILIA_TOOLS || []).flatMap(([g, list]) => list.map(t => ({ ...t, group: g, line: g === 'Pixel' ? 'Dilia Pixel' : 'Dilia Studio', hay: (t.name + ' ' + t.desc + ' ' + g + ' ' + (KEYS[t.id] || '')).toLowerCase() })));
   const score = (t, q) => {
     const w = q.toLowerCase().split(/\s+/).filter(Boolean); if (!w.length) return 1;
     let s = 0; const n = t.name.toLowerCase();
     for (const x of w) { if (!t.hay.includes(x)) return 0; s += n.startsWith(x) ? 6 : n.includes(x) ? 4 : 1; }
-    return s + (t.ready ? 0.5 : 0);
+    return s + (t.ready ? 0.5 : 0) - n.length * 0.001;
   };
   const POP = ['merge', 'compress', 'edit', 'sign', 'split', 'pdf2img', 'img2pdf', 'ocr'];
   const search = q => {
