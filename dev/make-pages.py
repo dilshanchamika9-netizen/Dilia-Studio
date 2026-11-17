@@ -325,6 +325,7 @@ def page(t):
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/palette.css">
 <link rel="stylesheet" href="assets/work.css">
 </head>
 <body class="work"{body_attr}>
@@ -337,6 +338,7 @@ def page(t):
       <a href="tools.html">Tools</a>
       <a class="opt" href="./#privacy">Privacy</a>
     </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
   </div>
 </header>
 
@@ -403,6 +405,8 @@ def page(t):
 <script src="assets/vendor/pdf.min.js"></script>
 <script src="assets/vendor/Sortable.min.js"></script>
 {qp}
+<script src="assets/tools.js"></script>
+<script src="assets/palette.js"></script>
 <script src="assets/common.js"></script>
 <script src="assets/kit.js"></script>
 <script src="assets/{t['engine']}.js"></script>
@@ -448,6 +452,7 @@ def editor_page(t):
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/palette.css">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/editor.css">
 </head>
@@ -461,6 +466,7 @@ def editor_page(t):
       <a href="tools.html">Tools</a>
       <a class="opt" href="./#privacy">Privacy</a>
     </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
   </div>
 </header>
 
@@ -546,6 +552,8 @@ def editor_page(t):
 
 <script src="assets/vendor/pdf-lib.min.js"></script>
 <script src="assets/vendor/pdf.min.js"></script>
+<script src="assets/tools.js"></script>
+<script src="assets/palette.js"></script>
 <script src="assets/common.js"></script>
 <script src="assets/kit.js"></script>
 <script src="assets/editor.js"></script>
