@@ -107,7 +107,7 @@ function textBox(o) {                  // width/height of a text object in point
   let w = 0;
   if (useO(o) && !missing(o)) { mcx.font = `400 ${o.size}px '${o.of.l}'`; for (const l of lines) w = Math.max(w, mcx.measureText(l).width); return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH }; }
   for (const l of lines) { try { w = Math.max(w, f ? f.widthOfTextAtSize(l, o.size) : l.length * o.size * .55); } catch (e) { w = Math.max(w, l.length * o.size * .6); } }
-  return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH };
+  return { w: Math.max(w * (o.hs || 1), o.size * .6), h: lines.length * o.size * LH };
 }
 const warnOrig = o => { const m = useO(o) && missing(o); return m ? `Not in the original font: ${m}. Drawn in ${{ helv: 'Sans', times: 'Serif', cour: 'Mono' }[o.fam]} instead.` : ''; };
 function badChars(o) {
@@ -210,7 +210,7 @@ function objHTML(o) {
   const sel_ = o.id === sel ? ' sel' : '', handle = o.id === sel && o.type !== 'text' && o.type !== 'note' ? '<i class="rh" data-h="1"></i>' : '';
   if (o.type === 'text') {
     const bad = badChars(o);
-    return `<div class="obj otext${sel_}${bad ? ' bad' : ''}" data-id="${o.id}" style="${st};font:${cssFont(o, o.size * S)};color:${o.color}"><div class="tx" spellcheck="false">${esc(o.text)}</div></div>`;
+    return `<div class="obj otext${sel_}${bad ? ' bad' : ''}" data-id="${o.id}" style="${st};font:${cssFont(o, o.size * S)};color:${o.color}"><div class="tx" spellcheck="false"${o.hs && !useO(o) ? ` style="transform:scaleX(${o.hs});transform-origin:0 0;width:${100 / o.hs}%"` : ''}>${esc(o.text)}</div></div>`;
   }
   if (o.type === 'image' || o.type === 'sign') return `<div class="obj oimg${sel_}" data-id="${o.id}" style="${st}"><img src="${imgs.get(o.img).url}" alt="" draggable="false">${handle}</div>`;
   if (o.type === 'draw') {
@@ -309,6 +309,7 @@ function editExisting(p, k) {
   objs.push({ id: 'o' + (++seq), p, type: 'whiteout', x: t.x - pad, y: t.base - t.size * .92, w: t.w + pad * 2, h: t.size * 1.2, color: cl.bg });
   const o = { id: 'o' + (++seq), p, type: 'text', text: t.str, size: Math.round(t.size * 10) / 10, fam: t.fam, bold: t.bold, ital: t.ital, color: cl.fg, x: t.x, y: t.base - t.size * FAM[t.fam].base };
   if (t.fn && t.ln && findOrig(doc.lib, p, t.fn, true)) { o.of = { n: t.fn, l: t.ln }; o.useOrig = true; }
+  { const f = metric[fontKey(o)]; try { const w0 = f.widthOfTextAtSize(t.str, o.size); const r = t.w / w0; if (w0 > 0 && r > .6 && r < 1.15 && Math.abs(1 - r) > .02) o.hs = Math.round(r * 1000) / 1000; } catch (e) { /* no fit */ } }
   Object.assign(o, textBox(o)); objs.push(o);
   sel = o.id; drawObjs(); drawTextHits(); startEdit(o.id); props(); summary();
 }
@@ -505,7 +506,7 @@ propsEl.addEventListener('change', e => {
   const o = objOf(sel); if (!o) return;
   const t = e.target;
   if (t.type === 'color') { commit(); o.color = t.value; redrawOne(o); props(); return; }
-  if (t.id === 'pFam') { commit(); if (t.value === 'orig') o.useOrig = true; else { o.useOrig = false; o.fam = t.value; } Object.assign(o, textBox(o)); }
+  if (t.id === 'pFam') { commit(); if (t.value === 'orig') o.useOrig = true; else { o.useOrig = false; o.fam = t.value; o.hs = 1; } Object.assign(o, textBox(o)); }
   if (t.id === 'pSize') { const v = Math.max(4, Math.min(200, +t.value || o.size)); commit(); o.size = v; Object.assign(o, textBox(o)); }
   if (t.id === 'pLw') { commit(); o.lw = +t.value; if (o.type === 'draw') lastDraw.lw = o.lw; }
   redrawOne(o); props(); summary();
@@ -730,6 +731,16 @@ async function build_() {
           continue;
         }
         const f = await font(fontKey(o));
+        if (o.hs && o.hs !== 1) {
+          pg.setFont(f); const fk = pg.fontKey, a = pv[i].rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+          o.text.split('\n').forEach((line, k) => {
+            if (!line) return;
+            const [x, y] = U(o.x, o.y + o.size * FAM[o.fam].base + k * o.size * LH);
+            pg.pushOperators(PDFLib.pushGraphicsState(), PDFLib.beginText(), PDFLib.setFillingRgbColor(c.red, c.green, c.blue), PDFLib.setFontAndSize(fk, o.size), PDFLib.setCharacterSqueeze(o.hs * 100),
+              PDFLib.setTextMatrix(ca, sa, -sa, ca, x, y), PDFLib.showText(f.encodeText(line)), PDFLib.endText(), PDFLib.popGraphicsState());
+          });
+          continue;
+        }
         o.text.split('\n').forEach((line, k) => {
           if (!line) return;
           const [x, y] = U(o.x, o.y + o.size * FAM[o.fam].base + k * o.size * LH);
