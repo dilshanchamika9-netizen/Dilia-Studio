@@ -103,6 +103,10 @@ OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
 
+OPT_TABLE = ('<div class="optfield"><span class="lbl">Save as</span><div class="chips"><label class="chip"><input type="radio" name="tf" id="tfXlsx" value="xlsx" checked><span>Excel (.xlsx)</span></label><label class="chip"><input type="radio" name="tf" id="tfCsv" value="csv"><span>CSV</span></label></div></div>') + rng('Pages', '1-3, 7, 10-')
+
+OPT_HTML = dd('pgSize', 'Page size', [('a4', 'A4'), ('letter', 'US Letter')])
+
 OPT_PROTECT = ('<div class="optfield grow"><label class="lbl" for="pw1">Password to open the file</label><span class="name"><input id="pw1" type="password" autocomplete="new-password" spellcheck="false"></span></div>'
   '<div class="optfield grow"><label class="lbl" for="pw2">Type it again</label><span class="name"><input id="pw2" type="password" autocomplete="new-password" spellcheck="false"></span></div>'
   '<div class="optfield wide"><span class="lbl">Allow people who open it to</span><div class="checks">' + chk('aPrint','Print',True) + chk('aCopy','Copy text',True) + chk('aEdit','Change the file',True) + '</div>'
@@ -146,6 +150,7 @@ OPT_IMGOUT = '''<div class="optfield"><span class="lbl">Format</span>
 <div class="optfield"><label class="lbl" for="dpi">Quality</label><select class="dd" id="dpi"><option value="100">Light, 100 DPI</option><option value="150" selected>Standard, 150 DPI</option><option value="200">High, 200 DPI</option><option value="300">Print, 300 DPI</option></select></div>
 ''' + rng('Pages', '1-3, 7, 10-')
 
+DUMMY = dict(id='html2pdf', name='x', crumb='x', kind='file', engine='viewer', lead='', drop='', acts=[], opt='', ext='pdf', defname='', field='', go='')
 TOOLS = [
  dict(id='split', name='Split PDF', crumb='Split', kind='pdf', engine='ptool',
       lead='Cut one PDF into several. Split every page, every few pages, or by ranges you type. Colours show which file each page lands in.',
@@ -264,6 +269,15 @@ TOOLS = [
       drop='Drop a PDF here', acts=[btn('all', 'All'), btn('odd', 'Odd'), btn('even', 'Even'), btn('none', 'None')],
       opt=OPT_TEXT, ext='txt', defname='Dilia-text', field='File name', s1='Pages in', l2='Selected', l3='Pages out', go='Save as text'),
 
+ dict(id='table', name='PDF to Excel', crumb='PDF to Excel', kind='pdf', engine='ptool',
+      lead='Pull tables out of a PDF into an Excel or CSV file. This is best effort: it rebuilds columns from where the text sits, so check the result.',
+      drop='Drop a PDF here', acts=[btn('all', 'All'), btn('odd', 'Odd'), btn('even', 'Even'), btn('none', 'None')],
+      opt=OPT_TABLE, ext='xlsx', defname='Dilia-tables', field='File name', s1='Pages in', l2='Selected', l3='Format', go='Save tables'),
+
+ dict(id='html2pdf', name='HTML to PDF', crumb='HTML to PDF', kind='file', engine='html2pdf', accept='text/html,.html,.htm,.xhtml',
+      lead='Turn a saved web page into a PDF. Low fidelity: you get the text, headings, lists and tables, but not the pictures, colours or page design.',
+      drop='Drop an HTML file here', acts=[], opt=OPT_HTML, ext='pdf', defname='Dilia-html', field='File name', s1='File size', l2='Page size', l3='-', go='Create PDF'),
+
  dict(id='protect', name='Password protect', crumb='Password protect', kind='file', engine='filetool', qpdf=1,
       lead='Lock a PDF with a password. It is encrypted on this device with AES-256.',
       drop='Drop a PDF here', acts=[], opt=OPT_PROTECT, ext='pdf', defname='Dilia-protected', field='File name',
@@ -289,13 +303,13 @@ TOOLS = [
 def page(t):
     img = t['kind'] == 'img'
     isfile = t['kind'] == 'file'
-    accept = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,image/tiff,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.tif,.tiff' if img else 'application/pdf,.pdf'
+    accept = t.get('accept') or 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,image/tiff,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.tif,.tiff' if img else 'application/pdf,.pdf'
     multi = ' multiple' if img or t['kind'] == 'multi' else ''
     small = 'JPG, PNG, WebP, GIF, BMP, TIFF and AVIF. Nothing is uploaded.' if img else 'The file is read by your browser and never uploaded.'
     choose = 'choose images' if img else 'choose a file'
     if isfile:
         bar_left = '<b class="fn" id="fname"></b>'
-        bar_acts = '<label class="btn ghost sm" for="pick">Change PDF</label>'
+        bar_acts = f'<label class="btn ghost sm" for="pick">Change {"file" if t.get("accept") else "PDF"}</label>'
     elif t['kind'] == 'multi':
         bar_left = f'<p class="tip">{t["tip"]}</p>'
         bar_acts = (f'<button class="btn ghost sm" type="button" id="{t["sort"]}">{t["sortl"]}</button>') + f'<label class="btn ghost sm" for="pick">{PLUS}Add PDF</label>'
@@ -305,7 +319,7 @@ def page(t):
         bar_acts = cam + f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
         tips = {'split': 'Pages are coloured by the file they go into.', 'delete': 'Click a page to mark it for deletion.', 'extract': 'Click a page to keep it.',
-                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'cleaner': 'Chosen items are removed when you save.', 'makeform': 'Pick a field type, then click a page.', 'grayscale': 'Pages are converted when you save.', 'deskew': 'Pages are measured when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
+                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'cleaner': 'Chosen items are removed when you save.', 'makeform': 'Pick a field type, then click a page.', 'grayscale': 'Pages are converted when you save.', 'deskew': 'Pages are measured when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.', 'table': 'Click a page to include or skip it.'}[t['id']]
         bar_left = f'<b class="fn" id="fname"></b><p class="tip">{tips}</p>'
         bar_acts = ''.join(t['acts']) + f'<label class="btn ghost sm" for="pick">Change PDF</label>'
     filebox = '<div class="filebox" id="fbox"><div class="fthumb" id="fthumb"><span>PDF</span></div><div class="finfo"><b id="fn2"></b><span id="fmeta"></span><p id="fstate"></p></div></div>' if isfile else ''
@@ -374,7 +388,7 @@ def page(t):
 
     <aside class="side" aria-label="Settings">
       <div class="side-in">
-        <h2>{'Your text file' if t['id']=='text' else 'Your new PDF' if t['id'] not in ('split','pdf2img') else 'Your new files'}</h2>
+        <h2>{'Your text file' if t['id']=='text' else 'Your spreadsheet' if t['id']=='table' else 'Your new PDF' if t['id'] not in ('split','pdf2img') else 'Your new files'}</h2>
         <dl class="sum">
           <div><dt id="l1">{t.get('s1','Pages in')}</dt><dd id="s1">0</dd></div>
           <div><dt id="l2">{t.get('l2','Pages')}</dt><dd id="s2">0</dd></div>
@@ -590,3 +604,43 @@ for tid, slug in SLUGS.items():
     if tid in ('merge',) or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
+
+
+# ---------------- PDF reader: its own layout, same header and footer as the other tools ----------------
+def reader_page():
+    t = dict(id='html2pdf', name='PDF reader', crumb='PDF reader', kind='file', engine='viewer', lead='', drop='', acts=[], opt='', ext='pdf', defname='', field='', go='')
+    base = page(dict(DUMMY, name='PDF reader', crumb='PDF reader'))
+    head, rest = base.split('<main', 1)
+    tail = rest.split('</main>', 1)[1]
+    head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/viewer.css">')
+    head = head.replace('PDF reader - Free Online | Dilia Studio', 'PDF reader - Free Online | Dilia Studio')
+    tail = tail.replace('<script src="assets/html2pdf.js"></script>', '<script src="assets/viewer.js"></script>')
+    main = '''<main class="ws-page">
+  <div class="ws-head wrap"><div>
+    <p class="crumb"><a href="tools.html">Tools</a><span>/</span>PDF reader</p>
+    <h1>PDF reader</h1>
+    <p class="lead">Open a PDF and read it here. Scroll, zoom, jump to a page and search the text. Nothing is changed or uploaded.</p>
+  </div></div>
+  <div class="ws vr wrap" id="ws" data-state="empty">
+    <section class="board" aria-label="PDF reader">
+      <label class="dropzone" for="pick" id="dropzone">
+        <span class="dz-art" aria-hidden="true"><span class="dz-page p1"></span><span class="dz-page p2"></span><span class="dz-page p3">''' + UP + '''</span></span>
+        <b>Drop a PDF here</b><span>or <u>choose a file</u> from your device</span><small>The file is read by your browser and never uploaded.</small>
+      </label>
+      <input id="pick" class="vh" type="file" accept="application/pdf,.pdf">
+      <div class="vbar" role="toolbar" aria-label="Reader controls">
+        <b class="vn" id="vname"></b>
+        <span class="g"><button class="btn ghost sm" type="button" id="vprev" aria-label="Previous page">&#8249;</button><input id="vpg" type="number" min="1" value="1" aria-label="Page"><span id="vof"></span><button class="btn ghost sm" type="button" id="vnext" aria-label="Next page">&#8250;</button></span>
+        <span class="g"><button class="btn ghost sm" type="button" id="vout" aria-label="Zoom out">&minus;</button><span class="zl" id="vzoom">100%</span><button class="btn ghost sm" type="button" id="vin" aria-label="Zoom in">+</button><button class="btn ghost sm" type="button" id="vfit">Fit width</button></span>
+        <span class="g"><input id="vq" type="search" placeholder="Search the text" aria-label="Search the text"><button class="btn ghost sm" type="button" id="vqp" aria-label="Previous match">&uarr;</button><button class="btn ghost sm" type="button" id="vqn" aria-label="Next match">&darr;</button><span class="res" id="vres" aria-live="polite"></span></span>
+        <span class="sp"></span>
+        <label class="btn ghost sm" for="pick">Change PDF</label><button class="btn ghost sm" type="button" id="vreset">Close</button>
+      </div>
+      <div id="vpages"></div>
+    </section>
+  </div>
+</main>'''
+    return head + main + tail
+d = ROOT / SLUGS['viewer']; d.mkdir(exist_ok=True)
+(d / 'index.html').write_text(up(reader_page()))
+print('wrote', SLUGS['viewer'] + '/')

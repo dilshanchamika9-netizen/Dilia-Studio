@@ -31,11 +31,12 @@ const CFG = {
   makeform: { suffix: '', fallback: 'Dilia-form', l2: 'Fields', l3: 'Size in', verb: 'Create form and download' },
   crop:    { suffix: '', fallback: 'Dilia-cropped', l2: 'Cropped', l3: 'Size in', verb: 'Crop and download' },
   text:    { suffix: '', fallback: 'Dilia-text', l2: 'Selected', l3: 'Pages out', verb: 'Save as text' },
+  table:   { suffix: '', fallback: 'Dilia-tables', l2: 'Selected', l3: 'Format', verb: 'Save tables' },
   pdf2img: { suffix: '',    fallback: 'Dilia-images',    l2: 'Selected',  l3: 'Images out', verb: 'Save as images' }
 }[MODE];
-const TOGGLE = ['delete', 'extract', 'pdf2img', 'text'].includes(MODE);
-const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text';
-const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text';
+const TOGGLE = ['delete', 'extract', 'pdf2img', 'text', 'table'].includes(MODE);
+const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text' || MODE === 'table';
+const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text' || MODE === 'table';
 const FORM = MODE === 'makeform';
 const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop', 'makeform'].includes(MODE);
 const WHOLE = ['makeform', 'flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks', 'resize', 'noannot', 'booklet', 'poster', 'cleaner', 'grayscale', 'deskew'].includes(MODE);
@@ -51,7 +52,7 @@ const T = Kit.thumbs(idx => Kit.renderThumb(doc.js, idx));
 const base = () => doc ? doc.name.replace(/\.pdf$/i, '') : '';
 const smode = () => { const r = document.querySelector('input[name=sm]:checked'); return r ? r.value : ''; };
 const fx = t => t === 'tiff' ? 'tif' : t;
-const outExt = () => MODE === 'extractimg' ? 'zip' : MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fx(fmt()) : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
+const outExt = () => MODE === 'extractimg' ? 'zip' : MODE === 'text' ? 'txt' : MODE === 'table' ? ($('#tfCsv') && $('#tfCsv').checked ? 'csv' : 'xlsx') : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fx(fmt()) : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
 
 /* ---------- loading ---------- */
 async function load(list) {
@@ -152,6 +153,10 @@ function summary(flagged = [], rotated = [], moved = []) {
       $('#s2').textContent = flagged.length; $('#s3').textContent = flagged.length;
       ok = flagged.length > 0;
       msg = ok ? `Text from ${plural(flagged.length, 'page')} goes into one .txt file.` : 'Click the pages you want text from.';
+    } else if (MODE === 'table') {
+      $('#s2').textContent = flagged.length; $('#s3').textContent = outExt().toUpperCase();
+      ok = flagged.length > 0;
+      msg = ok ? `Best effort: tables from ${plural(flagged.length, 'page')} become rows and columns. Check the result.` : 'Click the pages you want tables from.';
     } else if (MODE === 'pdf2img') {
       $('#s2').textContent = flagged.length; $('#s3').textContent = flagged.length;
       ok = flagged.length > 0;
@@ -458,6 +463,62 @@ document.querySelectorAll('.optbar input, .optbar select, .optbar textarea').for
 });
 if (OVERLAY) addEventListener('resize', () => doc && overlays());
 
+/* ---------- tables: rebuild rows and columns from where the text sits (best effort) ---------- */
+function pageGrid(tc) {
+  const its = tc.items.filter(i => i.str && i.str.trim()).map(i => ({ s: i.str, x: i.transform[4], y: i.transform[5], w: i.width, h: Math.abs(i.transform[3]) || 8 }));
+  its.sort((a, b) => b.y - a.y || a.x - b.x);
+  const rows = [];
+  for (const it of its) { const r = rows.find(r => Math.abs(r.y - it.y) <= Math.max(2, it.h * .35)); if (r) r.items.push(it); else rows.push({ y: it.y, items: [it] }); }
+  rows.sort((a, b) => b.y - a.y);
+  for (const r of rows) {                                    // words close together belong to one cell
+    r.items.sort((a, b) => a.x - b.x); r.cells = [];
+    for (const it of r.items) {
+      const c = r.cells[r.cells.length - 1];
+      if (c && it.x - c.x1 < Math.max(it.h * .6, 3)) { c.s += (it.x - c.x1 > it.h * .12 ? ' ' : '') + it.s; c.x1 = it.x + it.w; }
+      else r.cells.push({ s: it.s, x0: it.x, x1: it.x + it.w });
+    }
+  }
+  const spans = [];                                          // columns come from rows that have 2+ cells
+  for (const r of rows) if (r.cells.length > 1) for (const c of r.cells) spans.push([c.x0, c.x1]);
+  spans.sort((a, b) => a[0] - b[0]);
+  const cols = [];
+  for (const sp of spans) { const l = cols[cols.length - 1]; if (l && sp[0] <= l[1] + 1) l[1] = Math.max(l[1], sp[1]); else cols.push([sp[0], sp[1]]); }
+  const colOf = c => { const m = (c.x0 + c.x1) / 2; let k = cols.findIndex(q => m >= q[0] - 1 && m <= q[1] + 1); if (k < 0) { k = 0; for (let j = 0; j < cols.length; j++) if (cols[j][0] <= c.x0 + 1) k = j; } return Math.max(0, k); };
+  return rows.map(r => { const out = []; for (const c of r.cells) { const k = cols.length ? colOf(c) : 0; out[k] = out[k] ? out[k] + ' ' + c.s : c.s; } return Array.from(out, v => v || ''); });
+}
+const xmlEsc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+const colName = n => { let s = ''; for (n++; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + (n - 1) % 26) + s; return s; };
+const asNum = v => { const t = v.replace(/,/g, '').trim(); return /^-?(0|[1-9]\d{0,14})(\.\d+)?$/.test(t) && /^-?[\d,]+(\.\d+)?$/.test(v.trim()) ? t : null; };
+function makeXlsx(sheets) {
+  const enc = t => new TextEncoder().encode(t), files = [];
+  const head = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  files.push({ name: '[Content_Types].xml', data: enc(head + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' + sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') + '</Types>') });
+  files.push({ name: '_rels/.rels', data: enc(head + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>') });
+  files.push({ name: 'xl/workbook.xml', data: enc(head + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' + sheets.map((s, i) => `<sheet name="${xmlEsc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets></workbook>') });
+  files.push({ name: 'xl/_rels/workbook.xml.rels', data: enc(head + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') + '</Relationships>') });
+  sheets.forEach((s, i) => {
+    const rows = s.rows.map((r, y) => `<row r="${y + 1}">` + r.map((v, x) => { if (!v) return ''; const n = asNum(v), ref = colName(x) + (y + 1); return n !== null ? `<c r="${ref}"><v>${n}</v></c>` : `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`; }).join('') + '</row>').join('');
+    files.push({ name: `xl/worksheets/sheet${i + 1}.xml`, data: enc(head + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rows}</sheetData></worksheet>`) });
+  });
+  return zip(files);
+}
+async function toTable() {
+  if (!doc.js) throw new Error('the preview engine could not open this file');
+  const sel = pages.filter(p => p.flag).map(p => p.i), csv = $('#tfCsv') && $('#tfCsv').checked, sheets = [];
+  for (let k = 0; k < sel.length; k++) {
+    const rows = pageGrid(await (await doc.js.getPage(sel[k] + 1)).getTextContent());
+    if (rows.length) sheets.push({ name: 'Page ' + (sel[k] + 1), rows });
+    prog.style.width = Math.round(8 + 84 * (k + 1) / sel.length) + '%'; await tick();
+  }
+  if (!sheets.length) throw new Error('no text found. This looks like a scanned PDF. Text recognition (OCR) is a later tool');
+  const n = sheets.reduce((a, s) => a + s.rows.length, 0);
+  let blob;
+  if (csv) {
+    const q = v => /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    blob = new Blob(['﻿' + sheets.map(s => s.rows.map(r => r.map(q).join(',')).join('\r\n')).join('\r\n\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+  } else blob = await makeXlsx(sheets);
+  return { blob, name: cleanName(outName.value, CFG.fallback, csv ? 'csv' : 'xlsx'), info: `${plural(sheets.length, 'page')}, ${plural(n, 'row')}. Check the columns` };
+}
 async function toText() {
   if (!doc.js) throw new Error('the preview engine could not open this file');
   const sel = pages.filter(p => p.flag).map(p => p.i), marks = $('#tSep') && $('#tSep').checked, chunks = [];
@@ -606,6 +667,7 @@ async function build() {
   if (OVERLAY && !FORM) return stamp();
   if (WHOLE) return whole();
   if (MODE === 'text') return toText();
+  if (MODE === 'table') return toTable();
   if (MODE === 'rotate') {
     const out = await PDFLib.PDFDocument.load(doc.bytes, { updateMetadata: false });
     pages.forEach(p => {

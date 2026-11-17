@@ -42,12 +42,15 @@ window.DILIA_TOOLS = [
     { id: 'compare', slug: 'compare-pdf', name: 'Compare', desc: 'See what changed between two PDFs.', ready: 1, icon: 'M4 4h7v16H4zM13 4h7v16h-7zM7 9h1M16 9h1' },
     { id: 'makeform', slug: 'create-fillable-pdf-form', name: 'Create form', desc: 'Add fillable fields to a PDF.', ready: 1, icon: 'M4 5h16v5H4zM4 14h16v5H4zM7 7.5h5M7 16.5h3' },
     { id: 'mix', slug: 'alternate-mix-pdf-pages', name: 'Alternate and mix', desc: 'Interleave pages from two or more PDFs.', ready: 1, icon: 'M4 5h7v6H4zM13 13h7v6h-7zM13 5h7v6h-7zM4 13h7v6H4z' },
+    { id: 'viewer', slug: 'pdf-reader', name: 'PDF reader', desc: 'Open and read a PDF with search and zoom.', ready: 1, icon: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' },
     { id: 'insert', slug: 'insert-pdf-pages', name: 'Insert or replace pages', desc: 'Put pages from one PDF into another.', ready: 1, icon: 'M4 4h9v16H4zM16 8h4M18 6v4M16 15h4' }
   ]],
   ['Convert', [
     { id: 'img2pdf', slug: 'jpg-to-pdf', name: 'Images to PDF', desc: 'Turn JPG and PNG photos into one PDF.', ready: 1, icon: 'M3 5h12v10H3zM3 12l4-3 4 3M14 13h4l3 3v5h-7z' },
     { id: 'pdf2img', slug: 'pdf-to-jpg', name: 'PDF to images', desc: 'Save each page as a PNG or JPG.', ready: 1, icon: 'M6 3h9l4 4v14H6zM9 17l3-3 2 2 2-2 1 1' },
     { id: 'text', slug: 'pdf-to-text', name: 'PDF to text', desc: 'Copy out all the text as a plain file.', ready: 1, icon: 'M6 3h9l4 4v14H6zM9 10h7M9 14h7M9 18h4' },
+    { id: 'table', slug: 'pdf-to-excel', name: 'PDF to Excel', desc: 'Pull tables out as an Excel or CSV file. Best effort.', ready: 1, icon: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14' },
+    { id: 'html2pdf', slug: 'html-to-pdf', name: 'HTML to PDF', desc: 'Turn a saved web page into a text PDF. Low fidelity.', ready: 1, icon: 'M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16' },
     { id: 'word', slug: 'word-to-pdf', name: 'Word to PDF', desc: 'Convert DOCX files. Needs a converter server.', server: 1, icon: 'M6 3h9l4 4v14H6zM9 10l1.5 7L12 12l1.5 5L15 10' }
   ]],
   ['Optimise and secure', [

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PDF reader - Free Online | Dilia Studio</title>
+<meta name="description" content="PDF reader in your browser with Dilia Studio. Nothing is uploaded.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/work.css">
+<link rel="stylesheet" href="../assets/viewer.css">
+</head>
+<body class="work" data-tool="html2pdf">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav solid" data-solid="1">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../#privacy">Privacy</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main class="ws-page">
+  <div class="ws-head wrap"><div>
+    <p class="crumb"><a href="../tools.html">Tools</a><span>/</span>PDF reader</p>
+    <h1>PDF reader</h1>
+    <p class="lead">Open a PDF and read it here. Scroll, zoom, jump to a page and search the text. Nothing is changed or uploaded.</p>
+  </div></div>
+  <div class="ws vr wrap" id="ws" data-state="empty">
+    <section class="board" aria-label="PDF reader">
+      <label class="dropzone" for="pick" id="dropzone">
+        <span class="dz-art" aria-hidden="true"><span class="dz-page p1"></span><span class="dz-page p2"></span><span class="dz-page p3"><svg viewBox="0 0 24 24"><path d="M12 16V5m0 0-4.5 4.5M12 5l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+        <b>Drop a PDF here</b><span>or <u>choose a file</u> from your device</span><small>The file is read by your browser and never uploaded.</small>
+      </label>
+      <input id="pick" class="vh" type="file" accept="application/pdf,.pdf">
+      <div class="vbar" role="toolbar" aria-label="Reader controls">
+        <b class="vn" id="vname"></b>
+        <span class="g"><button class="btn ghost sm" type="button" id="vprev" aria-label="Previous page">&#8249;</button><input id="vpg" type="number" min="1" value="1" aria-label="Page"><span id="vof"></span><button class="btn ghost sm" type="button" id="vnext" aria-label="Next page">&#8250;</button></span>
+        <span class="g"><button class="btn ghost sm" type="button" id="vout" aria-label="Zoom out">&minus;</button><span class="zl" id="vzoom">100%</span><button class="btn ghost sm" type="button" id="vin" aria-label="Zoom in">+</button><button class="btn ghost sm" type="button" id="vfit">Fit width</button></span>
+        <span class="g"><input id="vq" type="search" placeholder="Search the text" aria-label="Search the text"><button class="btn ghost sm" type="button" id="vqp" aria-label="Previous match">&uarr;</button><button class="btn ghost sm" type="button" id="vqn" aria-label="Next match">&darr;</button><span class="res" id="vres" aria-live="polite"></span></span>
+        <span class="sp"></span>
+        <label class="btn ghost sm" for="pick">Change PDF</label><button class="btn ghost sm" type="button" id="vreset">Close</button>
+      </div>
+      <div id="vpages"></div>
+    </section>
+  </div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
+
+<script src="../assets/vendor/pdf-lib.min.js"></script>
+<script src="../assets/vendor/pdf.min.js"></script>
+<script src="../assets/vendor/Sortable.min.js"></script>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/kit.js"></script>
+<script src="../assets/viewer.js"></script>
+</body>
+</html>
