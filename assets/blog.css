@@ -1,0 +1,17 @@
+.blog .bwrap{max-width:760px;padding-bottom:60px}
+.bpage .ws-page{padding-bottom:60px}
+.bpage h1{font-size:clamp(30px,3.6vw,46px);font-weight:800;font-variation-settings:"wdth" 112;margin:6px 0 14px;line-height:1.1}
+.bpage h2{font-size:24px;margin:34px 0 8px}
+.bpage h3{font-size:17px;margin:20px 0 4px}
+.bpage p,.bpage li{font-size:17px;line-height:1.65;color:#1f2733}
+.bpage .lead{font-size:19px;color:#3a4352;margin-bottom:18px}
+.bsteps{padding-left:22px;display:grid;gap:10px}
+.bcta{display:inline-flex;width:auto;margin:10px 0;padding:0 22px;text-decoration:none}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:20px}
+.bgrid.small{grid-template-columns:1fr;gap:8px}
+.bcard{display:block;background:#fff;border-radius:16px;padding:16px 18px;text-decoration:none;color:var(--ink);box-shadow:0 1px 2px #0b12200d,0 0 0 1px #0b12200d}
+.bcard:hover{box-shadow:0 0 0 2px var(--magenta)}
+.bcard b{display:block;font-size:16px;margin-bottom:4px}
+.bcard span{font-size:14px;color:#5b6472;line-height:1.5}
+.bpage .wrap.bwrap{margin:0 auto;padding-top:36px}
+.bpage .crumb{font-size:14px;color:#5b6472}.bpage .crumb span{margin:0 8px}

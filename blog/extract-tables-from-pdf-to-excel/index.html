@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>How to Get Tables Out of a PDF and Into Excel | Dilia Studio blog</title>
+<meta name="description" content="Turn PDF tables into an Excel or CSV file. Best effort: rows and columns are rebuilt from the text, so always check the result.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="../../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="stylesheet" href="../../assets/palette.css">
+<link rel="stylesheet" href="../../assets/blog.css">
+</head>
+<body class="blog" data-tool="html2pdf">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav solid" data-solid="1">
+  <div class="wrap">
+    <a class="brand" href="../../" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../../#privacy">Privacy</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main class="ws-page bpage"><article class="wrap bwrap">
+<p class="crumb"><a href="../../tools.html">Tools</a><span>/</span><a href="../">Blog</a></p>
+<h1>How to Get Tables Out of a PDF and Into Excel</h1>
+<p class="lead">Copying a table out of a PDF usually gives you one long jumble. PDF to Excel looks at where each piece of text sits on the page and rebuilds rows and columns, then saves them as an Excel file or CSV. It is a best-effort tool, so here is what to expect.</p>
+<a class="btn go bcta" href="../../pdf-to-excel/">Open PDF to Excel</a>
+<h2>Steps</h2><ol class="bsteps"><li>Open PDF to Excel and drop your file in.</li><li>Click the pages you want, or type a range such as 1-3, 7. All pages are included by default.</li><li>Choose Excel (.xlsx) or CSV.</li><li>Download the file, open it, and compare a few rows against the PDF.</li></ol>
+<h2>Which PDFs work well</h2><p>PDFs made from a program, such as an invoice, a bank statement or a report, contain real text, and tables with clear gaps between columns convert best.</p><h2>Which PDFs do not</h2><p>A scanned PDF is only a picture, so there is no text to read. Run Recognise text first. Tables with merged cells, no clear gaps between columns, or text running across columns may come out shifted or merged.</p><h2>Numbers and codes</h2><p>Values that look like numbers become real numbers in Excel, so you can add them up. Codes with leading zeros, such as 0000200020, stay as text so the zeros are not lost.</p><h2>Always check the result</h2><p>Compare the totals and a few rows with the PDF before you rely on the data. Each selected page becomes its own sheet in the Excel file.</p>
+<h2>Questions</h2><h3>Why did two columns merge?</h3><p>The tool uses gaps between pieces of text to find columns. Where there is no gap, they join.</p><h3>Can I get a CSV instead?</h3><p>Yes. Choose CSV before you download.</p><h3>Is my data uploaded?</h3><p>No. The conversion runs in your browser.</p>
+<a class="btn go bcta" href="../../pdf-to-excel/">Open PDF to Excel</a>
+<h2>More guides</h2><div class="bgrid small"><a class="bcard" href="../merge-pdf-files/"><b>How to Merge PDF Files Into One (Free, No Upload)</b></a><a class="bcard" href="../split-pdf-into-pages/"><b>How to Split a PDF Into Separate Pages or Files</b></a><a class="bcard" href="../safe-online-pdf-tools/"><b>Are Online PDF Tools Safe? What Happens to Your File</b></a></div>
+</article></main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
+
+
+<script src="../../assets/tools.js"></script>
+<script src="../../assets/palette.js"></script>
+<script src="../../assets/menu.js"></script>
+<script src="../../assets/common.js"></script>
+
+</body>
+</html>

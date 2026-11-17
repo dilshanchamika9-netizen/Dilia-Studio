@@ -106,3 +106,7 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 ## 9g. Wave 5 (2026-11-17)
 - `pdf-to-excel/` = ptool mode `table` (`pageGrid`, `makeXlsx`, `toTable` in ptool.js). `html-to-pdf/` = `assets/html2pdf.js` (kind `file` page with `accept` override in make-pages.py). `pdf-reader/` = `assets/viewer.js` + `assets/viewer.css`, page built by `reader_page()` in make-pages.py.
 - Limits: table detection fails on scanned PDFs and on tables without clear column gaps; HTML to PDF ignores images and CSS; reader search highlight is proportional, not exact.
+
+## 9h. Blog (2026-11-17)
+- `dev/blog-posts.py` holds 16 how-to posts (plain text, tied to built tools); `python3 dev/make-blog.py` (run after make-pages.py) writes `blog/index.html` and `blog/<slug>/index.html` using the PDF reader page as the header/footer shell. Styles: `assets/blog.css`. Posts are published but NOT linked from the nav or hub (owner decides placement). No canonical tags or sitemap until the domain exists.
+- Rule for new posts: claim only what the tool really does; no legal advice; no claims about other companies.
