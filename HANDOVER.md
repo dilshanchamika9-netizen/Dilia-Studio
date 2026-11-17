@@ -77,6 +77,13 @@ This project is separate from the Orel dashboard. Never mix code, files or rules
 - OCR (`filetool.js` mode ocr, tesseract.js 7.0.0 self-hosted in `assets/vendor/ocr/`, 6.8 MB, English only): adds an invisible text layer, page looks identical. Skips pages that already have text. Two passes (300 and 100 DPI) because Tesseract drops very large glyphs. 90 s start timeout. Rotated pages handled.
 - Redact (`editor.js` tool `redact`, page `redact.html`): drag boxes or "Mark all matches" (text search, scans need hand boxes). On save, every page with a redaction is rendered to a 200 DPI JPEG with the box burned in, and the file is rebuilt in a fresh PDFDocument, so the original text is not in the file bytes. Other pages keep their text. Limits: English OCR only, redacted pages lose text and links, a phrase split across lines is not matched.
 
+## 9b. Task 1 build waves (17 Nov 2026)
+- Split variants, stamping and more live in `assets/ptool.js` (modes chosen by `<body data-tool>`). Overlay modes: watermark (text or PNG/JPG), number, bates, headfoot, crop. Whole-file modes (`WHOLE`, `wholeCheck()`, `whole()`, `layout()`): flip, nup, meta, flatten, extractimg, bookmarks, resize, noannot, booklet, poster.
+- `assets/mixer.js` handles multi-file tools: mix, insert, overlay (letterhead), rename (by text), batch. `img2pdf.js` also serves the `scan` page (camera button, scan look).
+- Pages are generated: edit `dev/make-pages.py` (TOOLS, OPT_* strings, tips dict) and `assets/tools.js` (ready:1), then run `python3 dev/make-pages.py` and commit the html.
+- Known limits: stamps use English (Helvetica) characters only; flip/n-up/letterhead redraw pages and drop links; extract images skips CCITT/JBIG2/JPX/CMYK; batch has no per-file options; Safari/iPhone and 300+ page PDFs untested.
+- Tests live in the workspace only (/tmp/t2), not in the repo.
+
 ## 10. Status and next
 - Done: 22 of 23 tools (all except Word to PDF).
 - Next: Word to PDF only via a free server, after the owner agrees. Untested: Safari/iPhone, PDFs of 300+ pages.
