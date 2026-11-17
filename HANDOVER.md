@@ -88,3 +88,6 @@ This project is separate from the Orel dashboard. Never mix code, files or rules
 ## 10. Status and next
 - Done: 22 of 23 tools (all except Word to PDF).
 - Next: Word to PDF only via a free server, after the owner agrees. Untested: Safari/iPhone, PDFs of 300+ pages.
+
+## 9c. Security addendum (priority over schedule)
+Security Lead has release veto. Policy, gate, owner steps, review brief: see private repo 05-compliance/. In this repo: `dev/security-check.py` (run before every commit; fails on inline scripts, eval, external URLs, changed vendor files, missing licences), `dev/vendor-hashes.json` (update with `--update` only with a DECISIONS line), `.github/workflows/security.yml`, `.github/dependabot.yml`, `SECURITY.md`, `.well-known/security.txt`. Rules: user text only via esc()/textContent, no inline scripts, no network calls from tool code. Wave 5 paused until the threat model for the shared PDF core is done.
