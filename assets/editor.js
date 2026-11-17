@@ -19,9 +19,9 @@ let hist = [], fut = [];
 
 /* ---------- fonts (metrics come from pdf-lib so the saved file matches the screen) ---------- */
 const FAM = {
-  helv:  { css: 'Helvetica, Arial, "Liberation Sans", sans-serif', base: .93, std: ['Helvetica', 'HelveticaBold', 'HelveticaOblique', 'HelveticaBoldOblique'] },
-  times: { css: '"Times New Roman", Times, "Liberation Serif", serif', base: .92, std: ['TimesRoman', 'TimesRomanBold', 'TimesRomanItalic', 'TimesRomanBoldItalic'] },
-  cour:  { css: '"Courier New", Courier, "Liberation Mono", monospace', base: .86, std: ['Courier', 'CourierBold', 'CourierOblique', 'CourierBoldOblique'] }
+  helv:  { css: "Helvetica, Arial, 'Liberation Sans', sans-serif", base: .93, std: ['Helvetica', 'HelveticaBold', 'HelveticaOblique', 'HelveticaBoldOblique'] },
+  times: { css: "'Times New Roman', Times, 'Liberation Serif', serif", base: .92, std: ['TimesRoman', 'TimesRomanBold', 'TimesRomanItalic', 'TimesRomanBoldItalic'] },
+  cour:  { css: "'Courier New', Courier, 'Liberation Mono', monospace", base: .86, std: ['Courier', 'CourierBold', 'CourierOblique', 'CourierBoldOblique'] }
 };
 const metric = {};
 PDFLib.PDFDocument.create().then(async d => {
@@ -30,7 +30,7 @@ PDFLib.PDFDocument.create().then(async d => {
 });
 const fontKey = o => FAM[o.fam].std[(o.bold ? 1 : 0) + (o.ital ? 2 : 0)];
 const useO = o => !!(o.useOrig && o.of && ofontOf(o));
-const cssFont = (o, px) => useO(o) ? `400 normal ${px}px/${LH} "${o.of.l}", ${FAM[o.fam].css}` : `${o.bold ? 700 : 400} ${o.ital ? 'italic' : 'normal'} ${px}px/${LH} ${FAM[o.fam].css}`;
+const cssFont = (o, px) => useO(o) ? `400 normal ${px}px/${LH} '${o.of.l}', ${FAM[o.fam].css}` : `${o.bold ? 700 : 400} ${o.ital ? 'italic' : 'normal'} ${px}px/${LH} ${FAM[o.fam].css}`;
 const mcx = document.createElement('canvas').getContext('2d');
 
 /* ---------- original fonts: reuse the font embedded in the PDF when we can ---------- */
@@ -105,7 +105,7 @@ const LH = 1.2;
 function textBox(o) {                  // width/height of a text object in points
   const f = metric[fontKey(o)], lines = o.text.split('\n');
   let w = 0;
-  if (useO(o) && !missing(o)) { mcx.font = `400 ${o.size}px "${o.of.l}"`; for (const l of lines) w = Math.max(w, mcx.measureText(l).width); return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH }; }
+  if (useO(o) && !missing(o)) { mcx.font = `400 ${o.size}px '${o.of.l}'`; for (const l of lines) w = Math.max(w, mcx.measureText(l).width); return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH }; }
   for (const l of lines) { try { w = Math.max(w, f ? f.widthOfTextAtSize(l, o.size) : l.length * o.size * .55); } catch (e) { w = Math.max(w, l.length * o.size * .6); } }
   return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH };
 }
@@ -625,7 +625,7 @@ if (rq) {
         anyText = true;
         const hay = t.str.toLowerCase(), nd = q.toLowerCase(); let k = hay.indexOf(nd);
         while (k !== -1) {
-          cx.font = `${t.size}px ${t.ln ? '"' + t.ln + '", ' : ''}${FAM[t.fam].css}`;
+          cx.font = `${t.size}px ${t.ln ? "'" + t.ln + "', " : ''}${FAM[t.fam].css}`;
           const all = cx.measureText(t.str).width || 1, a = cx.measureText(t.str.slice(0, k)).width, b = cx.measureText(t.str.slice(0, k + nd.length)).width;
           const pad = t.size * .14;
           let x0 = t.x + t.w * a / all - pad, x1 = t.x + t.w * b / all + pad;
