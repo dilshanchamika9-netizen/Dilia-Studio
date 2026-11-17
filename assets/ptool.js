@@ -25,6 +25,9 @@ const CFG = {
   noannot: { suffix: '', fallback: 'Dilia-clean', l2: 'Pages', l3: 'Size in', verb: 'Remove and download' },
   booklet: { suffix: '', fallback: 'Dilia-booklet', l2: 'Sheet sides', l3: 'Size in', verb: 'Make booklet and download' },
   poster:  { suffix: '', fallback: 'Dilia-poster', l2: 'Sheets out', l3: 'Size in', verb: 'Make poster and download' },
+  cleaner: { suffix: '', fallback: 'Dilia-cleaned', l2: 'Items removed', l3: 'Size in', verb: 'Clean and download' },
+  grayscale: { suffix: '', fallback: 'Dilia-grayscale', l2: 'Pages', l3: 'Size in', verb: 'Make grayscale and download' },
+  deskew:  { suffix: '', fallback: 'Dilia-straight', l2: 'Pages', l3: 'Size in', verb: 'Straighten and download' },
   crop:    { suffix: '', fallback: 'Dilia-cropped', l2: 'Cropped', l3: 'Size in', verb: 'Crop and download' },
   text:    { suffix: '', fallback: 'Dilia-text', l2: 'Selected', l3: 'Pages out', verb: 'Save as text' },
   pdf2img: { suffix: '',    fallback: 'Dilia-images',    l2: 'Selected',  l3: 'Images out', verb: 'Save as images' }
@@ -33,7 +36,7 @@ const TOGGLE = ['delete', 'extract', 'pdf2img', 'text'].includes(MODE);
 const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text';
 const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text';
 const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop'].includes(MODE);
-const WHOLE = ['flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks', 'resize', 'noannot', 'booklet', 'poster'].includes(MODE);
+const WHOLE = ['flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks', 'resize', 'noannot', 'booklet', 'poster', 'cleaner', 'grayscale', 'deskew'].includes(MODE);
 const NUMBERED = MODE === 'number' || MODE === 'bates';
 const fmt = () => document.querySelector('input[name=fmt]:checked').value;
 
@@ -614,6 +617,9 @@ function wholeCheck() {
     return { ok: true, s2: sheets, msg: `${plural(pages.length, 'page')} become ${plural(sheets, 'sheet')}.` };
   }
   if (MODE === 'resize') return { ok: true, msg: `Every page is scaled to fit ${val('rSize').toUpperCase()} and centred. Proportions are kept.` };
+  if (MODE === 'cleaner') { const n = ['cJs', 'cAtt', 'cMeta', 'cThumb', 'cMarks'].filter(i => $('#' + i).checked).length; return n ? { ok: true, s2: n, msg: 'Pages and visible content stay the same.' } : { ok: false, s2: 0, msg: 'Tick at least one thing to remove.' }; }
+  if (MODE === 'grayscale') return { ok: true, msg: 'Every page becomes a grey picture. Text can no longer be selected: run OCR afterwards if you need it.' };
+  if (MODE === 'deskew') return { ok: true, msg: 'Pages that lean more than a fraction of a degree are straightened. Straight pages are copied unchanged.' };
   if (MODE === 'noannot') return { ok: true, msg: 'Comments, highlights, stamps and drawn notes are deleted. Page text stays.' };
   if (MODE === 'booklet') { const n = Math.ceil(pages.length / 4) * 4; return { ok: true, s2: n / 2, msg: `${plural(n / 2, 'sheet side')} to print double-sided, folded in half.${n > pages.length ? ` ${n - pages.length} blank page${n - pages.length > 1 ? 's are' : ' is'} added at the end.` : ''}` }; }
   if (MODE === 'poster') {
@@ -728,6 +734,31 @@ async function whole() {
   }
   if (MODE === 'extractimg') return exImgs();
   if (['resize', 'booklet', 'poster'].includes(MODE)) return layout(fin);
+  if (MODE === 'grayscale' || MODE === 'deskew') return rasterTools(fin);
+  if (MODE === 'cleaner') {
+    const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), N = L.PDFName.of, cat = out.catalog; let n = 0;
+    const del = (d, k) => { if (d && d.has(N(k))) { d.delete(N(k)); n++; } };
+    const names = () => cat.lookupMaybe(N('Names'), L.PDFDict);
+    if ($('#cJs').checked) { del(names(), 'JavaScript'); del(cat, 'OpenAction'); del(cat, 'AA'); }
+    if ($('#cAtt').checked) { del(names(), 'EmbeddedFiles'); del(cat, 'AF'); }
+    if ($('#cMeta').checked) { const info = out.getInfoDict(); const ks = info.keys(); ks.forEach(k => info.delete(k)); n += ks.length; del(cat, 'Metadata'); del(cat, 'PieceInfo'); }
+    if ($('#cMarks').checked) { del(cat, 'Outlines'); }
+    for (const pg of out.getPages()) {
+      if ($('#cJs').checked) del(pg.node, 'AA');
+      if ($('#cThumb').checked) del(pg.node, 'Thumb');
+      const arr = pg.node.lookupMaybe(N('Annots'), L.PDFArray); if (!arr) continue; const keep = []; let chg = false;
+      for (let i = 0; i < arr.size(); i++) {
+        const a = arr.lookupMaybe(i, L.PDFDict); if (!a) { keep.push(arr.get(i)); continue; }
+        const st = a.lookup(N('Subtype')), t = st && st.toString();
+        if ($('#cAtt').checked && t === '/FileAttachment') { n++; chg = true; continue; }
+        if ($('#cJs').checked) { const act = a.lookupMaybe(N('A'), L.PDFDict), s = act && act.lookup(N('S')); if (s && s.toString() === '/JavaScript') { a.delete(N('A')); n++; } if (a.has(N('AA'))) { a.delete(N('AA')); n++; } }
+        keep.push(arr.get(i));
+      }
+      if (chg) pg.node.set(N('Annots'), out.context.obj(keep));
+    }
+    if (!n) throw new Error('nothing of the chosen kinds was found in this PDF');
+    return fin(out, plural(n, 'item') + ' removed');
+  }
   if (MODE === 'noannot') {
     const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), N = L.PDFName.of, keepL = $('#nLinks').checked, keepF = $('#nForms').checked;
     let gone = 0;
@@ -809,6 +840,50 @@ async function layout(fin) {
     await tickMaybe(k);
   }
   return fin(out, plural(n, 'sheet'));
+}
+async function renderGray(page, dpi, gray) {
+  const v1 = page.getViewport({ scale: 1 }), scale = Math.min(dpi / 72, 9000 / Math.max(v1.width, v1.height), Math.sqrt(60e6 / (v1.width * v1.height))), vp = page.getViewport({ scale });
+  const c = document.createElement('canvas'); c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+  const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  await page.render({ canvasContext: ctx, viewport: vp, annotationMode: pdfjsLib.AnnotationMode ? pdfjsLib.AnnotationMode.ENABLE_STORAGE : 1 }).promise;
+  if (gray) { const d = ctx.getImageData(0, 0, c.width, c.height), p = d.data; for (let i = 0; i < p.length; i += 4) p[i] = p[i + 1] = p[i + 2] = (p[i] * 299 + p[i + 1] * 587 + p[i + 2] * 114) / 1000; ctx.putImageData(d, 0, 0); }
+  return { c, ctx, v1 };
+}
+function skewAngle(c) {                                 // degrees to rotate the page by (counter-clockwise positive); 0 if unclear
+  const W = 500, k = Math.min(1, W / c.width), sw = Math.max(1, Math.round(c.width * k)), sh = Math.max(1, Math.round(c.height * k));
+  const t = document.createElement('canvas'); t.width = sw; t.height = sh; const tx = t.getContext('2d', { willReadFrequently: true }); tx.fillStyle = '#fff'; tx.fillRect(0, 0, sw, sh); tx.drawImage(c, 0, 0, sw, sh);
+  const px = tx.getImageData(0, 0, sw, sh).data, g = new Uint8Array(sw * sh), hist = new Uint32Array(256);
+  for (let i = 0; i < sw * sh; i++) { g[i] = px[i * 4]; hist[g[i]]++; }
+  let lo = 0, hi = 255, acc = 0; for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc > sw * sh * .005) { lo = v; break; } } acc = 0; for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc > sw * sh * .3) { hi = v; break; } }
+  const thr = lo + (hi - lo) * .5, xs = [], ys = [];
+  for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) if (g[y * sw + x] < thr) { xs.push(x); ys.push(y); }
+  if (xs.length < 200 || xs.length > sw * sh * .5) return 0;
+  const bins = new Float64Array(sw + sh + 4), score = a => { const r = a * Math.PI / 180, cs = Math.cos(r), sn = Math.sin(r); bins.fill(0); const off = sw + 2; for (let i = 0; i < xs.length; i++) bins[Math.round(ys[i] * cs + xs[i] * sn) + off | 0]++; let s = 0; for (let i = 0; i < bins.length; i++) s += bins[i] * bins[i]; return s; };
+  let best = 0, bs = -1; for (let a = -10; a <= 10; a += .5) { const s = score(a); if (s > bs) { bs = s; best = a; } }
+  const b0 = best; for (let a = b0 - .5; a <= b0 + .5; a += .05) { const s = score(a); if (s > bs) { bs = s; best = a; } }
+  const s0 = score(0); if (bs < s0 * 1.03) return 0;      // no clear text lines
+  return best;
+}
+async function rasterTools(fin) {
+  const L = PDFLib; if (!doc.js) throw new Error('the preview engine could not open this file');
+  const out = await L.PDFDocument.create(), dpi = +val('rDpi') || 150; let fixed = 0; const src = doc.lib.getPages();
+  for (let i = 0; i < doc.count; i++) {
+    const page = await doc.js.getPage(i + 1);
+    if (MODE === 'deskew') {
+      const probe = await renderGray(page, 72, true), a = skewAngle(probe.c); probe.c.width = probe.c.height = 0;
+      if (Math.abs(a) < .15) { const [cp] = await out.copyPages(doc.lib, [i]); out.addPage(cp); prog.style.width = Math.round(8 + 84 * (i + 1) / doc.count) + '%'; await tick(); continue; }
+      const r = await renderGray(page, dpi, false), o = document.createElement('canvas'); o.width = r.c.width; o.height = r.c.height;
+      const ox = o.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, o.width, o.height); ox.translate(o.width / 2, o.height / 2); ox.rotate(a * Math.PI / 180); ox.drawImage(r.c, -r.c.width / 2, -r.c.height / 2);
+      const blob = await new Promise(rs => o.toBlob(rs, 'image/jpeg', .9)); r.c.width = r.c.height = o.width = o.height = 0;
+      const img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer())), pg = out.addPage([r.v1.width, r.v1.height]); pg.drawImage(img, { x: 0, y: 0, width: r.v1.width, height: r.v1.height }); fixed++;
+    } else {
+      const r = await renderGray(page, dpi, true), blob = await new Promise(rs => r.c.toBlob(rs, 'image/jpeg', .85)); r.c.width = r.c.height = 0;
+      const img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer())), pg = out.addPage([r.v1.width, r.v1.height]); pg.drawImage(img, { x: 0, y: 0, width: r.v1.width, height: r.v1.height });
+    }
+    prog.style.width = Math.round(8 + 84 * (i + 1) / doc.count) + '%'; await tick();
+  }
+  if (MODE === 'deskew' && !fixed) throw new Error('no page needed straightening, or the lines of text were not clear enough to measure');
+  return fin(out, MODE === 'deskew' ? `${plural(fixed, 'page')} straightened` : plural(doc.count, 'page') + ' in grey');
 }
 async function exImgs() {
   const L = PDFLib, N = L.PDFName.of, mn = num('eMin') || 0, files = [], pad = 3;

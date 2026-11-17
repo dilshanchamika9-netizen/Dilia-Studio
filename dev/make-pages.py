@@ -89,6 +89,9 @@ OPT_BATCH = (dd('bOp', 'Do this to every file', [('rotate', 'Rotate all pages'),
   + '<div class="optfield"><label class="lbl" for="bSuf">Suffix</label><span class="name"><input id="bSuf" type="text" value="" maxlength="20" spellcheck="false" autocomplete="off"></span></div>' + numf('bStart', 'Start at', 1, 0, 99999999) + numf('bDig', 'Digits', 6, 1, 12) + '</span>'
   + '<span data-op="watermark"><div class="optfield grow"><label class="lbl" for="bText">Watermark text</label><span class="name"><input id="bText" type="text" value="CONFIDENTIAL" maxlength="40" spellcheck="false" autocomplete="off"></span></div></span>'
   + '<p class="tip wide">Files keep their original names. Bates numbers keep counting from one file to the next.</p><p class="err" id="err" hidden></p>')
+OPT_CLEAN = ('<div class="optfield wide"><span class="lbl">Remove</span><div class="checks">' + chk('cJs', 'JavaScript and auto-run actions', True) + chk('cAtt', 'Attached files', True) + chk('cMeta', 'Properties and hidden data', True) + chk('cThumb', 'Page thumbnails', True) + chk('cMarks', 'Bookmarks') + '</div></div><p class="err" id="err" hidden></p>')
+OPT_GRAY = (dd('rDpi', 'Quality', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 150) + '<p class="err" id="err" hidden></p>')
+OPT_DESKEW = (dd('rDpi', 'Quality of straightened pages', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 200) + '<p class="err" id="err" hidden></p>')
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -222,6 +225,23 @@ TOOLS = [
       lead='Photograph pages with your phone camera, or pick photos, and turn them into one clean PDF.',
       drop='Drop photos of your pages here', acts=[], opt=OPT_SCAN, ext='pdf', defname='Dilia-scan', field='File name',
       s1='Pages', l2='Pages', l3='Size in', go='Create PDF'),
+ dict(id='cleaner', name='PDF cleaner', crumb='Cleaner', kind='pdf', engine='ptool',
+      lead='Strip scripts, attachments, hidden data and thumbnails from a PDF before you share it.',
+      drop='Drop a PDF here', acts=[], opt=OPT_CLEAN, ext='pdf', defname='Dilia-cleaned', field='File name', go='Clean and download'),
+ dict(id='grayscale', name='PDF to grayscale', crumb='Grayscale', kind='pdf', engine='ptool',
+      lead='Turn a colour PDF into black, white and grey to save ink.',
+      drop='Drop a PDF here', acts=[], opt=OPT_GRAY, ext='pdf', defname='Dilia-grayscale', field='File name', go='Make grayscale and download'),
+ dict(id='deskew', name='Straighten scanned pages', crumb='Straighten', kind='pdf', engine='ptool',
+      lead='Fix scans that were fed in crooked. Each page is measured and turned the right way up.',
+      drop='Drop a scanned PDF here', acts=[], opt=OPT_DESKEW, ext='pdf', defname='Dilia-straight', field='File name', go='Straighten and download'),
+ dict(id='repair', name='Repair PDF', crumb='Repair', kind='file', engine='filetool', qpdf=1,
+      lead='Try to rebuild a PDF that will not open or shows errors. Best effort: badly damaged files may lose pages.',
+      drop='Drop a damaged PDF here', acts=[], opt='', ext='pdf', defname='Dilia-repaired', field='File name',
+      s1='Size in', l2='Status', l3='Size out', go='Repair and download'),
+ dict(id='linearize', name='Optimise PDF for the web', crumb='Fast web view', kind='file', engine='filetool', qpdf=1,
+      lead='Rewrite a PDF so the first page appears quickly when it is opened from a website.',
+      drop='Drop a PDF here', acts=[], opt='', ext='pdf', defname='Dilia-web', field='File name',
+      s1='Size in', l2='Mode', l3='Size out', go='Optimise and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -271,7 +291,7 @@ def page(t):
         bar_acts = cam + f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
         tips = {'split': 'Pages are coloured by the file they go into.', 'delete': 'Click a page to mark it for deletion.', 'extract': 'Click a page to keep it.',
-                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
+                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'cleaner': 'Chosen items are removed when you save.', 'grayscale': 'Pages are converted when you save.', 'deskew': 'Pages are measured when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
         bar_left = f'<b class="fn" id="fname"></b><p class="tip">{tips}</p>'
         bar_acts = ''.join(t['acts']) + f'<label class="btn ghost sm" for="pick">Change PDF</label>'
     filebox = '<div class="filebox" id="fbox"><div class="fthumb" id="fthumb"><span>PDF</span></div><div class="finfo"><b id="fn2"></b><span id="fmeta"></span><p id="fstate"></p></div></div>' if isfile else ''

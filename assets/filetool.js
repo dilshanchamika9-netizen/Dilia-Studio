@@ -8,7 +8,9 @@ const CFG = {
   protect:  { fallback: 'Dilia-protected', verb: 'Protect and download' },
   unlock:   { fallback: 'Dilia-unlocked',  verb: 'Remove password and download' },
   compress: { fallback: 'Dilia-compressed', verb: 'Compress and download' },
-  ocr:      { fallback: 'Dilia-searchable', verb: 'Recognise text and download' }
+  ocr:      { fallback: 'Dilia-searchable', verb: 'Recognise text and download' },
+  repair:   { fallback: 'Dilia-repaired', verb: 'Repair and download' },
+  linearize: { fallback: 'Dilia-web', verb: 'Optimise and download' }
 }[MODE];
 const ws = $('#ws'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog'), outName = $('#outName'), errBox = $('#err');
 let doc = null, busy = false, lastUrl = null, thumbUrl = null;     // doc: {name,size,bytes,lib?,js?,count?,status?}
@@ -51,6 +53,11 @@ async function load(list) {
           if (/encrypt/i.test(e.message)) { d.status = 'Needs a password'; d.code = 0; } else throw e;
         }
       }
+    } else if (MODE === 'repair') {
+      const o = await Kit.openPdf(f);
+      d = o.err ? { name: f.name, size: f.size, bytes, status: /password/i.test(o.err) ? 'Password protected' : 'Cannot be opened', broken: true } : { ...o, bytes, status: 'Opens normally' };
+      if (/password/i.test(o.err || '')) { toast(o.err, true); ws.classList.remove('working'); return; }
+      if (d.broken) { try { d.js = await pdfjsLib.getDocument({ data: bytes.slice() }).promise; d.count = d.js.numPages; d.status = 'Partly readable'; } catch (e) { /* unreadable */ } }
     } else {
       const o = await Kit.openPdf(f);
       if (o.err) { toast(o.err, true); ws.classList.remove('working'); return; }
@@ -81,6 +88,8 @@ function render() {
     $('#fmeta').textContent = `${kb(doc.size)}${doc.count ? ', ' + plural(doc.count, 'page') : ''}`;
     $('#fstate').textContent = MODE === 'ocr' ? (doc.textPages === doc.count ? 'Every page already has text.' : doc.textPages ? `${plural(doc.count - doc.textPages, 'page')} without text, ${plural(doc.textPages, 'page')} with text` : 'No text found. This looks like a scan.')
       : MODE === 'unlock' ? doc.status
+      : MODE === 'repair' ? (doc.broken ? 'This file does not open normally. Repair will try to rebuild it.' : 'This file already opens. Repair rewrites it cleanly, which can fix hidden damage.')
+      : MODE === 'linearize' ? 'Fast web view lets a browser show page 1 before the whole file arrives.'
       : MODE === 'compress' ? (doc.photos ? `${plural(doc.photos, 'photo')} can be shrunk` : 'No photos found. Compressing will not help much.') : '';
   }
   summary();
@@ -98,6 +107,9 @@ function summary() {
     S('s1', kb(doc.size)); S('s2', doc.status); S('s3', doc.count || '?');
     ok = doc.code !== 2;
     msg = doc.code === 2 ? 'This PDF is not locked. There is nothing to remove.' : doc.code === 0 ? 'Type the password, then remove it.' : 'This file only has limits (such as no printing). They can be removed without a password.';
+  } else if (MODE === 'repair' || MODE === 'linearize') {
+    S('s1', kb(doc.size)); S('s2', MODE === 'repair' ? doc.status : 'Fast web view'); S('s3', doc.outSize ? kb(doc.outSize) : '-');
+    msg = MODE === 'repair' ? 'Best effort: damage that destroyed content cannot be undone. Check the result.' : 'Rewrites the file so the first page loads first. The pages do not change.';
   } else if (MODE === 'ocr') {
     S('s1', doc.count); S('s2', 'English'); S('s3', kb(doc.size));
     ok = !$('#skipText').checked || doc.textPages < doc.count;
@@ -250,6 +262,32 @@ async function run() {
     let pages = '';
     try { pages = plural((await PDFLib.PDFDocument.load(r.out, { updateMetadata: false })).getPageCount(), 'page') + ', '; } catch (e) { /* ignore */ }
     return { bytes: r.out, name: cleanName(outName.value, CFG.fallback, 'pdf'), info: pages + 'no password needed' };
+  }
+  if (MODE === 'repair' || MODE === 'linearize') {
+    const r = await qpdf(MODE === 'linearize' ? ['--linearize', '/in.pdf', '/out.pdf'] : ['/in.pdf', '/out.pdf'], doc.bytes);
+    if (MODE === 'repair' && (!r.out || (r.code !== 0 && r.code !== 3) || !(await PDFLib.PDFDocument.load(r.out, { updateMetadata: false }).then(l => l.getPageCount() > 0, () => false)))) {
+      if (!doc.js) throw new Error('the file is too damaged to rebuild');       // last resort: draw every page the viewer can still read
+      const out = await PDFLib.PDFDocument.create(); let n = 0;
+      for (let i = 0; i < doc.count; i++) {
+        try {
+          const page = await doc.js.getPage(i + 1), v1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: Math.min(2, 4000 / Math.max(v1.width, v1.height)) });
+          const c = document.createElement('canvas'); c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+          const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          const blob = await new Promise(rs => c.toBlob(rs, 'image/jpeg', .88)); c.width = c.height = 0;
+          const img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer())), pg = out.addPage([v1.width, v1.height]); pg.drawImage(img, { x: 0, y: 0, width: v1.width, height: v1.height }); n++;
+        } catch (e) { /* page lost */ }
+        prog.style.width = Math.round(8 + 84 * (i + 1) / doc.count) + '%'; await tick();
+      }
+      if (!n) throw new Error('no page could be read');
+      out.setProducer('Dilia Studio'); const bytes = await out.save(); doc.outSize = bytes.length; summary();
+      return { bytes, name: cleanName(outName.value, CFG.fallback, 'pdf'), info: `${plural(n, 'page')} recovered as pictures (text is not selectable)` };
+    }
+    if (!r.out || (r.code !== 0 && r.code !== 3)) throw new Error('the file could not be rewritten');
+    let pages = 0, js = null;
+    try { const l = await PDFLib.PDFDocument.load(r.out, { updateMetadata: false }); pages = l.getPageCount(); } catch (e) { if (MODE === 'repair') throw new Error('the rebuilt file still does not open. It is too damaged'); }
+    if (MODE === 'repair' && !pages) throw new Error('no pages could be recovered');
+    doc.outSize = r.out.length; summary();
+    return { bytes: r.out, name: cleanName(outName.value, CFG.fallback, 'pdf'), info: MODE === 'repair' ? `${plural(pages, 'page')} recovered${r.code === 3 ? ', with repairs' : ''}` : `${plural(pages, 'page')}, fast web view on` };
   }
   if (MODE === 'ocr') {
     const r = await ocrFile();

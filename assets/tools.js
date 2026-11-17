@@ -32,6 +32,11 @@ window.DILIA_TOOLS = [
     { id: 'rename', name: 'Rename by text', desc: 'Name files after text on their pages.', ready: 1, icon: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4' },
     { id: 'batch', name: 'Batch', desc: 'Apply one action to many PDFs.', ready: 1, icon: 'M7 7h13v13H7zM4 4h13v2M4 4v13h2' },
     { id: 'scan', name: 'Scan to PDF', desc: 'Photograph pages and make a clean PDF.', ready: 1, icon: 'M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M7 12h10' },
+    { id: 'cleaner', name: 'PDF cleaner', desc: 'Strip scripts, attachments and hidden data.', ready: 1, icon: 'M4 20h16M7 20l3-12 4 1-1 11M12 4l2 4' },
+    { id: 'grayscale', name: 'Grayscale', desc: 'Make a PDF black, white and grey.', ready: 1, icon: 'M12 3a9 9 0 1 0 0 18zM12 3v18' },
+    { id: 'deskew', name: 'Straighten scans', desc: 'Fix crooked scanned pages.', ready: 1, icon: 'M5 8l14-3M5 13l14-3M5 18l14-3' },
+    { id: 'repair', name: 'Repair', desc: 'Rebuild a damaged PDF.', ready: 1, icon: 'M14 6l4 4-9 9H5v-4zM13 7l4 4' },
+    { id: 'linearize', name: 'Fast web view', desc: 'Make the first page load first.', ready: 1, icon: 'M4 12h12M12 6l6 6-6 6' },
     { id: 'mix', name: 'Alternate and mix', desc: 'Interleave pages from two or more PDFs.', ready: 1, icon: 'M4 5h7v6H4zM13 13h7v6h-7zM13 5h7v6h-7zM4 13h7v6H4z' },
     { id: 'insert', name: 'Insert or replace pages', desc: 'Put pages from one PDF into another.', ready: 1, icon: 'M4 4h9v16H4zM16 8h4M18 6v4M16 15h4' }
   ]],
