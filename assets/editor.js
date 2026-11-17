@@ -95,11 +95,11 @@ function findOrig(lib, i, base, cache) {              // the PDF's own font obje
         }
         if (map.size < 20) continue;
         const fdsc = d.get(PN.of('FontDescriptor')), fdd = fdsc && lib.context.lookup(fdsc), emb = fdd && fdd.get && (fdd.get(PN.of('FontFile')) || fdd.get(PN.of('FontFile2')) || fdd.get(PN.of('FontFile3')));
-        res = { key: k, map, sub: !emb }; break;
+        res = { key: k, map, sub: !emb, w: 1 }; break;
       }
       const txt = new TextDecoder('latin1').decode(PDFLib.decodePDFRawStream(ts).decode());
-      const { map } = parseToUnicode(txt); if (map.size < 2) continue;
-      res = { key: k, map }; break;
+      const { map, w } = parseToUnicode(txt); if (map.size < 2) continue;
+      res = { key: k, map, w }; break;
     }
   } catch (e) { res = null; }
   if (cache) ofCache.set(key, res);
@@ -330,11 +330,14 @@ function editExisting(p, k) {
   t.used = true;
   const pad = t.size * .08;
   const cl = sampleColors(p, t);
-  objs.push({ id: 'o' + (++seq), p, type: 'whiteout', x: t.x - pad, y: t.base - t.size * .92, w: t.w + pad * 2, h: t.size * 1.2, color: cl.bg });
+  const woId = 'o' + (++seq);
+  objs.push({ id: woId, p, type: 'whiteout', x: t.x - pad, y: t.base - t.size * .92, w: t.w + pad * 2, h: t.size * 1.2, color: cl.bg });
   const o = { id: 'o' + (++seq), p, type: 'text', text: t.str, size: Math.round(t.size * 10) / 10, fam: t.fam, bold: t.bold, ital: t.ital, color: cl.fg, x: t.x, y: t.base - t.size * FAM[t.fam].base };
   if (t.fn && t.ln && findOrig(doc.lib, p, t.fn, true)) { o.of = { n: t.fn, l: t.ln }; o.useOrig = true; }
+  { let occ = 0; pv[p].text.forEach((u, j) => { if (j < k && u.str.trim() === t.str.trim() && u.fn === t.fn) occ++; });
+    o.src = { str: t.str, fn: t.fn, occ, total: pv[p].text.filter(u => u.str.trim() === t.str.trim() && u.fn === t.fn).length }; o.woId = woId; }
   { const f = metric[fontKey(o)]; try { const w0 = f.widthOfTextAtSize(t.str, o.size); const r = t.w / w0; if (w0 > 0 && r > .6 && r < 1.15 && Math.abs(1 - r) > .02) o.hs = Math.round(r * 1000) / 1000; } catch (e) { /* no fit */ } }
-  Object.assign(o, textBox(o)); objs.push(o);
+  Object.assign(o, textBox(o)); o.orig = { x: o.x, y: o.y, size: o.size, color: o.color, fam: o.fam, bold: o.bold, ital: o.ital }; objs.push(o);
   sel = o.id; drawObjs(); drawTextHits(); startEdit(o.id); props(); summary();
 }
 
@@ -716,6 +719,62 @@ async function burn(bytes, reds) {
   fin.setProducer('Dilia Studio');
   return await fin.save();
 }
+
+/* ---------- true in-place edit: rewrite the text-show operator in the page content ---------- */
+const b2s = u8 => { let r = ''; for (let i = 0; i < u8.length; i += 8192) r += String.fromCharCode.apply(null, u8.subarray(i, i + 8192)); return r; };
+function scanOps(s) {                                   // text-show operators with the font in force and their byte range
+  const ops = []; let i = 0, font = null, stack = [];
+  const ws = c => c === ' ' || c === '\n' || c === '\r' || c === '\t' || c === '\f' || c === '\0';
+  const dl = c => '()<>[]{}/%'.includes(c) || ws(c);
+  const litStr = () => { const st = i; i++; let d = 1; const by = []; while (i < s.length && d) { const c = s[i]; if (c === '\\') { const n = s[i + 1]; if (/[0-7]/.test(n)) { let o = '', k = 0; while (k < 3 && /[0-7]/.test(s[i + 1 + k])) { o += s[i + 1 + k]; k++; } by.push(parseInt(o, 8) & 255); i += 1 + k; continue; } const m = { n: 10, r: 13, t: 9, b: 8, f: 12 }[n]; if (m != null) by.push(m); else if (n === '\r') { if (s[i + 2] === '\n') i++; } else if (n !== '\n') by.push(n.charCodeAt(0)); i += 2; continue; } if (c === '(') d++; else if (c === ')') { d--; if (!d) { i++; break; } } by.push(c.charCodeAt(0)); i++; } return { t: 'str', a: st, b: i, by }; };
+  const hexStr = () => { const st = i; i++; let h = ''; while (i < s.length && s[i] !== '>') { if (!ws(s[i])) h += s[i]; i++; } i++; if (h.length % 2) h += '0'; const by = []; for (let k = 0; k < h.length; k += 2) by.push(parseInt(h.substr(k, 2), 16)); return { t: 'str', a: st, b: i, by }; };
+  while (i < s.length) {
+    const c = s[i];
+    if (ws(c)) { i++; continue; }
+    if (c === '%') { while (i < s.length && s[i] !== '\n' && s[i] !== '\r') i++; continue; }
+    if (c === '(') { stack.push(litStr()); continue; }
+    if (c === '<') { if (s[i + 1] === '<') { let d = 0, st = i; while (i < s.length) { if (s.startsWith('<<', i)) { d++; i += 2; } else if (s.startsWith('>>', i)) { d--; i += 2; if (!d) break; } else if (s[i] === '(') litStr(); else i++; } stack.push({ t: 'dict', a: st, b: i }); } else stack.push(hexStr()); continue; }
+    if (c === '[') { const st = i; i++; const strs = []; while (i < s.length && s[i] !== ']') { if (s[i] === '(') strs.push(litStr()); else if (s[i] === '<') strs.push(hexStr()); else i++; } i++; stack.push({ t: 'arr', a: st, b: i, strs }); continue; }
+    if (c === '/') { const st = i; i++; while (i < s.length && !dl(s[i])) i++; stack.push({ t: 'name', a: st, b: i, v: s.slice(st + 1, i) }); continue; }
+    if (c === ')' || c === ']' || c === '>' || c === '{' || c === '}') { i++; continue; }
+    const st = i; while (i < s.length && !dl(s[i])) i++; const w = s.slice(st, i);
+    if (/^[-+.\d]/.test(w) && !isNaN(parseFloat(w))) { stack.push({ t: 'num', a: st, b: i }); continue; }
+    if (w === 'BI') { const m = /\sEI(?=\s|$)/.exec(s.slice(i)); i = m ? i + m.index + m[0].length : s.length; stack = []; continue; }
+    if (w === 'Tf') { const n = stack[stack.length - 2]; font = n && n.t === 'name' ? n.v : null; }
+    else if (w === 'Tj' || w === 'TJ' || w === "'" || w === '"') {
+      const o = stack[stack.length - 1];
+      if (o && (o.t === 'str' || o.t === 'arr')) ops.push({ op: w, font, a: o.a, b: i, strs: o.t === 'str' ? [o] : o.strs, ok: w === 'Tj' || w === 'TJ' });
+    }
+    stack = [];
+  }
+  return ops;
+}
+const sameFontKeys = (lib, i, base) => { let n = 0; try { const fd = pageFontDict(lib, i), st = x => String(x).replace(/^\/?[A-Z]{6}\+/, ''); if (fd) for (const [, v] of fd.entries()) { const d = lib.context.lookup(v); if (!(d instanceof PDct)) continue; const bf = d.get(PN.of('BaseFont')); if (bf && st(bf.decodeText()) === st(base)) n++; } } catch (e) { n = 9; } return n; };
+async function inPlace(out, i, edits) {                 // returns the ids of the edits written straight into the page text
+  const done = new Set(); if (!edits.length) return done;
+  try {
+    const pg = out.getPages()[i], c = pg.node.Contents(); if (!c) return done;
+    const arr = c instanceof PDFLib.PDFArray ? c.asArray().map(r => out.context.lookup(r)) : [c];
+    const s = arr.map(st => b2s(PDFLib.decodePDFRawStream(st).decode())).join('\n');
+    const ops = scanOps(s), reps = [];
+    for (const o of edits) {
+      const fk = findOrig(out, i, o.of.n, false); if (!fk || sameFontKeys(out, i, o.of.n) !== 1) continue;
+      const kn = String(fk.key.decodeText()), w = fk.w || 1, inv = new Map(); for (const [ch, hx] of fk.map) inv.set(parseInt(hx, 16), ch);
+      const dec = op => { let r = ''; for (const sg of op.strs) { for (let k = 0; k + w <= sg.by.length; k += w) { let code = 0; for (let q = 0; q < w; q++) code = code * 256 + sg.by[k + q]; const ch = inv.get(code); if (ch == null) return null; r += ch; } } return r; };
+      const same = ops.filter(op => op.font === kn).map(op => ({ op, t: dec(op) })).filter(x => x.t != null && x.t.trim() === o.src.str.trim());
+      if (same.length !== o.src.total || !same[o.src.occ] || !same[o.src.occ].op.ok) continue;
+      if ([...o.text].some(ch => !fk.map.has(ch))) continue;
+      const tgt = same[o.src.occ].op; if (reps.some(r => r.a === tgt.a)) continue;
+      reps.push({ a: tgt.a, b: tgt.b, to: '<' + [...o.text].map(ch => fk.map.get(ch)).join('') + '> Tj', id: o.id });
+    }
+    if (!reps.length) return done;
+    reps.sort((x, y) => y.a - x.a); let t = s; for (const r of reps) t = t.slice(0, r.a) + r.to + t.slice(r.b);
+    const u8 = new Uint8Array(t.length); for (let k = 0; k < t.length; k++) u8[k] = t.charCodeAt(k) & 255;
+    pg.node.set(PN.of('Contents'), out.context.register(out.context.flateStream(u8)));
+    reps.forEach(r => done.add(r.id));
+  } catch (e) { /* fall back to cover-and-redraw */ }
+  return done;
+}
 async function build_() {
   const out = await PDFLib.PDFDocument.load(doc.bytes, { updateMetadata: false });
   const fonts = {}, font = async k => fonts[k] || (fonts[k] = await out.embedFont(PDFLib.StandardFonts[k]));
@@ -736,7 +795,10 @@ async function build_() {
   }
   const pages = out.getPages();
   for (let i = 0; i < pv.length; i++) {
-    const list = objs.filter(o => o.p === i); if (!list.length) continue;
+    let list = objs.filter(o => o.p === i); if (!list.length) continue;
+    const same = o => o.orig && o.x === o.orig.x && o.y === o.orig.y && o.size === o.orig.size && o.color === o.orig.color && o.fam === o.orig.fam && o.bold === o.orig.bold && o.ital === o.orig.ital;
+    const ip = await inPlace(out, i, list.filter(o => o.type === 'text' && o.src && o.of && useO(o) && !missing(o) && !o.text.includes('\n') && same(o)));
+    if (ip.size) { const gone = new Set(); list.forEach(o => { if (ip.has(o.id)) { gone.add(o.id); gone.add(o.woId); } }); list = list.filter(o => !gone.has(o.id)); if (!list.length) continue; }
     const pg = pages[i], vp = pv[i].vp, rot = PDFLib.degrees(pv[i].rot), U = (x, y) => vp.convertToPdfPoint(x, y);
     for (const o of list) {
       if (o.type === 'redact') continue;
