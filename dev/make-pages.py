@@ -21,7 +21,10 @@ def numf(i, label, val, mn, mx, step=1, unit=''):
     return f'<div class="optfield sm"><label class="lbl" for="{i}">{label}</label><span class="name"><input id="{i}" type="number" min="{mn}" max="{mx}" step="{step}" value="{val}">{f"<em>{unit}</em>" if unit else ""}</span></div>'
 def sw(v, label, checked=False): return f'<label class="chip sw"><input type="radio" name="wc" value="{v}"{" checked" if checked else ""}><span><i style="background:{v}"></i>{label}</span></label>'
 
-OPT_WM = ('<div class="optfield grow"><label class="lbl" for="wmText">Watermark text</label><span class="name"><input id="wmText" type="text" value="CONFIDENTIAL" maxlength="60" spellcheck="false" autocomplete="off"></span></div>'
+OPT_WM = ('<div class="optfield"><span class="lbl">Watermark type</span><div class="chips"><label class="chip"><input type="radio" name="wk" value="text" checked><span>Text</span></label><label class="chip"><input type="radio" name="wk" value="image"><span>Image</span></label></div></div>'
+  + '<div class="optfield"><span class="lbl">Image (PNG or JPG)</span><label class="btn ghost sm" for="wmImgFile">Choose image</label><input id="wmImgFile" type="file" accept="image/png,image/jpeg" hidden><em id="wmImgName" class="hintline"></em></div>'
+  + numf('wmIW', 'Image width', 40, 5, 100, 1, '%')
+  + '<div class="optfield grow"><label class="lbl" for="wmText">Watermark text</label><span class="name"><input id="wmText" type="text" value="CONFIDENTIAL" maxlength="60" spellcheck="false" autocomplete="off"></span></div>'
   + numf('wmSize', 'Size', 64, 8, 240, 1, 'pt')
   + '<div class="optfield"><label class="lbl" for="wmOp">Strength</label><input class="range" id="wmOp" type="range" min="5" max="100" value="30"></div>'
   + '<div class="optfield"><span class="lbl">Colour</span><div class="chips">' + sw('#8a8f98','Grey',True) + sw('#e5007d','Magenta') + sw('#009fe3','Cyan') + sw('#0b1220','Black') + '</div></div>'
@@ -32,6 +35,15 @@ OPT_NUM = ('<div class="optfield"><label class="lbl" for="nPos">Position</label>
   + '<div class="optfield"><label class="lbl" for="nFmt">Format</label><select class="dd" id="nFmt"><option value="n">1</option><option value="page">Page 1</option><option value="of">1 / 10</option><option value="pageof">Page 1 of 10</option></select></div>'
   + numf('nStart', 'Start at', 1, 0, 99999) + numf('nSize', 'Size', 12, 6, 48, 1, 'pt')
   + '<div class="optfield">' + chk('nSkip', 'Leave the first page unnumbered') + '</div><p class="err" id="err" hidden></p>')
+OPT_BATES = ('<div class="optfield"><label class="lbl" for="nPos">Position</label><select class="dd" id="nPos"><option value="bottom-right">Bottom right</option><option value="bottom-center">Bottom centre</option><option value="bottom-left">Bottom left</option><option value="top-right">Top right</option><option value="top-center">Top centre</option><option value="top-left">Top left</option></select></div>'
+  + '<div class="optfield"><label class="lbl" for="bPre">Prefix</label><span class="name"><input id="bPre" type="text" value="ABC-" maxlength="20" spellcheck="false" autocomplete="off"></span></div>'
+  + '<div class="optfield"><label class="lbl" for="bSuf">Suffix</label><span class="name"><input id="bSuf" type="text" value="" maxlength="20" spellcheck="false" autocomplete="off"></span></div>'
+  + numf('nStart', 'Start at', 1, 0, 99999999) + numf('bDig', 'Digits', 6, 1, 12) + numf('nSize', 'Size', 10, 6, 48, 1, 'pt')
+  + '<p class="err" id="err" hidden></p>')
+def hz(i, l, d=''): return f'<div class="optfield grow"><label class="lbl" for="{i}">{l}</label><span class="name"><input id="{i}" type="text" value="{d}" maxlength="80" spellcheck="false" autocomplete="off"></span></div>'
+OPT_HF = (hz('hL','Header left') + hz('hC','Header centre') + hz('hR','Header right') + hz('fL','Footer left') + hz('fC','Footer centre', 'Page {page} of {pages}') + hz('fR','Footer right')
+  + numf('hSize', 'Size', 10, 6, 48, 1, 'pt')
+  + '<p class="tip wide">Use {page}, {pages}, {date} and {file} to insert values.</p><p class="err" id="err" hidden></p>')
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -109,6 +121,12 @@ TOOLS = [
  dict(id='number', name='Page numbers', crumb='Page numbers', kind='pdf', engine='ptool',
       lead='Add page numbers in the position and format you choose.',
       drop='Drop a PDF here', acts=[], opt=OPT_NUM, ext='pdf', defname='Dilia-numbered', field='File name', go='Add numbers and download'),
+ dict(id='bates', name='Bates numbering', crumb='Bates numbering', kind='pdf', engine='ptool',
+      lead='Stamp a running reference number such as ABC-000001 on every page, for legal and records work.',
+      drop='Drop a PDF here', acts=[], opt=OPT_BATES, ext='pdf', defname='Dilia-bates', field='File name', go='Add Bates numbers and download'),
+ dict(id='headfoot', name='Header and footer', crumb='Header and footer', kind='pdf', engine='ptool',
+      lead='Add text to the top and bottom of every page. Page number, page count, date and file name can be inserted.',
+      drop='Drop a PDF here', acts=[], opt=OPT_HF, ext='pdf', defname='Dilia-header-footer', field='File name', go='Add header and footer and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -154,7 +172,7 @@ def page(t):
         bar_acts = f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
         tips = {'split': 'Pages are coloured by the file they go into.', 'delete': 'Click a page to mark it for deletion.', 'extract': 'Click a page to keep it.',
-                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
+                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
         bar_left = f'<b class="fn" id="fname"></b><p class="tip">{tips}</p>'
         bar_acts = ''.join(t['acts']) + f'<label class="btn ghost sm" for="pick">Change PDF</label>'
     filebox = '<div class="filebox" id="fbox"><div class="fthumb" id="fthumb"><span>PDF</span></div><div class="finfo"><b id="fn2"></b><span id="fmeta"></span><p id="fstate"></p></div></div>' if isfile else ''

@@ -15,7 +15,9 @@ window.DILIA_TOOLS = [
     { id: 'sign', name: 'Sign', desc: 'Draw, type or upload a signature and place it.', ready: 1, icon: 'M3 16c3-1 4-9 6-9s-1 9 1 9 3-4 4-4 1 3 3 3 2-1 4-2M3 21h18' },
     { id: 'annotate', name: 'Highlight and notes', desc: 'Mark up lines and leave comments.', ready: 1, icon: 'M4 21h16M6 17l9-9 3 3-9 9H6z' },
     { id: 'watermark', name: 'Watermark', desc: 'Stamp text or a logo across pages.', ready: 1, icon: 'M6 3h9l4 4v14H6zM9 16l7-7' },
-    { id: 'number', name: 'Page numbers', desc: 'Number pages in your own format.', ready: 1, icon: 'M9 4 7 20M17 4l-2 16M4 9h16M3 15h16' }
+    { id: 'number', name: 'Page numbers', desc: 'Number pages in your own format.', ready: 1, icon: 'M9 4 7 20M17 4l-2 16M4 9h16M3 15h16' },
+    { id: 'bates', name: 'Bates numbering', desc: 'Stamp running reference numbers like ABC-000001.', ready: 1, icon: 'M5 6h14M5 12h14M5 18h9M17 16l2 2 3-4' },
+    { id: 'headfoot', name: 'Header and footer', desc: 'Add text to the top and bottom of every page.', ready: 1, icon: 'M4 4h16v16H4zM4 8h16M4 16h16' }
   ]],
   ['Convert', [
     { id: 'img2pdf', name: 'Images to PDF', desc: 'Turn JPG and PNG photos into one PDF.', ready: 1, icon: 'M3 5h12v10H3zM3 12l4-3 4 3M14 13h4l3 3v5h-7z' },

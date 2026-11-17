@@ -13,6 +13,8 @@ const CFG = {
   split:   { suffix: '',     fallback: 'Dilia-split',     l2: 'Files out', l3: 'Size in',   verb: 'Split and download' },
   watermark: { suffix: '', fallback: 'Dilia-watermark', l2: 'Marked', l3: 'Size in', verb: 'Add watermark and download' },
   number:  { suffix: '', fallback: 'Dilia-numbered', l2: 'Numbered', l3: 'Size in', verb: 'Add numbers and download' },
+  bates:   { suffix: '', fallback: 'Dilia-bates', l2: 'Stamped', l3: 'Size in', verb: 'Add Bates numbers and download' },
+  headfoot: { suffix: '', fallback: 'Dilia-header-footer', l2: 'Changed', l3: 'Size in', verb: 'Add header and footer and download' },
   crop:    { suffix: '', fallback: 'Dilia-cropped', l2: 'Cropped', l3: 'Size in', verb: 'Crop and download' },
   text:    { suffix: '', fallback: 'Dilia-text', l2: 'Selected', l3: 'Pages out', verb: 'Save as text' },
   pdf2img: { suffix: '',    fallback: 'Dilia-images',    l2: 'Selected',  l3: 'Images out', verb: 'Save as images' }
@@ -20,7 +22,8 @@ const CFG = {
 const TOGGLE = ['delete', 'extract', 'pdf2img', 'text'].includes(MODE);
 const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text';
 const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text';
-const OVERLAY = ['watermark', 'number', 'crop'].includes(MODE);
+const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop'].includes(MODE);
+const NUMBERED = MODE === 'number' || MODE === 'bates';
 const fmt = () => document.querySelector('input[name=fmt]:checked').value;
 
 const ws = $('#ws'), grid = $('#grid'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog');
@@ -294,20 +297,42 @@ const NFMT = { n: (n, N) => `${n}`, page: (n, N) => `Page ${n}`, of: (n, N) => `
 function wmSpec() {
   const text = val('wmText').trim(), size = num('wmSize'), op = num('wmOp') / 100;
   const colour = document.querySelector('input[name=wc]:checked').value, ang = +val('wmAng'), tiled = document.querySelector('input[name=wl]:checked').value === 'tiled';
-  return { text, size, op, colour, ang, tiled };
+  const kind = (document.querySelector('input[name=wk]:checked') || { value: 'text' }).value;
+  return { kind, text, size, op, colour, ang, tiled, img: wmImg, iw: num('wmIW') };
+}
+let wmImg = null;                                       // { url, w, h, bytes, type } for an image watermark
+function imgDims(sp, vw) { const w = sp.iw / 100 * vw; return { w, h: w * sp.img.h / sp.img.w }; }
+async function pickWmImage(f) {
+  if (!f) return;
+  if (!/^image\/(png|jpeg)$/.test(f.type)) { toast('Use a PNG or JPG image for the watermark.', true); return; }
+  const bytes = new Uint8Array(await f.arrayBuffer()), url = URL.createObjectURL(f);
+  const im = new Image(); im.onload = () => { if (wmImg) URL.revokeObjectURL(wmImg.url); wmImg = { url, w: im.naturalWidth, h: im.naturalHeight, bytes, type: f.type, name: f.name }; $('#wmImgName').textContent = f.name; clearDone(); paint(); };
+  im.onerror = () => toast('That image could not be read.', true); im.src = url;
 }
 function wmPlaces(sp, vw, vh) {                       // [{cx,cy}] in visual page points
   if (!sp.tiled) return [{ cx: vw / 2, cy: vh / 2 }];
-  const tw = textW(sp.text, sp.size), sx = tw * 1.5 + sp.size, sy = sp.size * 3.2, out = [];
+  const im = sp.kind === 'image' && sp.img ? imgDims(sp, vw) : null;
+  const tw = im ? im.w : textW(sp.text, sp.size), sx = tw * 1.5 + (im ? 0 : sp.size), sy = im ? im.h * 1.6 : sp.size * 3.2, out = [];
   let row = 0;
   for (let cy = sy / 2; cy < vh + sy; cy += sy, row++)
     for (let cx = (row % 2 ? sx / 2 : 0); cx < vw + sx; cx += sx) { out.push({ cx, cy }); if (out.length > 400) return out; }
   return out;
 }
 function numSpec() {
+  if (MODE === 'bates') return { pos: val('nPos'), start: Math.floor(num('nStart')), size: num('nSize'), pre: val('bPre'), suf: val('bSuf'), dig: Math.floor(num('bDig')), skip: false };
   return { pos: val('nPos'), fmt: val('nFmt'), start: Math.floor(num('nStart')), size: num('nSize'), skip: $('#nSkip').checked };
 }
-function numText(sp, k) { const n = sp.start + k - (sp.skip ? 1 : 0), N = sp.start + pages.length - (sp.skip ? 1 : 0) - 1; return NFMT[sp.fmt](n, N); }
+function numText(sp, k) {
+  if (MODE === 'bates') return sp.pre + String(sp.start + k).padStart(sp.dig, '0') + sp.suf;
+  const n = sp.start + k - (sp.skip ? 1 : 0), N = sp.start + pages.length - (sp.skip ? 1 : 0) - 1; return NFMT[sp.fmt](n, N);
+}
+const HF_ZONES = ['hL', 'hC', 'hR', 'fL', 'fC', 'fR'];
+function hfSpec() { const z = {}; HF_ZONES.forEach(k => z[k] = val(k)); return { z, size: num('hSize') }; }
+function hfText(t, n) { return t.replace(/\{page\}/gi, n + 1).replace(/\{pages\}/gi, pages.length).replace(/\{file\}/gi, base()).replace(/\{date\}/gi, new Date().toISOString().slice(0, 10)); }
+function hfPlace(k, text, size, vw, vh) {              // baseline-left point in visual page points
+  const tw = textW(text, size), m = 28, c = k[1];
+  return { x: c === 'L' ? m : c === 'R' ? vw - m - tw : (vw - tw) / 2, y: k[0] === 'f' ? m : vh - m - size * 0.72 };
+}
 function numPlace(sp, text, vw, vh) {                 // baseline-left point in visual page points
   const tw = textW(text, sp.size), m = 28, [v, h] = sp.pos.split('-');
   return { x: h === 'left' ? m : h === 'right' ? vw - m - tw : (vw - tw) / 2, y: v === 'bottom' ? m : vh - m - sp.size * 0.72 };
@@ -317,14 +342,31 @@ function cropSpec() { return { t: num('cT') || 0, r: num('cR') || 0, b: num('cB'
 function overlayCheck() {
   if (MODE === 'watermark') {
     const sp = wmSpec();
+    if (sp.kind === 'image') {
+      if (!sp.img) return { hint: 'Choose a PNG or JPG image for the watermark.' };
+      if (!(sp.iw >= 5 && sp.iw <= 100)) return { err: 'Image width must be between 5 and 100 percent of the page.' };
+      return { ok: true };
+    }
     if (!sp.text) return { hint: 'Type the watermark text.' };
     if (!fontOK(sp.text)) return { err: 'Only English letters, numbers and common symbols work in this text for now.' };
     if (!(sp.size >= 8 && sp.size <= 240)) return { err: 'Text size must be between 8 and 240.' };
     return { ok: true };
   }
-  if (MODE === 'number') {
+  if (MODE === 'headfoot') {
+    const sp = hfSpec(), all = HF_ZONES.map(k => hfText(sp.z[k], 0));
+    if (!HF_ZONES.some(k => sp.z[k].trim())) return { hint: 'Type text in at least one of the six boxes.' };
+    if (all.some(t => !fontOK(t))) return { err: 'Only English letters, numbers and common symbols work in these boxes for now.' };
+    if (!(sp.size >= 6 && sp.size <= 48)) return { err: 'Text size must be between 6 and 48.' };
+    return { ok: true };
+  }
+  if (NUMBERED) {
     const sp = numSpec();
-    if (!(sp.start >= 0 && sp.start <= 99999)) return { err: 'Start number must be 0 or more.' };
+    if (MODE === 'bates') {
+      if (!(sp.dig >= 1 && sp.dig <= 12)) return { err: 'Digits must be between 1 and 12.' };
+      if (!fontOK(sp.pre + sp.suf)) return { err: 'Only English letters, numbers and common symbols work in the prefix and suffix for now.' };
+      if (String(sp.start + pages.length - 1).length > sp.dig) return { err: `The last number needs more than ${sp.dig} digits. Raise the digits.` };
+    }
+    if (!(sp.start >= 0 && sp.start <= 99999999)) return { err: 'Start number must be 0 or more.' };
     if (!(sp.size >= 6 && sp.size <= 48)) return { err: 'Text size must be between 6 and 48.' };
     return { ok: true };
   }
@@ -336,16 +378,21 @@ function overlayCheck() {
 
 function overlays() {
   const chk = overlayCheck(), live = chk.ok;
-  const sp = MODE === 'watermark' ? wmSpec() : MODE === 'number' ? numSpec() : cropSpec();
+  const sp = MODE === 'watermark' ? wmSpec() : MODE === 'headfoot' ? hfSpec() : NUMBERED ? numSpec() : cropSpec();
   pages.forEach((p, n) => {
     const card = cardOf(p.i); if (!card) return;
     const pv = card.querySelector('.pv'), ov = card.querySelector('.ov'); if (!pv || !ov) return;
     const b = pageBox(p.i), S = pv.clientWidth, sc = Math.min(.92 * S / b.vw, .92 * S / b.vh), dw = b.vw * sc, dh = b.vh * sc;
     Object.assign(ov.style, { left: (S - dw) / 2 + 'px', top: (pv.clientHeight - dh) / 2 + 'px', width: dw + 'px', height: dh + 'px' });
     if (!live) { ov.innerHTML = ''; return; }
-    if (MODE === 'watermark') {
+    if (MODE === 'watermark' && sp.kind === 'image') {
+      const d = imgDims(sp, b.vw);
+      ov.innerHTML = wmPlaces(sp, b.vw, b.vh).map(q => `<img alt="" src="${sp.img.url}" style="position:absolute;left:${q.cx * sc}px;top:${(b.vh - q.cy) * sc}px;width:${d.w * sc}px;opacity:${sp.op};transform:translate(-50%,-50%) rotate(${-sp.ang}deg)">`).join('');
+    } else if (MODE === 'watermark') {
       ov.innerHTML = wmPlaces(sp, b.vw, b.vh).map(q => `<span style="left:${q.cx * sc}px;top:${(b.vh - q.cy) * sc}px;font-size:${sp.size * sc}px;color:${sp.colour};opacity:${sp.op};transform:translate(-50%,-50%) rotate(${-sp.ang}deg)">${esc(sp.text)}</span>`).join('');
-    } else if (MODE === 'number') {
+    } else if (MODE === 'headfoot') {
+      ov.innerHTML = HF_ZONES.filter(k => sp.z[k].trim()).map(k => { const t = hfText(sp.z[k], n), q = hfPlace(k, t, sp.size, b.vw, b.vh); return `<span style="left:${q.x * sc}px;top:${(b.vh - q.y) * sc}px;font-size:${sp.size * sc}px;color:#0b1220;transform:translateY(-82%)">${esc(t)}</span>`; }).join('');
+    } else if (NUMBERED) {
       if (sp.skip && n === 0) { ov.innerHTML = ''; return; }
       const t = numText(sp, n), q = numPlace(sp, t, b.vw, b.vh);
       ov.innerHTML = `<span style="left:${q.x * sc}px;top:${(b.vh - q.y) * sc}px;font-size:${sp.size * sc}px;color:#0b1220;transform:translateY(-82%)">${esc(t)}</span>`;
@@ -354,6 +401,7 @@ function overlays() {
     }
   });
 }
+if ($('#wmImgFile')) $('#wmImgFile').addEventListener('change', e => { pickWmImage(e.target.files[0]); e.target.value = ''; });
 document.querySelectorAll('.optbar input, .optbar select').forEach(e => {
   if (!OVERLAY) return;
   e.addEventListener('input', () => { clearDone(); paint(); });
@@ -384,8 +432,9 @@ async function toText() {
 async function stamp() {
   const out = await PDFLib.PDFDocument.load(doc.bytes, { updateMetadata: false });
   const font = await out.embedFont(PDFLib.StandardFonts.Helvetica);
-  const sp = MODE === 'watermark' ? wmSpec() : MODE === 'number' ? numSpec() : cropSpec();
+  const sp = MODE === 'watermark' ? wmSpec() : MODE === 'headfoot' ? hfSpec() : NUMBERED ? numSpec() : cropSpec();
   const crop = MODE === 'crop';
+  const wimg = MODE === 'watermark' && sp.kind === 'image' ? await (sp.img.type === 'image/png' ? out.embedPng(sp.img.bytes) : out.embedJpg(sp.img.bytes)) : null;
   pages.forEach((p, n) => {
     const pg = out.getPage(p.i), cb = pg.getCropBox(), r = ((pg.getRotation().angle % 360) + 360) % 360;
     const b = { x0: cb.x, y0: cb.y, W: cb.width, H: cb.height, r, vw: r % 180 ? cb.height : cb.width, vh: r % 180 ? cb.width : cb.height };
@@ -394,6 +443,18 @@ async function stamp() {
       const [uL, uT, uR, uB] = r === 0 ? [vl, vt, vr, vb] : r === 90 ? [vt, vr, vb, vl] : r === 180 ? [vr, vb, vl, vt] : [vb, vl, vt, vr];
       const box = [b.x0 + uL, b.y0 + uB, b.W - uL - uR, b.H - uT - uB];
       pg.setCropBox(...box); pg.setMediaBox(...box);
+    } else if (wimg) {
+      const ang = sp.ang + r, th = ang * Math.PI / 180, d = imgDims(sp, b.vw);
+      for (const q of wmPlaces(sp, b.vw, b.vh)) {
+        const [cx, cy] = toUser(b, q.cx, q.cy);
+        pg.drawImage(wimg, { x: cx - d.w / 2 * Math.cos(th) + d.h / 2 * Math.sin(th), y: cy - d.w / 2 * Math.sin(th) - d.h / 2 * Math.cos(th), width: d.w, height: d.h, opacity: sp.op, rotate: PDFLib.degrees(ang) });
+      }
+    } else if (MODE === 'headfoot') {
+      for (const k of HF_ZONES) {
+        if (!sp.z[k].trim()) continue;
+        const t = hfText(sp.z[k], n), q = hfPlace(k, t, sp.size, b.vw, b.vh), [ux, uy] = toUser(b, q.x, q.y);
+        pg.drawText(t, { x: ux, y: uy, size: sp.size, font, color: PDFLib.rgb(.04, .07, .13), rotate: PDFLib.degrees(r) });
+      }
     } else if (MODE === 'watermark') {
       const ang = sp.ang + r, th = ang * Math.PI / 180, lw = font.widthOfTextAtSize(sp.text, sp.size), lh = sp.size * 0.3;
       for (const q of wmPlaces(sp, b.vw, b.vh)) {
