@@ -2,6 +2,8 @@
 
 Read this first in every new chat. Repo: `dilshanchamika9-netizen/Dilia-Studio`, branch `main`.
 Live: https://dilshanchamika9-netizen.github.io/Dilia-Studio/ (GitHub Pages, deploy from `main` / root).
+
+Company files (private): repo `dilia-hq` on the same GitHub account. Read its README.md first: read-first order, precedence, decisions log, task register, standards.
 This project is separate from the Orel dashboard. Never mix code, files or rules between the two.
 
 ## 1. Rules (from the owner, apply always)
