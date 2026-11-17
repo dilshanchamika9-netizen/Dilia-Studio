@@ -6,7 +6,7 @@
   const panel = el('div', 'mega'); panel.id = 'mega'; panel.hidden = true; panel.setAttribute('aria-label', 'All tools');
   const inner = el('div', 'mega-in');
   DILIA_TOOLS.forEach(([g, list]) => {
-    const rd = list.filter(t => t.ready), col = el('div', 'mcol' + (rd.length > 12 ? ' wide' : '')); col.append(el('h3', '', g));
+    const rd = list.filter(t => t.ready && !t.v), col = el('div', 'mcol' + (rd.length > 12 ? ' wide' : '')); col.append(el('h3', '', g));
     const ul = el('div', 'mlist'); col.append(ul);
     rd.forEach(t => { const a = el('a', '', t.name); a.href = diliaUrl(t); ul.append(a); });
     inner.append(col);

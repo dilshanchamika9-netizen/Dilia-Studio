@@ -300,12 +300,79 @@ TOOLS = [
       s1='Images', l2='Pages', l3='Size in', go='Create PDF', extra=['assets/vendor/pako_inflate.min.js', 'assets/vendor/UTIF.js']),
 ]
 
+
+# ---------------- Dilia Pixel (image tools) ----------------
+def qsl(i='q', label='Quality', v=75, mn=5):
+    return f'<div class="optfield"><label class="lbl" for="{i}">{label}</label><span class="name qs"><input id="{i}" type="range" min="{mn}" max="100" value="{v}" aria-label="{label}"><output for="{i}" id="{i}o">{v}</output></span></div>'
+def hid(i, v): return f'<input id="{i}" type="hidden" value="{v}">'
+FMT_ALL = [('same', 'Same as the original'), ('jpg', 'JPG'), ('png', 'PNG'), ('webp', 'WebP'), ('avif', 'AVIF (smallest, slower)')]
+FMT_CONV = [('jpg', 'JPG'), ('png', 'PNG'), ('webp', 'WebP'), ('avif', 'AVIF'), ('gif', 'GIF'), ('bmp', 'BMP'), ('tiff', 'TIFF'), ('ico', 'ICO (icon)')]
+OUTF = dd('outFmt', 'Save as', FMT_ALL)
+PX_COMPRESS = dd('outFmt', 'Save as', [('same', 'Same as the original'), ('auto', 'Smallest of JPG, WebP, PNG')] + FMT_ALL[1:]) + qsl() + numf('tgt', 'Or aim under', 0, 0, 100000, 10, 'KB') + dd('cScale', 'Size', [(100, 'Keep pixels'), (75, '75%'), (50, '50%'), (25, '25%')]) + '<p class="tip wide">Set "aim under" to 0 to use the quality slider. Photos stay sharp at 70 to 80. PNG and GIF use fewer colours when quality is lowered.</p>'
+PX_RESIZE = (dd('rzMode', 'Resize by', [('px', 'Pixels'), ('pct', 'Percent')]) + '<span data-op="px">' + numf('rzW', 'Width', '', 1, 30000, 1, 'px') + numf('rzH', 'Height', '', 1, 30000, 1, 'px') + '</span><span data-op="pct" hidden>' + numf('rzPct', 'Scale', 50, 1, 500, 1, '%') + '</span>'
+  + '<div class="optfield">' + chk('rzKeep', 'Keep proportions', True) + chk('rzNoUp', 'Never enlarge', True) + '</div>'
+  + dd('rzPreset', 'Preset', [('', 'Pick a size'), ('1080x1080', 'Instagram post 1080 × 1080'), ('1080x1920', 'Story or Reel 1080 × 1920'), ('1200x630', 'Facebook or link preview 1200 × 630'), ('1280x720', 'YouTube thumbnail 1280 × 720'), ('1500x500', 'X header 1500 × 500'), ('1920x1080', 'Full HD 1920 × 1080'), ('512x512', 'App icon 512 × 512'), ('800x600', 'Web 800 × 600')]) + OUTF + hid('q', 90))
+PX_CROP = (dd('cAspect', 'Shape', [('free', 'Free'), ('1:1', 'Square 1:1'), ('4:3', '4:3'), ('3:2', '3:2'), ('16:9', '16:9'), ('9:16', '9:16'), ('4:5', '4:5'), ('circle', 'Circle (PNG)')])
+  + OUTF + hid('q', 92) + '<p class="tip wide">Press the pencil on an image to set its crop box. Images you leave alone are cropped from the centre to the chosen shape. "Free" without a box keeps the full image.</p>')
+PX_ROTATE = (dd('rotDeg', 'Turn', [(90, 'Right 90°'), (270, 'Left 90°'), (180, 'Upside down 180°'), (0, 'Do not turn')]) + '<div class="optfield"><span class="lbl">Mirror</span>' + chk('rotFh', 'Left to right') + chk('rotFv', 'Top to bottom') + '</div>' + OUTF + hid('q', 92))
+PX_CONVERT = qsl('q', 'Quality', 90) + '<p class="tip wide">Transparent areas turn white when saving as JPG. Quality applies to JPG, WebP and AVIF.</p>'
+PX_WM = ('<div class="optfield"><span class="lbl">Watermark</span>' + rad('wmKind', [('text', 'Text'), ('image', 'Logo image')]) + '</div>'
+  + '<span data-op="text">' + hz('wmText', 'Text', '© Your name') + '<div class="optfield"><label class="lbl" for="wmColor">Colour</label><span class="name"><input id="wmColor" type="color" value="#ffffff"></span></div></span>'
+  + '<span data-op="image" hidden><div class="optfield"><label class="lbl" for="wmImg">Logo file</label><span class="name"><input id="wmImg" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></span></div></span>'
+  + dd('wmPos', 'Position', [('br', 'Bottom right'), ('bl', 'Bottom left'), ('bc', 'Bottom centre'), ('tr', 'Top right'), ('tl', 'Top left'), ('tc', 'Top centre'), ('cc', 'Centre')])
+  + numf('wmSize', 'Size', 20, 3, 100, 1, '%') + numf('wmOp', 'Opacity', 40, 5, 100, 1, '%') + numf('wmAng', 'Angle', 0, -90, 90, 1, '°')
+  + '<div class="optfield">' + chk('wmTile', 'Repeat across the image') + '</div>' + OUTF + hid('q', 92))
+PX_MEME = (hz('mTop', 'Top text', '') + hz('mBot', 'Bottom text', '') + numf('mSize', 'Text size', 9, 3, 25, 1, '%')
+  + '<div class="optfield"><label class="lbl" for="mColor">Colour</label><span class="name"><input id="mColor" type="color" value="#ffffff"></span></div>' + dd('outFmt', 'Save as', [('jpg', 'JPG'), ('png', 'PNG'), ('webp', 'WebP')]) + hid('q', 92))
+PX_BLUR = dd('bMode', 'Cover with', [('blur', 'Blur'), ('pixel', 'Pixels'), ('black', 'Black box')]) + OUTF + hid('q', 92) + '<p class="tip wide">Press the pencil on an image, drag over faces, plates or text to hide them. Hidden pixels are replaced in the saved file.</p>'
+PX_GIF = numf('gDelay', 'Time per frame', 500, 20, 10000, 10, 'ms') + numf('gW', 'Width', 480, 16, 2000, 1, 'px') + '<div class="optfield">' + chk('gLoop', 'Repeat forever', True) + '</div>'
+PX_META = '<p class="tip wide">Removes camera details, date and GPS location from JPG and PNG without re-compressing the picture. Cards show what is inside each photo first.</p>'
+PX_ACCEPT = 'image/*,.jpg,.jpeg,.jfif,.png,.webp,.gif,.bmp,.avif,.svg,.tif,.tiff,.heic,.heif,.ico'
+def pxdict(id, name, crumb, tool, opt, lead, ext='', defname='Dilia-images', go='Save images', out='', accept=None, drop='Drop images here', **kw):
+    d = dict(id=id, name=name, crumb=crumb, kind='pix', engine='imgtool', tool=tool, out=out, lead=lead, drop=drop, acts=[], opt=opt, ext=ext, defname=defname, field='File name',
+             s1='Images', l2='Result', l3='Size in', go=go, extra=['assets/vendor/Sortable.min.js'] if False else [])
+    if accept: d['accept'] = accept
+    d.update(kw); return d
+PIX = [
+ pxdict('pxcompress', 'Compress image', 'Compress image', 'compress', PX_COMPRESS, 'Make JPG, PNG, WebP, GIF and SVG files smaller. Check the result with the before and after slider.', go='Compress and download'),
+ pxdict('pxjpg', 'Compress JPG', 'Compress JPG', 'compress', PX_COMPRESS, 'Shrink JPG photos for email, forms and websites.', go='Compress and download', accept='image/jpeg,.jpg,.jpeg,.jfif', drop='Drop JPG photos here'),
+ pxdict('pxpng', 'Compress PNG', 'Compress PNG', 'compress', PX_COMPRESS, 'Shrink PNG files by using fewer colours. Transparency stays.', go='Compress and download', accept='image/png,.png', drop='Drop PNG files here'),
+ pxdict('pxwebp', 'Compress WebP', 'Compress WebP', 'compress', PX_COMPRESS, 'Shrink WebP images for faster pages.', go='Compress and download', accept='image/webp,.webp', drop='Drop WebP files here'),
+ pxdict('pxgif', 'Compress GIF', 'Compress GIF', 'compress', qsl('q', 'Quality', 70) + dd('cScale', 'Size', [(100, 'Keep pixels'), (75, '75%'), (50, '50%')]), 'Shrink animated GIFs. Frames and timing are kept.', go='Compress and download', accept='image/gif,.gif', drop='Drop GIF files here', out='gifopt'),
+ pxdict('pxsvg', 'Optimise SVG', 'Optimise SVG', 'compress', '<p class="tip wide">Removes editor data, comments and wasted code. The picture does not change.</p>' + hid('q', 75), 'Clean and shrink SVG files.', go='Optimise and download', accept='image/svg+xml,.svg', drop='Drop SVG files here', out='svgopt'),
+ pxdict('pxsmall', 'Smallest image format', 'Smallest format', 'compress', qsl() + dd('cScale', 'Size', [(100, 'Keep pixels'), (75, '75%'), (50, '50%')]) + '<p class="tip wide">Tries JPG, WebP and PNG for each image and keeps the smallest.</p>', 'Let the tool pick the format that makes each image smallest.', go='Find smallest and download', out='auto'),
+ pxdict('pxtarget', 'Compress image to a size', 'Compress to size', 'compress', dd('outFmt', 'Save as', [('same', 'Same as the original'), ('jpg', 'JPG'), ('webp', 'WebP')]) + qsl() + numf('tgt', 'Keep each under', 200, 5, 100000, 10, 'KB') + dd('cScale', 'Size', [(100, 'Keep pixels'), (50, '50%')]), 'Get each image under a size you set, such as 200 KB for a form.', go='Compress and download'),
+ pxdict('pxresize', 'Resize image', 'Resize image', 'resize', PX_RESIZE, 'Change the size in pixels or percent. Social media presets included.', go='Resize and download'),
+ pxdict('pxcrop', 'Crop image', 'Crop image', 'crop', PX_CROP, 'Cut a picture to a box or shape. Set pixels by hand or drag.', go='Crop and download'),
+ pxdict('pxrotate', 'Rotate and flip image', 'Rotate and flip', 'rotate', PX_ROTATE, 'Turn photos upright or mirror them.', go='Save and download'),
+ pxdict('pxconvert', 'Convert image', 'Convert image', 'convert', dd('outFmt', 'Convert to', FMT_CONV) + PX_CONVERT, 'Change JPG, PNG, WebP, GIF, BMP, TIFF, AVIF, SVG or HEIC into another type.', go='Convert and download'),
+ pxdict('pxheic', 'HEIC to JPG', 'HEIC to JPG', 'convert', hid('outFmt', 'jpg') + PX_CONVERT, 'Turn iPhone HEIC photos into JPG that opens everywhere.', go='Convert and download', accept='.heic,.heif,image/heic,image/heif', drop='Drop HEIC photos here', out='jpg'),
+ pxdict('pxheicpng', 'HEIC to PNG', 'HEIC to PNG', 'convert', hid('q', 90), 'Turn iPhone HEIC photos into PNG.', go='Convert and download', accept='.heic,.heif,image/heic,image/heif', drop='Drop HEIC photos here', out='png'),
+ pxdict('pxpng2jpg', 'PNG to JPG', 'PNG to JPG', 'convert', PX_CONVERT, 'Turn PNG files into smaller JPG photos.', go='Convert and download', accept='image/png,.png', drop='Drop PNG files here', out='jpg'),
+ pxdict('pxjpg2png', 'JPG to PNG', 'JPG to PNG', 'convert', hid('q', 90), 'Turn JPG photos into PNG files.', go='Convert and download', accept='image/jpeg,.jpg,.jpeg', drop='Drop JPG photos here', out='png'),
+ pxdict('pxwebp2jpg', 'WebP to JPG', 'WebP to JPG', 'convert', PX_CONVERT, 'Turn WebP images into JPG.', go='Convert and download', accept='image/webp,.webp', drop='Drop WebP files here', out='jpg'),
+ pxdict('pxwebp2png', 'WebP to PNG', 'WebP to PNG', 'convert', hid('q', 90), 'Turn WebP images into PNG.', go='Convert and download', accept='image/webp,.webp', drop='Drop WebP files here', out='png'),
+ pxdict('pxjpg2webp', 'JPG to WebP', 'JPG to WebP', 'convert', PX_CONVERT, 'Turn JPG photos into smaller WebP files.', go='Convert and download', accept='image/jpeg,.jpg,.jpeg', drop='Drop JPG photos here', out='webp'),
+ pxdict('pxavif', 'Convert to AVIF', 'Convert to AVIF', 'convert', PX_CONVERT, 'Make AVIF files, usually the smallest. First use loads a codec of 3.5 MB.', go='Convert and download', out='avif'),
+ pxdict('pxico', 'Image to ICO', 'Image to ICO', 'convert', hid('q', 90) + '<p class="tip wide">Makes an icon file with 16 to 256 px sizes inside.</p>', 'Turn a picture into a favicon or app icon.', go='Make icon', out='ico'),
+ pxdict('pxbmp', 'Image to BMP', 'Image to BMP', 'convert', hid('q', 90), 'Save pictures as BMP.', go='Convert and download', out='bmp'),
+ pxdict('pxtiff', 'Image to TIFF', 'Image to TIFF', 'convert', hid('q', 90), 'Save pictures as TIFF.', go='Convert and download', out='tiff'),
+ pxdict('pxgifpng', 'GIF to PNG', 'GIF to PNG', 'convert', hid('q', 90), 'Save the first frame of a GIF as PNG.', go='Convert and download', accept='image/gif,.gif', drop='Drop GIF files here', out='png'),
+ pxdict('pxwm', 'Watermark image', 'Watermark image', 'watermark', PX_WM, 'Stamp text or your logo on one photo or a whole batch.', go='Add watermark and download'),
+ pxdict('pxmeme', 'Meme generator', 'Meme generator', 'meme', PX_MEME, 'Put top and bottom text on any picture.', go='Make meme and download'),
+ pxdict('pxblur', 'Blur or pixelate part of an image', 'Blur image areas', 'blur', PX_BLUR, 'Hide faces, plates and private text in a picture.', go='Hide areas and download'),
+ pxdict('pxgifmake', 'Make animated GIF', 'Make animated GIF', 'gif', PX_GIF, 'Turn several pictures into one animated GIF. Drag to set the order.', ext='gif', defname='Dilia-animation', go='Make GIF', s1='Frames', l2='Result', l3='Size in'),
+ pxdict('pxmeta', 'Remove image metadata', 'Image metadata', 'meta', PX_META, 'See and remove camera model, date and GPS from photos.', go='Remove metadata and download'),
+]
+TOOLS += PIX
+
 def page(t):
-    img = t['kind'] == 'img'
+    pix = t['kind'] == 'pix'
+    img = t['kind'] in ('img', 'pix')
     isfile = t['kind'] == 'file'
-    accept = t.get('accept') or 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,image/tiff,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.tif,.tiff' if img else 'application/pdf,.pdf'
+    accept = t.get('accept') or (PX_ACCEPT if pix else None) or 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,image/tiff,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.tif,.tiff' if img else 'application/pdf,.pdf'
     multi = ' multiple' if img or t['kind'] == 'multi' else ''
-    small = 'JPG, PNG, WebP, GIF, BMP, TIFF and AVIF. Nothing is uploaded.' if img else 'The file is read by your browser and never uploaded.'
+    small = ('JPG, PNG, WebP, GIF, BMP, TIFF, SVG, AVIF and HEIC. Folders and paste work too. Nothing is uploaded.' if pix else 'JPG, PNG, WebP, GIF, BMP, TIFF and AVIF. Nothing is uploaded.') if img else 'The file is read by your browser and never uploaded.'
     choose = 'choose images' if img else 'choose a file'
     if isfile:
         bar_left = '<b class="fn" id="fname"></b>'
@@ -314,7 +381,7 @@ def page(t):
         bar_left = f'<p class="tip">{t["tip"]}</p>'
         bar_acts = (f'<button class="btn ghost sm" type="button" id="{t["sort"]}">{t["sortl"]}</button>') + f'<label class="btn ghost sm" for="pick">{PLUS}Add PDF</label>'
     elif img:
-        bar_left = '<p class="tip">Drag images to set the page order.</p>'
+        bar_left = '<p class="tip">Drag images to change the order.</p>' if not pix else '<p class="tip">' + {'gif': 'Drag images to set the frame order.', 'crop': 'Press the pencil to set a crop box.', 'blur': 'Press the pencil to mark areas.', 'compress': 'Press the split icon after saving to compare.'}.get(t['tool'], 'Settings are above. Results show on each image.') + '</p>'
         cam = f'<label class="btn ghost sm" for="cam">Take photo</label><input id="cam" class="vh" type="file" accept="image/*" capture="environment">' if t.get('camera') else ''
         bar_acts = cam + f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
@@ -326,9 +393,9 @@ def page(t):
     gridhtml = '' if isfile else '<div class="grid" id="grid"></div>'
     opt = f'<div class="optbar">{t["opt"]}</div>' if t['opt'] else ''
     go_label = t.get('go', {'delete': 'Delete pages and download', 'extract': 'Extract and download', 'rotate': 'Save rotated PDF', 'reorder': 'Save new order'}.get(t['id'], 'Download'))
-    body_attr = f' data-tool="{t["id"]}"' if not img else ''
+    body_attr = (f' data-tool="{t["tool"]}" data-out="{t["out"]}"' if pix else f' data-tool="{t["id"]}"') if (pix or not img) else ''
     qp = ('<script src="assets/vendor/qpdf.js"></script>' if t.get('qpdf') else '') + ''.join(f'<script src="{u}"></script>' for u in t.get('extra', []))
-    title = f'{t["name"]} - Free Online | Dilia Studio'
+    title = f'{t["name"]} - Free Online | Dilia {"Pixel" if pix else "Studio"}'
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -430,6 +497,15 @@ def page(t):
 </body>
 </html>
 '''
+
+_page = page
+def page(t):
+    html = _page(t)
+    if t['kind'] == 'pix':
+        for a, b in (('aria-label="Dilia Studio home"', 'aria-label="Dilia Pixel home"'), ('<span class="l">Studio</span>', '<span class="l">Pixel</span>'),
+                     ('<script src="assets/vendor/pdf-lib.min.js"></script>\n', ''), ('<script src="assets/vendor/pdf.min.js"></script>\n', ''), ('Your new PDF', 'Your new images')):
+            html = html.replace(a, b)
+    return html
 
 SLUGS = dict(re.findall(r"id: '([^']+)', slug: '([^']+)'", (ROOT / 'assets' / 'tools.js').read_text()))
 
@@ -603,7 +679,7 @@ OLD = '''<!doctype html>
 <body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
 '''
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or not (ROOT / slug).is_dir(): continue
+    if tid in ('merge',) or tid.startswith('px') or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 

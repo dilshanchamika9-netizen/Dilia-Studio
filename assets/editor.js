@@ -30,7 +30,8 @@ PDFLib.PDFDocument.create().then(async d => {
 });
 const fontKey = o => FAM[o.fam].std[(o.bold ? 1 : 0) + (o.ital ? 2 : 0)];
 const useO = o => !!(o.useOrig && o.of && ofontOf(o));
-const cssFont = (o, px) => useO(o) ? `400 normal ${px}px/${LH} '${o.of.l}', ${FAM[o.fam].css}` : `${o.bold ? 700 : 400} ${o.ital ? 'italic' : 'normal'} ${px}px/${LH} ${FAM[o.fam].css}`;
+const prevO = o => useO(o) && !ofontOf(o).sub;       // fonts the page does not embed are previewed in Sans with a width fit, saved in the original font
+const cssFont = (o, px) => prevO(o) ? `400 normal ${px}px/${LH} '${o.of.l}', ${FAM[o.fam].css}` : `${o.bold ? 700 : 400} ${o.ital ? 'italic' : 'normal'} ${px}px/${LH} ${FAM[o.fam].css}`;
 const mcx = document.createElement('canvas').getContext('2d');
 
 /* ---------- original fonts: reuse the font embedded in the PDF when we can ---------- */
@@ -72,7 +73,16 @@ function findOrig(lib, i, base, cache) {              // the PDF's own font obje
       const bf = d.get(PN.of('BaseFont')); if (!bf) continue;
       const nm = bf.decodeText(); if (nm !== base && strip(nm) !== strip(base)) continue;
       const st = d.get(PN.of('Subtype')); if (st && String(st.decodeText()) === 'Type3') continue;
-      const tu = d.get(PN.of('ToUnicode')), ts = tu && lib.context.lookup(tu); if (!ts) continue;
+      const tu = d.get(PN.of('ToUnicode')), ts = tu && lib.context.lookup(tu);
+      if (!ts) {                                       // no text map: a plain WinAnsi font (often not embedded) maps characters to codes directly
+        const en = d.get(PN.of('Encoding')), ens = en && en instanceof PDFLib.PDFName ? en.decodeText() : '';
+        if (ens !== 'WinAnsiEncoding' || !(st && /^(Type1|TrueType)$/.test(String(st.decodeText())))) continue;
+        const wa = lib.context.lookup(d.get(PN.of('Widths'))), fc = d.get(PN.of('FirstChar')), first = fc && fc.asNumber ? fc.asNumber() : 0, map = new Map(), dec = new TextDecoder('windows-1252');
+        for (let c = 32; c < 256; c++) { const wv = wa && wa.get && wa.get(c - first); const wn = wv && wv.asNumber ? wv.asNumber() : 0; if (!(wn > 0)) continue; const ch = dec.decode(new Uint8Array([c])); if (ch.length === 1 && !map.has(ch)) map.set(ch, hexOf(c, 1)); }
+        if (map.size < 20) continue;
+        const fdsc = d.get(PN.of('FontDescriptor')), fdd = fdsc && lib.context.lookup(fdsc), emb = fdd && fdd.get && (fdd.get(PN.of('FontFile')) || fdd.get(PN.of('FontFile2')) || fdd.get(PN.of('FontFile3')));
+        res = { key: k, map, sub: !emb }; break;
+      }
       const txt = new TextDecoder('latin1').decode(PDFLib.decodePDFRawStream(ts).decode());
       const { map } = parseToUnicode(txt); if (map.size < 2) continue;
       res = { key: k, map }; break;
@@ -105,7 +115,7 @@ const LH = 1.2;
 function textBox(o) {                  // width/height of a text object in points
   const f = metric[fontKey(o)], lines = o.text.split('\n');
   let w = 0;
-  if (useO(o) && !missing(o)) { mcx.font = `400 ${o.size}px '${o.of.l}'`; for (const l of lines) w = Math.max(w, mcx.measureText(l).width); return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH }; }
+  if (prevO(o) && !missing(o)) { mcx.font = `400 ${o.size}px '${o.of.l}'`; for (const l of lines) w = Math.max(w, mcx.measureText(l).width); return { w: Math.max(w, o.size * .6), h: lines.length * o.size * LH }; }
   for (const l of lines) { try { w = Math.max(w, f ? f.widthOfTextAtSize(l, o.size) : l.length * o.size * .55); } catch (e) { w = Math.max(w, l.length * o.size * .6); } }
   return { w: Math.max(w * (o.hs || 1), o.size * .6), h: lines.length * o.size * LH };
 }
@@ -210,7 +220,7 @@ function objHTML(o) {
   const sel_ = o.id === sel ? ' sel' : '', handle = o.id === sel && o.type !== 'text' && o.type !== 'note' ? '<i class="rh" data-h="1"></i>' : '';
   if (o.type === 'text') {
     const bad = badChars(o);
-    return `<div class="obj otext${sel_}${bad ? ' bad' : ''}" data-id="${o.id}" style="${st};font:${cssFont(o, o.size * S)};color:${o.color}"><div class="tx" spellcheck="false"${o.hs && !useO(o) ? ` style="transform:scaleX(${o.hs});transform-origin:0 0;width:${100 / o.hs}%"` : ''}>${esc(o.text)}</div></div>`;
+    return `<div class="obj otext${sel_}${bad ? ' bad' : ''}" data-id="${o.id}" style="${st};font:${cssFont(o, o.size * S)};color:${o.color}"><div class="tx" spellcheck="false"${o.hs && !prevO(o) ? ` style="transform:scaleX(${o.hs});transform-origin:0 0;width:${100 / o.hs}%"` : ''}>${esc(o.text)}</div></div>`;
   }
   if (o.type === 'image' || o.type === 'sign') return `<div class="obj oimg${sel_}" data-id="${o.id}" style="${st}"><img src="${imgs.get(o.img).url}" alt="" draggable="false">${handle}</div>`;
   if (o.type === 'draw') {

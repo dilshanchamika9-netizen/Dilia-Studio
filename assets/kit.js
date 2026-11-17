@@ -85,7 +85,18 @@ window.Kit = (() => {
     addEventListener('dragenter', e => { if (!has(e)) return; e.preventDefault(); depth++; document.body.classList.add('dropping'); });
     addEventListener('dragover', e => { if (has(e)) e.preventDefault(); });
     addEventListener('dragleave', e => { if (!has(e)) return; depth = Math.max(0, depth - 1); if (!depth) document.body.classList.remove('dropping'); });
-    addEventListener('drop', e => { if (!has(e)) return; e.preventDefault(); depth = 0; document.body.classList.remove('dropping'); cb(e.dataTransfer.files); });
+    addEventListener('drop', e => {
+      if (!has(e)) return; e.preventDefault(); depth = 0; document.body.classList.remove('dropping');
+      const dt = e.dataTransfer, ents = [...(dt.items || [])].map(i => (i.kind === 'file' && i.webkitGetAsEntry) ? i.webkitGetAsEntry() : null);
+      if (!ents.some(x => x && x.isDirectory)) { cb(dt.files); return; }
+      const out = [];                                    // folders: walk them and pass every file inside
+      const walk = async en => {
+        if (en.isFile) { out.push(await new Promise(r => en.file(r, () => r(null)))); return; }
+        const rd = en.createReader(); let batch;
+        do { batch = await new Promise(r => rd.readEntries(r, () => r([]))); for (const c of batch) await walk(c); } while (batch.length);
+      };
+      Promise.all(ents.filter(Boolean).map(walk)).then(() => cb(out.filter(Boolean)));
+    });
   }
 
   /* ---- lazy PDF page thumbnails ---- */

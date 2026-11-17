@@ -1,6 +1,18 @@
 {
  "assets/vendor/Sortable.min.js": "ca68430703c4f5960e90735867c6e94d29b5a3de37107d8100e5a301007e9e6e",
  "assets/vendor/UTIF.js": "e3e76115f49571e39624c3316a76b3c4c5b2c5ca518dfec4b66a9f7af8c6d059",
+ "assets/vendor/gifenc-LICENSE.txt": "47bc590c39d8ccccfc544875a9faebf44bafa828ef20315b396b5d0629f0cfd6",
+ "assets/vendor/gifuct-LICENSE.txt": "8633cda68d7b47e98e3e563a2833e63792edeecdb24cab02bfb15f25c1b37072",
+ "assets/vendor/heic2any-LICENSE.txt": "17e4c847dac6cf3ba1f6846464160a749e020accf7dd9f412c6c55bc96285009",
+ "assets/vendor/img/README.txt": "feb90a7e8d47f4d95382a750fa9a498d0a17a14fa679f5f4c719af3097c25e4a",
+ "assets/vendor/img/avif_enc.wasm": "d9f2a95164362af48558d176e619becfd49dd97b50b86c679b47100860522b3d",
+ "assets/vendor/img/giflib.bundle.js": "8eb4852e2aa0e8000c0a3196eacd3a9ded1e5e74c74c585c0e5c89f74cc2570a",
+ "assets/vendor/img/heic2any.min.js": "0963cfa50e9e1e7e6af929a40a81e3e898a673f1270eafa6917dd137e4968164",
+ "assets/vendor/img/jsquash.bundle.js": "1510b23742ccf330a43cae3fbe29f0dc046ee3569c8c4c494402dd0691629a90",
+ "assets/vendor/img/svgo.bundle.js": "e9e24120b0780548c5bbc9d166b83841ff46a179febd57f126a06d7a3568ff0d",
+ "assets/vendor/img/upng.bundle.js": "2c46bb89f3fad7942c41e4a2b9c3a1bff45fefcc416b5871a2acf8ea63a35b6c",
+ "assets/vendor/img/webp_enc.wasm": "b6085bb6702f144e9dc6016d58d230b34a84976bf0d080b7390b4b4b137d6ab7",
+ "assets/vendor/jsquash-LICENSE.txt": "8c3690b09c168f196446cf5904332023bbc15eb92b6a7cee470ac829e6a65d20",
  "assets/vendor/ocr/LICENSES.txt": "fc70af696b1708562ff8060a6ed02d388ef8a29b5b04ec094230ac322531a6ae",
  "assets/vendor/ocr/eng.traineddata.gz": "45b4cb346724ac1774f1c36f42f182b887bcdb28ebe63e6fff90ac41f3fcff91",
  "assets/vendor/ocr/tesseract-core-simd-lstm.wasm.js": "9d7c43fb206dc9f48475228b46bf35f888fa9e6259da2e67d5a75c77049f2dc7",
@@ -17,5 +29,7 @@
  "assets/vendor/qpdf.js": "c0e8fe62e0c3385dd8cb5d6b613f74d87a4138a3a3343e2add45a067a14d0884",
  "assets/vendor/qpdf.wasm": "69a17eecb26ef73e6b853487500802b18523c7b453382de0063bb2d387edb6bd",
  "assets/vendor/sortable-LICENSE.txt": "e94dfc31e800d169257569db270457c9f028440c9ccae41e7eb78b2db18f1298",
+ "assets/vendor/svgo-LICENSE.txt": "d2b5640808aeec9c243152ae733cf9cca3a86189ad7817bf50335290dbb31012",
+ "assets/vendor/upng-LICENSE.txt": "c1fb8861eca211bf5aea574358aba7039396c0c1824c2a1477cc126d398efd89",
  "assets/vendor/utif-LICENSE.txt": "c1fb8861eca211bf5aea574358aba7039396c0c1824c2a1477cc126d398efd89"
 }

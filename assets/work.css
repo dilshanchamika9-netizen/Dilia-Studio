@@ -248,3 +248,31 @@ body.work{background:var(--mist)}
 .ffrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .ffrow.on{border-color:var(--magenta)}.ffk{font-size:13px;color:var(--muted);min-width:76px}
 .ffrow .name{flex:1;min-width:140px}
+
+/* ---- Dilia Pixel ---- */
+.card.pix{cursor:grab}
+.pstat{margin:6px 2px 0;font-size:12px;line-height:1.4;color:var(--muted)}
+.pstat .bad{color:#b42318;font-weight:600}
+.pstat.exif{margin-top:2px;word-break:break-word}
+.optbar .qs{display:flex;align-items:center;gap:10px;min-width:180px}
+.optbar .qs input{flex:1;accent-color:#e5007d;min-height:32px}
+.optbar .qs output{min-width:28px;font:600 14px var(--font)}
+.optbar input[type=color]{width:56px;height:40px;padding:2px;border:0;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--line2);background:#fff}
+.optbar input[type=file]{font-size:13px;max-width:240px}
+.optbar .check{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:14px}
+.pxmodal{position:fixed;inset:0;z-index:80;background:#0b1220b0;display:grid;place-items:center;padding:16px}
+.pxbox{background:#fff;border-radius:16px;max-width:min(960px,100%);max-height:100%;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.pxhead{display:flex;gap:10px;align-items:center}.pxhead b{flex:1;font-size:16px}
+.pxstage{position:relative;line-height:0;margin:auto;max-width:100%}
+.pxstage canvas{max-width:100%;height:auto;border-radius:8px}
+.pxstage canvas+canvas{position:absolute;left:0;top:0;width:100%;height:100%;cursor:crosshair}
+.pxed{display:flex;flex-direction:column;gap:10px;align-items:center}
+.pxnums{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}.pxnums label{display:flex;gap:4px;align-items:center}
+.pxnums input{width:84px;min-height:36px;border:0;border-radius:8px;box-shadow:inset 0 0 0 1.5px var(--line2);padding:0 8px;font:500 14px var(--font)}
+.pxcmp{display:flex;flex-direction:column;gap:10px;min-width:min(86vw,720px)}
+.cmpbox{position:relative;line-height:0;overflow:hidden;border-radius:8px;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/16px 16px}
+.cmpbox img{width:100%;height:auto;display:block;max-height:70vh;object-fit:contain}
+.cmpbox .clip{position:absolute;inset:0}.cmpbox .clip img{height:100%}
+.cmpbox .hdl{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#e5007d}
+.cmpbox .tg{position:absolute;top:8px;font:600 12px var(--font);background:#0b1220cc;color:#fff;padding:4px 8px;border-radius:6px;line-height:1.2}.cmpbox .tg.l{left:8px}.cmpbox .tg.r{right:8px}
+.pxcmp input[type=range]{width:100%;accent-color:#e5007d}
