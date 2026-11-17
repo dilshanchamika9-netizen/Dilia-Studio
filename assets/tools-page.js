@@ -3,7 +3,7 @@
 inkFlow(document.getElementById('ink'), { start: 19 });
   const lib = document.getElementById('lib'), q = document.getElementById('q');
   lib.innerHTML = DILIA_TOOLS.map(([g, list]) => `
-    <section class="grp" id="${g === 'Pixel' ? 'pixel-grp' : ''}"><h2>${g}</h2>
+    <section class="grp" id="${g === 'Pixel' ? 'pixel-grp' : g === 'QR' ? 'qr-grp' : ''}"><h2>${g}</h2>
       <div class="tiles">${list.map(t => {
         const tag = t.ready ? '' : 'Coming soon';
         const inner = `<span class="ic">${diliaIcon(t.icon)}</span><b>${t.name}</b><span>${t.desc}</span>${tag ? `<em>${tag}</em>` : ''}`;

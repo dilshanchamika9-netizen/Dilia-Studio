@@ -1,0 +1,39 @@
+/* Dilia QR pages */
+.qr{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start;padding-bottom:48px}
+.qr.one{grid-template-columns:minmax(0,720px)}
+.qcard,.qbox{background:#fff;border-radius:20px;box-shadow:0 0 0 1px var(--line),0 10px 30px -18px #0b122040;padding:22px}
+.qside{position:sticky;top:84px}
+.qf,.qc{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.qc.wide{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;gap:6px 18px}
+.qf .lbl,.qc .lbl{font:600 13px var(--font);color:var(--ink)}
+.qf input[type=text],.qf input[type=url],.qf input[type=email],.qf input[type=tel],.qf input[type=number],.qf input[type=datetime-local],.qf textarea,#bList{width:100%;font:500 15px var(--font);color:var(--ink);padding:11px 13px;border:0;border-radius:12px;box-shadow:inset 0 0 0 1.5px var(--line2);background:#fff}
+#bList{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;resize:vertical}
+.qf input:focus-visible,.qf textarea:focus-visible,.qc input:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+.qf.c{flex-direction:row}
+.qd{border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
+.qd summary{font:700 15px var(--font);cursor:pointer;padding:6px 0;list-style:none}
+.qd summary::-webkit-details-marker{display:none}
+.qd summary::after{content:"+";float:right;color:var(--muted)}
+.qd[open] summary::after{content:"\2212"}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:4px 16px;padding-top:8px}
+.qgrid .optfield{min-width:0}
+.qgrid .dd{min-width:0;width:100%}
+.qc input[type=color]{width:64px;height:42px;padding:2px;border:0;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--line2);background:#fff}
+.qc input[type=range]{accent-color:#e5007d;width:100%}
+.qc input[type=file]{font-size:13px;max-width:100%}
+.qprev{display:grid;place-items:center;min-height:300px;border-radius:14px;background:repeating-conic-gradient(#f1f3f6 0 25%,#fff 0 50%) 0 0/20px 20px;padding:14px;margin-bottom:12px}
+.qprev img{max-width:100%;height:auto;max-height:340px;image-rendering:pixelated;image-rendering:auto}
+.qempty{color:var(--muted);font-size:14px;text-align:center;margin:0}
+.qstat{min-height:20px;margin:0 0 8px;font:600 13px var(--font);color:var(--muted)}
+.qstat.ok{color:#067647}.qstat.bad{color:#b42318}
+.qw{margin:0 0 8px;padding:8px 10px;border-radius:10px;background:#fff6e5;color:#7a4b00;font-size:13px;line-height:1.4}
+.qdl{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.qdl .btn.go{flex:1 1 100%}
+.qbox .note,.qcard .note{font-size:13px;color:var(--muted);margin:8px 0}
+.rvid{width:100%;max-height:360px;border-radius:12px;background:#000;margin-top:12px}
+.rprev img{max-width:100%;max-height:260px;border-radius:10px;margin-top:12px}
+.rout{margin-top:14px;padding:14px;border-radius:12px;background:var(--mist,#f5f6f8)}
+.rtxt{white-space:pre-wrap;word-break:break-word;font:500 14px ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+.rrow{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:900px){.qr{grid-template-columns:1fr}.qside{position:static}}
+.qr [hidden]{display:none!important}

@@ -12,7 +12,7 @@
     inner.append(col);
   });
   const more = el('div', 'mcol mmore'); more.append(el('h3', '', 'More lines'));
-  ['Dilia QR', 'Dilia Text'].forEach(n => { const s = el('span', 'msoon'); s.append(n + ' ', el('em', '', 'Coming soon')); more.append(s); });
+  ['Dilia Text'].forEach(n => { const s = el('span', 'msoon'); s.append(n + ' ', el('em', '', 'Coming soon')); more.append(s); });
   const all = el('a', 'mall', 'See all tools →'); all.href = DROOT + 'tools.html'; more.append(all);
   inner.append(more); panel.append(inner); head.append(panel);
   const set = on => { panel.hidden = !on; btn.setAttribute('aria-expanded', on ? 'true' : 'false'); head.classList.toggle('menu-open', on); };

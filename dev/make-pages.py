@@ -498,8 +498,89 @@ def page(t):
 </html>
 '''
 
+
+# ---------------- Dilia QR ----------------
+QTYPES = [('url', 'Website link'), ('text', 'Text'), ('email', 'Email'), ('phone', 'Phone number'), ('sms', 'SMS'), ('wifi', 'Wi-Fi'), ('vcard', 'Contact card'), ('geo', 'Map location'), ('event', 'Calendar event'), ('whatsapp', 'WhatsApp message'), ('bitcoin', 'Bitcoin'), ('instagram', 'Instagram profile'), ('tiktok', 'TikTok profile'), ('youtube', 'YouTube link'), ('review', 'Google review link'), ('appstore', 'App store link')]
+QBULK = ['url', 'text', 'phone', 'whatsapp', 'instagram', 'tiktok', 'youtube', 'appstore', 'review']
+def qsel(types=None, sel='url'):
+    return '<div class="qf"><label class="lbl" for="qType">What should the code do?</label><select class="dd" id="qType">' + ''.join(f'<option value="{v}"{" selected" if v == sel else ""}>{l}</option>' for v, l in QTYPES if not types or v in types) + '</select></div>'
+def col(i, label, v): return f'<div class="qc"><label class="lbl" for="{i}">{label}</label><input id="{i}" type="color" value="{v}"></div>'
+QDESIGN = ('<details class="qd" id="qdesign" open><summary>Colours and shape</summary><div class="qgrid">'
+  + col('qC1', 'Code colour', '#000000') + '<div class="qc" id="qC2w" hidden><label class="lbl" for="qC2">Second colour</label><input id="qC2" type="color" value="#e5007d"></div>' + col('qBg', 'Background', '#ffffff')
+  + '<div class="qc wide"><label class="check"><input type="checkbox" id="qGrad"><span>Gradient</span></label> <label class="check"><input type="checkbox" id="qTransp"><span>Transparent background (PNG, SVG)</span></label></div>'
+  + dd('qGdir', 'Gradient direction', [('diag', 'Diagonal'), ('h', 'Left to right'), ('v', 'Top to bottom')])
+  + dd('qDot', 'Dot shape', [('square', 'Square'), ('round', 'Rounded'), ('dot', 'Dots')]) + dd('qEyeShape', 'Corner shape', [('square', 'Square'), ('round', 'Rounded')])
+  + '<div class="qc wide"><label class="check"><input type="checkbox" id="qEyeSame" checked><span>Corners use the code colour</span></label></div><div class="qc" id="qEyew" hidden><label class="lbl" for="qEye">Corner colour</label><input id="qEye" type="color" value="#000000"></div>'
+  + '</div></details>'
+  + '<details class="qd"><summary>Logo and frame</summary><div class="qgrid">'
+  + '<div class="qc wide"><label class="lbl" for="qLogo">Logo in the middle (PNG, JPG, WebP or SVG)</label><input id="qLogo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div>'
+  + '<div class="qc" id="qLogow" hidden><label class="lbl" for="qLogoSize">Logo size <output id="qLogoSizeo">20</output>%</label><input id="qLogoSize" type="range" min="8" max="30" value="20"><button type="button" class="btn ghost sm" id="qLogoClear">Remove logo</button></div>'
+  + dd('qFrame', 'Frame', [('none', 'No frame'), ('box', 'Box'), ('label', 'Box with text')]) + '<div class="qf" id="qFtw" hidden><label class="lbl" for="qFtext">Frame text</label><input id="qFtext" type="text" value="SCAN ME" maxlength="24"></div>'
+  + '</div></details>'
+  + '<details class="qd"><summary>Size and accuracy</summary><div class="qgrid">'
+  + dd('qEcc', 'Error correction', [('auto', 'Automatic'), ('L', 'Low (7%)'), ('M', 'Medium (15%)'), ('Q', 'Quarter (25%)'), ('H', 'High (30%)')]) + numf('qMargin', 'Quiet border', 4, 0, 10, 1, 'modules')
+  + dd('qSize', 'Download size', [(512, '512 px'), (1024, '1024 px'), (2048, '2048 px'), (4000, '4000 px')], 1024)
+  + '</div></details>')
+def qr_main(t):
+    mode = t['mode']; name = t['name']
+    head = '<div class="ws-head wrap"><div><p class="crumb"><a href="tools.html">Tools</a><span>/</span>' + t['crumb'] + '</p><h1>' + name + '</h1><p class="lead">' + t['lead'] + '</p></div></div>'
+    name_field = '<label class="field" for="outName">File name<span class="name"><input id="outName" type="text" value="' + t['defname'] + '" spellcheck="false" autocomplete="off"></span></label>'
+    safe = '<p class="safe">' + SHIELD + 'Made in this tab. Nothing is uploaded or stored.</p>'
+    if mode == 'make':
+        body = ('<div class="qr wrap"><section class="qcard" aria-label="Content">' + (qsel(sel=t['qr']) if not t.get('lock') else '') + '<div id="qfields"></div>' + QDESIGN + '</section>'
+          '<aside class="qside"><div class="qbox"><div class="qprev" id="qprev" aria-live="polite"></div><p class="qstat" id="qstat" aria-live="polite"></p><div id="qwarn"></div>' + name_field +
+          '<div class="qdl"><button class="btn go" type="button" data-dl="png" disabled>Download PNG</button><button class="btn ghost" type="button" data-dl="svg" disabled>SVG</button><button class="btn ghost" type="button" data-dl="pdf" disabled>PDF</button><button class="btn ghost" type="button" data-dl="jpg" disabled>JPG</button></div>'
+          '<p class="note">Static code: it works forever and never expires. SVG and PDF are print ready.</p>' + safe + '</div></aside></div>')
+    elif mode == 'bulk':
+        body = ('<div class="qr wrap one"><section class="qcard" aria-label="Bulk codes">' + qsel(QBULK, t['qr']) +
+          '<div class="qf"><label class="lbl" for="bList">One entry per line</label><textarea id="bList" rows="10" placeholder="https://example.com/one&#10;https://example.com/two"></textarea></div>'
+          '<div class="qgrid"><div class="qc wide"><label class="check"><input type="checkbox" id="bNamed"><span>Lines look like: file name, value</span></label></div>' +
+          dd('bFmt', 'File type', [('png', 'PNG'), ('svg', 'SVG')]) + dd('qSize', 'PNG size', [(512, '512 px'), (1024, '1024 px'), (2048, '2048 px')], 1024) +
+          '<div class="qc"><label class="lbl" for="bCsv">Or load a CSV or text file</label><input id="bCsv" type="file" accept=".csv,.txt,text/csv,text/plain"></div></div>' + name_field +
+          '<button class="btn go" type="button" id="bGo"><span class="go-l">Make codes and download ZIP</span><span class="go-p" aria-hidden="true"><i id="bProg"></i></span></button>'
+          '<p class="note">Up to 2000 lines. Codes use the default black on white design. Each line becomes one file.</p>' + safe + '</section></div>')
+    else:
+        body = ('<div class="qr wrap one"><section class="qcard" aria-label="Reader"><label class="dropzone" for="pick" id="dropzone"><span class="dz-art" aria-hidden="true"><span class="dz-page p1"></span><span class="dz-page p2"></span><span class="dz-page p3">' + UP + '</span></span><b>Drop a picture with a QR code</b><span>or <u>choose a picture</u>, or paste one</span><small>Read in your browser. Nothing is uploaded.</small></label>'
+          '<input id="pick" class="vh" type="file" accept="image/*"><div class="qdl"><button class="btn ghost" type="button" id="rCam">Use camera</button></div><video id="rVid" class="rvid" playsinline muted hidden></video><div id="rPrev" class="rprev"></div><div id="rOut" class="rout" hidden></div>' + safe + '</section></div>')
+    return '<main class="ws-page" data-qr-page>\n  ' + head + '\n  ' + body + '\n</main>'
+def qr_page(t):
+    base = _page(dict(DUMMY, name=t['name'], crumb=t['crumb'], engine='qrtool'))
+    head, rest = base.split('<main', 1); tail = rest.split('</main>', 1)[1]
+    head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/qr.css">')
+    head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia QR</title>', head)
+    head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
+    head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia QR home"').replace('<span class="l">Studio</span>', '<span class="l">QR</span>')
+    tail = tail.replace('<script src="assets/vendor/pdf.min.js"></script>\n', '').replace('<script src="assets/vendor/Sortable.min.js"></script>\n', '')
+    if t['mode'] != 'make': tail = tail.replace('<script src="assets/vendor/pdf-lib.min.js"></script>\n', '')
+    tail = tail.replace('<script src="assets/qrtool.js"></script>', '<script src="assets/qrtool.js"></script>')
+    head = head.replace('<body class="work"', '<body class="work" data-mode="' + t['mode'] + '" data-qr="' + t['qr'] + '"')
+    return head + qr_main(t) + tail
+def qd(id, name, crumb, qr, lead, desc, mode='make', defname='Dilia-qr-code', lock=0):
+    return dict(id=id, name=name, crumb=crumb, kind='qr', qr=qr, mode=mode, lead=lead, desc=desc, defname=defname, lock=lock)
+QRS = [
+ qd('qrmain', 'QR code generator', 'QR code generator', 'url', 'Make a QR code for a link, text, Wi-Fi, contact, email and more. Free, no sign-up, no limit.', 'Free QR code generator for links, Wi-Fi, contacts, email, SMS and more. Colours, logo, SVG and PDF. Made in your browser.'),
+ qd('qrurl', 'URL to QR code', 'URL to QR code', 'url', 'Turn any web link into a QR code you can print or share.', 'Turn a web link into a QR code. Free, static, never expires.', lock=1),
+ qd('qrtext', 'Text to QR code', 'Text to QR code', 'text', 'Turn any text into a QR code.', 'Turn text into a QR code. Free and private.', lock=1),
+ qd('qrwifi', 'Wi-Fi QR code generator', 'Wi-Fi QR code', 'wifi', 'Guests scan the code and join your Wi-Fi. The password stays in your browser.', 'Make a Wi-Fi QR code. Your password never leaves your device.', lock=1, defname='Dilia-wifi-qr'),
+ qd('qrvcard', 'vCard QR code generator', 'Contact card QR', 'vcard', 'Share your contact details. One scan saves them to the phone.', 'Make a contact card (vCard) QR code for business cards.', lock=1, defname='Dilia-contact-qr'),
+ qd('qremail', 'Email QR code generator', 'Email QR code', 'email', 'A scan opens a new email with address, subject and message filled in.', 'Make an email QR code with subject and message.', lock=1),
+ qd('qrsms', 'SMS QR code generator', 'SMS QR code', 'sms', 'A scan opens a text message with the number and message ready.', 'Make an SMS QR code.', lock=1),
+ qd('qrphone', 'Phone number QR code', 'Phone QR code', 'phone', 'A scan starts a call to your number.', 'Make a phone number QR code.', lock=1),
+ qd('qrwhatsapp', 'WhatsApp QR code generator', 'WhatsApp QR code', 'whatsapp', 'A scan opens a WhatsApp chat with you, with a first message if you like.', 'Make a WhatsApp chat QR code.', lock=1),
+ qd('qrgeo', 'Location QR code generator', 'Location QR code', 'geo', 'A scan opens a map at your latitude and longitude.', 'Make a map location QR code.', lock=1),
+ qd('qrevent', 'Calendar event QR code', 'Event QR code', 'event', 'A scan adds your event to the phone calendar.', 'Make a calendar event QR code.', lock=1),
+ qd('qrbtc', 'Bitcoin QR code generator', 'Bitcoin QR code', 'bitcoin', 'Share a Bitcoin address, with an amount if you want. Check the address before you print it.', 'Make a Bitcoin address QR code.', lock=1),
+ qd('qrinsta', 'Instagram QR code generator', 'Instagram QR code', 'instagram', 'A scan opens your Instagram profile.', 'Make an Instagram profile QR code.', lock=1),
+ qd('qryoutube', 'YouTube QR code generator', 'YouTube QR code', 'youtube', 'A scan opens your video or channel.', 'Make a YouTube QR code.', lock=1),
+ qd('qrreview', 'Google review QR code', 'Google review QR', 'review', 'Customers scan and land on your Google review box. Needs your Place ID.', 'Make a Google review QR code from a Place ID.', lock=1),
+ qd('qrapp', 'App store QR code', 'App store QR code', 'appstore', 'A scan opens your app page. Paste the App Store or Google Play link.', 'Make an App Store or Google Play QR code.', lock=1),
+ qd('qrbulk', 'Bulk QR code generator', 'Bulk QR codes', 'url', 'Paste a list or load a CSV. Get one ZIP with a code for every line. Free.', 'Make many QR codes at once from a list. Free, one ZIP.', mode='bulk', defname='Dilia-qr-codes'),
+ qd('qrread', 'QR code reader', 'QR code reader', 'url', 'Read a QR code from a picture or with your camera. Nothing is uploaded.', 'Read a QR code from an image or your camera, in your browser.', mode='read'),
+]
+
 _page = page
 def page(t):
+    if t['kind'] == 'qr': return qr_page(t)
     html = _page(t)
     if t['kind'] == 'pix':
         for a, b in (('aria-label="Dilia Studio home"', 'aria-label="Dilia Pixel home"'), ('<span class="l">Studio</span>', '<span class="l">Pixel</span>'),
@@ -519,7 +600,7 @@ def write_tool(t, html):
     d = ROOT / SLUGS[t['id']]; d.mkdir(exist_ok=True)
     (d / 'index.html').write_text(up(html))
 
-for t in TOOLS:
+for t in TOOLS + QRS:
     write_tool(t, page(t))
     print('wrote', SLUGS[t['id']] + '/')
 
@@ -679,7 +760,7 @@ OLD = '''<!doctype html>
 <body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
 '''
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or tid.startswith('px') or not (ROOT / slug).is_dir(): continue
+    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 

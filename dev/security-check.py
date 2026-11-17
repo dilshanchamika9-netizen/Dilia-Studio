@@ -24,7 +24,7 @@ for p in glob.glob('assets/*.js'):
     s = open(p, encoding='utf8').read()
     for pat in (r'\beval\s*\(', r'new\s+Function\s*\(', r'document\.write\s*\(', r'\bfetch\s*\(\s*[\'"`]https?:', r'XMLHttpRequest', r'sendBeacon', r'WebSocket\s*\(', r'importScripts\s*\(\s*[\'"]https?:'):
         if re.search(pat, s): bad.append(f'{p}: forbidden pattern {pat}')
-lic = {'pdf-lib':'pdf-lib','pdfjs':'pdf.','sortable':'Sortable','qpdf':'qpdf','utif':'UTIF','pako':'pako','upng':'UPNG','svgo':'svgo','gifenc':'gifenc','gifuct':'gifuct','heic2any':'heic2any','jsquash':'jsquash'}
+lic = {'pdf-lib':'pdf-lib','pdfjs':'pdf.','sortable':'Sortable','qpdf':'qpdf','utif':'UTIF','pako':'pako','upng':'UPNG','svgo':'svgo','gifenc':'gifenc','gifuct':'gifuct','heic2any':'heic2any','jsquash':'jsquash','qrcode-generator':'qrcode-generator','jsqr':'jsqr'}
 for k in lic:
     if not glob.glob(f'assets/vendor/{k}-LICENSE.txt'): bad.append(f'missing licence file: {k}')
 print('\n'.join(bad) or 'security-check: OK', f'({len(cur)} vendor files pinned)')

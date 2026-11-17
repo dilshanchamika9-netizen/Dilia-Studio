@@ -24,10 +24,10 @@
     const w = el('span', 'wm'); w.append(el('span', 'w', 'Dilia'), el('span', 'l', name));
     c.append(w, el('p', '', text), el('span', 'go', go)); lg.append(c);
   };
-  const nPix = ready.filter(t => t.group === 'Pixel').length;
-  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'tools.html', (ready.length - nPix) + ' tools →');
+  const nPix = ready.filter(t => t.group === 'Pixel').length, nQr = ready.filter(t => t.group === 'QR').length;
+  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'tools.html', (ready.length - nPix - nQr) + ' tools →');
   line('Pixel', 'Compress, resize, crop and convert images. Watermark, blur, make GIFs.', false, 'tools.html#pixel-grp', nPix + ' tools →');
-  line('QR', 'QR codes for links, Wi-Fi and contacts.', true, '', 'Coming soon');
+  line('QR', 'QR codes for links, Wi-Fi and contacts. Read QR codes too.', false, 'tools.html#qr-grp', nQr + ' tools →');
   line('Text', 'Word count, case changes and clean-up.', true, '', 'Coming soon');
 
   // Drop a file anywhere: show the tools that fit, then open one with the file ready.

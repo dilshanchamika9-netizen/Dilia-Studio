@@ -84,6 +84,26 @@ window.DILIA_TOOLS = [
     { id: 'pxgifmake', slug: 'image-to-gif', name: 'Make animated GIF', desc: 'Turn pictures into one GIF.', ready: 1, icon: 'M3 5h12v10H3zM17 9h4v10H9v-2' },
     { id: 'pxmeta', slug: 'remove-image-metadata', name: 'Remove metadata', desc: 'See and strip camera, date and GPS.', ready: 1, icon: 'M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6M15.5 9.5h.01' }
   ]],
+  ['QR', [
+    { id: 'qrmain', slug: 'qr-code-generator', name: 'QR code generator', desc: 'Links, text, Wi-Fi, contacts and more.', ready: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrurl', slug: 'url-to-qr-code', name: 'URL to QR code', desc: 'Turn a web link into a QR code.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrtext', slug: 'text-to-qr-code', name: 'Text to QR code', desc: 'Turn any text into a QR code.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrwifi', slug: 'wifi-qr-code-generator', name: 'Wi-Fi QR code', desc: 'Guests scan and join your Wi-Fi.', ready: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrvcard', slug: 'vcard-qr-code-generator', name: 'Contact card QR', desc: 'Share contact details with one scan.', ready: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qremail', slug: 'email-qr-code-generator', name: 'Email QR code', desc: 'Open a ready email with one scan.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrsms', slug: 'sms-qr-code-generator', name: 'SMS QR code', desc: 'Open a ready text message.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrphone', slug: 'phone-number-qr-code', name: 'Phone QR code', desc: 'Start a call with one scan.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrwhatsapp', slug: 'whatsapp-qr-code-generator', name: 'WhatsApp QR code', desc: 'Open a WhatsApp chat with you.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrgeo', slug: 'location-qr-code-generator', name: 'Location QR code', desc: 'Open a map at your coordinates.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrevent', slug: 'calendar-event-qr-code', name: 'Event QR code', desc: 'Add an event to the calendar.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrbtc', slug: 'bitcoin-qr-code-generator', name: 'Bitcoin QR code', desc: 'Share a Bitcoin address.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrinsta', slug: 'instagram-qr-code-generator', name: 'Instagram QR code', desc: 'Open your Instagram profile.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qryoutube', slug: 'youtube-qr-code-generator', name: 'YouTube QR code', desc: 'Open a video or channel.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrreview', slug: 'google-review-qr-code', name: 'Google review QR', desc: 'Send people to your review box.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrapp', slug: 'app-store-qr-code', name: 'App store QR code', desc: 'Open your app page.', ready: 1, v: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrbulk', slug: 'bulk-qr-code-generator', name: 'Bulk QR codes', desc: 'Many codes from a list, one ZIP.', ready: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' },
+    { id: 'qrread', slug: 'qr-code-reader', name: 'QR code reader', desc: 'Read a QR code from a picture or camera.', ready: 1, icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 20h1' }
+  ]],
   ['Optimise and secure', [
     { id: 'compress', slug: 'compress-pdf', name: 'Compress', desc: 'Make the file smaller for email.', ready: 1, icon: 'M12 3v6M9 6l3 3 3-3M12 21v-6M9 18l3-3 3 3M4 12h16' },
     { id: 'protect', slug: 'protect-pdf', name: 'Password protect', desc: 'Lock the file with a password.', ready: 1, icon: 'M6 11h12v10H6zM8 11V8a4 4 0 0 1 8 0v3M12 15v2' },
