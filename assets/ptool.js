@@ -15,6 +15,12 @@ const CFG = {
   number:  { suffix: '', fallback: 'Dilia-numbered', l2: 'Numbered', l3: 'Size in', verb: 'Add numbers and download' },
   bates:   { suffix: '', fallback: 'Dilia-bates', l2: 'Stamped', l3: 'Size in', verb: 'Add Bates numbers and download' },
   headfoot: { suffix: '', fallback: 'Dilia-header-footer', l2: 'Changed', l3: 'Size in', verb: 'Add header and footer and download' },
+  flip:    { suffix: '', fallback: 'Dilia-flipped', l2: 'Flipped', l3: 'Size in', verb: 'Flip and download' },
+  nup:     { suffix: '', fallback: 'Dilia-n-up', l2: 'Sheets out', l3: 'Size in', verb: 'Make sheets and download' },
+  meta:    { suffix: '', fallback: 'Dilia-properties', l2: 'Fields set', l3: 'Size in', verb: 'Save properties and download' },
+  flatten: { suffix: '', fallback: 'Dilia-flattened', l2: 'Flattened', l3: 'Size in', verb: 'Flatten and download' },
+  extractimg: { suffix: '', fallback: 'Dilia-embedded-images', l2: 'Pages', l3: 'Size in', verb: 'Extract images' },
+  bookmarks: { suffix: '', fallback: 'Dilia-bookmarked', l2: 'Bookmarks', l3: 'Size in', verb: 'Add bookmarks and download' },
   crop:    { suffix: '', fallback: 'Dilia-cropped', l2: 'Cropped', l3: 'Size in', verb: 'Crop and download' },
   text:    { suffix: '', fallback: 'Dilia-text', l2: 'Selected', l3: 'Pages out', verb: 'Save as text' },
   pdf2img: { suffix: '',    fallback: 'Dilia-images',    l2: 'Selected',  l3: 'Images out', verb: 'Save as images' }
@@ -23,6 +29,7 @@ const TOGGLE = ['delete', 'extract', 'pdf2img', 'text'].includes(MODE);
 const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text';
 const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text';
 const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop'].includes(MODE);
+const WHOLE = ['flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks'].includes(MODE);
 const NUMBERED = MODE === 'number' || MODE === 'bates';
 const fmt = () => document.querySelector('input[name=fmt]:checked').value;
 
@@ -32,7 +39,7 @@ let doc = null, pages = [], busy = false, lastUrl = null, parts = [], partNames 
 const T = Kit.thumbs(idx => Kit.renderThumb(doc.js, idx));
 const base = () => doc ? doc.name.replace(/\.pdf$/i, '') : '';
 const smode = () => { const r = document.querySelector('input[name=sm]:checked'); return r ? r.value : ''; };
-const outExt = () => MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fmt() : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
+const outExt = () => MODE === 'extractimg' ? 'zip' : MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fmt() : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
 
 /* ---------- loading ---------- */
 async function load(list) {
@@ -49,6 +56,7 @@ async function load(list) {
   outName.value = base() + CFG.suffix;
   if (rng) rng.value = DEFAULT_ALL ? compress(pages.map(p => p.i)) : '';
   clearDone(); showErr('');
+  if (MODE === 'meta') metaFill();
   if (MODE === 'split') computeParts();
   render();
 }
@@ -121,6 +129,9 @@ function summary(flagged = [], rotated = [], moved = []) {
       $('#s2').textContent = flagged.length; $('#s3').textContent = flagged.length;
       ok = flagged.length > 0;
       msg = ok ? `${plural(flagged.length, 'page')} go into the new PDF, in their original order.` : 'Click the pages you want to keep.';
+    } else if (WHOLE) {
+      const v = wholeCheck(); $('#s2').textContent = v.s2 ?? pages.length; $('#s3').textContent = size;
+      showErr(v.err || ''); ok = !v.err && v.ok; msg = v.err ? 'Fix the highlighted setting to continue.' : v.msg;
     } else if (OVERLAY) {
       $('#s2').textContent = pages.length; $('#s3').textContent = size;
       const v = overlayCheck(); showErr(v.err || ''); ok = !v.err && v.ok;
@@ -402,8 +413,8 @@ function overlays() {
   });
 }
 if ($('#wmImgFile')) $('#wmImgFile').addEventListener('change', e => { pickWmImage(e.target.files[0]); e.target.value = ''; });
-document.querySelectorAll('.optbar input, .optbar select').forEach(e => {
-  if (!OVERLAY) return;
+document.querySelectorAll('.optbar input, .optbar select, .optbar textarea').forEach(e => {
+  if (!OVERLAY && !WHOLE) return;
   e.addEventListener('input', () => { clearDone(); paint(); });
   e.addEventListener('change', () => { clearDone(); paint(); });
 });
@@ -541,6 +552,7 @@ async function toImages() {
 }
 async function build() {
   if (OVERLAY) return stamp();
+  if (WHOLE) return whole();
   if (MODE === 'text') return toText();
   if (MODE === 'rotate') {
     const out = await PDFLib.PDFDocument.load(doc.bytes, { updateMetadata: false });
@@ -572,6 +584,246 @@ async function build() {
   const out = await subset(idxs);
   return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: plural(idxs.length, 'page') };
 }
+
+
+/* ---------- whole-file tools: flip, n-up, properties, flatten, extract images, bookmarks ---------- */
+const radio = n => { const r = document.querySelector(`input[name=${n}]:checked`); return r ? r.value : ''; };
+const SHEETS = { a4: [595.28, 841.89], letter: [612, 792], a3: [841.89, 1190.55] };
+const GRID = { 2: [2, 1], 4: [2, 2], 6: [3, 2], 8: [4, 2], 9: [3, 3], 16: [4, 4] };
+function parseBm(txt) {                                 // "Title | page", leading dashes = deeper level
+  const out = [], lines = txt.split(/\r?\n/);
+  for (let k = 0; k < lines.length; k++) {
+    if (!lines[k].trim()) continue;
+    const m = lines[k].match(/^(\s*-*)\s*(.*?)\s*\|\s*(\d+)\s*$/);
+    if (!m || !m[2]) return { err: `Line ${k + 1} needs the form  Title | page  (for example  Chapter 1 | 3).` };
+    const pg = +m[3], lv = m[1].replace(/\s/g, '').length;
+    if (pg < 1 || pg > doc.count) return { err: `Line ${k + 1}: page ${pg} does not exist. This PDF has ${doc.count} pages.` };
+    if (lv > (out.length ? out[out.length - 1].lv + 1 : 0)) return { err: `Line ${k + 1}: a sub-bookmark must come right after its parent (one dash deeper at most).` };
+    out.push({ title: m[2], page: pg - 1, lv });
+  }
+  return { items: out };
+}
+function wholeCheck() {
+  if (MODE === 'flip') return { ok: true, msg: 'Every page you choose is mirrored. Links and notes on flipped pages are not kept.' };
+  if (MODE === 'nup') {
+    const n = +val('uN'), sheets = Math.ceil(pages.length / n);
+    return { ok: true, s2: sheets, msg: `${plural(pages.length, 'page')} become ${plural(sheets, 'sheet')}.` };
+  }
+  if (MODE === 'meta') return { ok: true, s2: ['mT', 'mA', 'mS', 'mK', 'mC', 'mP'].filter(i => val(i).trim()).length, msg: $('#mClear').checked ? 'All properties will be removed.' : 'The properties above are saved into the file. Nothing else changes.' };
+  if (MODE === 'flatten') return { ok: true, msg: radio('fl') === 'all' ? 'Every page becomes a picture, so nothing can be edited or selected.' : 'Form fields become fixed text. Page text and links stay.' };
+  if (MODE === 'extractimg') {
+    const mn = num('eMin');
+    if (!(mn >= 0 && mn <= 5000)) return { err: 'Smallest size must be between 0 and 5000 pixels.' };
+    return { ok: true, msg: 'Pictures stored inside the PDF are saved in one ZIP. Pages drawn as vector art have none.' };
+  }
+  if (MODE === 'bookmarks') {
+    const r = parseBm(val('bmText'));
+    if (r.err) return { err: r.err };
+    if (!r.items.length) return { ok: false, s2: 0, msg: 'Type one bookmark per line, or use the buttons above.' };
+    return { ok: true, s2: r.items.length, msg: `${plural(r.items.length, 'bookmark')} replace any bookmarks already in the file.` };
+  }
+  return { ok: true, msg: '' };
+}
+function metaFill() {
+  const l = doc.lib;
+  $('#mT').value = l.getTitle() || ''; $('#mA').value = l.getAuthor() || ''; $('#mS').value = l.getSubject() || '';
+  $('#mK').value = l.getKeywords() || ''; $('#mC').value = l.getCreator() || ''; $('#mP').value = l.getProducer() || '';
+  $('#mClear').checked = false;
+}
+async function whole() {
+  const fin = async (out, info) => { if (!out.getProducer || MODE !== 'meta') out.setProducer('Dilia Studio'); return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info }; };
+  const L = PDFLib;
+  if (MODE === 'flip') {
+    const d = radio('fd'), which = val('fPages'), out = await L.PDFDocument.create(), src = doc.lib.getPages();
+    const copied = await out.copyPages(doc.lib, src.map((_, i) => i));
+    const hit = i => which === 'all' || (which === 'odd' ? i % 2 === 0 : i % 2 === 1);
+    const todo = src.map((_, i) => i).filter(hit);
+    const boxes = todo.map(i => { const c = src[i].getCropBox(); return { left: c.x, bottom: c.y, right: c.x + c.width, top: c.y + c.height }; });
+    const emb = await out.embedPages(todo.map(i => copied[i]), boxes);
+    for (let i = 0; i < src.length; i++) {
+      if (!hit(i)) { out.addPage(copied[i]); continue; }
+      const c = src[i].getCropBox(), rot = ((src[i].getRotation().angle % 360) + 360) % 360, e = emb[todo.indexOf(i)];
+      const pg = out.addPage([c.width, c.height]); if (rot) pg.setRotation(L.degrees(rot));
+      let fx = d === 'h' || d === 'both', fy = d === 'v' || d === 'both';
+      if (rot % 180) [fx, fy] = [fy, fx];
+      pg.drawPage(e, { x: fx ? c.width : 0, y: fy ? c.height : 0, xScale: fx ? -1 : 1, yScale: fy ? -1 : 1 });
+      prog.style.width = Math.round(8 + 84 * (i + 1) / src.length) + '%'; if (i % 10 === 9) await tick();
+    }
+    return fin(out, plural(src.length, 'page'));
+  }
+  if (MODE === 'nup') {
+    const N = +val('uN'), [a, b] = GRID[N], src = doc.lib.getPages(), out = await L.PDFDocument.create();
+    const copied = await out.copyPages(doc.lib, src.map((_, i) => i));
+    const boxes = src.map(p => { const c = p.getCropBox(); return { left: c.x, bottom: c.y, right: c.x + c.width, top: c.y + c.height }; });
+    const emb = await out.embedPages(copied, boxes);
+    const first = src[0], fr = ((first.getRotation().angle % 360) + 360) % 360, fc = first.getCropBox();
+    const firstLand = (fr % 180 ? fc.height > fc.width : fc.width > fc.height);
+    let ori = val('uOri'); if (ori === 'auto') ori = a > b && !firstLand ? 'landscape' : a > b ? 'portrait' : 'portrait';
+    const cols = ori === 'landscape' ? a : b, rows = ori === 'landscape' ? b : a;
+    let [SW, SH] = SHEETS[val('uSize')]; if (ori === 'landscape' && SW < SH || ori === 'portrait' && SW > SH) [SW, SH] = [SH, SW];
+    const m = num('uMar') || 0, g = num('uGap') || 0, border = $('#uBorder').checked, down = val('uOrder') === 'down';
+    const cw = (SW - 2 * m - (cols - 1) * g) / cols, ch = (SH - 2 * m - (rows - 1) * g) / rows, per = cols * rows;
+    let sheet = null;
+    for (let k = 0; k < src.length; k++) {
+      if (k % per === 0) sheet = out.addPage([SW, SH]);
+      const q = k % per, col = down ? Math.floor(q / rows) : q % cols, row = down ? q % rows : Math.floor(q / cols);
+      const c = src[k].getCropBox(), rot = ((src[k].getRotation().angle % 360) + 360) % 360, sw = rot % 180 ? c.height : c.width, sh = rot % 180 ? c.width : c.height;
+      const sc = Math.min(cw / sw, ch / sh), vw = sw * sc, vh = sh * sc;
+      const ox = m + col * (cw + g) + (cw - vw) / 2, oy = SH - m - (row + 1) * ch - row * g + (ch - vh) / 2;
+      const w = c.width * sc, h = c.height * sc;
+      const o = rot === 0 ? { x: ox, y: oy, rotate: L.degrees(0) } : rot === 90 ? { x: ox, y: oy + w, rotate: L.degrees(-90) }
+        : rot === 180 ? { x: ox + w, y: oy + h, rotate: L.degrees(180) } : { x: ox + h, y: oy, rotate: L.degrees(90) };
+      sheet.drawPage(emb[k], { ...o, xScale: sc, yScale: sc });
+      if (border) sheet.drawRectangle({ x: ox, y: oy, width: vw, height: vh, borderColor: L.rgb(.55, .58, .62), borderWidth: .6 });
+      if (k % 10 === 9) { prog.style.width = Math.round(8 + 84 * (k + 1) / src.length) + '%'; await tick(); }
+    }
+    return fin(out, plural(out.getPageCount(), 'sheet'));
+  }
+  if (MODE === 'meta') {
+    const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), info = out.getInfoDict(), N = L.PDFName.of;
+    out.catalog.delete(N('Metadata'));
+    if ($('#mClear').checked) { info.keys().forEach(k => info.delete(k)); }
+    else {
+      const set = (k, v, fn) => v.trim() ? fn(v.trim()) : info.delete(N(k));
+      set('Title', val('mT'), v => out.setTitle(v)); set('Author', val('mA'), v => out.setAuthor(v)); set('Subject', val('mS'), v => out.setSubject(v));
+      set('Keywords', val('mK'), v => out.setKeywords([v])); set('Creator', val('mC'), v => out.setCreator(v)); set('Producer', val('mP'), v => out.setProducer(v));
+      out.setModificationDate(new Date());
+    }
+    return fin(out, $('#mClear').checked ? 'Properties removed' : 'Properties saved');
+  }
+  if (MODE === 'flatten') {
+    if (radio('fl') === 'forms') {
+      const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), form = out.getForm(), n = form.getFields().length;
+      if (!n) throw new Error('this PDF has no form fields. Choose "Everything" to flatten notes and marks too');
+      form.flatten();
+      return fin(out, plural(n, 'field') + ' flattened');
+    }
+    if (!doc.js) throw new Error('the preview engine could not open this file');
+    const dpi = +val('flDpi'), out = await L.PDFDocument.create();
+    for (let i = 0; i < doc.count; i++) {
+      const page = await doc.js.getPage(i + 1), v1 = page.getViewport({ scale: 1 });
+      const scale = Math.min(dpi / 72, 9000 / Math.max(v1.width, v1.height), Math.sqrt(80e6 / (v1.width * v1.height))), vp = page.getViewport({ scale });
+      const c = document.createElement('canvas'); c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      await page.render({ canvasContext: ctx, viewport: vp, annotationMode: pdfjsLib.AnnotationMode ? pdfjsLib.AnnotationMode.ENABLE_STORAGE : 1 }).promise;
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9)); c.width = c.height = 0;
+      const img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer())), pg = out.addPage([v1.width, v1.height]);
+      pg.drawImage(img, { x: 0, y: 0, width: v1.width, height: v1.height });
+      prog.style.width = Math.round(8 + 84 * (i + 1) / doc.count) + '%'; await tick();
+    }
+    return fin(out, plural(doc.count, 'page') + ' flattened to pictures');
+  }
+  if (MODE === 'extractimg') return exImgs();
+  if (MODE === 'bookmarks') {
+    const items = parseBm(val('bmText')).items, out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), ctx = out.context, N = L.PDFName.of;
+    const tree = []; const stack = [];
+    items.forEach(it => { const node = { ...it, kids: [] }; if (it.lv === 0) tree.push(node); else stack[it.lv - 1].kids.push(node); stack[it.lv] = node; stack.length = it.lv + 1; });
+    const total = ns => ns.reduce((t, n) => t + 1 + total(n.kids), 0);
+    const build = (nodes, parent) => {
+      const refs = nodes.map(() => ctx.nextRef());
+      nodes.forEach((n, k) => {
+        const d = ctx.obj({ Title: L.PDFHexString.fromText(n.title), Parent: parent, Dest: [out.getPage(n.page).ref, N('Fit')] });
+        if (k > 0) d.set(N('Prev'), refs[k - 1]); if (k < nodes.length - 1) d.set(N('Next'), refs[k + 1]);
+        if (n.kids.length) { const r = build(n.kids, refs[k]); d.set(N('First'), r[0]); d.set(N('Last'), r[r.length - 1]); d.set(N('Count'), ctx.obj(total(n.kids))); }
+        ctx.assign(refs[k], d);
+      });
+      return refs;
+    };
+    const root = ctx.nextRef(), top = build(tree, root);
+    ctx.assign(root, ctx.obj({ Type: 'Outlines', First: top[0], Last: top[top.length - 1], Count: total(tree) }));
+    out.catalog.set(N('Outlines'), root); out.catalog.set(N('PageMode'), N('UseOutlines'));
+    return fin(out, plural(items.length, 'bookmark'));
+  }
+}
+async function exImgs() {
+  const L = PDFLib, N = L.PDFName.of, mn = num('eMin') || 0, files = [], pad = 3;
+  let skipped = 0, tiny = 0;
+  const nm = o => o && o.toString();
+  const filt = d => { const f = d.lookup(N('Filter')); if (!f) return []; return f instanceof L.PDFArray ? f.asArray().map(x => nm(d.context.lookup(x))) : [nm(f)]; };
+  const comps = d => {                                  // -> {n, pal}
+    let cs = d.lookup(N('ColorSpace'));
+    if (cs instanceof L.PDFName) return cs.toString() === '/DeviceRGB' ? { n: 3 } : cs.toString() === '/DeviceGray' ? { n: 1 } : null;
+    if (cs instanceof L.PDFArray) {
+      const a = cs.asArray(), t = nm(d.context.lookup(a[0]));
+      if (t === '/ICCBased') { const s = d.context.lookup(a[1]); const n = s.dict.lookup(N('N')).asNumber(); return n === 3 || n === 1 ? { n } : null; }
+      if (t === '/CalRGB') return { n: 3 }; if (t === '/CalGray') return { n: 1 };
+      if (t === '/Indexed') {
+        const base = d.context.lookup(a[1]), bn = base instanceof L.PDFName ? (base.toString() === '/DeviceRGB' ? 3 : base.toString() === '/DeviceGray' ? 1 : 0) : 0;
+        let lk = d.context.lookup(a[3]), bytes = lk instanceof L.PDFRawStream ? L.decodePDFRawStream(lk).decode() : lk && lk.asBytes ? lk.asBytes() : null;
+        return bn && bytes ? { n: 1, pal: bytes, bn } : null;
+      }
+    }
+    return null;
+  };
+  const pixels = (st) => {                              // -> {w,h,rgba} | null
+    const d = st.dict, w = d.lookup(N('Width')).asNumber(), h = d.lookup(N('Height')).asNumber(), bpc = d.lookup(N('BitsPerComponent'));
+    if (!bpc || bpc.asNumber() !== 8) return null;
+    const fl = filt(d); if (fl.some(f => f !== '/FlateDecode')) return null;
+    const cs = comps(d); if (!cs) return null;
+    const raw = fl.length ? L.decodePDFRawStream(st).decode() : st.contents, px = new Uint8ClampedArray(w * h * 4);
+    if (raw.length < w * h * cs.n) return null;
+    for (let i = 0, q = 0; i < w * h; i++, q += 4) {
+      if (cs.pal) { const bn = cs.bn, k = raw[i] * bn; if (bn === 3) { px[q] = cs.pal[k]; px[q + 1] = cs.pal[k + 1]; px[q + 2] = cs.pal[k + 2]; } else px[q] = px[q + 1] = px[q + 2] = cs.pal[k]; }
+      else if (cs.n === 3) { px[q] = raw[i * 3]; px[q + 1] = raw[i * 3 + 1]; px[q + 2] = raw[i * 3 + 2]; } else px[q] = px[q + 1] = px[q + 2] = raw[i];
+      px[q + 3] = 255;
+    }
+    const sm = d.lookup(N('SMask'));
+    if (sm instanceof L.PDFRawStream) {
+      const sd = sm.dict;
+      if (sd.lookup(N('Width')).asNumber() === w && sd.lookup(N('Height')).asNumber() === h && sd.lookup(N('BitsPerComponent')).asNumber() === 8 && filt(sd).every(f => f === '/FlateDecode')) {
+        const a = filt(sd).length ? L.decodePDFRawStream(sm).decode() : sm.contents;
+        if (a.length >= w * h) for (let i = 0; i < w * h; i++) px[i * 4 + 3] = a[i];
+      }
+    }
+    return { w, h, px };
+  };
+  let n = 0; const all = [...doc.lib.context.enumerateIndirectObjects()];
+  for (let k = 0; k < all.length; k++) {
+    const o = all[k][1];
+    if (!(o instanceof L.PDFRawStream)) continue;
+    const d = o.dict; if (nm(d.lookup(N('Subtype'))) !== '/Image') continue;
+    const im = d.lookup(N('ImageMask')); if (im && im.toString() === 'true') { skipped++; continue; }
+    const w = d.lookup(N('Width')).asNumber(), h = d.lookup(N('Height')).asNumber();
+    if (Math.min(w, h) < mn) { tiny++; continue; }
+    const fl = filt(d);
+    let data = null, ext = '';
+    if (fl.length === 1 && fl[0] === '/DCTDecode') { data = o.contents; ext = 'jpg'; }
+    else {
+      const r = pixels(o); if (!r) { skipped++; continue; }
+      const c = document.createElement('canvas'); c.width = r.w; c.height = r.h; c.getContext('2d').putImageData(new ImageData(r.px, r.w, r.h), 0, 0);
+      const b = await new Promise(rs => c.toBlob(rs, 'image/png')); c.width = c.height = 0;
+      if (!b) { skipped++; continue; } data = new Uint8Array(await b.arrayBuffer()); ext = 'png';
+    }
+    n++; files.push({ name: `${base()}-image-${String(n).padStart(pad, '0')}.${ext}`, data });
+    if (k % 20 === 0) { prog.style.width = Math.round(8 + 84 * k / all.length) + '%'; await tick(); }
+  }
+  if (!files.length) throw new Error(tiny || skipped ? `no usable images. ${tiny ? tiny + ' too small, ' : ''}${skipped ? skipped + ' in formats this tool cannot read yet (scans often use these)' : ''}` : 'this PDF has no embedded pictures');
+  return { blob: zip(files), name: cleanName(outName.value, CFG.fallback, 'zip'), info: `${plural(files.length, 'image')}${skipped ? `, ${skipped} not readable` : ''}${tiny ? `, ${tiny} too small` : ''}` };
+}
+async function bmAuto() {
+  ws.classList.add('working'); const lines = [];
+  for (let i = 0; i < doc.count; i++) {
+    const tc = await (await doc.js.getPage(i + 1)).getTextContent(); let y = null, t = '';
+    for (const it of tc.items) { if (!it.str.trim() && !t) continue; const yy = it.transform[5]; if (y !== null && Math.abs(yy - y) > 3 && t) break; y = yy; t += it.str; }
+    t = t.replace(/[|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60) || 'Page ' + (i + 1);
+    lines.push(`${t} | ${i + 1}`);
+  }
+  ws.classList.remove('working'); $('#bmText').value = lines.join('\n'); clearDone(); paint();
+}
+async function bmCurrent() {
+  const out = await doc.js.getOutline(), lines = [];
+  const walk = async (items, lv) => { for (const it of items) {
+    try { let d = it.dest; if (typeof d === 'string') d = await doc.js.getDestination(d);
+      const idx = d ? (typeof d[0] === 'object' && d[0] !== null ? await doc.js.getPageIndex(d[0]) : d[0]) : -1;
+      if (Number.isInteger(idx) && idx >= 0 && idx < doc.count) lines.push(`${'-'.repeat(lv)}${it.title.replace(/\|/g, '/')} | ${idx + 1}`); else continue;
+    } catch (e) { continue; }
+    if (it.items && it.items.length) await walk(it.items, lv + 1);
+  } };
+  if (out) await walk(out, 0);
+  if (!lines.length) { toast('This PDF has no bookmarks yet.'); return; }
+  $('#bmText').value = lines.join('\n'); clearDone(); paint();
+}
+if ($('#bmAuto')) { $('#bmAuto').addEventListener('click', bmAuto); $('#bmCur').addEventListener('click', bmCurrent); }
 
 go.addEventListener('click', async () => {
   if (busy || go.disabled) return;

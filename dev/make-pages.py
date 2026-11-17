@@ -44,6 +44,26 @@ def hz(i, l, d=''): return f'<div class="optfield grow"><label class="lbl" for="
 OPT_HF = (hz('hL','Header left') + hz('hC','Header centre') + hz('hR','Header right') + hz('fL','Footer left') + hz('fC','Footer centre', 'Page {page} of {pages}') + hz('fR','Footer right')
   + numf('hSize', 'Size', 10, 6, 48, 1, 'pt')
   + '<p class="tip wide">Use {page}, {pages}, {date} and {file} to insert values.</p><p class="err" id="err" hidden></p>')
+def rad(name, items): return '<div class="chips">' + ''.join(f'<label class="chip"><input type="radio" name="{name}" value="{v}"{" checked" if i == 0 else ""}><span>{l}</span></label>' for i, (v, l) in enumerate(items)) + '</div>'
+def dd(i, label, opts, sel=None): return f'<div class="optfield"><label class="lbl" for="{i}">{label}</label><select class="dd" id="{i}">' + ''.join(f'<option value="{v}"{" selected" if v == sel else ""}>{l}</option>' for v, l in opts) + '</select></div>'
+OPT_FLIP = ('<div class="optfield"><span class="lbl">Mirror</span>' + rad('fd', [('h', 'Left to right'), ('v', 'Top to bottom'), ('both', 'Both ways')]) + '</div>'
+  + dd('fPages', 'Pages', [('all', 'All pages'), ('odd', 'Odd pages only'), ('even', 'Even pages only')]) + '<p class="err" id="err" hidden></p>')
+OPT_NUP = (dd('uN', 'Pages per sheet', [(2, '2'), (4, '4'), (6, '6'), (8, '8'), (9, '9'), (16, '16')], 4)
+  + dd('uSize', 'Sheet size', [('a4', 'A4'), ('letter', 'US Letter'), ('a3', 'A3')])
+  + dd('uOri', 'Sheet direction', [('auto', 'Automatic'), ('portrait', 'Upright'), ('landscape', 'Sideways')])
+  + dd('uOrder', 'Order', [('across', 'Across, then down'), ('down', 'Down, then across')])
+  + numf('uMar', 'Margin', 18, 0, 100, 1, 'pt') + numf('uGap', 'Gap', 8, 0, 100, 1, 'pt')
+  + '<div class="optfield">' + chk('uBorder', 'Thin line around each page', True) + '</div><p class="err" id="err" hidden></p>')
+OPT_META = (hz('mT', 'Title') + hz('mA', 'Author') + hz('mS', 'Subject') + hz('mK', 'Keywords') + hz('mC', 'Created with') + hz('mP', 'PDF producer')
+  + '<div class="optfield wide">' + chk('mClear', 'Remove all properties instead') + '</div><p class="tip wide">Hidden XMP data is removed so the properties you set are the only ones shown.</p><p class="err" id="err" hidden></p>')
+OPT_FLAT = ('<div class="optfield"><span class="lbl">Flatten</span>' + rad('fl', [('forms', 'Form fields only'), ('all', 'Everything')]) + '</div>'
+  + dd('flDpi', 'Quality for Everything', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 200)
+  + '<p class="tip wide">Form fields only keeps text and links. Everything turns each page into a picture, which also fixes notes, stamps and highlights.</p><p class="err" id="err" hidden></p>')
+OPT_EXIMG = (numf('eMin', 'Skip pictures smaller than', 50, 0, 5000, 1, 'px') + '<p class="err" id="err" hidden></p>')
+OPT_BM = ('<div class="optfield wide"><label class="lbl" for="bmText">One bookmark per line: Title | page. Start a line with a dash for a sub-bookmark.</label>'
+  '<textarea id="bmText" rows="7" spellcheck="false" placeholder="Introduction | 1&#10;Chapter 1 | 3&#10;-Background | 4&#10;Chapter 2 | 9"></textarea></div>'
+  '<div class="optfield wide"><button class="btn ghost sm" type="button" id="bmAuto">Use the first line of every page</button> <button class="btn ghost sm" type="button" id="bmCur">Load existing bookmarks</button></div>'
+  '<p class="err" id="err" hidden></p>')
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -127,6 +147,24 @@ TOOLS = [
  dict(id='headfoot', name='Header and footer', crumb='Header and footer', kind='pdf', engine='ptool',
       lead='Add text to the top and bottom of every page. Page number, page count, date and file name can be inserted.',
       drop='Drop a PDF here', acts=[], opt=OPT_HF, ext='pdf', defname='Dilia-header-footer', field='File name', go='Add header and footer and download'),
+ dict(id='flip', name='Flip pages', crumb='Flip pages', kind='pdf', engine='ptool',
+      lead='Mirror pages left to right or top to bottom. Useful for scans that came in backwards.',
+      drop='Drop a PDF here', acts=[], opt=OPT_FLIP, ext='pdf', defname='Dilia-flipped', field='File name', go='Flip and download'),
+ dict(id='nup', name='Several pages per sheet', crumb='N-up', kind='pdf', engine='ptool',
+      lead='Print 2, 4, 6, 8, 9 or 16 pages on each sheet to save paper.',
+      drop='Drop a PDF here', acts=[], opt=OPT_NUP, ext='pdf', defname='Dilia-n-up', field='File name', go='Make sheets and download'),
+ dict(id='meta', name='Edit PDF properties', crumb='Properties', kind='pdf', engine='ptool',
+      lead='Change the title, author, subject and keywords stored inside a PDF, or remove them.',
+      drop='Drop a PDF here', acts=[], opt=OPT_META, ext='pdf', defname='Dilia-properties', field='File name', go='Save properties and download'),
+ dict(id='flatten', name='Flatten PDF', crumb='Flatten', kind='pdf', engine='ptool',
+      lead='Make filled-in forms and added marks permanent so nobody can change them.',
+      drop='Drop a PDF here', acts=[], opt=OPT_FLAT, ext='pdf', defname='Dilia-flattened', field='File name', go='Flatten and download'),
+ dict(id='extractimg', name='Extract images from PDF', crumb='Extract images', kind='pdf', engine='ptool',
+      lead='Save the pictures stored inside a PDF at their original quality.',
+      drop='Drop a PDF here', acts=[], opt=OPT_EXIMG, ext='zip', defname='Dilia-embedded-images', field='File name', go='Extract images'),
+ dict(id='bookmarks', name='Add bookmarks to PDF', crumb='Bookmarks', kind='pdf', engine='ptool',
+      lead='Add a clickable outline to a PDF so readers can jump to chapters.',
+      drop='Drop a PDF here', acts=[], opt=OPT_BM, ext='pdf', defname='Dilia-bookmarked', field='File name', go='Add bookmarks and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -172,7 +210,7 @@ def page(t):
         bar_acts = f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
         tips = {'split': 'Pages are coloured by the file they go into.', 'delete': 'Click a page to mark it for deletion.', 'extract': 'Click a page to keep it.',
-                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
+                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
         bar_left = f'<b class="fn" id="fname"></b><p class="tip">{tips}</p>'
         bar_acts = ''.join(t['acts']) + f'<label class="btn ghost sm" for="pick">Change PDF</label>'
     filebox = '<div class="filebox" id="fbox"><div class="fthumb" id="fthumb"><span>PDF</span></div><div class="finfo"><b id="fn2"></b><span id="fmeta"></span><p id="fstate"></p></div></div>' if isfile else ''

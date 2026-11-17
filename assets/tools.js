@@ -17,7 +17,13 @@ window.DILIA_TOOLS = [
     { id: 'watermark', name: 'Watermark', desc: 'Stamp text or a logo across pages.', ready: 1, icon: 'M6 3h9l4 4v14H6zM9 16l7-7' },
     { id: 'number', name: 'Page numbers', desc: 'Number pages in your own format.', ready: 1, icon: 'M9 4 7 20M17 4l-2 16M4 9h16M3 15h16' },
     { id: 'bates', name: 'Bates numbering', desc: 'Stamp running reference numbers like ABC-000001.', ready: 1, icon: 'M5 6h14M5 12h14M5 18h9M17 16l2 2 3-4' },
-    { id: 'headfoot', name: 'Header and footer', desc: 'Add text to the top and bottom of every page.', ready: 1, icon: 'M4 4h16v16H4zM4 8h16M4 16h16' }
+    { id: 'headfoot', name: 'Header and footer', desc: 'Add text to the top and bottom of every page.', ready: 1, icon: 'M4 4h16v16H4zM4 8h16M4 16h16' },
+    { id: 'flip', name: 'Flip pages', desc: 'Mirror pages left to right or top to bottom.', ready: 1, icon: 'M12 3v18M8 7 3 12l5 5zM16 7l5 5-5 5z' },
+    { id: 'nup', name: 'Several pages per sheet', desc: 'Print 2 to 16 pages on one sheet.', ready: 1, icon: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z' },
+    { id: 'meta', name: 'Edit properties', desc: 'Change title, author and keywords.', ready: 1, icon: 'M4 6h16M4 12h10M4 18h13' },
+    { id: 'flatten', name: 'Flatten', desc: 'Make form entries and marks permanent.', ready: 1, icon: 'M4 8l8-4 8 4-8 4zM4 13l8 4 8-4M4 17l8 4 8-4' },
+    { id: 'extractimg', name: 'Extract images', desc: 'Save the pictures inside a PDF.', ready: 1, icon: 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M15 8.5h.01' },
+    { id: 'bookmarks', name: 'Add bookmarks', desc: 'Add a clickable outline.', ready: 1, icon: 'M6 3h12v18l-6-4-6 4z' }
   ]],
   ['Convert', [
     { id: 'img2pdf', name: 'Images to PDF', desc: 'Turn JPG and PNG photos into one PDF.', ready: 1, icon: 'M3 5h12v10H3zM3 12l4-3 4 3M14 13h4l3 3v5h-7z' },
