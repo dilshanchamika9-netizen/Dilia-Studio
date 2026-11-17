@@ -1,0 +1,121 @@
+/* Editor (edit, add, forms, sign, annotate) */
+@font-face{font-family:"Dancing Script";src:url(fonts/dancing-script.woff2) format("woff2");font-weight:600;font-display:swap}
+.ed .board{padding:0;overflow:visible}
+.ed .dropzone{margin:20px}
+.ws[data-state=empty] .ebar,.ws[data-state=empty] .props,.ws[data-state=empty] .pages{display:none!important}
+
+/* toolbar */
+.ebar{position:sticky;top:72px;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fffffff2;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);border-radius:20px 20px 0 0}
+.etools{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.etools::-webkit-scrollbar{display:none}
+.etool{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:58px;padding:7px 6px 6px;border:0;border-radius:10px;background:none;color:var(--text);font:600 11.5px/1 var(--font);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.etool svg{width:21px;height:21px}
+.etool:hover{background:var(--mist);color:var(--ink)}
+.etool[aria-pressed=true]{background:var(--ink);color:#fff}
+.esep{width:1px;align-self:stretch;margin:4px 6px;background:var(--line);flex:none}
+.eside{display:flex;align-items:center;gap:6px;flex:none}
+.ebtn{width:36px;height:36px;border:0;border-radius:10px;background:none;color:var(--ink);display:grid;place-items:center;cursor:pointer;font:600 20px/1 var(--font)}
+.ebtn svg{width:20px;height:20px}
+.ebtn:hover:not(:disabled){background:var(--mist)}
+.ebtn:disabled{opacity:.3;cursor:default}
+.zoom{display:flex;align-items:center;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
+.zoom b{min-width:46px;text-align:center;font-size:13px;color:var(--ink)}
+
+/* properties bar: always the same height so the pages never jump */
+.props{position:sticky;top:139px;z-index:19;display:flex;align-items:center;gap:8px 10px;min-height:58px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin}
+.props.on{box-shadow:0 8px 16px -12px #0b122033}
+.props>*{flex:none}
+.ptip{font-size:13.5px;color:var(--muted);white-space:normal;flex:1!important}
+.props .pt{font-size:14px;color:var(--ink);margin-right:4px}
+.dd.sm{min-height:36px;min-width:0;padding:0 34px 0 12px;font-size:14px;background-position:right 9px center}
+.props .name{margin:0;max-width:none}
+.props .name.sz{width:88px}
+.props .name.sz input{width:100%;padding:7px 0 7px 10px;font-size:14px}
+.props .name.grow{flex:1;min-width:200px}
+.props .name.grow input{padding:8px 12px;font-size:14px}
+.pbtn{min-height:36px;padding:0 12px;border:0;border-radius:10px;background:none;box-shadow:inset 0 0 0 1.5px var(--line2);font:650 13.5px var(--font);color:var(--ink);cursor:pointer}
+.pbtn:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.pbtn.on{background:var(--ink);color:#fff;box-shadow:none}
+.pbtn.del{color:var(--magenta-deep)}
+.pgap{flex:1}
+.pc{display:flex;align-items:center;gap:5px}
+.pcol{width:24px;height:24px;border-radius:50%;border:0;background:var(--k);box-shadow:inset 0 0 0 1px #0b122033;cursor:pointer}
+.pcol.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
+.pc input[type=color]{width:28px;height:28px;padding:0;border:0;background:none;cursor:pointer}
+.pwarn{font-size:13px;font-weight:650;color:var(--magenta-deep)}
+
+/* pages */
+.pages{display:flex;flex-direction:column;align-items:center;gap:22px;padding:26px 16px 40px;background:var(--mist);border-radius:0 0 20px 20px;min-height:400px}
+.epage{position:relative;background:#fff;box-shadow:0 1px 2px #0b12201a,0 10px 30px -12px #0b122040;flex:none}
+.epage canvas{position:absolute;inset:0;width:100%;height:100%}
+.pnum{position:absolute;left:50%;bottom:-19px;transform:translateX(-50%);font-size:11.5px;color:var(--muted)}
+.layer{position:absolute;inset:0;touch-action:pan-y}
+.ws:not([data-tool=select]) .layer{cursor:crosshair}
+.ws[data-tool=draw] .layer,.ws[data-tool=highlight] .layer,.ws[data-tool=box] .layer,.ws[data-tool=whiteout] .layer{touch-action:none}
+.ws[data-tool=text] .layer{cursor:text}
+
+.obj{position:absolute;box-sizing:border-box;cursor:move;touch-action:none}
+.obj.sel{outline:1.5px solid var(--magenta);outline-offset:2px}
+.otext .tx{white-space:pre;outline:0;min-width:4px;min-height:1em}
+.otext.editing{cursor:text;outline:1.5px dashed var(--magenta)}
+.otext.bad{outline:2px solid var(--magenta-deep);background:#e5007d14}
+.oimg img{width:100%;height:100%;display:block;pointer-events:none;user-select:none}
+.oshape.hl{mix-blend-mode:multiply;opacity:.45}
+.oshape.wo{background:#fff;box-shadow:0 0 0 1px #0b12200f}
+.odraw svg{display:block;pointer-events:none}
+.onote{width:22px;height:22px}
+.onote svg{width:100%;height:100%;filter:drop-shadow(0 2px 3px #0b122040)}
+.rh{position:absolute;right:-7px;bottom:-7px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--magenta);cursor:nwse-resize}
+.thit{position:absolute;border-radius:2px;cursor:text}
+.thit:hover{background:#009fe322;box-shadow:0 0 0 1px var(--cyan)}
+.ws[data-tool=edit] .thit{background:#009fe30d}
+
+.fld{position:absolute;box-sizing:border-box;margin:0;border:0;padding:1px 4px;background:#e0f2fdcc;color:#0b1220;font-family:Helvetica,Arial,sans-serif;border-radius:2px;box-shadow:inset 0 0 0 1px #009fe380;z-index:1}
+.fld:focus{outline:2px solid var(--cyan);background:#fff}
+textarea.fld{resize:none;line-height:1.2}
+input.fld[type=checkbox],input.fld[type=radio]{appearance:auto;-webkit-appearance:auto;accent-color:var(--magenta);padding:0;cursor:pointer}
+
+.keys{margin:14px 0 0;font-size:12.5px;color:var(--muted)}
+
+/* signature dialog */
+.sdlg{border:0;padding:0;border-radius:22px;width:min(560px,calc(100% - 24px));box-shadow:var(--shadow);color:var(--text)}
+.sdlg::backdrop{background:#0b122066;backdrop-filter:blur(3px)}
+.sdlg-in{padding:24px;display:grid;gap:16px}
+.sdlg h2{font-size:22px}
+.sdlg .seg{justify-self:start}
+.spad{display:block;width:100%;height:190px;border-radius:14px;background:var(--mist);box-shadow:inset 0 0 0 1.5px var(--line2);touch-action:none;cursor:crosshair}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;font-size:13.5px;color:var(--muted)}
+.srow.inks{justify-content:flex-start;margin:0}
+.ink{width:26px;height:26px;border-radius:50%;border:0;background:var(--k);cursor:pointer}
+.ink.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--k)}
+.linkbtn{border:0;background:none;padding:0;font:650 14px var(--font);color:var(--magenta);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.sname{width:100%;border:0;border-radius:14px;background:var(--mist);box-shadow:inset 0 0 0 1.5px var(--line2);padding:22px 18px;font:600 44px/1.2 "Dancing Script",cursive;color:#0b1220;outline:0}
+.sname:focus{box-shadow:inset 0 0 0 2px var(--magenta)}
+.sup{display:flex;align-items:center;gap:14px;cursor:pointer}
+.sup em{font-style:normal;font-size:14px;color:var(--muted)}
+.sreuse{display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;background:var(--mist)}
+.sreuse img{height:44px;max-width:180px;object-fit:contain}
+.sact{display:flex;justify-content:flex-end;gap:10px}
+
+@media (max-width:960px){
+  .ebar{top:64px;border-radius:16px 16px 0 0}
+  .props{top:auto;position:relative}
+  .props .name.grow{min-width:160px}
+  .eside .btn{display:none}
+  .keys{display:none}
+}
+@media (max-width:640px){
+  .ebar{flex-wrap:wrap;padding:8px}
+  .eside{width:100%;justify-content:space-between}
+  .etool{min-width:52px}
+  .pages{padding:16px 8px 30px}
+}
+
+.oshape.rd{background:#000;box-shadow:0 0 0 1px #e5007d,0 0 0 3px #e5007d33;opacity:.92}
+.rfind{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:#fff}
+.rfind .name{margin:0;flex:1;min-width:220px;max-width:420px}
+.rfind .name input{padding:9px 12px;font-size:14.5px}
+.rfind span{font-size:13.5px;color:var(--muted)}
+.ws[data-state=empty] .rfind{display:none}
+.rwarn{margin:0;padding:12px 18px;font-size:13.5px;color:#7a1d4a;background:#fff0f7;border-bottom:1px solid var(--line)}
+.ws[data-state=empty] .rwarn{display:none}

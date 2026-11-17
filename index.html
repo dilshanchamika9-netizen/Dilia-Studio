@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Free Online PDF Tools | Dilia Studio</title>
+<meta name="description" content="Dilia Studio: PDF tools that run on your own device. Merge, split, sign and edit without uploading.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/home.css">
+</head>
+<body>
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+    <nav class="links" aria-label="Main">
+      <a href="tools.html">Tools</a>
+      <a class="opt" href="#privacy">Privacy</a>
+    </nav>
+    <a class="btn sm" href="merge.html">Merge PDFs</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="flow" aria-hidden="true"><canvas id="ink"></canvas><div class="veil"></div></div>
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <h1 class="lockup" aria-label="Dilia Studio">
+        <svg class="bigmark" aria-hidden="true"><use href="#mark"/></svg>
+        <span class="l1">Dilia</span>
+        <span class="l2">Studio</span>
+      </h1>
+      <p class="promise">PDF tools that never leave your device.</p>
+      <p class="sub">Merge, split, sign and edit right in the browser. Nothing is uploaded, nothing is stored, and there is nothing to sign up for.</p>
+      <div class="ctas">
+        <a class="btn" href="merge.html">Merge PDFs <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="btn ghost" href="tools.html">See all tools</a>
+      </div>
+    </div>
+
+    <div class="stage" aria-label="Preview of the Merge workspace">
+      <div class="win">
+        <div class="win-top">
+          <div><b>Merge</b><span>3 files, 11 pages</span></div>
+          <span class="mini">Merge and download</span>
+        </div>
+        <div class="win-body">
+          <div class="f"><div class="thumb t-inv"><i></i><i></i><i></i></div><b>Invoice_Oct.pdf</b><span>4 pages</span></div>
+          <div class="f lift"><div class="thumb t-con"><i></i><i></i><i></i></div><b>Contract_signed.pdf</b><span>6 pages</span></div>
+          <div class="f"><div class="thumb t-pho"><i></i><i></i><i></i></div><b>Site_photos.pdf</b><span>1 page</span></div>
+        </div>
+        <div class="win-pages"><span></span><span></span><span></span><span></span><span class="on"></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="toast">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#e5007d"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><b>Dilia-merged.pdf</b><span>11 pages, 2.4 MB, saved to Downloads</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="facts wrap" aria-label="Key facts">
+  <div><b>0</b><span>files uploaded to any server</span></div>
+  <div><b>23</b><span>PDF tools planned, Merge working today</span></div>
+  <div><b>0</b><span>accounts, limits or watermarks</span></div>
+  <div><b>Any</b><span>device with a modern browser, phone included</span></div>
+</section>
+
+<section class="tools wrap" id="tools">
+  <div class="tools-head rise">
+    <p class="kicker">Tools</p>
+    <h2>Everything a PDF needs, in one studio.</h2>
+    <p class="sub">Each tool opens its own workspace. Ready means it works now; the rest are being built in order.</p>
+    <a class="btn dark" href="tools.html">Open the tool library <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+  <div class="cols rise" id="cols"></div>
+</section>
+
+<section class="how">
+  <div class="wrap">
+    <p class="kicker">How it works</p>
+    <h2>Three steps, all inside this tab.</h2>
+    <ol class="steps">
+      <li class="rise">
+        <div class="art a1"><div class="drop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Drop PDFs here</div></div>
+        <h3>Add your files</h3><p>Drop them in or pick them from your device. They are read by your browser, not sent anywhere.</p>
+      </li>
+      <li class="rise">
+        <div class="art a2"><span></span><span class="drag"></span><span></span><span></span></div>
+        <h3>Arrange the pages</h3><p>See every real page. Drag to reorder, rotate or remove before you save.</p>
+      </li>
+      <li class="rise">
+        <div class="art a3"><div class="file"><b>PDF</b></div><div class="bar"><i></i></div></div>
+        <h3>Download the result</h3><p>The new file is built on your device and saved straight to your downloads.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="night" id="privacy">
+  <div class="flow dim" aria-hidden="true"><canvas id="ink2"></canvas></div>
+  <div class="wrap night-in">
+    <div>
+      <p class="kicker">Privacy</p>
+      <h2>Your files stay yours.</h2>
+      <p class="sub">Most online PDF sites copy your document to their servers and promise to delete it later. Dilia Studio does the work in your browser, so there is no copy to delete.</p>
+    </div>
+    <div class="route rise">
+      <div class="node"><span>Your device</span><b>Your PDF</b></div>
+      <div class="line"></div>
+      <div class="node hot"><span>This browser tab</span><b>Dilia Studio</b></div>
+      <div class="line"></div>
+      <div class="node"><span>Your device</span><b>New PDF</b></div>
+      <div class="server"><span>Our servers</span><b>Never receive it</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta wrap rise">
+  <h2>Start with Merge.</h2>
+  <p class="sub">Combine any number of PDFs, see every page, and download one clean file.</p>
+  <a class="btn" href="merge.html">Merge PDFs <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="./" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+      <p>PDF tools that run on your own device. Your files are never uploaded.</p>
+    </div>
+    <div><h4>Organise</h4><ul><li><a href="merge.html">Merge</a></li><li><a href="tools.html">Split</a></li><li><a href="tools.html">Rotate</a></li></ul></div>
+    <div><h4>Edit</h4><ul><li><a href="tools.html">Sign</a></li><li><a href="tools.html">Fill forms</a></li><li><a href="tools.html">Watermark</a></li></ul></div>
+    <div><h4>Studio</h4><ul><li><a href="tools.html">All tools</a></li><li><a href="#privacy">Privacy</a></li></ul></div>
+    <div class="legal"><span>© <span data-year></span> Dilia Studio</span><span>Files are processed in your browser.</span></div>
+  </div>
+</footer>
+
+<script src="assets/tools.js"></script>
+<script src="assets/wave.js"></script>
+<script src="assets/common.js"></script>
+<script>
+{
+  inkFlow(document.getElementById('ink'));
+  inkFlow(document.getElementById('ink2'), { w: 80, h: 40, start: 31 });
+  document.getElementById('cols').innerHTML = DILIA_TOOLS.map(([g, list]) => `
+    <div class="col"><h3>${g}</h3><ul>${list.map(t => `
+      <li><a href="${t.ready ? t.id + '.html' : 'tools.html#' + t.id}">${diliaIcon(t.icon)}<span>${t.name}</span>${t.ready ? '<em>Ready</em>' : ''}</a></li>`).join('')}
+    </ul></div>`).join('');
+}
+</script>
+</body>
+</html>
