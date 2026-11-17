@@ -28,6 +28,10 @@ window.DILIA_TOOLS = [
     { id: 'noannot', name: 'Remove annotations', desc: 'Delete comments, highlights and stamps.', ready: 1, icon: 'M4 4h16v12H9l-5 4zM9 8l6 4M15 8l-6 4' },
     { id: 'booklet', name: 'Booklet', desc: 'Reorder pages to fold into a booklet.', ready: 1, icon: 'M3 5h8v14H3zM13 5h8v14h-8z' },
     { id: 'poster', name: 'Poster', desc: 'Enlarge a page across several sheets.', ready: 1, icon: 'M3 3h9v9H3zM12 3h9v9h-9zM3 12h9v9H3zM12 12h9v9h-9z' },
+    { id: 'overlay', name: 'Letterhead', desc: 'Put a letterhead or stamp on every page.', ready: 1, icon: 'M4 4h16v16H4zM8 9h8M8 13h5' },
+    { id: 'rename', name: 'Rename by text', desc: 'Name files after text on their pages.', ready: 1, icon: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4' },
+    { id: 'batch', name: 'Batch', desc: 'Apply one action to many PDFs.', ready: 1, icon: 'M7 7h13v13H7zM4 4h13v2M4 4v13h2' },
+    { id: 'scan', name: 'Scan to PDF', desc: 'Photograph pages and make a clean PDF.', ready: 1, icon: 'M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M7 12h10' },
     { id: 'mix', name: 'Alternate and mix', desc: 'Interleave pages from two or more PDFs.', ready: 1, icon: 'M4 5h7v6H4zM13 13h7v6h-7zM13 5h7v6h-7zM4 13h7v6H4z' },
     { id: 'insert', name: 'Insert or replace pages', desc: 'Put pages from one PDF into another.', ready: 1, icon: 'M4 4h9v16H4zM16 8h4M18 6v4M16 15h4' }
   ]],

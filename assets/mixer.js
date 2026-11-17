@@ -1,7 +1,8 @@
 /* Two tools that combine several PDFs: Alternate and mix pages (data-tool=mix), Insert or replace pages (data-tool=insert). */
 {
 const { $, kb, plural, esc, toast, save, cleanName, parseRanges, compress } = Kit;
-const MODE = document.body.dataset.tool, INSERT = MODE === 'insert';
+const MODE = document.body.dataset.tool, INSERT = MODE === 'insert', OVER = MODE === 'overlay', REN = MODE === 'rename', BATCH = MODE === 'batch', PAIR = INSERT || OVER;
+const { zip } = Kit;
 const files = [];            // {id,name,size,bytes,lib,js,count,url}
 let seq = 0, busy = false, lastUrl = null;
 const ws = $('#ws'), grid = $('#grid'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog'), errBox = $('#err');
@@ -15,7 +16,7 @@ async function add(list) {
   if (all.length - pdfs.length) toast(`${plural(all.length - pdfs.length, 'file')} skipped: only PDF files work here.`, true);
   ws.classList.add('working');
   for (const f of pdfs) {
-    if (INSERT && files.length >= 2) { toast('This tool takes two PDFs: the main file and the file the pages come from.', true); break; }
+    if (PAIR && files.length >= 2) { toast('This tool takes two PDFs.', true); break; }
     const r = await Kit.openPdf(f);
     if (r.err) { toast(r.err, true); continue; }
     r.id = 'f' + (++seq); files.push(r);
@@ -23,23 +24,38 @@ async function add(list) {
   }
   ws.classList.remove('working');
   if (pdfs.length) clearDone();
-  render();
+  render(); refreshNames();
 }
 async function thumb(f) {
   if (!f.js) return;
   try { f.url = URL.createObjectURL(await Kit.renderThumb(f.js, 0)); const c = grid.querySelector(`[data-id="${f.id}"] img`); if (c) { c.src = f.url; c.parentElement.classList.add('ok'); } } catch (e) { /* no preview */ }
 }
-const roleOf = n => !INSERT ? '' : n === 0 ? 'Main PDF' : 'Pages come from';
+const roleOf = n => INSERT ? (n === 0 ? 'Main PDF' : 'Pages come from') : OVER ? (n === 0 ? 'Main PDF' : 'Letterhead') : '';
+const newNames = new Map();                              // rename: file id -> proposed name
 function render() {
   ws.dataset.state = files.length ? 'full' : 'empty';
   grid.innerHTML = files.map((f, n) => `<article class="card page" data-id="${f.id}" aria-label="${esc(f.name)}">
     <div class="pv${f.url ? ' ok' : ''}"><img alt="" ${f.url ? `src="${f.url}"` : ''}></div>
-    <div class="pmeta"><i></i><span>${n + 1}</span><em title="${esc(f.name)}">${INSERT ? roleOf(n) + ': ' : ''}${esc(f.name)} (${plural(f.count, 'page')})</em></div>
+    <div class="pmeta"><i></i><span>${n + 1}</span><em title="${esc(f.name)}">${roleOf(n) ? roleOf(n) + ': ' : ''}${esc(f.name)} (${plural(f.count, 'page')})${REN && newNames.get(f.id) ? ' → ' + esc(newNames.get(f.id)) : ''}</em></div>
     <div class="tools-row"><button type="button" data-rm="1" aria-label="Remove ${esc(f.name)}">${BIN}</button></div></article>`).join('');
   grid.querySelectorAll('.page').forEach(c => c.style.setProperty('--c', '#e5007d'));
   summary();
 }
 function plan() {                                       // -> {err}|{hint}|{list:[{f,i}] , info}
+  if (REN) {
+    if (!files.length) return { hint: 'Add the PDFs you want to rename.' };
+    const r = renCheck(); if (r.err) return { err: r.err };
+    return { list: files.map(f => ({ f, i: 0 })), info: plural(files.length, 'file') + ' renamed' };
+  }
+  if (BATCH) {
+    if (!files.length) return { hint: 'Add the PDFs to process.' };
+    const r = batchCheck(); if (r.err) return { err: r.err };
+    return { list: files.map(f => ({ f, i: 0 })), info: plural(files.length, 'file') + ' processed' };
+  }
+  if (OVER) {
+    if (files.length < 2) return { hint: 'Add the main PDF first, then the letterhead PDF.' };
+    return { list: files[0].lib.getPages().map((_, i) => ({ f: files[0], i })), info: plural(files[0].count, 'page') + ' with the letterhead' };
+  }
   if (!INSERT) {
     if (files.length < 2) return { hint: 'Add at least two PDFs to mix.' };
     const n = Math.floor(+val('mN'));
@@ -69,15 +85,111 @@ function plan() {                                       // -> {err}|{hint}|{list
   if (!out.length) return { err: 'That would leave an empty PDF.' };
   return { list: out, info: `${plural(out.length, 'page')}` };
 }
+
+/* ---------- rename by text ---------- */
+const lineCache = new Map();                            // "fid:page" -> [lines]
+async function linesOf(f, pn) {
+  const k = f.id + ':' + pn; if (lineCache.has(k)) return lineCache.get(k);
+  let lines = [];
+  try {
+    const tc = await (await f.js.getPage(pn)).getTextContent(), rows = [];
+    for (const it of tc.items) { if (!it.str.trim()) continue; const y = it.transform[5], r = rows.find(q => Math.abs(q.y - y) < 3); if (r) r.t.push([it.transform[4], it.str]); else rows.push({ y, t: [[it.transform[4], it.str]] }); }
+    rows.sort((a, b) => b.y - a.y); lines = rows.map(r => r.t.sort((a, b) => a[0] - b[0]).map(x => x[1]).join(' ').replace(/\s+/g, ' ').trim());
+  } catch (e) { /* no text */ }
+  lineCache.set(k, lines); return lines;
+}
+function renCheck() {
+  const m = val('rSrc'), pn = Math.floor(+val('rPage'));
+  if (!(pn >= 1)) return { err: 'Page number must be 1 or more.' };
+  if (m === 'label' && !val('rLabel').trim()) return { err: 'Type the label that comes before the text, for example Invoice No.' };
+  if (m === 'regex') { if (!val('rLabel').trim()) return { err: 'Type a pattern, for example INV-\\d+' }; try { new RegExp(val('rLabel')); } catch (e) { return { err: 'That pattern is not valid.' }; } }
+  return { ok: 1 };
+}
+async function proposeName(f) {
+  const m = val('rSrc'), pn = Math.min(Math.max(1, Math.floor(+val('rPage')) || 1), f.count), lines = f.js ? await linesOf(f, pn) : [];
+  let t = '';
+  if (m === 'first') t = lines[0] || '';
+  else if (m === 'label') { const lab = val('rLabel').trim().toLowerCase(); for (const ln of lines) { const at = ln.toLowerCase().indexOf(lab); if (at >= 0) { t = ln.slice(at + lab.length).replace(/^[\s:#.\-]+/, '').trim(); break; } } }
+  else { const re = new RegExp(val('rLabel')); for (const ln of lines) { const mm = ln.match(re); if (mm) { t = mm[1] || mm[0]; break; } } }
+  t = t.replace(/[\\/:*?"<>|\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+  return t;
+}
+let renTok = 0;
+async function refreshNames() {
+  if (!REN) return; const tok = ++renTok; newNames.clear();
+  if (renCheck().err) { render(); return; }
+  for (const f of files) { const t = await proposeName(f); if (tok !== renTok) return; if (t) newNames.set(f.id, t + ($('#rKeep').checked ? ' - ' + f.name.replace(/\.pdf$/i, '') : '') + '.pdf'); }
+  render();
+}
+async function buildRename() {
+  await refreshNames(); const used = new Set(), out = []; let hit = 0;
+  for (const f of files) {
+    let nm = newNames.get(f.id); if (nm) hit++; else nm = f.name;
+    let base = nm.replace(/\.pdf$/i, ''), q = base, n = 1; while (used.has(q.toLowerCase())) q = `${base} (${++n})`; used.add(q.toLowerCase());
+    out.push({ name: q + '.pdf', data: f.bytes });
+  }
+  if (!hit) throw new Error('no text matched, so no file was renamed. Check the page number and the label. Scanned pages have no text: run OCR first');
+  return { blob: zip(out), name: cleanName($('#outName').value, 'Dilia-renamed', 'zip'), info: `${hit} of ${plural(files.length, 'file')} renamed${hit < files.length ? ', the rest keep their name' : ''}` };
+}
+
+/* ---------- batch ---------- */
+function batchCheck() {
+  const op = val('bOp');
+  if (op === 'bates') { const d = Math.floor(+val('bDig')); if (!(d >= 1 && d <= 12)) return { err: 'Digits must be between 1 and 12.' }; }
+  if (op === 'watermark' && !val('bText').trim()) return { err: 'Type the watermark text.' };
+  if (op === 'bates' || op === 'watermark') { const t = op === 'bates' ? val('bPre') + val('bSuf') : val('bText'); if (/[^ -~ -ÿ]/.test(t)) return { err: 'Only English letters, numbers and common symbols work here for now.' }; }
+  return { ok: 1 };
+}
+function toUserB(b, vx, vy) { return b.r === 0 ? [b.x0 + vx, b.y0 + vy] : b.r === 90 ? [b.x0 + b.W - vy, b.y0 + vx] : b.r === 180 ? [b.x0 + b.W - vx, b.y0 + b.H - vy] : [b.x0 + vy, b.y0 + b.H - vx]; }
+async function buildBatch() {
+  const L = PDFLib, op = val('bOp'), out = []; let counter = Math.floor(+val('bStart')) || 0, bad = [];
+  for (let k = 0; k < files.length; k++) {
+    const f = files[k]; prog.style.width = Math.round(8 + 84 * k / files.length) + '%'; await tick();
+    try {
+      const d = await L.PDFDocument.load(f.bytes, { updateMetadata: false }), N = L.PDFName.of;
+      if (op === 'rotate') { const a = +val('bAng'); d.getPages().forEach(p => p.setRotation(L.degrees((((p.getRotation().angle + a) % 360) + 360) % 360))); }
+      else if (op === 'flatten') { const fm = d.getForm(); if (fm.getFields().length) fm.flatten(); }
+      else if (op === 'meta') { const info = d.getInfoDict(); info.keys().forEach(x => info.delete(x)); d.catalog.delete(N('Metadata')); }
+      else if (op === 'noannot') { for (const pg of d.getPages()) { const arr = pg.node.lookupMaybe(N('Annots'), L.PDFArray); if (!arr) continue; const keep = []; for (let i = 0; i < arr.size(); i++) { const a = arr.lookupMaybe(i, L.PDFDict), st = a && a.lookup(N('Subtype')), t = st && st.toString(); if (t === '/Link' || t === '/Widget') keep.push(arr.get(i)); } if (keep.length) pg.node.set(N('Annots'), d.context.obj(keep)); else pg.node.delete(N('Annots')); } }
+      else {
+        const font = await d.embedFont(L.StandardFonts.Helvetica), pgs = d.getPages();
+        pgs.forEach((pg, i) => {
+          const c = pg.getCropBox(), r = ((pg.getRotation().angle % 360) + 360) % 360, b = { x0: c.x, y0: c.y, W: c.width, H: c.height, r }, vw = r % 180 ? c.height : c.width, vh = r % 180 ? c.width : c.height;
+          let t, size = 10, vx, vy, extra = {};
+          if (op === 'number') { t = `Page ${i + 1} of ${pgs.length}`; }
+          else if (op === 'bates') { t = val('bPre') + String(counter++).padStart(Math.floor(+val('bDig')), '0') + val('bSuf'); }
+          else { t = val('bText').trim(); size = Math.max(10, Math.min(vw, vh) / (Math.max(1, t.length) * .62)); }
+          const tw = font.widthOfTextAtSize(t, size);
+          if (op === 'watermark') {
+            const ang = 45 * Math.PI / 180, cx = vw / 2, cy = vh / 2, [ux, uy] = toUserB(b, cx - Math.cos(ang) * tw / 2 + Math.sin(ang) * size * .35, cy - Math.sin(ang) * tw / 2 - Math.cos(ang) * size * .35);
+            pg.drawText(t, { x: ux, y: uy, size, font, color: L.rgb(.54, .56, .6), opacity: .3, rotate: L.degrees(45 + r) });
+          } else {
+            vx = op === 'number' ? (vw - tw) / 2 : vw - 28 - tw; vy = 28; const [ux, uy] = toUserB(b, vx, vy);
+            pg.drawText(t, { x: ux, y: uy, size, font, color: L.rgb(.04, .07, .13), rotate: L.degrees(r) });
+          }
+        });
+      }
+      d.setProducer('Dilia Studio'); out.push({ name: f.name, data: await d.save() });
+    } catch (e) { bad.push(f.name); }
+  }
+  if (!out.length) throw new Error('none of the files could be processed');
+  if (bad.length) toast(`${plural(bad.length, 'file')} could not be processed and ${bad.length === 1 ? 'was' : 'were'} left out: ${bad.slice(0, 3).join(', ')}.`, true);
+  if (out.length === 1) return { blob: new Blob([out[0].data], { type: 'application/pdf' }), name: out[0].name, info: '1 file processed' };
+  return { blob: zip(out), name: cleanName($('#outName').value, 'Dilia-batch', 'zip'), info: plural(out.length, 'file') + ' processed' };
+}
+function syncBatchUi() { if (!BATCH) return; const op = val('bOp'); document.querySelectorAll('[data-op]').forEach(e => { e.hidden = !e.dataset.op.split(' ').includes(op); }); }
+if (REN) { document.querySelectorAll('.optbar input, .optbar select').forEach(e => { e.addEventListener('input', refreshNames); e.addEventListener('change', refreshNames); }); }
+if (BATCH) { $('#bOp').addEventListener('change', syncBatchUi); syncBatchUi(); }
+
 let nameTouched = false;
 $('#outName').addEventListener('input', () => { nameTouched = true; });
 function summary() {
-  const p = files.length ? plan() : { hint: INSERT ? 'Add the main PDF first.' : 'Add at least two PDFs to mix.' };
+  const p = files.length ? plan() : { hint: PAIR ? 'Add the main PDF first.' : (REN || BATCH) ? 'Add PDF files to start.' : 'Add at least two PDFs to mix.' };
   showErr(p.err || '');
-  if (!nameTouched && files.length) $('#outName').value = files[0].name.replace(/\.pdf$/i, '');
+  if (!nameTouched && files.length && !REN && !BATCH) $('#outName').value = files[0].name.replace(/\.pdf$/i, '');
   $('#s1').textContent = files.length; $('#s2').textContent = p.list ? p.list.length : 0; $('#s3').textContent = kb(files.reduce((a, f) => a + f.size, 0));
   go.disabled = busy || !p.list;
-  note.textContent = p.err ? 'Fix the highlighted setting to continue.' : p.hint ? p.hint : INSERT ? `The new PDF has ${p.info}.` : `Pages are taken in turn: ${p.info}.`;
+  note.textContent = p.err ? 'Fix the highlighted setting to continue.' : p.hint ? p.hint : (REN || BATCH || OVER) ? `${p.info}. Saved in one ZIP.`.replace(OVER ? /Saved in one ZIP\./ : /^$/, '') : INSERT ? `The new PDF has ${p.info}.` : `Pages are taken in turn: ${p.info}.`;
 }
 document.querySelectorAll('.optbar input, .optbar select').forEach(e => { e.addEventListener('input', () => { clearDone(); summary(); }); e.addEventListener('change', () => { clearDone(); summary(); }); });
 Sortable.create(grid, {
@@ -99,7 +211,32 @@ go.addEventListener('click', async () => {
   busy = true; go.disabled = true; ws.classList.add('working'); prog.style.width = '6%';
   try {
     await tick();
+    if (REN || BATCH) {
+      const r = REN ? await buildRename() : await buildBatch();
+      prog.style.width = '100%'; if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(r.blob); save(lastUrl, r.name);
+      $('#doneName').textContent = r.name; $('#doneInfo').textContent = `${r.info}, ${kb(r.blob.size)}`; $('#again').href = lastUrl; $('#again').download = r.name; $('#done').hidden = false;
+      busy = false; ws.classList.remove('working'); setTimeout(() => { prog.style.width = '0'; }, 600); summary(); return;
+    }
     const out = await PDFLib.PDFDocument.create(), cache = new Map();
+    if (OVER) {
+      const [A, B] = files, L = PDFLib, over = val('oPos') === 'over', each = val('oPages') === 'each';
+      const ac = await out.copyPages(A.lib, A.lib.getPages().map((_, i) => i)), bc = await out.copyPages(B.lib, B.lib.getPages().map((_, i) => i));
+      const box = pg => { const c = pg.getCropBox(), rot = ((pg.getRotation().angle % 360) + 360) % 360; return { c, rot, vw: rot % 180 ? c.height : c.width, vh: rot % 180 ? c.width : c.height }; };
+      const eb = await out.embedPages(bc, B.lib.getPages().map(p => { const c = p.getCropBox(); return { left: c.x, bottom: c.y, right: c.x + c.width, top: c.y + c.height }; }));
+      const ea = await out.embedPages(ac, A.lib.getPages().map(p => { const c = p.getCropBox(); return { left: c.x, bottom: c.y, right: c.x + c.width, top: c.y + c.height }; }));
+      const at = (pg, e, v, W, H) => { const sc = Math.min(W / v.vw, H / v.vh), x = (W - v.vw * sc) / 2, y = (H - v.vh * sc) / 2, w = v.c.width * sc, h = v.c.height * sc;
+        const o = v.rot === 0 ? { x, y, r: 0 } : v.rot === 90 ? { x, y: y + w, r: -90 } : v.rot === 180 ? { x: x + w, y: y + h, r: 180 } : { x: x + h, y, r: 90 };
+        pg.drawPage(e, { x: o.x, y: o.y, rotate: L.degrees(o.r), xScale: sc, yScale: sc }); };
+      A.lib.getPages().forEach((ap, i) => {
+        const va = box(ap), j = each ? Math.min(i, B.count - 1) : 0, vb = box(B.lib.getPage(j)), pg = out.addPage([va.vw, va.vh]);
+        if (over) { at(pg, ea[i], va, va.vw, va.vh); at(pg, eb[j], vb, va.vw, va.vh); } else { at(pg, eb[j], vb, va.vw, va.vh); at(pg, ea[i], va, va.vw, va.vh); }
+      });
+      out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+      const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, 'Dilia-letterhead', 'pdf');
+      prog.style.width = '100%'; if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(blob); save(lastUrl, name);
+      $('#doneName').textContent = name; $('#doneInfo').textContent = `${p.info}, ${kb(blob.size)}`; $('#again').href = lastUrl; $('#again').download = name; $('#done').hidden = false;
+      busy = false; ws.classList.remove('working'); setTimeout(() => { prog.style.width = '0'; }, 600); summary(); return;
+    }
     const fresh = new Map();                                 // one copy call per file keeps shared fonts and images single
     for (const f of files) { const idx = [...new Set(p.list.filter(x => x.f === f).map(x => x.i))]; const cp = idx.length ? await out.copyPages(f.lib, idx) : []; fresh.set(f, new Map(idx.map((i, q) => [i, cp[q]]))); }
     for (let k = 0; k < p.list.length; k++) {

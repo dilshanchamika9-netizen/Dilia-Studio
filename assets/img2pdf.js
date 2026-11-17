@@ -74,6 +74,7 @@ grid.addEventListener('click', e => {
   if (r) { it.rot = (it.rot + +r.dataset.rot + 360) % 360; card.querySelector('img').style.setProperty('--r', it.rot + 'deg'); clearDone(); }
   else if (e.target.closest('[data-rm]')) { URL.revokeObjectURL(it.url); items.splice(items.indexOf(it), 1); clearDone(); render(); }
 });
+if ($('#look')) $('#look').addEventListener('change', clearDone);
 document.querySelectorAll('input[name=ps]').forEach(r => r.addEventListener('change', summary));
 $('#sortAz').addEventListener('click', () => {
   items.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
@@ -100,19 +101,32 @@ function exifOrientation(u8) {
   } catch (e) { /* ignore */ }
   return 1;
 }
+const look = () => { const e = $('#look'); return e ? e.value : 'none'; };
+function scanLook(c, mode) {                            // grayscale, stretch levels, optional hard contrast
+  const ctx = c.getContext('2d'), d = ctx.getImageData(0, 0, c.width, c.height), px = d.data, n = c.width * c.height, hist = new Uint32Array(256);
+  for (let i = 0; i < n; i++) { const g = (px[i * 4] * 299 + px[i * 4 + 1] * 587 + px[i * 4 + 2] * 114) / 1000 | 0; px[i * 4] = g; hist[g]++; }
+  let acc = 0, lo = 0, hi = 255; for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= n * .01) { lo = v; break; } }
+  acc = 0; for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= n * .01) { hi = v; break; } }
+  if (hi - lo < 30) { lo = 0; hi = 255; }
+  const lut = new Uint8Array(256);
+  for (let v = 0; v < 256; v++) { let x = Math.min(1, Math.max(0, (v - lo) / (hi - lo))); if (mode === 'bw') { x = Math.min(1, Math.max(0, (x - .25) / .5)); x = x * x * (3 - 2 * x); } else x = x * x * (3 - 2 * x) * .35 + x * .65; lut[v] = Math.round(x * 255); }
+  for (let i = 0; i < n; i++) { const g = lut[px[i * 4]]; px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = g; px[i * 4 + 3] = 255; }
+  ctx.putImageData(d, 0, 0);
+}
 async function prepare(it) {
-  const u8 = new Uint8Array(await it.file.arrayBuffer());
+  const u8 = new Uint8Array(await it.file.arrayBuffer()), lk = look();
   const jpeg = it.type === 'image/jpeg', png = it.type === 'image/png';
-  if (!it.rot && ((jpeg && exifOrientation(u8) === 1) || png)) return { bytes: u8, kind: jpeg ? 'jpg' : 'png', w: it.w, h: it.h };
+  if (lk === 'none' && !it.rot && ((jpeg && exifOrientation(u8) === 1) || png)) return { bytes: u8, kind: jpeg ? 'jpg' : 'png', w: it.w, h: it.h };
   // anything else is redrawn on a canvas: other formats, turned images, photos stored sideways
   const bmp = await createImageBitmap(it.file);      // browsers apply the photo's own orientation here
   const sw = bmp.width, sh = bmp.height, turned = it.rot === 90 || it.rot === 270;
-  let w = turned ? sh : sw, h = turned ? sw : sh, k = Math.min(1, Math.sqrt(100e6 / (w * h)));
+  let w = turned ? sh : sw, h = turned ? sw : sh, k = Math.min(1, Math.sqrt(100e6 / (w * h)), lk === 'none' ? 1 : 3000 / Math.max(w, h));
   const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
-  const ctx = c.getContext('2d'), asPng = png || (it.type !== 'image/jpeg' && it.type !== 'image/bmp');
+  const ctx = c.getContext('2d'), asPng = lk === 'none' && (png || (it.type !== 'image/jpeg' && it.type !== 'image/bmp'));
   if (!asPng) { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); }
   ctx.translate(c.width / 2, c.height / 2); ctx.rotate(it.rot * Math.PI / 180); ctx.scale(k, k);
   ctx.drawImage(bmp, -sw / 2, -sh / 2); bmp.close && bmp.close();
+  if (lk !== 'none') { ctx.setTransform(1, 0, 0, 1, 0, 0); scanLook(c, lk); }
   const blob = await new Promise(r => c.toBlob(r, asPng ? 'image/png' : 'image/jpeg', .92));
   const out = { bytes: new Uint8Array(await blob.arrayBuffer()), kind: asPng ? 'png' : 'jpg', w: c.width, h: c.height };
   c.width = c.height = 0; return out;
@@ -169,6 +183,7 @@ $('#reset').addEventListener('click', () => {
   nameTouched = false; $('#outName').value = ''; clearDone(); render(); scrollTo({ top: 0, behavior: 'smooth' });
 });
 pick.addEventListener('change', () => { add(pick.files); pick.value = ''; });
+if ($('#cam')) $('#cam').addEventListener('change', e => { add(e.target.files); e.target.value = ''; });
 Kit.dropAnywhere(add);
 render();
 window.__dilia = { items };

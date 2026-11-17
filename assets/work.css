@@ -238,3 +238,5 @@ body.work{background:var(--mist)}
 
 .optfield textarea{width:100%;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line,#e3e8ee);border-radius:10px;resize:vertical;background:#fff;color:inherit}
 .optfield textarea:focus{outline:2px solid var(--magenta);outline-offset:1px}
+.optbar span[data-op]{display:contents}
+.optbar span[data-op][hidden]{display:none}
