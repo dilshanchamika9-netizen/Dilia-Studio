@@ -21,6 +21,10 @@ const CFG = {
   flatten: { suffix: '', fallback: 'Dilia-flattened', l2: 'Flattened', l3: 'Size in', verb: 'Flatten and download' },
   extractimg: { suffix: '', fallback: 'Dilia-embedded-images', l2: 'Pages', l3: 'Size in', verb: 'Extract images' },
   bookmarks: { suffix: '', fallback: 'Dilia-bookmarked', l2: 'Bookmarks', l3: 'Size in', verb: 'Add bookmarks and download' },
+  resize:  { suffix: '', fallback: 'Dilia-resized', l2: 'Pages out', l3: 'Size in', verb: 'Resize and download' },
+  noannot: { suffix: '', fallback: 'Dilia-clean', l2: 'Pages', l3: 'Size in', verb: 'Remove and download' },
+  booklet: { suffix: '', fallback: 'Dilia-booklet', l2: 'Sheet sides', l3: 'Size in', verb: 'Make booklet and download' },
+  poster:  { suffix: '', fallback: 'Dilia-poster', l2: 'Sheets out', l3: 'Size in', verb: 'Make poster and download' },
   crop:    { suffix: '', fallback: 'Dilia-cropped', l2: 'Cropped', l3: 'Size in', verb: 'Crop and download' },
   text:    { suffix: '', fallback: 'Dilia-text', l2: 'Selected', l3: 'Pages out', verb: 'Save as text' },
   pdf2img: { suffix: '',    fallback: 'Dilia-images',    l2: 'Selected',  l3: 'Images out', verb: 'Save as images' }
@@ -29,7 +33,7 @@ const TOGGLE = ['delete', 'extract', 'pdf2img', 'text'].includes(MODE);
 const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text';
 const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text';
 const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop'].includes(MODE);
-const WHOLE = ['flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks'].includes(MODE);
+const WHOLE = ['flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks', 'resize', 'noannot', 'booklet', 'poster'].includes(MODE);
 const NUMBERED = MODE === 'number' || MODE === 'bates';
 const fmt = () => document.querySelector('input[name=fmt]:checked').value;
 
@@ -609,6 +613,15 @@ function wholeCheck() {
     const n = +val('uN'), sheets = Math.ceil(pages.length / n);
     return { ok: true, s2: sheets, msg: `${plural(pages.length, 'page')} become ${plural(sheets, 'sheet')}.` };
   }
+  if (MODE === 'resize') return { ok: true, msg: `Every page is scaled to fit ${val('rSize').toUpperCase()} and centred. Proportions are kept.` };
+  if (MODE === 'noannot') return { ok: true, msg: 'Comments, highlights, stamps and drawn notes are deleted. Page text stays.' };
+  if (MODE === 'booklet') { const n = Math.ceil(pages.length / 4) * 4; return { ok: true, s2: n / 2, msg: `${plural(n / 2, 'sheet side')} to print double-sided, folded in half.${n > pages.length ? ` ${n - pages.length} blank page${n - pages.length > 1 ? 's are' : ' is'} added at the end.` : ''}` }; }
+  if (MODE === 'poster') {
+    const c = Math.floor(num('pC')), r = Math.floor(num('pR')), o = num('pOv');
+    if (!(c >= 1 && c <= 8 && r >= 1 && r <= 8)) return { err: 'Columns and rows must be between 1 and 8.' };
+    if (!(o >= 0 && o <= 40)) return { err: 'Overlap must be between 0 and 40 mm.' };
+    return { ok: true, s2: c * r * pages.length, msg: `Each page is enlarged across ${c} x ${r} sheets (${plural(c * r * pages.length, 'sheet')} in all). Overlap lets you glue the sheets together.` };
+  }
   if (MODE === 'meta') return { ok: true, s2: ['mT', 'mA', 'mS', 'mK', 'mC', 'mP'].filter(i => val(i).trim()).length, msg: $('#mClear').checked ? 'All properties will be removed.' : 'The properties above are saved into the file. Nothing else changes.' };
   if (MODE === 'flatten') return { ok: true, msg: radio('fl') === 'all' ? 'Every page becomes a picture, so nothing can be edited or selected.' : 'Form fields become fixed text. Page text and links stay.' };
   if (MODE === 'extractimg') {
@@ -714,6 +727,23 @@ async function whole() {
     return fin(out, plural(doc.count, 'page') + ' flattened to pictures');
   }
   if (MODE === 'extractimg') return exImgs();
+  if (['resize', 'booklet', 'poster'].includes(MODE)) return layout(fin);
+  if (MODE === 'noannot') {
+    const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), N = L.PDFName.of, keepL = $('#nLinks').checked, keepF = $('#nForms').checked;
+    let gone = 0;
+    for (const pg of out.getPages()) {
+      const arr = pg.node.lookupMaybe(N('Annots'), L.PDFArray); if (!arr) continue;
+      const keep = [];
+      for (let i = 0; i < arr.size(); i++) {
+        const a = arr.lookupMaybe(i, L.PDFDict), st = a && a.lookup(N('Subtype')), t = st && st.toString();
+        if ((t === '/Link' && keepL) || (t === '/Widget' && keepF)) keep.push(arr.get(i)); else gone++;
+      }
+      if (keep.length) pg.node.set(N('Annots'), out.context.obj(keep)); else pg.node.delete(N('Annots'));
+    }
+    if (!keepF) out.catalog.delete(N('AcroForm'));
+    if (!gone) throw new Error('this PDF has no notes or marks to remove with these settings');
+    return fin(out, plural(gone, 'item') + ' removed');
+  }
   if (MODE === 'bookmarks') {
     const items = parseBm(val('bmText')).items, out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), ctx = out.context, N = L.PDFName.of;
     const tree = []; const stack = [];
@@ -734,6 +764,51 @@ async function whole() {
     out.catalog.set(N('Outlines'), root); out.catalog.set(N('PageMode'), N('UseOutlines'));
     return fin(out, plural(items.length, 'bookmark'));
   }
+}
+const PAPER = { a4: [595.28, 841.89], a5: [419.53, 595.28], a3: [841.89, 1190.55], letter: [612, 792], legal: [612, 1008] };
+function drawAt(pg, e, c, rot, x, y, sc) {             // x,y = bottom-left of the visual box
+  const w = c.width * sc, h = c.height * sc, d = PDFLib.degrees;
+  const o = rot === 0 ? { x, y, r: 0 } : rot === 90 ? { x, y: y + w, r: -90 } : rot === 180 ? { x: x + w, y: y + h, r: 180 } : { x: x + h, y, r: 90 };
+  pg.drawPage(e, { x: o.x, y: o.y, rotate: d(o.r), xScale: sc, yScale: sc });
+}
+async function layout(fin) {
+  const L = PDFLib, src = doc.lib.getPages(), out = await L.PDFDocument.create();
+  const copied = await out.copyPages(doc.lib, src.map((_, i) => i));
+  const emb = await out.embedPages(copied, src.map(p => { const c = p.getCropBox(); return { left: c.x, bottom: c.y, right: c.x + c.width, top: c.y + c.height }; }));
+  const inf = src.map(p => { const c = p.getCropBox(), rot = ((p.getRotation().angle % 360) + 360) % 360; return { c, rot, vw: rot % 180 ? c.height : c.width, vh: rot % 180 ? c.width : c.height }; });
+  const tickMaybe = async k => { if (k % 8 === 7) { prog.style.width = Math.round(8 + 84 * (k + 1) / src.length) + '%'; await tick(); } };
+  if (MODE === 'resize') {
+    const [pw, ph] = PAPER[val('rSize')];
+    for (let k = 0; k < src.length; k++) {
+      const v = inf[k], land = v.vw > v.vh, W = land ? ph : pw, H = land ? pw : ph, sc = Math.min(W / v.vw, H / v.vh);
+      const pg = out.addPage([W, H]); drawAt(pg, emb[k], v.c, v.rot, (W - v.vw * sc) / 2, (H - v.vh * sc) / 2, sc); await tickMaybe(k);
+    }
+    return fin(out, plural(src.length, 'page'));
+  }
+  if (MODE === 'booklet') {
+    const n = Math.ceil(src.length / 4) * 4; let [SW, SH] = PAPER[val('bSize')]; if (SW < SH) [SW, SH] = [SH, SW];
+    const rtl = val('bDir') === 'rtl', cw = SW / 2, m = 14, seq = [];
+    for (let k = 0; k < n / 4; k++) { seq.push([n - 1 - 2 * k, 2 * k], [2 * k + 1, n - 2 - 2 * k]); }
+    seq.forEach(([a, b]) => {
+      const pg = out.addPage([SW, SH]); [rtl ? b : a, rtl ? a : b].forEach((i, side) => {
+        if (i >= src.length) return; const v = inf[i], sc = Math.min((cw - 2 * m) / v.vw, (SH - 2 * m) / v.vh);
+        drawAt(pg, emb[i], v.c, v.rot, side * cw + (cw - v.vw * sc) / 2, (SH - v.vh * sc) / 2, sc);
+      });
+    });
+    return fin(out, plural(seq.length, 'sheet side'));
+  }
+  const cols = Math.floor(num('pC')), rows = Math.floor(num('pR')), ov = num('pOv') * 72 / 25.4, [pw, ph] = PAPER[val('pSize')]; let n = 0;
+  for (let k = 0; k < src.length; k++) {
+    const v = inf[k], land = v.vw > v.vh, SW = land ? ph : pw, SH = land ? pw : ph, GW = cols * SW - (cols - 1) * ov, GH = rows * SH - (rows - 1) * ov;
+    const sc = Math.min(GW / v.vw, GH / v.vh), gx = (GW - v.vw * sc) / 2, gt = (GH - v.vh * sc) / 2;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const pg = out.addPage([SW, SH]), left = c * (SW - ov), top = r * (SH - ov);
+      drawAt(pg, emb[k], v.c, v.rot, gx - left, SH - (gt + v.vh * sc - top), sc); n++;
+      pg.drawRectangle({ x: 0, y: 0, width: SW, height: SH, borderColor: L.rgb(.8, .8, .8), borderWidth: .4 });
+    }
+    await tickMaybe(k);
+  }
+  return fin(out, plural(n, 'sheet'));
 }
 async function exImgs() {
   const L = PDFLib, N = L.PDFName.of, mn = num('eMin') || 0, files = [], pad = 3;

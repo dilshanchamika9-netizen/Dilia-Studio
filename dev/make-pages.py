@@ -70,6 +70,13 @@ OPT_INS = ('<div class="optfield wide"><span class="lbl">What to do</span><div c
   + numf('iAt', 'Insert after page', 1, 0, 9999) + '<div class="optfield grow"><label class="lbl" for="iRep">Pages of the main PDF to replace</label><span class="name"><input id="iRep" type="text" placeholder="3-5" spellcheck="false" autocomplete="off"></span></div>'
   + '<div class="optfield grow"><label class="lbl" for="iSrc">Pages to take from the second file (empty for all)</label><span class="name"><input id="iSrc" type="text" placeholder="all pages" spellcheck="false" autocomplete="off"></span></div>'
   + '<p class="err" id="err" hidden></p>')
+PAPERS = [('a4', 'A4'), ('letter', 'US Letter'), ('a3', 'A3'), ('a5', 'A5'), ('legal', 'US Legal')]
+OPT_RESIZE = (dd('rSize', 'New page size', PAPERS) + '<p class="tip wide">Each page is scaled to fit and centred. Landscape pages stay landscape.</p><p class="err" id="err" hidden></p>')
+OPT_NOANN = ('<div class="optfield wide"><span class="lbl">Keep</span><div class="checks">' + chk('nLinks', 'Clickable links', True) + chk('nForms', 'Form fields', True) + '</div></div><p class="err" id="err" hidden></p>')
+OPT_BOOK = (dd('bSize', 'Paper', PAPERS[:3]) + dd('bDir', 'Reading direction', [('ltr', 'Left to right'), ('rtl', 'Right to left')])
+  + '<p class="tip wide">Print double-sided (flip on the short edge), fold the stack in half and staple the fold.</p><p class="err" id="err" hidden></p>')
+OPT_POSTER = (numf('pC', 'Sheets across', 2, 1, 8) + numf('pR', 'Sheets down', 2, 1, 8) + dd('pSize', 'Sheet size', PAPERS[:3]) + numf('pOv', 'Overlap', 10, 0, 40, 1, 'mm')
+  + '<p class="err" id="err" hidden></p>')
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -177,6 +184,18 @@ TOOLS = [
  dict(id='insert', name='Insert or replace pages', crumb='Insert or replace', kind='multi', engine='mixer', tip='The first file is the main PDF. The second gives the pages.', sort='swap', sortl='Swap order',
       lead='Put pages from one PDF into another at the spot you choose, or swap some pages of a PDF for pages from a second file.',
       drop='Drop two PDF files here', acts=[], opt=OPT_INS, ext='pdf', defname='Dilia-inserted', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Save new PDF'),
+ dict(id='resize', name='Resize PDF pages', crumb='Resize pages', kind='pdf', engine='ptool',
+      lead='Change every page to A4, Letter, A3, A5 or Legal. Content is scaled to fit.',
+      drop='Drop a PDF here', acts=[], opt=OPT_RESIZE, ext='pdf', defname='Dilia-resized', field='File name', go='Resize and download'),
+ dict(id='noannot', name='Remove annotations', crumb='Remove annotations', kind='pdf', engine='ptool',
+      lead='Delete comments, highlights, stamps and drawn notes from a PDF.',
+      drop='Drop a PDF here', acts=[], opt=OPT_NOANN, ext='pdf', defname='Dilia-clean', field='File name', go='Remove and download'),
+ dict(id='booklet', name='Make a booklet', crumb='Booklet', kind='pdf', engine='ptool',
+      lead='Reorder pages so that, printed double-sided and folded, they read as a booklet.',
+      drop='Drop a PDF here', acts=[], opt=OPT_BOOK, ext='pdf', defname='Dilia-booklet', field='File name', go='Make booklet and download'),
+ dict(id='poster', name='Print a poster', crumb='Poster', kind='pdf', engine='ptool',
+      lead='Enlarge a page across several sheets of paper. Print them and glue the sheets together.',
+      drop='Drop a PDF here', acts=[], opt=OPT_POSTER, ext='pdf', defname='Dilia-poster', field='File name', go='Make poster and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -225,7 +244,7 @@ def page(t):
         bar_acts = f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
         tips = {'split': 'Pages are coloured by the file they go into.', 'delete': 'Click a page to mark it for deletion.', 'extract': 'Click a page to keep it.',
-                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
+                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
         bar_left = f'<b class="fn" id="fname"></b><p class="tip">{tips}</p>'
         bar_acts = ''.join(t['acts']) + f'<label class="btn ghost sm" for="pick">Change PDF</label>'
     filebox = '<div class="filebox" id="fbox"><div class="fthumb" id="fthumb"><span>PDF</span></div><div class="finfo"><b id="fn2"></b><span id="fmeta"></span><p id="fstate"></p></div></div>' if isfile else ''
