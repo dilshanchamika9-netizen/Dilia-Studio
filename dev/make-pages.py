@@ -83,16 +83,21 @@ OPT_REN = (dd('rSrc', 'Take the name from', [('first', 'First line of the page')
   + '<div class="optfield grow"><label class="lbl" for="rLabel">Label or pattern</label><span class="name"><input id="rLabel" type="text" placeholder="Invoice No" spellcheck="false" autocomplete="off"></span></div>'
   + '<div class="optfield">' + chk('rKeep', 'Add the old name after it') + '</div><input type="hidden" id="rKeepV" value="0">'
   + '<p class="tip wide">Files whose page has no matching text keep their name. Scanned pages have no text: run OCR first.</p><p class="err" id="err" hidden></p>')
-OPT_BATCH = (dd('bOp', 'Do this to every file', [('rotate', 'Rotate all pages'), ('number', 'Add page numbers'), ('bates', 'Bates numbering across all files'), ('watermark', 'Add a text watermark'), ('flatten', 'Flatten forms'), ('noannot', 'Remove annotations'), ('meta', 'Remove properties')])
-  + '<span data-op="rotate">' + dd('bAng', 'Turn by', [(90, '90 degrees right'), (180, '180 degrees'), (270, '90 degrees left')]) + '</span>'
-  + '<span data-op="bates"><div class="optfield"><label class="lbl" for="bPre">Prefix</label><span class="name"><input id="bPre" type="text" value="ABC-" maxlength="20" spellcheck="false" autocomplete="off"></span></div>'
+OPT_BATCH = ('<div class="optfield wide"><span class="lbl">Do these to every file, in this order</span><div class="checks">' + chk('bNoannot', 'Remove annotations') + chk('bFlatten', 'Flatten forms') + chk('bRotate', 'Rotate all pages') + chk('bWatermark', 'Text watermark')
+  + chk('bNumber', 'Page numbers') + chk('bBates', 'Bates numbers across all files') + chk('bMeta', 'Remove properties') + '</div></div>'
+  + '<span data-op="bRotate">' + dd('bAng', 'Turn by', [(90, '90 degrees right'), (180, '180 degrees'), (270, '90 degrees left')]) + '</span>'
+  + '<span data-op="bBates"><div class="optfield"><label class="lbl" for="bPre">Prefix</label><span class="name"><input id="bPre" type="text" value="ABC-" maxlength="20" spellcheck="false" autocomplete="off"></span></div>'
   + '<div class="optfield"><label class="lbl" for="bSuf">Suffix</label><span class="name"><input id="bSuf" type="text" value="" maxlength="20" spellcheck="false" autocomplete="off"></span></div>' + numf('bStart', 'Start at', 1, 0, 99999999) + numf('bDig', 'Digits', 6, 1, 12) + '</span>'
-  + '<span data-op="watermark"><div class="optfield grow"><label class="lbl" for="bText">Watermark text</label><span class="name"><input id="bText" type="text" value="CONFIDENTIAL" maxlength="40" spellcheck="false" autocomplete="off"></span></div></span>'
-  + '<p class="tip wide">Files keep their original names. Bates numbers keep counting from one file to the next.</p><p class="err" id="err" hidden></p>')
+  + '<span data-op="bWatermark"><div class="optfield grow"><label class="lbl" for="bText">Watermark text</label><span class="name"><input id="bText" type="text" value="CONFIDENTIAL" maxlength="40" spellcheck="false" autocomplete="off"></span></div></span>'
+  + '<div class="optfield wide"><button class="btn ghost sm" type="button" id="wfSave">Save these settings</button> <label class="btn ghost sm" for="wfLoad">Load saved settings</label><input id="wfLoad" class="vh" type="file" accept=".json,application/json"></div>'
+  + '<p class="tip wide">Files keep their original names. Several actions run one after the other on each file. Bates numbers keep counting from one file to the next.</p><p class="err" id="err" hidden></p>')
 OPT_CLEAN = ('<div class="optfield wide"><span class="lbl">Remove</span><div class="checks">' + chk('cJs', 'JavaScript and auto-run actions', True) + chk('cAtt', 'Attached files', True) + chk('cMeta', 'Properties and hidden data', True) + chk('cThumb', 'Page thumbnails', True) + chk('cMarks', 'Bookmarks') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_GRAY = (dd('rDpi', 'Quality', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 150) + '<p class="err" id="err" hidden></p>')
 OPT_DESKEW = (dd('rDpi', 'Quality of straightened pages', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 200) + '<p class="err" id="err" hidden></p>')
 OPT_CMP = '<p class="tip wide">The report lists changed words page by page and marks every difference on a copy of each page. Pages are matched by number. Scans have no text, so only the marks are compared.</p><p class="err" id="err" hidden></p>'
+OPT_FORM = ('<div class="optfield wide"><span class="lbl">Field to add when you click a page</span>' + rad('ft', [('text', 'Text'), ('multi', 'Notes box'), ('check', 'Tick box'), ('drop', 'Choice list'), ('radio', 'Radio button')]) + '</div>'
+  + '<div class="optfield wide"><div id="ffList" class="ffl"></div><button class="btn ghost sm" type="button" id="ffClear">Remove all fields</button></div>'
+  + '<p class="tip wide">Radio buttons with the same name form one group, so give each group one name. Names must not repeat for other field types.</p><p class="err" id="err" hidden></p>')
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -220,8 +225,8 @@ TOOLS = [
  dict(id='rename', name='Rename PDFs by their text', crumb='Rename by text', kind='multi', engine='mixer', tip='Add many PDFs. New names appear on each card.', sort='sortAz', sortl='Sort A to Z',
       lead='Name each PDF after text found on its pages, such as an invoice number. All files come back in one ZIP.',
       drop='Drop PDF files here', acts=[], opt=OPT_REN, ext='zip', defname='Dilia-renamed', field='ZIP name', s1='Files', l2='Files out', l3='Size in', go='Rename and download ZIP'),
- dict(id='batch', name='Batch process PDFs', crumb='Batch', kind='multi', engine='mixer', tip='Add many PDFs. One action is applied to all of them.', sort='sortAz', sortl='Sort A to Z',
-      lead='Apply one action to many PDFs at once: rotate, number, watermark, flatten and more. Files keep their names.',
+ dict(id='batch', name='Batch and workflows', crumb='Batch', kind='multi', engine='mixer', tip='Add many PDFs. One action is applied to all of them.', sort='sortAz', sortl='Sort A to Z',
+      lead='Chain several actions and run them on many PDFs at once: remove marks, flatten, rotate, watermark, number and more. Save your recipe to reuse it.',
       drop='Drop PDF files here', acts=[], opt=OPT_BATCH, ext='zip', defname='Dilia-batch', field='ZIP name', s1='Files', l2='Files out', l3='Size in', go='Process and download'),
  dict(id='scan', name='Scan documents to PDF', crumb='Scan to PDF', kind='img', engine='img2pdf', camera=1,
       lead='Photograph pages with your phone camera, or pick photos, and turn them into one clean PDF.',
@@ -247,6 +252,9 @@ TOOLS = [
  dict(id='compare', name='Compare two PDFs', crumb='Compare', kind='multi', engine='mixer', tip='First file: original. Second file: changed version.', sort='swap', sortl='Swap order',
       lead='See what changed between two versions of a PDF: changed words and a marked-up copy of every page.',
       drop='Drop two PDF files here', acts=[], opt=OPT_CMP, ext='pdf', defname='Dilia-compared', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Compare and download'),
+ dict(id='makeform', name='Create a fillable form', crumb='Create form', kind='pdf', engine='ptool',
+      lead='Turn a PDF into a form people can fill in: click where each field should go.',
+      drop='Drop a PDF here', acts=[], opt=OPT_FORM, ext='pdf', defname='Dilia-form', field='File name', go='Create form and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -296,7 +304,7 @@ def page(t):
         bar_acts = cam + f'<button class="btn ghost sm" type="button" id="sortAz">Sort A to Z</button><label class="btn ghost sm" for="pick">{PLUS}Add images</label>'
     else:
         tips = {'split': 'Pages are coloured by the file they go into.', 'delete': 'Click a page to mark it for deletion.', 'extract': 'Click a page to keep it.',
-                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'cleaner': 'Chosen items are removed when you save.', 'grayscale': 'Pages are converted when you save.', 'deskew': 'Pages are measured when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
+                'rotate': 'Use the arrows on a page to turn it.', 'reorder': 'Drag pages to a new position.', 'pdf2img': 'Click a page to include or skip it.', 'watermark': 'Preview shows the watermark on each page.', 'number': 'Preview shows where numbers go.', 'bates': 'Preview shows where numbers go.', 'flip': 'Pages are mirrored when you save.', 'nup': 'Pages are arranged when you save.', 'meta': 'Current properties are filled in for you.', 'flatten': 'Fields and marks become permanent.', 'extractimg': 'Pictures are found when you save.', 'bookmarks': 'Bookmarks are added when you save.', 'resize': 'Pages are resized when you save.', 'noannot': 'Notes are removed when you save.', 'booklet': 'Pages are reordered when you save.', 'poster': 'Pages are enlarged when you save.', 'cleaner': 'Chosen items are removed when you save.', 'makeform': 'Pick a field type, then click a page.', 'grayscale': 'Pages are converted when you save.', 'deskew': 'Pages are measured when you save.', 'headfoot': 'Preview shows the text on each page.', 'crop': 'Light areas will be cut off.', 'text': 'Click a page to include or skip it.'}[t['id']]
         bar_left = f'<b class="fn" id="fname"></b><p class="tip">{tips}</p>'
         bar_acts = ''.join(t['acts']) + f'<label class="btn ghost sm" for="pick">Change PDF</label>'
     filebox = '<div class="filebox" id="fbox"><div class="fthumb" id="fthumb"><span>PDF</span></div><div class="finfo"><b id="fn2"></b><span id="fmeta"></span><p id="fstate"></p></div></div>' if isfile else ''

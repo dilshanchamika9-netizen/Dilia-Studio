@@ -38,6 +38,7 @@ window.DILIA_TOOLS = [
     { id: 'repair', name: 'Repair', desc: 'Rebuild a damaged PDF.', ready: 1, icon: 'M14 6l4 4-9 9H5v-4zM13 7l4 4' },
     { id: 'linearize', name: 'Fast web view', desc: 'Make the first page load first.', ready: 1, icon: 'M4 12h12M12 6l6 6-6 6' },
     { id: 'compare', name: 'Compare', desc: 'See what changed between two PDFs.', ready: 1, icon: 'M4 4h7v16H4zM13 4h7v16h-7zM7 9h1M16 9h1' },
+    { id: 'makeform', name: 'Create form', desc: 'Add fillable fields to a PDF.', ready: 1, icon: 'M4 5h16v5H4zM4 14h16v5H4zM7 7.5h5M7 16.5h3' },
     { id: 'mix', name: 'Alternate and mix', desc: 'Interleave pages from two or more PDFs.', ready: 1, icon: 'M4 5h7v6H4zM13 13h7v6h-7zM13 5h7v6h-7zM4 13h7v6H4z' },
     { id: 'insert', name: 'Insert or replace pages', desc: 'Put pages from one PDF into another.', ready: 1, icon: 'M4 4h9v16H4zM16 8h4M18 6v4M16 15h4' }
   ]],

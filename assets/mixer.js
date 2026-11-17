@@ -49,7 +49,7 @@ function plan() {                                       // -> {err}|{hint}|{list
   }
   if (BATCH) {
     if (!files.length) return { hint: 'Add the PDFs to process.' };
-    const r = batchCheck(); if (r.err) return { err: r.err };
+    const r = batchCheck(); if (r.err) return { err: r.err }; if (r.hint) return { hint: r.hint };
     return { list: files.map(f => ({ f, i: 0 })), info: plural(files.length, 'file') + ' processed' };
   }
   if (CMP) return files.length < 2 ? { hint: 'Add the original PDF first, then the changed PDF.' } : { list: [{ f: files[0], i: 0 }], info: 'Comparison report' };
@@ -193,43 +193,43 @@ async function buildRename() {
 }
 
 /* ---------- batch ---------- */
+const BOPS = ['bNoannot', 'bFlatten', 'bRotate', 'bWatermark', 'bNumber', 'bBates', 'bMeta'];
+const bops = () => BOPS.filter(i => $('#' + i).checked);
 function batchCheck() {
-  const op = val('bOp');
-  if (op === 'bates') { const d = Math.floor(+val('bDig')); if (!(d >= 1 && d <= 12)) return { err: 'Digits must be between 1 and 12.' }; }
-  if (op === 'watermark' && !val('bText').trim()) return { err: 'Type the watermark text.' };
-  if (op === 'bates' || op === 'watermark') { const t = op === 'bates' ? val('bPre') + val('bSuf') : val('bText'); if (/[^ -~ -ÿ]/.test(t)) return { err: 'Only English letters, numbers and common symbols work here for now.' }; }
+  const ops = bops(); if (!ops.length) return { hint: 'Tick at least one action.' };
+  if (ops.includes('bBates')) { const d = Math.floor(+val('bDig')); if (!(d >= 1 && d <= 12)) return { err: 'Digits must be between 1 and 12.' }; }
+  if (ops.includes('bWatermark') && !val('bText').trim()) return { err: 'Type the watermark text.' };
+  const t = (ops.includes('bBates') ? val('bPre') + val('bSuf') : '') + (ops.includes('bWatermark') ? val('bText') : ''); if (/[^ -~ -ÿ]/.test(t)) return { err: 'Only English letters, numbers and common symbols work here for now.' };
   return { ok: 1 };
 }
 function toUserB(b, vx, vy) { return b.r === 0 ? [b.x0 + vx, b.y0 + vy] : b.r === 90 ? [b.x0 + b.W - vy, b.y0 + vx] : b.r === 180 ? [b.x0 + b.W - vx, b.y0 + b.H - vy] : [b.x0 + vy, b.y0 + b.H - vx]; }
 async function buildBatch() {
-  const L = PDFLib, op = val('bOp'), out = []; let counter = Math.floor(+val('bStart')) || 0, bad = [];
+  const L = PDFLib, ops = bops(), out = [], N = L.PDFName.of; let counter = Math.floor(+val('bStart')) || 0, bad = [];
   for (let k = 0; k < files.length; k++) {
     const f = files[k]; prog.style.width = Math.round(8 + 84 * k / files.length) + '%'; await tick();
     try {
-      const d = await L.PDFDocument.load(f.bytes, { updateMetadata: false }), N = L.PDFName.of;
-      if (op === 'rotate') { const a = +val('bAng'); d.getPages().forEach(p => p.setRotation(L.degrees((((p.getRotation().angle + a) % 360) + 360) % 360))); }
-      else if (op === 'flatten') { const fm = d.getForm(); if (fm.getFields().length) fm.flatten(); }
-      else if (op === 'meta') { const info = d.getInfoDict(); info.keys().forEach(x => info.delete(x)); d.catalog.delete(N('Metadata')); }
-      else if (op === 'noannot') { for (const pg of d.getPages()) { const arr = pg.node.lookupMaybe(N('Annots'), L.PDFArray); if (!arr) continue; const keep = []; for (let i = 0; i < arr.size(); i++) { const a = arr.lookupMaybe(i, L.PDFDict), st = a && a.lookup(N('Subtype')), t = st && st.toString(); if (t === '/Link' || t === '/Widget') keep.push(arr.get(i)); } if (keep.length) pg.node.set(N('Annots'), d.context.obj(keep)); else pg.node.delete(N('Annots')); } }
-      else {
-        const font = await d.embedFont(L.StandardFonts.Helvetica), pgs = d.getPages();
+      const d = await L.PDFDocument.load(f.bytes, { updateMetadata: false });
+      if (ops.includes('bNoannot')) { for (const pg of d.getPages()) { const arr = pg.node.lookupMaybe(N('Annots'), L.PDFArray); if (!arr) continue; const keep = []; for (let i = 0; i < arr.size(); i++) { const a = arr.lookupMaybe(i, L.PDFDict), st = a && a.lookup(N('Subtype')), t = st && st.toString(); if (t === '/Link' || t === '/Widget') keep.push(arr.get(i)); } if (keep.length) pg.node.set(N('Annots'), d.context.obj(keep)); else pg.node.delete(N('Annots')); } }
+      if (ops.includes('bFlatten')) { const fm = d.getForm(); if (fm.getFields().length) fm.flatten(); }
+      if (ops.includes('bRotate')) { const a = +val('bAng'); d.getPages().forEach(p => p.setRotation(L.degrees((((p.getRotation().angle + a) % 360) + 360) % 360))); }
+      if (ops.some(o => ['bWatermark', 'bNumber', 'bBates'].includes(o))) {
+        const font = await d.embedFont(L.StandardFonts.Helvetica), pgs = d.getPages(), start = counter;
         pgs.forEach((pg, i) => {
           const c = pg.getCropBox(), r = ((pg.getRotation().angle % 360) + 360) % 360, b = { x0: c.x, y0: c.y, W: c.width, H: c.height, r }, vw = r % 180 ? c.height : c.width, vh = r % 180 ? c.width : c.height;
-          let t, size = 10, vx, vy, extra = {};
-          if (op === 'number') { t = `Page ${i + 1} of ${pgs.length}`; }
-          else if (op === 'bates') { t = val('bPre') + String(counter++).padStart(Math.floor(+val('bDig')), '0') + val('bSuf'); }
-          else { t = val('bText').trim(); size = Math.max(10, Math.min(vw, vh) / (Math.max(1, t.length) * .62)); }
-          const tw = font.widthOfTextAtSize(t, size);
-          if (op === 'watermark') {
-            const ang = 45 * Math.PI / 180, cx = vw / 2, cy = vh / 2, [ux, uy] = toUserB(b, cx - Math.cos(ang) * tw / 2 + Math.sin(ang) * size * .35, cy - Math.sin(ang) * tw / 2 - Math.cos(ang) * size * .35);
+          if (ops.includes('bWatermark')) {
+            const t = val('bText').trim(), size = Math.max(10, Math.min(vw, vh) / (Math.max(1, t.length) * .62)), tw = font.widthOfTextAtSize(t, size), ang = 45 * Math.PI / 180;
+            const [ux, uy] = toUserB(b, vw / 2 - Math.cos(ang) * tw / 2 + Math.sin(ang) * size * .35, vh / 2 - Math.sin(ang) * tw / 2 - Math.cos(ang) * size * .35);
             pg.drawText(t, { x: ux, y: uy, size, font, color: L.rgb(.54, .56, .6), opacity: .3, rotate: L.degrees(45 + r) });
-          } else {
-            vx = op === 'number' ? (vw - tw) / 2 : vw - 28 - tw; vy = 28; const [ux, uy] = toUserB(b, vx, vy);
-            pg.drawText(t, { x: ux, y: uy, size, font, color: L.rgb(.04, .07, .13), rotate: L.degrees(r) });
           }
+          const stamp = (t, right) => { const tw = font.widthOfTextAtSize(t, 10), [ux, uy] = toUserB(b, right ? vw - 28 - tw : (vw - tw) / 2, 28); pg.drawText(t, { x: ux, y: uy, size: 10, font, color: L.rgb(.04, .07, .13), rotate: L.degrees(r) }); };
+          if (ops.includes('bNumber')) stamp(`Page ${i + 1} of ${pgs.length}`, false);
+          if (ops.includes('bBates')) stamp(val('bPre') + String(start + i).padStart(Math.floor(+val('bDig')), '0') + val('bSuf'), true);
         });
+        if (ops.includes('bBates')) counter += pgs.length;
       }
-      d.setProducer('Dilia Studio'); out.push({ name: f.name, data: await d.save() });
+      if (ops.includes('bMeta')) { const info = d.getInfoDict(); info.keys().forEach(x => info.delete(x)); d.catalog.delete(N('Metadata')); }
+      else d.setProducer('Dilia Studio');
+      out.push({ name: f.name, data: await d.save() });
     } catch (e) { bad.push(f.name); }
   }
   if (!out.length) throw new Error('none of the files could be processed');
@@ -237,9 +237,18 @@ async function buildBatch() {
   if (out.length === 1) return { blob: new Blob([out[0].data], { type: 'application/pdf' }), name: out[0].name, info: '1 file processed' };
   return { blob: zip(out), name: cleanName($('#outName').value, 'Dilia-batch', 'zip'), info: plural(out.length, 'file') + ' processed' };
 }
-function syncBatchUi() { if (!BATCH) return; const op = val('bOp'); document.querySelectorAll('[data-op]').forEach(e => { e.hidden = !e.dataset.op.split(' ').includes(op); }); }
+const WF_IDS = [...BOPS, 'bAng', 'bPre', 'bSuf', 'bStart', 'bDig', 'bText'];
+function syncBatchUi() { if (!BATCH) return; document.querySelectorAll('[data-op]').forEach(e => { e.hidden = !$('#' + e.dataset.op).checked; }); }
 if (REN) { document.querySelectorAll('.optbar input, .optbar select').forEach(e => { e.addEventListener('input', refreshNames); e.addEventListener('change', refreshNames); }); }
-if (BATCH) { $('#bOp').addEventListener('change', syncBatchUi); syncBatchUi(); }
+if (BATCH) {
+  BOPS.forEach(i => $('#' + i).addEventListener('change', syncBatchUi)); syncBatchUi();
+  $('#wfSave').addEventListener('click', () => { const o = {}; WF_IDS.forEach(i => { const e = $('#' + i); o[i] = e.type === 'checkbox' ? e.checked : e.value; }); const u = URL.createObjectURL(new Blob([JSON.stringify({ dilia: 'workflow', v: 1, settings: o }, null, 2)], { type: 'application/json' })); save(u, 'dilia-workflow.json'); setTimeout(() => URL.revokeObjectURL(u), 4000); });
+  $('#wfLoad').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    try { const j = JSON.parse(await f.text()); if (j.dilia !== 'workflow' || !j.settings) throw 0; WF_IDS.forEach(i => { const el = $('#' + i); if (!el || !(i in j.settings)) return; if (el.type === 'checkbox') el.checked = !!j.settings[i]; else el.value = String(j.settings[i]); }); syncBatchUi(); clearDone(); summary(); toast('Settings loaded.'); }
+    catch (err) { toast('That file is not a saved Dilia workflow.', true); }
+  });
+}
 
 let nameTouched = false;
 $('#outName').addEventListener('input', () => { nameTouched = true; });

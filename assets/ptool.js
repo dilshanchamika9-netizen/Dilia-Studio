@@ -28,6 +28,7 @@ const CFG = {
   cleaner: { suffix: '', fallback: 'Dilia-cleaned', l2: 'Items removed', l3: 'Size in', verb: 'Clean and download' },
   grayscale: { suffix: '', fallback: 'Dilia-grayscale', l2: 'Pages', l3: 'Size in', verb: 'Make grayscale and download' },
   deskew:  { suffix: '', fallback: 'Dilia-straight', l2: 'Pages', l3: 'Size in', verb: 'Straighten and download' },
+  makeform: { suffix: '', fallback: 'Dilia-form', l2: 'Fields', l3: 'Size in', verb: 'Create form and download' },
   crop:    { suffix: '', fallback: 'Dilia-cropped', l2: 'Cropped', l3: 'Size in', verb: 'Crop and download' },
   text:    { suffix: '', fallback: 'Dilia-text', l2: 'Selected', l3: 'Pages out', verb: 'Save as text' },
   pdf2img: { suffix: '',    fallback: 'Dilia-images',    l2: 'Selected',  l3: 'Images out', verb: 'Save as images' }
@@ -35,8 +36,11 @@ const CFG = {
 const TOGGLE = ['delete', 'extract', 'pdf2img', 'text'].includes(MODE);
 const SELECT = MODE === 'extract' || MODE === 'pdf2img' || MODE === 'text';
 const DEFAULT_ALL = MODE === 'pdf2img' || MODE === 'text';
-const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop'].includes(MODE);
-const WHOLE = ['flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks', 'resize', 'noannot', 'booklet', 'poster', 'cleaner', 'grayscale', 'deskew'].includes(MODE);
+const FORM = MODE === 'makeform';
+const OVERLAY = ['watermark', 'number', 'bates', 'headfoot', 'crop', 'makeform'].includes(MODE);
+const WHOLE = ['makeform', 'flip', 'nup', 'meta', 'flatten', 'extractimg', 'bookmarks', 'resize', 'noannot', 'booklet', 'poster', 'cleaner', 'grayscale', 'deskew'].includes(MODE);
+const fields = [];                                       // makeform: {id, page, vx, vy (visual pt, top-left), w, h, type, name, opts}
+let fseq = 0;
 const NUMBERED = MODE === 'number' || MODE === 'bates';
 const fmt = () => document.querySelector('input[name=fmt]:checked').value;
 
@@ -273,6 +277,17 @@ document.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click',
 
 grid.addEventListener('click', e => {
   const card = e.target.closest('.page'); if (!card) return;
+  if (FORM) {
+    const pv = card.querySelector('.pv'), ov = card.querySelector('.ov'), i = +card.dataset.i, b = pageBox(i), r = ov.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+    const sc = r.width / b.vw, cx = (e.clientX - r.left) / sc, cy = (e.clientY - r.top) / sc, hit = fields.find(f => f.page === i && cx >= f.vx && cx <= f.vx + f.w && cy >= f.vy && cy <= f.vy + f.h);
+    if (hit) { selField = hit.id; renderFields(); paint(); return; }
+    const t = radio('ft') || 'text', dim = { text: [150, 22], multi: [200, 70], check: [16, 16], drop: [150, 22], radio: [16, 16] }[t];
+    const vx = Math.max(0, Math.min(b.vw - dim[0], (e.clientX - r.left) / sc)), vy = Math.max(0, Math.min(b.vh - dim[1], (e.clientY - r.top) / sc - dim[1] / 2));
+    const n = fields.filter(f => f.type === t).length + 1, nm = { text: 'Text', multi: 'Notes', check: 'Check', drop: 'Choice', radio: 'Option' }[t];
+    const f = { id: ++fseq, page: i, vx, vy, w: dim[0], h: dim[1], type: t, name: t === 'radio' ? (fields.filter(q => q.type === 'radio').pop() || { name: 'Group' }).name : nm + n, opts: t === 'drop' ? 'Option 1, Option 2' : '' };
+    fields.push(f); selField = f.id; clearDone(); renderFields(); paint(); return;
+  }
   const p = pages.find(x => x.i === +card.dataset.i), r = e.target.closest('[data-rot]');
   if (MODE === 'rotate' && r) { p.rot = (p.rot + +r.dataset.rot + 360) % 360; clearDone(); paint(); }
   else if (TOGGLE) { p.flag = !p.flag; syncText(); clearDone(); paint(); }
@@ -371,6 +386,13 @@ function overlayCheck() {
     if (!(sp.size >= 8 && sp.size <= 240)) return { err: 'Text size must be between 8 and 240.' };
     return { ok: true };
   }
+  if (FORM) {
+    if (!fields.length) return { hint: 'Click a page where a field should go.' };
+    const names = fields.map(f => f.name.trim()); if (names.some(n => !n)) return { err: 'Every field needs a name.' };
+    const dup = names.find((n, i) => fields.some((f, j) => j !== i && f.type !== 'radio' && fields[i].type !== 'radio' && f.name.trim() === n)); if (dup) return { err: `Two fields are called "${dup}". Give each a different name.` };
+    if (fields.some(f => !fontOK(f.name + (f.opts || '') + (f.label || '')))) return { err: 'Names and choices can use English letters, numbers and common symbols only.' };
+    return { ok: true };
+  }
   if (MODE === 'headfoot') {
     const sp = hfSpec(), all = HF_ZONES.map(k => hfText(sp.z[k], 0));
     if (!HF_ZONES.some(k => sp.z[k].trim())) return { hint: 'Type text in at least one of the six boxes.' };
@@ -397,12 +419,15 @@ function overlayCheck() {
 
 function overlays() {
   const chk = overlayCheck(), live = chk.ok;
-  const sp = MODE === 'watermark' ? wmSpec() : MODE === 'headfoot' ? hfSpec() : NUMBERED ? numSpec() : cropSpec();
+  const sp = FORM ? null : MODE === 'watermark' ? wmSpec() : MODE === 'headfoot' ? hfSpec() : NUMBERED ? numSpec() : cropSpec();
   pages.forEach((p, n) => {
     const card = cardOf(p.i); if (!card) return;
     const pv = card.querySelector('.pv'), ov = card.querySelector('.ov'); if (!pv || !ov) return;
     const b = pageBox(p.i), S = pv.clientWidth, sc = Math.min(.92 * S / b.vw, .92 * S / b.vh), dw = b.vw * sc, dh = b.vh * sc;
     Object.assign(ov.style, { left: (S - dw) / 2 + 'px', top: (pv.clientHeight - dh) / 2 + 'px', width: dw + 'px', height: dh + 'px' });
+    if (FORM) {
+      ov.innerHTML = fields.filter(f => f.page === p.i).map(f => `<i class="ff ${f.type}" data-fid="${f.id}" style="left:${f.vx * sc}px;top:${f.vy * sc}px;width:${f.w * sc}px;height:${f.h * sc}px"></i>`).join(''); return;
+    }
     if (!live) { ov.innerHTML = ''; return; }
     if (MODE === 'watermark' && sp.kind === 'image') {
       const d = imgDims(sp, b.vw);
@@ -419,6 +444,11 @@ function overlays() {
       ov.innerHTML = `<i class="cb" style="left:${sp.l}%;right:${sp.r}%;top:${sp.t}%;bottom:${sp.b}%"></i>`;
     }
   });
+}
+if ($('#ffList')) {
+  $('#ffList').addEventListener('input', e => { const row = e.target.closest('.ffrow'); if (!row || !e.target.dataset.k) return; fields.find(f => f.id === +row.dataset.fid)[e.target.dataset.k] = e.target.value; clearDone(); paint(); });
+  $('#ffList').addEventListener('click', e => { const row = e.target.closest('.ffrow'); if (!row) return; const id = +row.dataset.fid; if (e.target.closest('[data-del]')) { fields.splice(fields.findIndex(f => f.id === id), 1); clearDone(); } selField = id; renderFields(); paint(); });
+  $('#ffClear').addEventListener('click', () => { fields.length = 0; renderFields(); clearDone(); paint(); });
 }
 if ($('#wmImgFile')) $('#wmImgFile').addEventListener('change', e => { pickWmImage(e.target.files[0]); e.target.value = ''; });
 document.querySelectorAll('.optbar input, .optbar select, .optbar textarea').forEach(e => {
@@ -573,7 +603,7 @@ async function toImages() {
   return { blob: zip(files), name: cleanName(outName.value, CFG.fallback, 'zip'), info: `${plural(files.length, 'image')} in one ZIP` };
 }
 async function build() {
-  if (OVERLAY) return stamp();
+  if (OVERLAY && !FORM) return stamp();
   if (WHOLE) return whole();
   if (MODE === 'text') return toText();
   if (MODE === 'rotate') {
@@ -609,6 +639,11 @@ async function build() {
 
 
 /* ---------- whole-file tools: flip, n-up, properties, flatten, extract images, bookmarks ---------- */
+let selField = 0;
+function renderFields() {
+  const box = $('#ffList'); if (!box) return;
+  box.innerHTML = fields.map((f, k) => `<div class="ffrow${f.id === selField ? ' on' : ''}" data-fid="${f.id}"><span class="ffk">${{ text: 'Text', multi: 'Notes', check: 'Box', drop: 'List', radio: 'Radio' }[f.type]} · p${f.page + 1}</span><span class="name"><input data-k="name" value="${esc(f.name)}" aria-label="Field name" spellcheck="false"></span>${f.type === 'drop' ? `<span class="name"><input data-k="opts" value="${esc(f.opts)}" aria-label="Choices, separated by commas" spellcheck="false"></span>` : ''}<button type="button" class="btn ghost sm" data-del="1" aria-label="Remove field">Remove</button></div>`).join('') || '<p class="tip">No fields yet.</p>';
+}
 const radio = n => { const r = document.querySelector(`input[name=${n}]:checked`); return r ? r.value : ''; };
 const SHEETS = { a4: [595.28, 841.89], letter: [612, 792], a3: [841.89, 1190.55] };
 const GRID = { 2: [2, 1], 4: [2, 2], 6: [3, 2], 8: [4, 2], 9: [3, 3], 16: [4, 4] };
@@ -635,6 +670,7 @@ function wholeCheck() {
   if (MODE === 'cleaner') { const n = ['cJs', 'cAtt', 'cMeta', 'cThumb', 'cMarks'].filter(i => $('#' + i).checked).length; return n ? { ok: true, s2: n, msg: 'Pages and visible content stay the same.' } : { ok: false, s2: 0, msg: 'Tick at least one thing to remove.' }; }
   if (MODE === 'grayscale') return { ok: true, msg: 'Every page becomes a grey picture. Text can no longer be selected: run OCR afterwards if you need it.' };
   if (MODE === 'deskew') return { ok: true, msg: 'Pages that lean more than a fraction of a degree are straightened. Straight pages are copied unchanged.' };
+  if (FORM) { const v = overlayCheck(); return v.err ? v : { ok: !!fields.length, s2: fields.length, msg: fields.length ? 'Fields are added where you clicked. Fill them in any PDF reader.' : 'Choose a field type, then click a page.' }; }
   if (MODE === 'noannot') return { ok: true, msg: 'Comments, highlights, stamps and drawn notes are deleted. Page text stays.' };
   if (MODE === 'booklet') { const n = Math.ceil(pages.length / 4) * 4; return { ok: true, s2: n / 2, msg: `${plural(n / 2, 'sheet side')} to print double-sided, folded in half.${n > pages.length ? ` ${n - pages.length} blank page${n - pages.length > 1 ? 's are' : ' is'} added at the end.` : ''}` }; }
   if (MODE === 'poster') {
@@ -773,6 +809,21 @@ async function whole() {
     }
     if (!n) throw new Error('nothing of the chosen kinds was found in this PDF');
     return fin(out, plural(n, 'item') + ' removed');
+  }
+  if (MODE === 'makeform') {
+    const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), form = out.getForm(), font = await out.embedFont(L.StandardFonts.Helvetica); form.updateFieldAppearances(font);
+    if (form.getFields().length) throw new Error('this PDF already has form fields. Use the Fill forms tool, or Flatten them first');
+    const groups = new Map();
+    for (const f of fields) {
+      const pg = out.getPage(f.page), b = pageBox(f.page), [ux, uy] = toUser(b, f.vx, b.vh - (f.vy + f.h)), [ux2, uy2] = toUser(b, f.vx + f.w, b.vh - f.vy), x = Math.min(ux, ux2), y = Math.min(uy, uy2), w = Math.abs(ux2 - ux), h = Math.abs(uy2 - uy), nm = f.name.trim();
+      const opt = { x, y, width: w, height: h, borderColor: L.rgb(.4, .45, .55), borderWidth: 1, backgroundColor: L.rgb(.93, .96, 1) };
+      if (f.type === 'text' || f.type === 'multi') { const t = form.createTextField(nm); if (f.type === 'multi') t.enableMultiline(); t.addToPage(pg, { ...opt, font }); t.setFontSize(f.type === 'multi' ? 11 : Math.max(8, Math.min(14, h - 8))); }
+      else if (f.type === 'check') { const c = form.createCheckBox(nm); c.addToPage(pg, opt); }
+      else if (f.type === 'drop') { const d = form.createDropdown(nm); d.addOptions(f.opts.split(',').map(x => x.trim()).filter(Boolean)); d.addToPage(pg, { ...opt, font }); }
+      else { let g = groups.get(nm); if (!g) { g = form.createRadioGroup(nm); groups.set(nm, g); g.n = 0; } g.addOptionToPage('Choice' + (++g.n), pg, opt); }
+    }
+    form.updateFieldAppearances(font);
+    return fin(out, plural(fields.length, 'field') + ' added');
   }
   if (MODE === 'noannot') {
     const out = await L.PDFDocument.load(doc.bytes, { updateMetadata: false }), N = L.PDFName.of, keepL = $('#nLinks').checked, keepF = $('#nForms').checked;

@@ -82,6 +82,7 @@ This project is separate from the Orel dashboard. Never mix code, files or rules
 - `assets/mixer.js` handles multi-file tools: mix, insert, overlay (letterhead), rename (by text), batch. `img2pdf.js` also serves the `scan` page (camera button, scan look).
 - Pages are generated: edit `dev/make-pages.py` (TOOLS, OPT_* strings, tips dict) and `assets/tools.js` (ready:1), then run `python3 dev/make-pages.py` and commit the html.
 - Known limits: stamps use English (Helvetica) characters only; flip/n-up/letterhead redraw pages and drop links; extract images skips CCITT/JBIG2/JPX/CMYK; batch has no per-file options; Safari/iPhone and 300+ page PDFs untested.
+- Wave 4: filetool.js modes repair, linearize (qpdf); ptool modes cleaner, grayscale, deskew (`rasterTools`, `skewAngle`), makeform (click to place, `fields[]`); mixer.js compare and batch with chained actions + saved settings; TIFF in (UTIF.js, pako_inflate in assets/vendor) and TIFF out (`tiffBlob`). Row 33 (certificate signature) deferred.
 - Tests live in the workspace only (/tmp/t2), not in the repo.
 
 ## 10. Status and next

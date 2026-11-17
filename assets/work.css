@@ -240,3 +240,11 @@ body.work{background:var(--mist)}
 .optfield textarea:focus{outline:2px solid var(--magenta);outline-offset:1px}
 .optbar span[data-op]{display:contents}
 .optbar span[data-op][hidden]{display:none}
+
+.ov .ff{position:absolute;box-sizing:border-box;border:1.5px solid var(--magenta);background:#e5007d1a;border-radius:2px}
+.ov .ff.check,.ov .ff.radio{background:#fff}.ov .ff.radio{border-radius:50%}
+.page .ov{pointer-events:none}
+.ffl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.ffrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.ffrow.on{border-color:var(--magenta)}.ffk{font-size:13px;color:var(--muted);min-width:76px}
+.ffrow .name{flex:1;min-width:140px}
