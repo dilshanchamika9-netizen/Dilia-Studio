@@ -4,7 +4,7 @@ const { $, kb, plural, esc, toast, save, cleanName } = Kit;
 const items = [];            // {id,name,size,file,url,w,h,type,rot}
 let seq = 0, busy = false, lastUrl = null;
 const ws = $('#ws'), grid = $('#grid'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog');
-const OKTYPE = /^image\/(jpeg|png|webp|gif|bmp|avif)$/i, OKEXT = /\.(jpe?g|png|webp|gif|bmp|avif)$/i;
+const OKTYPE = /^image\/(jpeg|png|webp|gif|bmp|avif)$/i, OKEXT = /\.(jpe?g|png|webp|gif|bmp|avif)$/i, TIFF = f => /^image\/tiff$/i.test(f.type) || /\.tiff?$/i.test(f.name);
 const typeOf = f => OKTYPE.test(f.type) ? f.type.toLowerCase() : (/\.jpe?g$/i.test(f.name) ? 'image/jpeg' : /\.png$/i.test(f.name) ? 'image/png' : f.type || 'image/x-unknown');
 
 const ROT_L = '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -12,13 +12,29 @@ const ROT_R = '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5
 const BIN = '<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 /* ---------- adding ---------- */
-async function add(list) {
+async function tiffPages(f) {                         // a TIFF file becomes one PNG per page
+  const buf = await f.arrayBuffer(), ifds = UTIF.decode(buf), out = [];
+  for (let k = 0; k < ifds.length; k++) {
+    UTIF.decodeImage(buf, ifds[k]); const w = ifds[k].width, h = ifds[k].height; if (!w || !h) continue;
+    const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(UTIF.toRGBA8(ifds[k])), w, h), 0, 0);
+    const b = await new Promise(r => c.toBlob(r, 'image/png')); c.width = c.height = 0;
+    out.push(new File([b], ifds.length > 1 ? f.name.replace(/\.tiff?$/i, '') + ` (page ${k + 1}).png` : f.name.replace(/\.tiff?$/i, '.png'), { type: 'image/png' }));
+  }
+  return out;
+}
+async function add(list0) {
+  let list = [...list0];
+  if (list.some(TIFF)) {
+    ws.classList.add('working'); const next = [];
+    for (const f of list) { if (!TIFF(f)) { next.push(f); continue; } try { next.push(...await tiffPages(f)); } catch (e) { toast(`${f.name} could not be read. Some TIFF types are not supported.`, true); } }
+    list = next;
+  }
   const all = [...list];
   const heic = all.filter(f => /heic|heif/i.test(f.type) || /\.hei[cf]$/i.test(f.name));
   if (heic.length) toast(`${plural(heic.length, 'HEIC photo')} skipped. Browsers cannot read HEIC. On iPhone use Settings, Camera, Formats, Most Compatible, or export as JPG.`, true);
   const imgs = all.filter(f => !heic.includes(f) && (OKTYPE.test(f.type) || OKEXT.test(f.name)));
   const other = all.length - heic.length - imgs.length;
-  if (other) toast(`${plural(other, 'file')} skipped: only JPG, PNG, WebP, GIF, BMP and AVIF images work here.`, true);
+  if (other) toast(`${plural(other, 'file')} skipped: only JPG, PNG, WebP, GIF, BMP, TIFF and AVIF images work here.`, true);
   ws.classList.add('working');
   for (const f of imgs) {
     try {

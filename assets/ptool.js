@@ -46,7 +46,8 @@ let doc = null, pages = [], busy = false, lastUrl = null, parts = [], partNames 
 const T = Kit.thumbs(idx => Kit.renderThumb(doc.js, idx));
 const base = () => doc ? doc.name.replace(/\.pdf$/i, '') : '';
 const smode = () => { const r = document.querySelector('input[name=sm]:checked'); return r ? r.value : ''; };
-const outExt = () => MODE === 'extractimg' ? 'zip' : MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fmt() : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
+const fx = t => t === 'tiff' ? 'tif' : t;
+const outExt = () => MODE === 'extractimg' ? 'zip' : MODE === 'text' ? 'txt' : MODE === 'pdf2img' ? (pages.filter(p => p.flag).length === 1 ? fx(fmt()) : 'zip') : MODE === 'split' && (smode() === 'size' || (smode() !== 'half' && parts.length !== 1)) ? 'zip' : 'pdf';
 
 /* ---------- loading ---------- */
 async function load(list) {
@@ -536,6 +537,20 @@ async function subset(idxs) {
   out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
   return out;
 }
+function tiffBlob(c, dpi) {                             // plain uncompressed RGB TIFF, opens in every image program
+  const w = c.width, h = c.height, src = c.getContext('2d').getImageData(0, 0, w, h).data, n = w * h * 3, ifdAt = 8 + n + (n & 1);
+  const buf = new ArrayBuffer(ifdAt + 2 + 12 * 12 + 4 + 6 + 16), dv = new DataView(buf), u8 = new Uint8Array(buf);
+  dv.setUint16(0, 0x4949, true); dv.setUint16(2, 42, true); dv.setUint32(4, ifdAt, true);
+  for (let i = 0, o = 8; i < w * h; i++, o += 3) { u8[o] = src[i * 4]; u8[o + 1] = src[i * 4 + 1]; u8[o + 2] = src[i * 4 + 2]; }
+  const extra = ifdAt + 2 + 12 * 12 + 4, ent = [[256, 4, w], [257, 4, h], [258, 3, 3, extra], [259, 3, 1], [262, 3, 2], [273, 4, 8], [277, 3, 3], [278, 4, h], [279, 4, n], [282, 5, 1, extra + 6], [283, 5, 1, extra + 14], [296, 3, 2]];
+  let p = ifdAt; dv.setUint16(p, ent.length, true); p += 2;
+  for (const e of ent) { dv.setUint16(p, e[0], true); dv.setUint16(p + 2, e[1], true); dv.setUint32(p + 4, e[1] === 3 && e.length === 3 ? 1 : e[1] === 5 ? 1 : (e[0] === 258 ? 3 : 1), true);
+    if (e[0] === 258) dv.setUint32(p + 8, e[3], true); else if (e[1] === 5) dv.setUint32(p + 8, e[3], true); else if (e[1] === 3) dv.setUint16(p + 8, e[2], true); else dv.setUint32(p + 8, e[2], true); p += 12; }
+  dv.setUint32(p, 0, true);
+  [8, 8, 8].forEach((v, i) => dv.setUint16(extra + i * 2, v, true));
+  dv.setUint32(extra + 6, dpi, true); dv.setUint32(extra + 10, 1, true); dv.setUint32(extra + 14, dpi, true); dv.setUint32(extra + 18, 1, true);
+  return new Blob([buf], { type: 'image/tiff' });
+}
 async function toImages() {
   if (!doc.js) throw new Error('the preview engine could not open this file');
   const sel = pages.filter(p => p.flag).map(p => p.i), type = fmt(), dpi = +$('#dpi').value;
@@ -548,13 +563,13 @@ async function toImages() {
     c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
     const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
-    const blob = await new Promise(r => c.toBlob(r, type === 'png' ? 'image/png' : 'image/jpeg', .92));
+    const blob = type === 'tiff' ? tiffBlob(c, Math.round(c.width / v1.width * 72)) : await new Promise(r => c.toBlob(r, type === 'png' ? 'image/png' : 'image/jpeg', .92));
     c.width = c.height = 0;
     if (!blob) throw new Error('page ' + (sel[k] + 1) + ' is too large to turn into an image');
-    files.push({ name: `${base()}-page-${String(sel[k] + 1).padStart(pad, '0')}.${type}`, data: new Uint8Array(await blob.arrayBuffer()) });
+    files.push({ name: `${base()}-page-${String(sel[k] + 1).padStart(pad, '0')}.${fx(type)}`, data: new Uint8Array(await blob.arrayBuffer()) });
     prog.style.width = Math.round(8 + 84 * (k + 1) / sel.length) + '%'; await tick();
   }
-  if (files.length === 1) return { blob: new Blob([files[0].data], { type: type === 'png' ? 'image/png' : 'image/jpeg' }), name: cleanName(outName.value, CFG.fallback, type), info: '1 image' };
+  if (files.length === 1) return { blob: new Blob([files[0].data], { type: type === 'png' ? 'image/png' : type === 'tiff' ? 'image/tiff' : 'image/jpeg' }), name: cleanName(outName.value, CFG.fallback, fx(type)), info: '1 image' };
   return { blob: zip(files), name: cleanName(outName.value, CFG.fallback, 'zip'), info: `${plural(files.length, 'image')} in one ZIP` };
 }
 async function build() {

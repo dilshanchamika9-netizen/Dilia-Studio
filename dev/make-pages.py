@@ -92,6 +92,7 @@ OPT_BATCH = (dd('bOp', 'Do this to every file', [('rotate', 'Rotate all pages'),
 OPT_CLEAN = ('<div class="optfield wide"><span class="lbl">Remove</span><div class="checks">' + chk('cJs', 'JavaScript and auto-run actions', True) + chk('cAtt', 'Attached files', True) + chk('cMeta', 'Properties and hidden data', True) + chk('cThumb', 'Page thumbnails', True) + chk('cMarks', 'Bookmarks') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_GRAY = (dd('rDpi', 'Quality', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 150) + '<p class="err" id="err" hidden></p>')
 OPT_DESKEW = (dd('rDpi', 'Quality of straightened pages', [(150, 'Standard (150 dpi)'), (200, 'High (200 dpi)'), (300, 'Print (300 dpi)')], 200) + '<p class="err" id="err" hidden></p>')
+OPT_CMP = '<p class="tip wide">The report lists changed words page by page and marks every difference on a copy of each page. Pages are matched by number. Scans have no text, so only the marks are compared.</p><p class="err" id="err" hidden></p>'
 OPT_CROP = ('<div class="optfield wide"><span class="lbl">Cut from each side, as a percent of the page</span><div class="four">'
   + numf('cT','Top',0,0,45,1,'%') + numf('cR','Right',0,0,45,1,'%') + numf('cB','Bottom',0,0,45,1,'%') + numf('cL','Left',0,0,45,1,'%') + '</div></div><p class="err" id="err" hidden></p>')
 OPT_TEXT = chk('tSep', 'Mark where each page starts') + rng('Pages', '1-3, 7, 10-')
@@ -134,7 +135,8 @@ OPT_SCAN = OPT_IMG + '<div class="optfield"><label class="lbl" for="look">Scan l
 OPT_IMGOUT = '''<div class="optfield"><span class="lbl">Format</span>
   <div class="chips" role="radiogroup" aria-label="Image format">
   <label class="chip"><input type="radio" name="fmt" value="png" checked><span>PNG</span></label>
-  <label class="chip"><input type="radio" name="fmt" value="jpg"><span>JPG</span></label></div></div>
+  <label class="chip"><input type="radio" name="fmt" value="jpg"><span>JPG</span></label>
+  <label class="chip"><input type="radio" name="fmt" value="tiff"><span>TIFF</span></label></div></div>
 <div class="optfield"><label class="lbl" for="dpi">Quality</label><select class="dd" id="dpi"><option value="100">Light, 100 DPI</option><option value="150" selected>Standard, 150 DPI</option><option value="200">High, 200 DPI</option><option value="300">Print, 300 DPI</option></select></div>
 ''' + rng('Pages', '1-3, 7, 10-')
 
@@ -224,7 +226,7 @@ TOOLS = [
  dict(id='scan', name='Scan documents to PDF', crumb='Scan to PDF', kind='img', engine='img2pdf', camera=1,
       lead='Photograph pages with your phone camera, or pick photos, and turn them into one clean PDF.',
       drop='Drop photos of your pages here', acts=[], opt=OPT_SCAN, ext='pdf', defname='Dilia-scan', field='File name',
-      s1='Pages', l2='Pages', l3='Size in', go='Create PDF'),
+      s1='Pages', l2='Pages', l3='Size in', go='Create PDF', extra=['assets/vendor/pako_inflate.min.js', 'assets/vendor/UTIF.js']),
  dict(id='cleaner', name='PDF cleaner', crumb='Cleaner', kind='pdf', engine='ptool',
       lead='Strip scripts, attachments, hidden data and thumbnails from a PDF before you share it.',
       drop='Drop a PDF here', acts=[], opt=OPT_CLEAN, ext='pdf', defname='Dilia-cleaned', field='File name', go='Clean and download'),
@@ -242,6 +244,9 @@ TOOLS = [
       lead='Rewrite a PDF so the first page appears quickly when it is opened from a website.',
       drop='Drop a PDF here', acts=[], opt='', ext='pdf', defname='Dilia-web', field='File name',
       s1='Size in', l2='Mode', l3='Size out', go='Optimise and download'),
+ dict(id='compare', name='Compare two PDFs', crumb='Compare', kind='multi', engine='mixer', tip='First file: original. Second file: changed version.', sort='swap', sortl='Swap order',
+      lead='See what changed between two versions of a PDF: changed words and a marked-up copy of every page.',
+      drop='Drop two PDF files here', acts=[], opt=OPT_CMP, ext='pdf', defname='Dilia-compared', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Compare and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
       drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
@@ -269,15 +274,15 @@ TOOLS = [
  dict(id='img2pdf', name='Images to PDF', crumb='Images to PDF', kind='img', engine='img2pdf',
       lead='Turn photos and scans into one PDF. Drag to order, turn any image, pick a page size.',
       drop='Drop images here', acts=[], opt=OPT_IMG, ext='pdf', defname='Dilia-images', field='File name',
-      s1='Images', l2='Pages', l3='Size in', go='Create PDF'),
+      s1='Images', l2='Pages', l3='Size in', go='Create PDF', extra=['assets/vendor/pako_inflate.min.js', 'assets/vendor/UTIF.js']),
 ]
 
 def page(t):
     img = t['kind'] == 'img'
     isfile = t['kind'] == 'file'
-    accept = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif' if img else 'application/pdf,.pdf'
+    accept = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,image/tiff,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.tif,.tiff' if img else 'application/pdf,.pdf'
     multi = ' multiple' if img or t['kind'] == 'multi' else ''
-    small = 'JPG, PNG, WebP, GIF, BMP and AVIF. Nothing is uploaded.' if img else 'The file is read by your browser and never uploaded.'
+    small = 'JPG, PNG, WebP, GIF, BMP, TIFF and AVIF. Nothing is uploaded.' if img else 'The file is read by your browser and never uploaded.'
     choose = 'choose images' if img else 'choose a file'
     if isfile:
         bar_left = '<b class="fn" id="fname"></b>'

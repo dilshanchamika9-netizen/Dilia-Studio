@@ -1,7 +1,7 @@
 /* Two tools that combine several PDFs: Alternate and mix pages (data-tool=mix), Insert or replace pages (data-tool=insert). */
 {
 const { $, kb, plural, esc, toast, save, cleanName, parseRanges, compress } = Kit;
-const MODE = document.body.dataset.tool, INSERT = MODE === 'insert', OVER = MODE === 'overlay', REN = MODE === 'rename', BATCH = MODE === 'batch', PAIR = INSERT || OVER;
+const MODE = document.body.dataset.tool, INSERT = MODE === 'insert', OVER = MODE === 'overlay', CMP = MODE === 'compare', REN = MODE === 'rename', BATCH = MODE === 'batch', PAIR = INSERT || OVER || CMP;
 const { zip } = Kit;
 const files = [];            // {id,name,size,bytes,lib,js,count,url}
 let seq = 0, busy = false, lastUrl = null;
@@ -30,7 +30,7 @@ async function thumb(f) {
   if (!f.js) return;
   try { f.url = URL.createObjectURL(await Kit.renderThumb(f.js, 0)); const c = grid.querySelector(`[data-id="${f.id}"] img`); if (c) { c.src = f.url; c.parentElement.classList.add('ok'); } } catch (e) { /* no preview */ }
 }
-const roleOf = n => INSERT ? (n === 0 ? 'Main PDF' : 'Pages come from') : OVER ? (n === 0 ? 'Main PDF' : 'Letterhead') : '';
+const roleOf = n => INSERT ? (n === 0 ? 'Main PDF' : 'Pages come from') : OVER ? (n === 0 ? 'Main PDF' : 'Letterhead') : CMP ? (n === 0 ? 'Original' : 'Changed') : '';
 const newNames = new Map();                              // rename: file id -> proposed name
 function render() {
   ws.dataset.state = files.length ? 'full' : 'empty';
@@ -52,6 +52,7 @@ function plan() {                                       // -> {err}|{hint}|{list
     const r = batchCheck(); if (r.err) return { err: r.err };
     return { list: files.map(f => ({ f, i: 0 })), info: plural(files.length, 'file') + ' processed' };
   }
+  if (CMP) return files.length < 2 ? { hint: 'Add the original PDF first, then the changed PDF.' } : { list: [{ f: files[0], i: 0 }], info: 'Comparison report' };
   if (OVER) {
     if (files.length < 2) return { hint: 'Add the main PDF first, then the letterhead PDF.' };
     return { list: files[0].lib.getPages().map((_, i) => ({ f: files[0], i })), info: plural(files[0].count, 'page') + ' with the letterhead' };
@@ -84,6 +85,65 @@ function plan() {                                       // -> {err}|{hint}|{list
   }
   if (!out.length) return { err: 'That would leave an empty PDF.' };
   return { list: out, info: `${plural(out.length, 'page')}` };
+}
+
+/* ---------- compare two PDFs ---------- */
+async function pageWords(f, pn) {
+  try { const tc = await (await f.js.getPage(pn)).getTextContent(); return tc.items.flatMap(i => i.str.split(/\s+/)).filter(Boolean); } catch (e) { return []; }
+}
+function wordDiff(a, b) {                               // -> {add:[], del:[]} (LCS); big pages compare as sets
+  if (a.length * b.length > 4e6) { const sa = new Set(a), sb = new Set(b); return { add: b.filter(w => !sa.has(w)), del: a.filter(w => !sb.has(w)) }; }
+  const n = a.length, m = b.length, dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const add = [], del = []; let i = 0, j = 0;
+  while (i < n && j < m) { if (a[i] === b[j]) { i++; j++; } else if (dp[i + 1][j] >= dp[i][j + 1]) del.push(a[i++]); else add.push(b[j++]); }
+  while (i < n) del.push(a[i++]); while (j < m) add.push(b[j++]);
+  return { add, del };
+}
+async function grayPage(f, pn, W, H, scale) {
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  if (pn <= f.count) { const page = await f.js.getPage(pn), vp = page.getViewport({ scale }); await page.render({ canvasContext: ctx, viewport: vp }).promise; }
+  return ctx.getImageData(0, 0, W, H).data;
+}
+const latin = t => t.replace(/[^ -~ -ÿ]/g, '?');
+async function buildCompare() {
+  const [A, B] = files, L = PDFLib, N = Math.max(A.count, B.count), out = await L.PDFDocument.create(), font = await out.embedFont(L.StandardFonts.Helvetica), bold = await out.embedFont(L.StandardFonts.HelveticaBold);
+  if (!A.js || !B.js) throw new Error('the preview engine could not open these files');
+  const rows = [], imgs = [];
+  for (let k = 1; k <= N; k++) {
+    const [wa, wb] = [k <= A.count ? await pageWords(A, k) : [], k <= B.count ? await pageWords(B, k) : []], df = wordDiff(wa, wb);
+    const pa = k <= A.count ? (await A.js.getPage(k)).getViewport({ scale: 1 }) : null, pb = k <= B.count ? (await B.js.getPage(k)).getViewport({ scale: 1 }) : null;
+    const w = Math.max(pa ? pa.width : 0, pb ? pb.width : 0), h = Math.max(pa ? pa.height : 0, pb ? pb.height : 0), sc = Math.min(1.5, 1400 / Math.max(w, h)), W = Math.ceil(w * sc), H = Math.ceil(h * sc);
+    const ga = await grayPage(A, k, W, H, sc), gb = await grayPage(B, k, W, H, sc), c = document.createElement('canvas'); c.width = W; c.height = H;
+    const ctx = c.getContext('2d'), od = ctx.createImageData(W, H), o = od.data; let diff = 0, ink = 0;
+    for (let i = 0; i < W * H; i++) {
+      const x = i * 4, a = ga[x] * .3 + ga[x + 1] * .59 + ga[x + 2] * .11, b = gb[x] * .3 + gb[x + 1] * .59 + gb[x + 2] * .11, da = a < 150, db = b < 150;
+      if (da || db) ink++;
+      if (da && db) { o[x] = o[x + 1] = o[x + 2] = 170; } else if (da) { o[x] = 220; o[x + 1] = 30; o[x + 2] = 50; diff++; } else if (db) { o[x] = 0; o[x + 1] = 150; o[x + 2] = 80; diff++; } else { o[x] = o[x + 1] = o[x + 2] = 255; }
+      o[x + 3] = 255;
+    }
+    ctx.putImageData(od, 0, 0); const blob = await new Promise(r => c.toBlob(r, 'image/png')); c.width = c.height = 0;
+    rows.push({ k, add: df.add, del: df.del, pct: ink ? diff / ink * 100 : 0, missing: k > A.count ? 'only in changed file' : k > B.count ? 'only in original' : '' });
+    imgs.push({ blob, w: w || 595, h: h || 842 });
+    prog.style.width = Math.round(8 + 84 * k / N) + '%'; await tick();
+  }
+  const changed = rows.filter(r => r.add.length || r.del.length || r.pct > 0.5 || r.missing);
+  // summary pages
+  let pg = out.addPage([595.28, 841.89]), y = 800;
+  const line = (t, f = font, size = 10, col = L.rgb(.04, .07, .13)) => { if (y < 50) { pg = out.addPage([595.28, 841.89]); y = 800; } pg.drawText(latin(t), { x: 48, y, size, font: f, color: col }); y -= size + 6; };
+  line('PDF comparison', bold, 20); y -= 4; line('Original: ' + A.name + ' (' + plural(A.count, 'page') + ')'); line('Changed:  ' + B.name + ' (' + plural(B.count, 'page') + ')'); y -= 6;
+  line(changed.length ? `${changed.length} of ${plural(N, 'page')} differ.` : 'No differences found in text or layout.', bold, 12); y -= 4;
+  line('Red = only in the original. Green = only in the changed file. Grey = the same. Pages follow this summary.', font, 9, L.rgb(.4, .42, .46)); y -= 8;
+  for (const r of changed) {
+    line(`Page ${r.k}${r.missing ? ' (' + r.missing + ')' : ''}: ${plural(r.del.length, 'word')} removed, ${r.add.length} added, ${r.pct.toFixed(1)}% of marks differ`, bold, 10);
+    if (r.del.length) line('  Removed: ' + r.del.slice(0, 14).join(' ') + (r.del.length > 14 ? ' ...' : ''), font, 9, L.rgb(.7, .1, .2));
+    if (r.add.length) line('  Added: ' + r.add.slice(0, 14).join(' ') + (r.add.length > 14 ? ' ...' : ''), font, 9, L.rgb(0, .5, .3));
+    y -= 2;
+  }
+  for (const im of imgs) { const img = await out.embedPng(new Uint8Array(await im.blob.arrayBuffer())), p2 = out.addPage([im.w, im.h]); p2.drawImage(img, { x: 0, y: 0, width: im.w, height: im.h }); }
+  out.setProducer('Dilia Studio');
+  const blob = new Blob([await out.save()], { type: 'application/pdf' });
+  return { blob, name: cleanName($('#outName').value, 'Dilia-compared', 'pdf'), info: `${changed.length} of ${plural(N, 'page')} differ` };
 }
 
 /* ---------- rename by text ---------- */
@@ -186,10 +246,10 @@ $('#outName').addEventListener('input', () => { nameTouched = true; });
 function summary() {
   const p = files.length ? plan() : { hint: PAIR ? 'Add the main PDF first.' : (REN || BATCH) ? 'Add PDF files to start.' : 'Add at least two PDFs to mix.' };
   showErr(p.err || '');
-  if (!nameTouched && files.length && !REN && !BATCH) $('#outName').value = files[0].name.replace(/\.pdf$/i, '');
+  if (!nameTouched && files.length && !REN && !BATCH) $('#outName').value = files[0].name.replace(/\.pdf$/i, '') + (CMP ? '-compared' : '');
   $('#s1').textContent = files.length; $('#s2').textContent = p.list ? p.list.length : 0; $('#s3').textContent = kb(files.reduce((a, f) => a + f.size, 0));
   go.disabled = busy || !p.list;
-  note.textContent = p.err ? 'Fix the highlighted setting to continue.' : p.hint ? p.hint : (REN || BATCH || OVER) ? `${p.info}. Saved in one ZIP.`.replace(OVER ? /Saved in one ZIP\./ : /^$/, '') : INSERT ? `The new PDF has ${p.info}.` : `Pages are taken in turn: ${p.info}.`;
+  note.textContent = p.err ? 'Fix the highlighted setting to continue.' : p.hint ? p.hint : CMP ? 'A PDF report lists changed words and marks every difference on the pages.' : (REN || BATCH || OVER) ? `${p.info}. Saved in one ZIP.`.replace(OVER ? /Saved in one ZIP\./ : /^$/, '') : INSERT ? `The new PDF has ${p.info}.` : `Pages are taken in turn: ${p.info}.`;
 }
 document.querySelectorAll('.optbar input, .optbar select').forEach(e => { e.addEventListener('input', () => { clearDone(); summary(); }); e.addEventListener('change', () => { clearDone(); summary(); }); });
 Sortable.create(grid, {
@@ -211,8 +271,8 @@ go.addEventListener('click', async () => {
   busy = true; go.disabled = true; ws.classList.add('working'); prog.style.width = '6%';
   try {
     await tick();
-    if (REN || BATCH) {
-      const r = REN ? await buildRename() : await buildBatch();
+    if (REN || BATCH || CMP) {
+      const r = CMP ? await buildCompare() : REN ? await buildRename() : await buildBatch();
       prog.style.width = '100%'; if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(r.blob); save(lastUrl, r.name);
       $('#doneName').textContent = r.name; $('#doneInfo').textContent = `${r.info}, ${kb(r.blob.size)}`; $('#again').href = lastUrl; $('#again').download = r.name; $('#done').hidden = false;
       busy = false; ws.classList.remove('working'); setTimeout(() => { prog.style.width = '0'; }, 600); summary(); return;
