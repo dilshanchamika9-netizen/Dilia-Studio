@@ -24,8 +24,9 @@
     const w = el('span', 'wm'); w.append(el('span', 'w', 'Dilia'), el('span', 'l', name));
     c.append(w, el('p', '', text), el('span', 'go', go)); lg.append(c);
   };
-  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'tools.html', ready.length + ' tools →');
-  line('Pixel', 'Resize and convert images, remove backgrounds, make passport photos.', true, '', 'Coming soon');
+  const nPix = ready.filter(t => t.group === 'Pixel').length;
+  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'tools.html', (ready.length - nPix) + ' tools →');
+  line('Pixel', 'Compress, resize, crop and convert images. Watermark, blur, make GIFs.', false, 'tools.html#pixel-grp', nPix + ' tools →');
   line('QR', 'QR codes for links, Wi-Fi and contacts.', true, '', 'Coming soon');
   line('Text', 'Word count, case changes and clean-up.', true, '', 'Coming soon');
 
