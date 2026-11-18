@@ -131,3 +131,7 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Tests: OpenCV QRCodeDetector decodes all 13 content types; design/logo/frame/PDF/SVG/JPG/bulk/reader/mobile pass.
 - Known limits: Safari/iPhone untested; PDF is an embedded 2400 px PNG (SVG is the vector file); round dots on dense/low-contrast codes rely on the self-test warning; "Round" corner eyes removed (OpenCV could not read them).
 - Pending: QR and Pixel how-to blog guides.
+
+## 9l. Navigation redesign (owner complaint: flat mixed menu)
+- `DILIA_LINES` in assets/tools.js defines each line (Studio, Pixel, QR live; Text, Calc, Convert, Rates, Dev, Motion "Soon"). Menu = left rail of lines, right panel with that line's categories. Each live line has its own page (/studio/, /pixel/, /qr/, via `body[data-line]` in tools-page.js) with the line's brand in the header. Hub shows one card per line. Variant pages (e.g. PNG to JPG) are listed inside their category as chips, not in the menu.
+- Competitor study: iLovePDF = 7 categories + filter tabs; Smallpdf = 6 flat header links, full list in footer; both keep one product per site.
