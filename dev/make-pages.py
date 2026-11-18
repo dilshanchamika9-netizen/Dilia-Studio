@@ -592,7 +592,7 @@ SLUGS = dict(re.findall(r"id: '([^']+)', slug: '([^']+)'", (ROOT / 'assets' / 't
 
 def up(html):
     """Tool pages live in /<keyword>/index.html, one folder below the site root."""
-    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"')):
+    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"'), ('href="studio/"', 'href="../studio/"'), ('href="pixel/"', 'href="../pixel/"'), ('href="qr/"', 'href="../qr/"'), ('href="compress-image/"', 'href="../compress-image/"'), ('href="qr-code-generator/"', 'href="../qr-code-generator/"'), ('href="compress-pdf/"', 'href="../compress-pdf/"'), ('href="merge-pdf/"', 'href="../merge-pdf/"')):
         html = html.replace(a, b)
     return html
 
@@ -803,3 +803,23 @@ def reader_page():
 d = ROOT / SLUGS['viewer']; d.mkdir(exist_ok=True)
 (d / 'index.html').write_text(up(reader_page()))
 print('wrote', SLUGS['viewer'] + '/')
+
+# ---------------- line pages: /studio/, /pixel/, /qr/ (own brand in the header) ----------------
+LINES = {
+    'studio': dict(name='Studio', title='PDF Tools - Free Online | Dilia Studio', h1='Dilia Studio', kick='PDF tools', sub='Organise, edit, sign, convert and protect PDFs. Everything runs in your browser.', cta=('Merge PDFs', 'merge-pdf/')),
+    'pixel': dict(name='Pixel', title='Image Tools - Free Online | Dilia Pixel', h1='Dilia Pixel', kick='Image tools', sub='Make images smaller, resize and crop them, change formats, add watermarks. Everything runs in your browser.', cta=('Compress image', 'compress-image/')),
+    'qr': dict(name='QR', title='QR Code Tools - Free Online | Dilia QR', h1='Dilia QR', kick='QR codes', sub='Make QR codes for links, Wi-Fi, contacts and more, or read one. Everything runs in your browser.', cta=('Make a QR code', 'qr-code-generator/')),
+}
+base = (ROOT / 'tools.html').read_text()
+for lid, c in LINES.items():
+    h = base
+    h = h.replace('<title>All Tools - Free Online | Dilia</title>', '<title>' + c['title'] + '</title>')
+    h = h.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia ' + c['name'] + ' home"').replace('<span class="l">Studio</span>', '<span class="l">' + c['name'] + '</span>')
+    h = h.replace('<p>PDF tools that run on your own device. Your files are never uploaded.</p>', '<p>' + c['kick'] + ' that run on your own device. Your files are never uploaded.</p>')
+    h = h.replace('<p class="kicker">All Dilia tools</p>', '<p class="kicker">' + c['kick'] + '</p>').replace('<h1>Pick a tool.</h1>', '<h1>' + c['h1'] + '</h1>')
+    h = h.replace('<p class="sub">Every tool runs in your browser. Pick a line, then a tool.</p>', '<p class="sub">' + c['sub'] + '</p>')
+    h = h.replace('<a class="btn sm" href="merge-pdf/">Merge PDFs</a>', '<a class="btn sm" href="' + c['cta'][1] + '">' + c['cta'][0] + '</a>')
+    h = h.replace('<body>', '<body data-line="' + lid + '">', 1)
+    h = up(h)
+    d = ROOT / lid; d.mkdir(exist_ok=True); (d / 'index.html').write_text(h)
+    print('wrote line page', lid + '/')

@@ -25,10 +25,10 @@
     c.append(w, el('p', '', text), el('span', 'go', go)); lg.append(c);
   };
   const nPix = ready.filter(t => t.group === 'Pixel').length, nQr = ready.filter(t => t.group === 'QR').length;
-  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'tools.html', (ready.length - nPix - nQr) + ' tools →');
-  line('Pixel', 'Compress, resize, crop and convert images. Watermark, blur, make GIFs.', false, 'tools.html#pixel-grp', nPix + ' tools →');
-  line('QR', 'QR codes for links, Wi-Fi and contacts. Read QR codes too.', false, 'tools.html#qr-grp', nQr + ' tools →');
-  line('Text', 'Word count, case changes and clean-up.', true, '', 'Coming soon');
+  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'studio/', (ready.length - nPix - nQr) + ' tools →');
+  line('Pixel', 'Compress, resize, crop and convert images. Watermark, blur, make GIFs.', false, 'pixel/', nPix + ' tools →');
+  line('QR', 'QR codes for links, Wi-Fi and contacts. Read QR codes too.', false, 'qr/', nQr + ' tools →');
+  DILIA_LINES.filter(L => L.soon).forEach(L => line(L.name, L.blurb, true, '', 'Coming soon'));
 
   // Drop a file anywhere: show the tools that fit, then open one with the file ready.
   const veil = document.getElementById('veil'), fit = document.getElementById('fit');

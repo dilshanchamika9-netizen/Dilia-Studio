@@ -114,3 +114,31 @@ window.DILIA_TOOLS = [
   ]]
 ];
 window.diliaIcon = (d, cls) => `<svg class="${cls || 'ico'}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+/* Product lines. Each line has groups of tool ids ('c'), and 'more' ids (keyword pages shown as small links). soon:1 = not built yet. */
+window.DILIA_LINES = [
+  { id: 'studio', name: 'Studio', title: 'Dilia Studio', kind: 'PDF tools', href: 'studio/', blurb: 'Everything for PDF files: organise, edit, sign, convert and protect.', cats: [
+    ['Organise pages', ['merge', 'split', 'reorder', 'delete', 'extract', 'insert', 'rotate', 'flip', 'mix', 'crop', 'resize']],
+    ['Edit and sign', ['edit', 'add', 'annotate', 'sign', 'forms', 'makeform', 'redact', 'noannot']],
+    ['Stamp and number', ['watermark', 'number', 'bates', 'headfoot', 'bookmarks', 'overlay']],
+    ['Convert', ['img2pdf', 'pdf2img', 'text', 'table', 'html2pdf', 'scan', 'extractimg']],
+    ['Compress and secure', ['compress', 'protect', 'unlock', 'ocr', 'flatten', 'cleaner', 'meta', 'linearize']],
+    ['Fix and print', ['repair', 'deskew', 'grayscale', 'booklet', 'poster', 'nup']],
+    ['More', ['compare', 'rename', 'batch', 'viewer']]
+  ] },
+  { id: 'pixel', name: 'Pixel', title: 'Dilia Pixel', kind: 'Image tools', href: 'pixel/', blurb: 'Make images smaller, resize and crop them, change formats, add watermarks.', cats: [
+    ['Compress', ['pxcompress'], ['pxjpg', 'pxpng', 'pxwebp', 'pxgif', 'pxsvg', 'pxtarget', 'pxsmall']],
+    ['Resize and crop', ['pxresize', 'pxcrop', 'pxrotate']],
+    ['Convert', ['pxconvert', 'pxheic'], ['pxpng2jpg', 'pxjpg2png', 'pxwebp2jpg', 'pxwebp2png', 'pxjpg2webp', 'pxheicpng', 'pxavif', 'pxico', 'pxbmp', 'pxtiff', 'pxgifpng']],
+    ['Edit and protect', ['pxwm', 'pxmeme', 'pxblur', 'pxgifmake', 'pxmeta']]
+  ], soonItems: ['Background remover', 'Passport photo'] },
+  { id: 'qr', name: 'QR', title: 'Dilia QR', kind: 'QR codes', href: 'qr/', blurb: 'Make QR codes for links, Wi-Fi, contacts and more. Read them too.', cats: [
+    ['Make a QR code', ['qrmain', 'qrwifi', 'qrvcard'], ['qrurl', 'qrtext', 'qremail', 'qrsms', 'qrphone', 'qrwhatsapp', 'qrgeo', 'qrevent', 'qrbtc', 'qrinsta', 'qryoutube', 'qrreview', 'qrapp']],
+    ['Many codes and reading', ['qrbulk', 'qrread']]
+  ] },
+  { id: 'text', name: 'Text', title: 'Dilia Text', kind: 'Text tools', soon: 1, blurb: 'Word count, case changes and text clean-up.' },
+  { id: 'calc', name: 'Calc', title: 'Dilia Calc', kind: 'Calculators', soon: 1, blurb: 'Everyday calculators.' },
+  { id: 'convert', name: 'Convert', title: 'Dilia Convert', kind: 'File converters', soon: 1, blurb: 'Convert documents and other files between formats.', soonItems: ['Word to PDF'] },
+  { id: 'rates', name: 'Rates', title: 'Dilia Rates', kind: 'Currency', soon: 1, blurb: 'Currency converter.', soonItems: ['Currency converter'] },
+  { id: 'dev', name: 'Dev', title: 'Dilia Dev', kind: 'Developer tools', soon: 1, blurb: 'Small tools for developers.' },
+  { id: 'motion', name: 'Motion', title: 'Dilia Motion', kind: 'Video and audio', soon: 1, blurb: 'Video and audio tools.' }
+];
