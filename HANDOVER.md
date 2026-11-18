@@ -135,3 +135,8 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 ## 9l. Navigation redesign (owner complaint: flat mixed menu)
 - `DILIA_LINES` in assets/tools.js defines each line (Studio, Pixel, QR live; Text, Calc, Convert, Rates, Dev, Motion "Soon"). Menu = left rail of lines, right panel with that line's categories. Each live line has its own page (/studio/, /pixel/, /qr/, via `body[data-line]` in tools-page.js) with the line's brand in the header. Hub shows one card per line. Variant pages (e.g. PNG to JPG) are listed inside their category as chips, not in the menu.
 - Competitor study: iLovePDF = 7 categories + filter tabs; Smallpdf = 6 flat header links, full list in footer; both keep one product per site.
+
+## 9m. Launcher menu (owner asked for a clear, futuristic menu)
+- assets/menu.js + palette.css: dark glass panel. Top: search over all ready tools (Enter opens first hit). Left rail: lines with tool counts, "Soon" lines dimmed. Right: line title + Open button, category tabs (Popular, Recent, then the line's categories) showing ONE category at a time as icon cards with descriptions; variants as "Also" chips. Popular lists are `POP` in menu.js. Recent = localStorage `dilia-recent` (last 6 visited tools). Magenta only for the Open button, focus rings and the active rail marker.
+- Fixed bug: tab click re-rendered the panel and the outside-click handler closed it (now uses composedPath).
+- Mobile: rail becomes a scrolling pill row; cards one per row. Safari/iPhone untested.
