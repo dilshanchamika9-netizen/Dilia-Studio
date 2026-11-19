@@ -28,12 +28,12 @@ def card(p): return f'<a class="bcard" href="{"../" if False else ""}{p["slug"]}
 
 # ---- index ----
 h, t = shell(2 - 1)
-h = retitle(h, 'Dilia Studio blog: PDF how-to guides', 'Short, honest guides for working with PDFs: merge, compress, edit, sign, split, protect and more. Private and free.')
+h = retitle(h, 'Dilia blog: how-to guides', 'Short, honest guides for PDFs, images and QR codes: merge, compress, resize, convert, make QR codes and more. Private and free.')
 h = h.replace('<title>PDF', '<title>PDF')
 idx = f'''<main class="ws-page bpage"><div class="wrap bwrap">
 <p class="crumb"><a href="../tools.html">Tools</a><span>/</span>Blog</p>
-<h1>PDF how-to guides</h1>
-<p class="lead">Short, honest guides for everyday PDF jobs. Each one tells you what the tool does and what it cannot do.</p>
+<h1>How-to guides</h1>
+<p class="lead">Short, honest guides for PDFs, images and QR codes. Each one tells you what the tool does and what it cannot do.</p>
 <div class="bgrid">{''.join(card(p) for p in POSTS)}</div>
 </div></main>'''
 d = ROOT / 'blog'; d.mkdir(exist_ok=True); (d / 'index.html').write_text(h + idx + t)

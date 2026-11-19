@@ -412,7 +412,7 @@ const metaLine = it => {
   return bits.length ? bits.join(' · ') : 'No camera details found';
 };
 function render() {
-  ws.dataset.state = items.length ? 'full' : 'empty';
+  ws.dataset.state = items.length ? 'full' : 'empty'; memeSoon();
   grid.innerHTML = items.map((it, n) => `<article class="card page pix" data-id="${it.id}" aria-label="Image ${n + 1}">
     <div class="pv ok"><img src="${it.url}" alt="" loading="lazy">${it.res && it.res.error ? '' : ''}</div>
     <div class="pmeta"><i></i><span>${n + 1}</span><em title="${esc(it.name)}">${esc(it.name)}</em></div>
@@ -459,6 +459,21 @@ grid.addEventListener('click', e => {
 });
 $('#sortAz') && $('#sortAz').addEventListener('click', () => { items.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })); clearDone(); render(); });
 document.querySelectorAll('.optbar input,.optbar select').forEach(e => e.addEventListener('input', () => { if (e.id !== 'wmImg' || true) { clearResults(); } }));
+// Live preview for the meme tool: small canvas that redraws as the text, size or colour changes.
+var memeBox = null, memeTimer = 0, memeId = '';
+async function memePreview() {
+  if (TOOL !== 'meme') return;
+  const bar = document.querySelector('.optbar'); if (!bar) return;
+  if (!items.length) { if (memeBox) memeBox.hidden = true; return; }
+  if (!memeBox) { memeBox = document.createElement('div'); memeBox.className = 'memeprev'; memeBox.innerHTML = '<canvas aria-label="Meme preview"></canvas><p>Live preview</p>'; bar.after(memeBox); }
+  memeBox.hidden = false;
+  const it = items[0], cv = memeBox.querySelector('canvas');
+  let img = memePreview.img; if (memeId !== it.id || !img) { try { const s = await readSource(it, 0), k = Math.min(1, 720 / Math.max(s.w, s.h)); const t = document.createElement('canvas'); t.width = Math.max(1, Math.round(s.w * k)); t.height = Math.max(1, Math.round(s.h * k)); t.getContext('2d').drawImage(s.src, 0, 0, t.width, t.height); freeSrc(s); img = memePreview.img = t; memeId = it.id; } catch (e) { memeBox.hidden = true; return; } }
+  cv.width = img.width; cv.height = img.height; cv.getContext('2d').drawImage(img, 0, 0); memeText(cv);
+}
+function memeSoon() { clearTimeout(memeTimer); memeTimer = setTimeout(memePreview, 60); }
+document.querySelectorAll('.optbar input,.optbar select').forEach(e => e.addEventListener('input', memeSoon));
+
 
 /* ---------- modal: crop box, blur areas, compare ---------- */
 function modal(title, body, onOk) {

@@ -276,3 +276,5 @@ body.work{background:var(--mist)}
 .cmpbox .hdl{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#e5007d}
 .cmpbox .tg{position:absolute;top:8px;font:600 12px var(--font);background:#0b1220cc;color:#fff;padding:4px 8px;border-radius:6px;line-height:1.2}.cmpbox .tg.l{left:8px}.cmpbox .tg.r{right:8px}
 .pxcmp input[type=range]{width:100%;accent-color:#e5007d}
+
+.memeprev{display:grid;justify-items:center;gap:8px;margin:0 0 20px;padding:16px;border-radius:16px;background:var(--mist)}.memeprev[hidden]{display:none}.memeprev canvas{max-width:100%;max-height:340px;border-radius:10px;box-shadow:0 12px 30px -14px #0b122066}.memeprev p{margin:0;font-size:13px;color:var(--muted)}

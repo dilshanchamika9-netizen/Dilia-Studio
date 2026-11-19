@@ -83,3 +83,15 @@ kbd,.k{display:inline-flex;align-items:center;justify-content:center;min-width:2
 .msoonlist span{font-size:14px;padding:6px 12px;border-radius:999px;background:#ffffffb3;border:1px dashed #0b122033;color:var(--ink)}
 .mres{margin-top:18px}.mnone{color:#3d4659;margin:8px 0}
 @media (max-width:820px){.mcols{grid-template-columns:minmax(0,1fr)}.mrail{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid #0b12201a;padding:0 0 12px;gap:6px}.mline{width:auto;flex:none;padding:8px 12px}.mline small,.mline em{display:none}.mall{display:none}.mbody{padding:18px 0 0}.mtop{flex-direction:column;gap:12px}.mgrid{grid-template-columns:1fr}.mfind kbd{display:none}.mfind input{font-size:16px}}
+
+/* Frosted-glass cards on home and line pages (same language as the launcher menu) */
+.pcard,a.lcard,.tile.ready{position:relative;background:#ffffffd9;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #0b12201a;overflow:hidden;transition:transform .25s,box-shadow .25s,background .2s}
+.pcard::after,a.lcard::after,.tile.ready::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#e5007d,#6d4cff 55%,#2f9bff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .25s;pointer-events:none}
+.pcard:hover,a.lcard:hover,.tile.ready:hover{background:#fff;transform:translateY(-3px);box-shadow:0 20px 38px -20px #5b3fd08c}
+.pcard:hover::after,a.lcard:hover::after,.tile.ready:hover::after{opacity:1}
+a.lcard:hover{border-color:#0b12201a}
+.pcard .pi,.tile.ready .ic{background:linear-gradient(135deg,#e5007d,#6d4cff);color:#fff;box-shadow:0 8px 18px -8px #6d4cffb3}
+section.lines,.lines.lines{background:radial-gradient(520px 300px at 6% 0,#ffb7d64d,transparent 70%),radial-gradient(520px 300px at 94% 100%,#a8d8f066,transparent 70%),radial-gradient(480px 280px at 60% 0,#cdb8f54d,transparent 70%),var(--mist)}
+.chips a{font-size:13.5px;padding:6px 12px;border-radius:999px;background:#ffffffb3;border:1px solid #0b12201a;color:var(--ink);text-decoration:none;transition:border-color .2s,background .2s}
+.chips a:hover{background:#fff;border-color:#e5007d66}
+@media (prefers-reduced-motion:reduce){.pcard,a.lcard,.tile.ready,.pcard::after,a.lcard::after,.tile.ready::after{transition:none}.pcard:hover,a.lcard:hover,.tile.ready:hover{transform:none}}

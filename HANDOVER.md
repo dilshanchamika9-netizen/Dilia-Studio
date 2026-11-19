@@ -140,3 +140,10 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - assets/menu.js + palette.css: light frosted-glass panel (pastel aurora, matches hub; owner rejected dark). Top: search over all ready tools (Enter opens first hit). Left rail: lines with tool counts, "Soon" lines dimmed. Right: line title + Open button, category tabs (Popular, Recent, then the line's categories) showing ONE category at a time as icon cards with descriptions; variants as "Also" chips. Popular lists are `POP` in menu.js. Recent = localStorage `dilia-recent` (last 6 visited tools). Magenta only for the Open button, focus rings and the active rail marker.
 - Fixed bug: tab click re-rendered the panel and the outside-click handler closed it (now uses composedPath).
 - Mobile: rail becomes a scrolling pill row; cards one per row. Safari/iPhone untested.
+
+## 9n. Page restyle, meme preview, Pixel/QR guides
+- palette.css (end): frosted-glass cards with gradient-border hover for `.pcard`, `a.lcard`, `.tile.ready`; aurora behind the home "lines" section; "Also" chips restyled. Same language as the launcher menu.
+- Meme generator: live preview canvas (`.memeprev`) under the options, redrawn on every input and when the image list changes (imgtool.js `memePreview`/`memeSoon`; vars are `var` on purpose, render() calls memeSoon before they are initialised).
+- Blog: 16 new guides in dev/blog-posts.py (11 Pixel, 5 QR); blog now has 32 posts and a generic "How-to guides" index. Bulk QR claims checked against qrtool.js (2000 lines max, names via "name, value").
+- /tmp/t2/px2.py has a known test-script timeout (waits for a card that bad files never produce); it fails identically on the previous commit.
+- Still open: Safari/iPhone, per-tool guides for the remaining Pixel variants, sitemap/robots (needs domain).
