@@ -1,7 +1,6 @@
 /* PDF reader: scroll through a PDF, zoom, jump to a page, search the text. Read only; nothing is changed or uploaded. */
 {
 const { $, kb, plural, esc, toast } = Kit;
-pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 const ws = $('#ws'), pick = $('#pick'), pagesEl = $('#vpages'), pgIn = $('#vpg'), of = $('#vof'), zl = $('#vzoom'), q = $('#vq'), qres = $('#vres');
 let js = null, pv = [], zoom = 1, fit = true, name = '', hits = [], hi = -1, tok = 0;
 const DPR = Math.min(2, window.devicePixelRatio || 1);

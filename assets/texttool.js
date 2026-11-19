@@ -294,7 +294,7 @@ async function fileText(f) {
   const n = f.name.toLowerCase();
   if (/\.(txt|md|csv|log|json|html?|xml|rtf)$/.test(n) || /^text\//.test(f.type)) return f.text();
   if (n.endsWith('.docx')) return docxText(new Uint8Array(await f.arrayBuffer()));
-  if (n.endsWith('.pdf')) { await loadJs('assets/vendor/pdf.min.js'); pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js'; const pdf = await pdfjsLib.getDocument({ isEvalSupported: false, data: new Uint8Array(await f.arrayBuffer()) }).promise; const out = []; for (let i = 1; i <= pdf.numPages; i++) { const p = await (await pdf.getPage(i)).getTextContent(); let line = ''; p.items.forEach(it => { line += it.str; if (it.hasEOL) line += '\n'; else line += ' '; }); out.push(line.replace(/[ ]+\n/g, '\n').trim()); } return out.join('\n\n'); }
+  if (n.endsWith('.pdf')) { await loadJs('assets/vendor/pdfjs/pdf.js'); const pdf = await pdfjsLib.getDocument({ isEvalSupported: false, data: new Uint8Array(await f.arrayBuffer()) }).promise; const out = []; for (let i = 1; i <= pdf.numPages; i++) { const p = await (await pdf.getPage(i)).getTextContent(); let line = ''; p.items.forEach(it => { line += it.str; if (it.hasEOL) line += '\n'; else line += ' '; }); out.push(line.replace(/[ ]+\n/g, '\n').trim()); } return out.join('\n\n'); }
   throw new Error('Use a TXT, DOCX or PDF file.');
 }
 async function docxText(u) {
@@ -303,7 +303,12 @@ async function docxText(u) {
   for (let i = 0; i < cnt; i++) { const m = dv.getUint16(p + 10, true), cs = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true), name = new TextDecoder().decode(u.subarray(p + 46, p + 46 + nl)); if (name === 'word/document.xml') { hit = { m, cs, off }; break; } p += 46 + nl + xl + cl; }
   if (!hit) throw new Error('No text found in that Word file.');
   const lo = hit.off, nl = dv.getUint16(lo + 26, true), xl = dv.getUint16(lo + 28, true), data = u.subarray(lo + 30 + nl + xl, lo + 30 + nl + xl + hit.cs);
-  let xml; if (hit.m === 0) xml = new TextDecoder().decode(data); else if (hit.m === 8) { const ds = new DecompressionStream('deflate-raw'), w = ds.writable.getWriter(); w.write(data); w.close(); xml = await new Response(ds.readable).text(); } else throw new Error('Unsupported Word file.');
+  let xml; if (hit.m === 0) xml = new TextDecoder().decode(data); else if (hit.m === 8) {
+    const ds = new DecompressionStream('deflate-raw'), w = ds.writable.getWriter(); w.write(data).catch(() => {}); w.close().catch(() => {});
+    const rd = ds.readable.getReader(), parts = []; let n = 0;              // cap the inflated size: a tiny file can expand to gigabytes
+    for (;;) { const { done, value } = await rd.read(); if (done) break; n += value.length; if (n > 80 * 1048576) { rd.cancel(); throw new Error('That Word file holds too much text to open here.'); } parts.push(value); }
+    xml = new TextDecoder().decode(await new Blob(parts).arrayBuffer());
+  } else throw new Error('Unsupported Word file.');
   return xml.replace(/<w:tab\/>/g, '\t').replace(/<w:(?:br|cr)\/>/g, '\n').replace(/<\/w:p>/g, '\n').replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&').replace(/\n{3,}/g, '\n\n').trim();
 }
 

@@ -167,3 +167,15 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Every external data source needs two independent free sources; wrong numbers are never shown (keep last good value, alert).
 - Order after Task 1 is open; owner decides. Nothing new built until he answers.
 - Details, conflicts and decisions are in the private repo (00-company/CHANGE-ORDER-1.md, CO1-CONFLICTS.md).
+
+## 9q. Security foundations (2026-11-20, Opus)
+- pdf.js upgraded 3.11.174 -> 6.5.438 (legacy build). ESM-only upstream, so dev/pdfjs-wrapper.mjs is bundled with esbuild into assets/vendor/pdfjs/pdf.js (classic script, sets window.pdfjsLib). The wrapper forces enableScripting false + isEvalSupported false, sets worker/cmaps/standard_fonts/wasm/iccs URLs, ignores engines' workerSrc, and restores doc.destroy() (removed upstream). Rebuild: `npx esbuild dev/pdfjs-wrapper.mjs --bundle --format=iife --minify --target=es2020` (fix the import path to the npm package first), then `python3 dev/security-check.py --update`.
+- pdf.js 6 removed PageViewport.convertToViewportRectangle: editor.js now uses convertToViewportPoint twice. Any other removed API will fail silently inside try/catch: run the editor suite after any pdf.js change.
+- merge-pdf/index.html is hand-written (not generated): edit script tags there by hand.
+- _headers (Cloudflare Pages) holds the strict CSP and other headers. Tested locally on all 134 tool pages and real tool flows: 0 violations. GitHub Pages ignores it.
+- Gate (dev/security-check.py) now scans */index.html, blocks inline <style>, and requires isEvalSupported:false on getDocument. tools.html CSS moved to assets/library.css.
+- dev/vendor-audit.py + dev/vendor-versions.json: weekly CI check of every vendored library (npm advisory API, OSV fallback). Update versions file whenever vendor files change.
+- CI actions pinned to commit SHAs.
+- Text: DOCX inflate capped at 80 MB (zip bomb).
+- Threat models, rollback runbook: private repo 05-compliance/.
+- Known: favicon.ico missing (404 in console); comes with the app icons in Task W.

@@ -14,7 +14,7 @@ def shell(depth):
     h = h.replace('<body class="work"', '<body class="blog"')
     t = tail.replace('../assets/', up + 'assets/').replace('<script src="' + up + 'assets/viewer.js"></script>', '').replace('<script src="../assets/viewer.js"></script>', '')
     # these pages need no tool scripts: keep search palette, menu and common only
-    for s in ('pdf-lib.min.js', 'pdf.min.js', 'Sortable.min.js', 'kit.js'):
+    for s in ('pdf-lib.min.js', 'pdfjs/pdf.js', 'Sortable.min.js', 'kit.js'):
         t = re.sub(r'<script src="[^"]*' + re.escape(s) + r'"></script>\n?', '', t)
     return h, t
 

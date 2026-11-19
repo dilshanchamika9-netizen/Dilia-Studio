@@ -1,7 +1,6 @@
 /* Whole-file tools: password protect, remove password, compress. One PDF at a time. */
 {
 const { $, kb, plural, esc, toast, save, cleanName } = Kit;
-pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 
 const MODE = document.body.dataset.tool;
 const CFG = {

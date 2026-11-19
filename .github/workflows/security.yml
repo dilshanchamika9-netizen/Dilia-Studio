@@ -8,10 +8,12 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { fetch-depth: 0 }
       - name: Dilia static gate (inline scripts, eval, remote URLs, vendor hashes, licences)
         run: python3 dev/security-check.py
+      - name: Known vulnerabilities in vendored libraries (npm advisories, OSV fallback)
+        run: python3 dev/vendor-audit.py
       - name: Secret scan (plus GitHub push protection)
         run: |
           pip install --quiet detect-secrets
@@ -19,7 +21,7 @@ jobs:
   codeql:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with: { languages: javascript-typescript, config: "paths-ignore: [assets/vendor]" }
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9 # v3

@@ -1,0 +1,21 @@
+{
+ "_note": "Every library in assets/vendor with its exact upstream package and version. dev/vendor-audit.py checks these against the OSV vulnerability database (free, Google). Update this file whenever a vendor file changes.",
+ "npm": {
+  "pdf-lib": "1.17.1",
+  "pdfjs-dist": "6.5.438",
+  "sortablejs": "1.15.2",
+  "pako": "2.1.0",
+  "utif": "3.1.0",
+  "upng-js": "2.1.0",
+  "gifenc": "1.0.3",
+  "gifuct-js": "2.1.2",
+  "@jsquash/avif": "2.1.1",
+  "@jsquash/webp": "1.5.0",
+  "svgo": "4.1.0",
+  "heic2any": "0.0.4",
+  "qrcode-generator": "2.0.4",
+  "jsqr": "1.4.0",
+  "tesseract.js": "7.0.0",
+  "@neslinesli93/qpdf-wasm": "0.3.1"
+ }
+}

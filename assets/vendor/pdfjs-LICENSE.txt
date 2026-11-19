@@ -175,3 +175,5 @@
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
+
+pdf.js 6.5.438 (legacy build), bundled by Dilia into assets/vendor/pdfjs/pdf.js with a small wrapper. Decoders in pdfjs/wasm: PDFium JBIG2 (BSD-3), OpenJPEG (BSD-2), qcms (MIT); licence files alongside. iccs: CC0. QuickJS scripting engine not shipped (PDF JavaScript is disabled).

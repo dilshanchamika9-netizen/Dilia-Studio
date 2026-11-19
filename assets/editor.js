@@ -2,7 +2,6 @@
    Positions are stored in "view points": the page as it is shown (rotation applied), 1 unit = 1 PDF point, origin top-left. */
 {
 const { $, kb, plural, esc, toast, save, cleanName } = Kit;
-pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js';
 
 const START = document.body.dataset.tool;              // edit | add | forms | sign | annotate
 const ws = $('#ws'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog'), outName = $('#outName');
@@ -168,7 +167,7 @@ async function load(list) {
       for (const a of await page.getAnnotations()) {
         if (a.subtype !== 'Widget' || !a.fieldName || a.readOnly || a.hidden || a.pushButton) continue;
         if (!['Tx', 'Btn', 'Ch'].includes(a.fieldType)) continue;
-        const [x1, y1, x2, y2] = vp.convertToViewportRectangle(a.rect);
+        const [x1, y1] = vp.convertToViewportPoint(a.rect[0], a.rect[1]), [x2, y2] = vp.convertToViewportPoint(a.rect[2], a.rect[3]);
         fields.push({ p: i, a, x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) });
       }
     } catch (e) { /* no form data */ }

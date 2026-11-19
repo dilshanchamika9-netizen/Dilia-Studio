@@ -485,7 +485,7 @@ def page(t):
 <div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
 
 <script src="assets/vendor/pdf-lib.min.js"></script>
-<script src="assets/vendor/pdf.min.js"></script>
+<script src="assets/vendor/pdfjs/pdf.js"></script>
 <script src="assets/vendor/Sortable.min.js"></script>
 {qp}
 <script src="assets/tools.js"></script>
@@ -550,7 +550,7 @@ def qr_page(t):
     head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia QR</title>', head)
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
     head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia QR home"').replace('<span class="l">Studio</span>', '<span class="l">QR</span>')
-    tail = tail.replace('<script src="assets/vendor/pdf.min.js"></script>\n', '').replace('<script src="assets/vendor/Sortable.min.js"></script>\n', '')
+    tail = tail.replace('<script src="assets/vendor/pdfjs/pdf.js"></script>\n', '').replace('<script src="assets/vendor/Sortable.min.js"></script>\n', '')
     if t['mode'] != 'make': tail = tail.replace('<script src="assets/vendor/pdf-lib.min.js"></script>\n', '')
     tail = tail.replace('<script src="assets/qrtool.js"></script>', '<script src="assets/qrtool.js"></script>')
     head = head.replace('<body class="work"', '<body class="work" data-mode="' + t['mode'] + '" data-qr="' + t['qr'] + '"')
@@ -611,7 +611,7 @@ def txt_page(t):
     head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia Text</title>', head)
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
     head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia Text home"').replace('<span class="l">Studio</span>', '<span class="l">Text</span>')
-    for v in ('pdf.min.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
+    for v in ('pdfjs/pdf.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
     head = head.replace('<body class="work"', '<body class="work" data-txt="' + t['mode'] + '" data-preset="' + t['preset'] + '"')
     return head + txt_main(t) + tail
 
@@ -622,7 +622,7 @@ def page(t):
     html = _page(t)
     if t['kind'] == 'pix':
         for a, b in (('aria-label="Dilia Studio home"', 'aria-label="Dilia Pixel home"'), ('<span class="l">Studio</span>', '<span class="l">Pixel</span>'),
-                     ('<script src="assets/vendor/pdf-lib.min.js"></script>\n', ''), ('<script src="assets/vendor/pdf.min.js"></script>\n', ''), ('Your new PDF', 'Your new images')):
+                     ('<script src="assets/vendor/pdf-lib.min.js"></script>\n', ''), ('<script src="assets/vendor/pdfjs/pdf.js"></script>\n', ''), ('Your new PDF', 'Your new images')):
             html = html.replace(a, b)
     return html
 
@@ -776,7 +776,7 @@ def editor_page(t):
 <div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
 
 <script src="assets/vendor/pdf-lib.min.js"></script>
-<script src="assets/vendor/pdf.min.js"></script>
+<script src="assets/vendor/pdfjs/pdf.js"></script>
 <script src="assets/tools.js"></script>
 <script src="assets/palette.js"></script>
 <script src="assets/menu.js"></script>
