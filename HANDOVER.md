@@ -89,7 +89,7 @@ This project is separate from the Orel dashboard. Never mix code, files or rules
 - Done: 22 of 23 tools (all except Word to PDF).
 - Next: Word to PDF only via a free server, after the owner agrees. Untested: Safari/iPhone, PDFs of 300+ pages.
 
-## 9c. Security addendum (priority over schedule)
+## 9c. Security addendum (hold LIFTED by Change Order 1, see 9p)
 Security Lead has release veto. Policy, gate, owner steps, review brief: see private repo 05-compliance/. In this repo: `dev/security-check.py` (run before every commit; fails on inline scripts, eval, external URLs, changed vendor files, missing licences), `dev/vendor-hashes.json` (update with `--update` only with a DECISIONS line), `.github/workflows/security.yml`, `.github/dependabot.yml`, `SECURITY.md`, `.well-known/security.txt`. Rules: user text only via esc()/textContent, no inline scripts, no network calls from tool code. Security work is held until go-live (owner decision 2026-11-17); Wave 5 resumes.
 
 ## 9d. Hub (direction A, owner-approved 2026-11-17)
@@ -158,3 +158,12 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Blog: 8 Text guides (41 posts).
 - Tested (Playwright, /tmp/tx.py, not in repo): all modes, presets, 200k words, XSS string, TXT/DOCX/PDF open, mobile width, no console errors. Not tested: Safari/iPhone, DOCX made by Word itself (only a synthetic docx).
 - Known limits: CJK counted by characters only; readability English only; sentence case lowercases proper nouns; phone extraction is a guess.
+
+## 9p. Change Order 1 (owner, 2026-11-20): read before any new work
+- Budget $0 (domain only, at launch, with approval). Free/open-source with commercial-use licences. Read provider terms and report before building.
+- Owner does no manual data entry or checks: every feature updates itself, or it is dropped / rated C and deferred. Word to PDF (Cloud Run), live rates and email alerts are deferred.
+- Security hold lifted: foundations before further tools, threat model before each tool (strongest model, ask owner first), CI blocking merges, monitoring, rollback runbook. Hosting move (header support, /embed/ path) needed for the gate.
+- New: Task 12 Platform (data pipeline, SEO and growth automation, weekly report). Task 7 adds dates, holidays, time zones. Task 8 adds gold/silver and pair charts; UAE fuel removed; needs Task 12.
+- Every external data source needs two independent free sources; wrong numbers are never shown (keep last good value, alert).
+- Order after Task 1 is open; owner decides. Nothing new built until he answers.
+- Details, conflicts and decisions are in the private repo (00-company/CHANGE-ORDER-1.md, CO1-CONFLICTS.md).
