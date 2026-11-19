@@ -578,9 +578,47 @@ QRS = [
  qd('qrread', 'QR code reader', 'QR code reader', 'url', 'Read a QR code from a picture or with your camera. Nothing is uploaded.', 'Read a QR code from an image or your camera, in your browser.', mode='read'),
 ]
 
+
+# ---------------- Dilia Text ----------------
+import importlib.util as _iu
+_sp = _iu.spec_from_file_location('txdata', str(ROOT / 'dev' / 'txdata.py')); _m = _iu.module_from_spec(_sp); _sp.loader.exec_module(_m)
+TXTS = [dict(id=i, name=n, crumb=n, kind='txt', mode=mode, preset=pre, lead=lead, desc=seo, defname='Dilia-text') for i, s, n, d, main, mode, pre, lead, seo in _m.TX]
+def txt_main(t):
+    mode = t['mode']
+    head = '<div class="ws-head wrap"><div><p class="crumb"><a href="tools.html">Tools</a><span>/</span>' + t['crumb'] + '</p><h1>' + t['name'] + '</h1><p class="lead">' + t['lead'] + '</p></div></div>'
+    safe = '<p class="safe">' + SHIELD + 'Your text stays in this tab. Nothing is uploaded or stored.</p>'
+    name_field = '<label class="field" for="outName">File name<span class="name"><input id="outName" type="text" value="' + t['defname'] + '" spellcheck="false" autocomplete="off"></span></label>'
+    def ta(i, label, rows=12, ph=''):
+        return '<label class="lbl" for="' + i + '">' + label + '</label><textarea id="' + i + '" rows="' + str(rows) + '" spellcheck="false" placeholder="' + ph + '"></textarea>'
+    tools = ('<div class="tact"><button class="btn ghost sm" type="button" id="tPaste">Paste</button><button class="btn ghost sm" type="button" id="tSample">Try an example</button>'
+             '<label class="btn ghost sm" for="tFile">Open TXT, DOCX or PDF</label><input class="vh" id="tFile" type="file" accept=".txt,.md,.csv,.docx,.pdf,text/plain,application/pdf"><button class="btn ghost sm" type="button" id="tClear">Clear</button></div>')
+    if mode == 'diff':
+        left = ('<section class="tcard" aria-label="Texts"><div class="tpair"><div>' + ta('tIn', 'Original', 12, 'Paste the original here') + '</div><div>' + ta('tIn2', 'Changed', 12, 'Paste the changed text here') + '</div></div>'
+                '<div id="tOpts"></div><div class="tact"><button class="btn ghost sm" type="button" id="tClear">Clear both</button><button class="btn ghost sm" type="button" id="tSample">Try an example</button></div>' + safe + '</section>')
+        body = '<div class="tx wrap one">' + left + '<section class="tcard" aria-label="Differences" id="tOut" aria-live="polite"></section></div>'
+    elif mode == 'lorem':
+        body = '<div class="tx wrap"><section class="tcard" aria-label="Options"><div id="tOpts"></div>' + safe + '</section><section class="tcard" aria-label="Result" id="tOut" aria-live="polite"></section></div>'
+    else:
+        dl = '' if mode == 'count' else name_field
+        ph = {'find': 'Paste the text to change', 'list': 'One item per line'}.get(mode, 'Type or paste your text here')
+        body = ('<div class="tx wrap"><section class="tcard" aria-label="Your text">' + ta('tIn', 'Your text', 14, ph) + tools + '<div id="tOpts"></div>' + safe + '</section>'
+                '<section class="tcard" aria-label="Result"><div id="tOut" aria-live="polite"></div>' + dl + '</section></div>')
+    return '<main class="ws-page" data-txt-page>\n  ' + head + '\n  ' + body + '\n</main>'
+def txt_page(t):
+    base = _page(dict(DUMMY, name=t['name'], crumb=t['crumb'], engine='texttool'))
+    head, rest = base.split('<main', 1); tail = rest.split('</main>', 1)[1]
+    head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/text.css">')
+    head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia Text</title>', head)
+    head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
+    head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia Text home"').replace('<span class="l">Studio</span>', '<span class="l">Text</span>')
+    for v in ('pdf.min.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
+    head = head.replace('<body class="work"', '<body class="work" data-txt="' + t['mode'] + '" data-preset="' + t['preset'] + '"')
+    return head + txt_main(t) + tail
+
 _page = page
 def page(t):
     if t['kind'] == 'qr': return qr_page(t)
+    if t['kind'] == 'txt': return txt_page(t)
     html = _page(t)
     if t['kind'] == 'pix':
         for a, b in (('aria-label="Dilia Studio home"', 'aria-label="Dilia Pixel home"'), ('<span class="l">Studio</span>', '<span class="l">Pixel</span>'),
@@ -592,7 +630,7 @@ SLUGS = dict(re.findall(r"id: '([^']+)', slug: '([^']+)'", (ROOT / 'assets' / 't
 
 def up(html):
     """Tool pages live in /<keyword>/index.html, one folder below the site root."""
-    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"'), ('href="studio/"', 'href="../studio/"'), ('href="pixel/"', 'href="../pixel/"'), ('href="qr/"', 'href="../qr/"'), ('href="compress-image/"', 'href="../compress-image/"'), ('href="qr-code-generator/"', 'href="../qr-code-generator/"'), ('href="compress-pdf/"', 'href="../compress-pdf/"'), ('href="merge-pdf/"', 'href="../merge-pdf/"')):
+    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"'), ('href="studio/"', 'href="../studio/"'), ('href="pixel/"', 'href="../pixel/"'), ('href="qr/"', 'href="../qr/"'), ('href="text/"', 'href="../text/"'), ('href="compress-image/"', 'href="../compress-image/"'), ('href="qr-code-generator/"', 'href="../qr-code-generator/"'), ('href="compress-pdf/"', 'href="../compress-pdf/"'), ('href="merge-pdf/"', 'href="../merge-pdf/"')):
         html = html.replace(a, b)
     return html
 
@@ -600,7 +638,7 @@ def write_tool(t, html):
     d = ROOT / SLUGS[t['id']]; d.mkdir(exist_ok=True)
     (d / 'index.html').write_text(up(html))
 
-for t in TOOLS + QRS:
+for t in TOOLS + QRS + TXTS:
     write_tool(t, page(t))
     print('wrote', SLUGS[t['id']] + '/')
 
@@ -760,7 +798,7 @@ OLD = '''<!doctype html>
 <body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
 '''
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or not (ROOT / slug).is_dir(): continue
+    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 
@@ -809,6 +847,7 @@ LINES = {
     'studio': dict(name='Studio', title='PDF Tools - Free Online | Dilia Studio', h1='Dilia Studio', kick='PDF tools', sub='Organise, edit, sign, convert and protect PDFs. Everything runs in your browser.', cta=('Merge PDFs', 'merge-pdf/')),
     'pixel': dict(name='Pixel', title='Image Tools - Free Online | Dilia Pixel', h1='Dilia Pixel', kick='Image tools', sub='Make images smaller, resize and crop them, change formats, add watermarks. Everything runs in your browser.', cta=('Compress image', 'compress-image/')),
     'qr': dict(name='QR', title='QR Code Tools - Free Online | Dilia QR', h1='Dilia QR', kick='QR codes', sub='Make QR codes for links, Wi-Fi, contacts and more, or read one. Everything runs in your browser.', cta=('Make a QR code', 'qr-code-generator/')),
+    'text': dict(name='Text', title='Text Tools - Free Online | Dilia Text', h1='Dilia Text', kick='Text tools', sub='Count words, change case, clean up, sort and compare text. Everything runs in your browser.', cta=('Count words', 'word-counter/')),
 }
 base = (ROOT / 'tools.html').read_text()
 for lid, c in LINES.items():

@@ -147,3 +147,14 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Blog: 16 new guides in dev/blog-posts.py (11 Pixel, 5 QR); blog now has 32 posts and a generic "How-to guides" index. Bulk QR claims checked against qrtool.js (2000 lines max, names via "name, value").
 - /tmp/t2/px2.py has a known test-script timeout (waits for a card that bad files never produce); it fails identically on the previous commit.
 - Still open: Safari/iPhone, per-tool guides for the remaining Pixel variants, sitemap/robots (needs domain).
+
+## 9o. Dilia Text (Task 6)
+- 8 main tools + 25 keyword pages (v:1, hidden from menu). Data list: dev/txdata.py (id, slug, name, desc, main, mode, preset, lead, seo). tools.js 'Text' group is generated from it (edit both when adding a page). make-pages.py: TXTS/txt_page; redirect stubs skip ids 'tx*'; line page /text/.
+- Engine assets/texttool.js (+ text.css). Page body data-txt=count|case|clean|list|find|diff|lorem|extract, data-preset picks defaults. Controls built in JS with textContent only. 5 MB input cap. Output always in #tRes (readonly) with Copy / Download TXT / Use result as input.
+- Counting: words = letter/number runs (hyphen/apostrophe inside kept), characters by grapheme (Intl.Segmenter), 200 wpm read / 130 wpm speak, Flesch + grade (English syllable heuristic). Social limits dated 20 Nov 2026 (re-check from official sources before launch).
+- File open: TXT direct, DOCX via zip central directory + DecompressionStream('deflate-raw'), PDF via pdf.js (lazy-loaded). Scanned PDFs give no text.
+- Diff: LCS with prefix/suffix trim; 9M cell cap, then asks for line mode.
+- Menu POP.text, home card, palette group map, tools-page placeholder wired. Hub test still passes.
+- Blog: 8 Text guides (41 posts).
+- Tested (Playwright, /tmp/tx.py, not in repo): all modes, presets, 200k words, XSS string, TXT/DOCX/PDF open, mobile width, no console errors. Not tested: Safari/iPhone, DOCX made by Word itself (only a synthetic docx).
+- Known limits: CJK counted by characters only; readability English only; sentence case lowercases proper nouns; phone extraction is a guess.

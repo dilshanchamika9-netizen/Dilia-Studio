@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Extract links - Free Online | Dilia Text</title>
+<meta name="description" content="Extract URLs from text online. Free and private.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/work.css">
+<link rel="stylesheet" href="../assets/text.css">
+</head>
+<body class="work" data-txt="extract" data-preset="urls" data-tool="html2pdf">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav solid" data-solid="1">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Text home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Text</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../#privacy">Privacy</a>
+      <a class="opt" href="../blog/">Blog</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main class="ws-page" data-txt-page>
+  <div class="ws-head wrap"><div><p class="crumb"><a href="../tools.html">Tools</a><span>/</span>Extract links</p><h1>Extract links</h1><p class="lead">Pull every web link out of a text.</p></div></div>
+  <div class="tx wrap"><section class="tcard" aria-label="Your text"><label class="lbl" for="tIn">Your text</label><textarea id="tIn" rows="14" spellcheck="false" placeholder="Type or paste your text here"></textarea><div class="tact"><button class="btn ghost sm" type="button" id="tPaste">Paste</button><button class="btn ghost sm" type="button" id="tSample">Try an example</button><label class="btn ghost sm" for="tFile">Open TXT, DOCX or PDF</label><input class="vh" id="tFile" type="file" accept=".txt,.md,.csv,.docx,.pdf,text/plain,application/pdf"><button class="btn ghost sm" type="button" id="tClear">Clear</button></div><div id="tOpts"></div><p class="safe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.4 3 7.8 7 9 4-1.2 7-4.6 7-9V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Your text stays in this tab. Nothing is uploaded or stored.</p></section><section class="tcard" aria-label="Result"><div id="tOut" aria-live="polite"></div><label class="field" for="outName">File name<span class="name"><input id="outName" type="text" value="Dilia-text" spellcheck="false" autocomplete="off"></span></label></section></div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
+
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/kit.js"></script>
+<script src="../assets/texttool.js"></script>
+</body>
+</html>
