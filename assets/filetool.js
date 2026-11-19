@@ -57,7 +57,7 @@ async function load(list) {
       const o = await Kit.openPdf(f);
       d = o.err ? { name: f.name, size: f.size, bytes, status: /password/i.test(o.err) ? 'Password protected' : 'Cannot be opened', broken: true } : { ...o, bytes, status: 'Opens normally' };
       if (/password/i.test(o.err || '')) { toast(o.err, true); ws.classList.remove('working'); return; }
-      if (d.broken) { try { d.js = await pdfjsLib.getDocument({ data: bytes.slice() }).promise; d.count = d.js.numPages; d.status = 'Partly readable'; } catch (e) { /* unreadable */ } }
+      if (d.broken) { try { d.js = await pdfjsLib.getDocument({ isEvalSupported: false, data: bytes.slice() }).promise; d.count = d.js.numPages; d.status = 'Partly readable'; } catch (e) { /* unreadable */ } }
     } else {
       const o = await Kit.openPdf(f);
       if (o.err) { toast(o.err, true); ws.classList.remove('working'); return; }

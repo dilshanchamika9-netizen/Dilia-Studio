@@ -12,7 +12,7 @@ async function load(list) {
   ws.classList.add('working');
   try {
     const bytes = new Uint8Array(await f.arrayBuffer());
-    const d = await pdfjsLib.getDocument({ data: bytes }).promise;
+    const d = await pdfjsLib.getDocument({ isEvalSupported: false, data: bytes }).promise;
     if (js) js.destroy();
     js = d; name = f.name; tok++;
   } catch (e) {

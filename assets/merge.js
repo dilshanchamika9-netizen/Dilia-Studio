@@ -39,7 +39,7 @@ async function add(list) {
       continue;
     }
     let js = null;
-    try { js = await pdfjsLib.getDocument({ data: bytes.slice() }).promise; } catch (e) { /* previews unavailable, merge still works */ }
+    try { js = await pdfjsLib.getDocument({ isEvalSupported: false, data: bytes.slice() }).promise; } catch (e) { /* previews unavailable, merge still works */ }
     const id = 'f' + (++seq), count = lib.getPageCount();
     files.push({ id, name: f.name, size: f.size, bytes, lib, js, count, color: COLORS[(seq - 1) % COLORS.length] });
     for (let i = 0; i < count; i++) pages.push({ key: id + ':' + i, fid: id, idx: i, rot: 0 });

@@ -153,7 +153,7 @@ window.Kit = (() => {
       return { err: /encrypt/i.test(e.message) ? `${file.name} is password protected. Remove the password first, then add it again.` : `${file.name} could not be read. It may be damaged.` };
     }
     let js = null;
-    try { js = await pdfjsLib.getDocument({ data: bytes.slice() }).promise; } catch (e) { /* previews unavailable */ }
+    try { js = await pdfjsLib.getDocument({ isEvalSupported: false, data: bytes.slice() }).promise; } catch (e) { /* previews unavailable */ }
     return { name: file.name, size: file.size, bytes, lib, js, count: lib.getPageCount() };
   }
   const isPdf = f => /pdf$/i.test(f.type) || /\.pdf$/i.test(f.name);

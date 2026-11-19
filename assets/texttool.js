@@ -294,7 +294,7 @@ async function fileText(f) {
   const n = f.name.toLowerCase();
   if (/\.(txt|md|csv|log|json|html?|xml|rtf)$/.test(n) || /^text\//.test(f.type)) return f.text();
   if (n.endsWith('.docx')) return docxText(new Uint8Array(await f.arrayBuffer()));
-  if (n.endsWith('.pdf')) { await loadJs('assets/vendor/pdf.min.js'); pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js'; const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise; const out = []; for (let i = 1; i <= pdf.numPages; i++) { const p = await (await pdf.getPage(i)).getTextContent(); let line = ''; p.items.forEach(it => { line += it.str; if (it.hasEOL) line += '\n'; else line += ' '; }); out.push(line.replace(/[ ]+\n/g, '\n').trim()); } return out.join('\n\n'); }
+  if (n.endsWith('.pdf')) { await loadJs('assets/vendor/pdf.min.js'); pdfjsLib.GlobalWorkerOptions.workerSrc = DROOT + 'assets/vendor/pdf.worker.min.js'; const pdf = await pdfjsLib.getDocument({ isEvalSupported: false, data: new Uint8Array(await f.arrayBuffer()) }).promise; const out = []; for (let i = 1; i <= pdf.numPages; i++) { const p = await (await pdf.getPage(i)).getTextContent(); let line = ''; p.items.forEach(it => { line += it.str; if (it.hasEOL) line += '\n'; else line += ' '; }); out.push(line.replace(/[ ]+\n/g, '\n').trim()); } return out.join('\n\n'); }
   throw new Error('Use a TXT, DOCX or PDF file.');
 }
 async function docxText(u) {

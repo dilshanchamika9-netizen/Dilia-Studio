@@ -698,7 +698,7 @@ const rgb = h => PDFLib.rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(
 /* Redaction: pages with redactions are drawn to a picture with the black boxes burned in, and the saved file is rebuilt
    from scratch so the original page content (and its text) is not carried over. */
 async function burn(bytes, reds) {
-  const js2 = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+  const js2 = await pdfjsLib.getDocument({ isEvalSupported: false, data: bytes.slice() }).promise;
   const src = await PDFLib.PDFDocument.load(bytes, { updateMetadata: false }), fin = await PDFLib.PDFDocument.create();
   const hit = new Set(reds.map(o => o.p));
   try {
