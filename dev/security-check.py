@@ -13,10 +13,11 @@ if '--update' in sys.argv:
 pin = json.load(open('dev/vendor-hashes.json'))
 for p in sorted(set(cur)|set(pin)):
     if cur.get(p) != pin.get(p): bad.append(f'vendor file changed/added/removed without approval: {p}')
-for p in glob.glob('*.html'):
+for p in sorted(set(glob.glob('*.html') + glob.glob('*/index.html'))):
     s = open(p, encoding='utf8').read()
     for m in re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>', s, re.S):
         if 'application/ld+json' not in m.group(0)[:80]: bad.append(f'{p}: inline script')
+    if re.search(r'<style[\s>]', s): bad.append(f'{p}: inline <style> block (CSP style-src self)')
     if re.search(r'\son[a-z]+\s*=\s*["\']', s): bad.append(f'{p}: inline event handler')
     for m in re.finditer(r'<(?:script|link|img|iframe)[^>]+(?:src|href)=["\'](https?:)?//', s):
         if 'rel="canonical"' not in m.group(0) and 'rel="alternate"' not in m.group(0): bad.append(f'{p}: external resource {m.group(0)[:70]}')
