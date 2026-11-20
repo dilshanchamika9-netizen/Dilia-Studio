@@ -1,0 +1,51 @@
+Dilia PDF Windows build desktop-release 45321395f3a9cc3e37c3108d2dbf7f43a763ba3e 2026-11-20T16:58:51.4260496+00:00 Microsoft Windows Server 2025 Datacenter
+found 0 vulnerabilities
+site copied: 461 files
+headers: { "Content-Security-Policy": "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-s
+PASS opens at dilia://app/pdf-reader/
+PASS file from File Explorer opens as a tab
+PASS 10 pages
+PASS pages render (pdf.js worker on dilia://)
+PASS desktop look: website header hidden
+PASS no Node in page
+PASS bridge has fixed functions only
+PASS strict CSP header served
+PASS network blocked
+PASS path traversal refused
+PASS navigation to websites blocked
+PASS pop-ups blocked
+PASS write refused: unknown file
+PASS write refused: not PDF content
+PASS original untouched so far
+PASS tool page (protect) loads inside the app
+PASS tool page received the open document
+PASS guard active in tool page
+PASS button says Apply to document
+PASS protected result asks for its password when reopened
+PASS qpdf in worker applied protection, tab unsaved
+PASS Ctrl+S saved over the original file
+PASS saved file is the protected PDF
+PASS no temp file left behind
+PASS Save As writes a new PDF and adds .pdf
+PASS tab now named after the new file
+PASS second double-click opens in the same window
+PASS recent file reopens by id
+PASS reopen refused for unknown id
+PASS Open button uses the Windows dialog
+PASS unsaved changes: asks, Cancel keeps the window
+PASS no console or CSP errors (except the deliberate blocked tests)
+PASS no network requests from the app (net log)
+FAILS []
+PASS installer built : Dilia-PDF-Setup-1.0.2.exe
+PASS installer signature status recorded (unsigned expected until the Store) : NotSigned
+PASS installed for this user (no admin needed) : C:\Users\runneradmin\AppData\Local\Programs\DiliaPDF\DiliaPDF.exe
+PASS Start menu shortcut
+PASS Desktop shortcut
+PASS .pdf registered with the app (Open with) : .pdf, PDF Document
+PASS open command points at DiliaPDF.exe "%1" : C:\Users\runneradmin\AppData\Local\Programs\DiliaPDF\DiliaPDF.exe "%1"
+PASS listed in Settings > Apps (uninstall entry) : 1.0.2
+PASS double-click a PDF: app opens it (window title) : Quarterly report.pdf - Dilia PDF
+PASS second PDF opens in the same window (one app window) : windows=1
+PASS opened file unchanged (nothing written without Ctrl+S)
+PASS uninstalls cleanly
+SHA256 7593B48031F483AC95F23BAD244C1F5A761EA6520FE65CB620DADB7DB165ABA7  Dilia-PDF-Setup-1.0.2.exe  123.3 MB
