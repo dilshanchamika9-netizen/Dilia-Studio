@@ -45,11 +45,11 @@ async function askPassword(name, wrong) {
   const r = await ask(wrong ? 'Wrong password' : 'This PDF has a password', [p_((wrong ? 'That password did not open ' : 'Type the password to open ') + name + '.'), inp], [{ label: 'Cancel', value: 'no' }, { label: 'Open', value: 'ok', primary: true }]);
   return r === 'ok' ? inp.value : null;
 }
-async function openOne(file, handle) {
+async function openOne(file, handle, opt = {}) {
   if (!file) return;
   if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { toast(`${file.name} is not a PDF.`, true); return; }
   if (file.size > MAXF) { toast(`${file.name} is over 500 MB, which is too big to open here.`, true); return; }
-  const same = tabs.find(t => t.name === file.name && t.size === file.size && t.mod === file.lastModified);
+  const same = !opt.replace && tabs.find(t => t.name === file.name && t.size === file.size && t.mod === file.lastModified);
   if (same) { activate(same); return; }
   if (tabs.length >= 12) toast('Many documents are open. Close some if the app gets slow.');
   let cancelled = false, data;
@@ -63,9 +63,15 @@ async function openOne(file, handle) {
   t.pgs = el('div', 'rpgs'); t.wrap.append(t.pgs); t.wrap.hidden = true; view.append(t.wrap);
   const first = await doc.getPage(1);
   for (let i = 0; i < t.n; i++) t.pages.push(newPage(t, i, i === 0 ? first : null));
-  tabs.push(t); addTab(t); activate(t);
+  if (opt.replace && tabs.includes(opt.replace)) {            // edited version takes the old tab's place
+    const old = opt.replace; t.cur = Math.min(old.cur, t.n); t.layout = old.layout; t.zoom = old.zoom; t.rot = old.rot;
+    tabs.splice(tabs.indexOf(old), 0, t); addTab(t); tabsEl.insertBefore(t.tabEl, old.tabEl);
+    if (T === old) T = null; closeTab(old, true); t.top = null; activate(t);
+  } else { tabs.push(t); addTab(t); activate(t); }
+  t.dirty = !!opt.dirty; mark(t);
   loadRest(t);
-  addRecent(file, handle);
+  if (!opt.dirty) addRecent(file, handle);
+  return t;
 }
 function newPage(t, i, pg) {
   const p = { i, page: pg, w0: 0, h0: 0, el: el('div', 'rp'), cv: null, state: 0, rs: 0, task: null, tl: el('div', 'textLayer'), lk: el('div', 'rlk'), hl: el('div', 'rhl'), ms: null };
@@ -96,19 +102,24 @@ function addTab(t) {
   b.addEventListener('click', () => activate(t));
   b.addEventListener('auxclick', e => { if (e.button === 1) closeTab(t); });
   b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(t); } if (e.key === 'Delete') closeTab(t); });
-  b.append(nm, x); tabsEl.insertBefore(b, $('#rNewTab')); t.tabEl = b;
+  b.append(nm, x); tabsEl.insertBefore(b, $('#rNewTab')); t.tabEl = b; t.dirty = false;
 }
 function activate(t) {
   if (T === t) return;
   if (T) { T.top = view.scrollTop; T.wrap.hidden = true; T.tabEl.setAttribute('aria-selected', 'false'); T.pages.forEach(release); stopSpeak(); }
   T = t; app.dataset.state = 'doc';
   t.wrap.hidden = false; t.tabEl.setAttribute('aria-selected', 'true'); t.tabEl.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  document.title = t.name + ' - Dilia PDF';
+  document.title = (t.dirty ? '• ' : '') + t.name + ' - Dilia PDF';
   laySel.value = t.layout; view.classList.toggle('measuring', !!measure.on);
   relayout(t, false); if (t.top != null) view.scrollTop = t.top; else goTo(t, t.cur);
   showPanel(prefs.panel); runFind(true); updPage();
 }
-function closeTab(t) {
+async function closeTab(t, force) {
+  if (!force && t.dirty) {
+    activate(t);
+    const r = await ask('Save changes?', [p_(t.name + ' has changes that are not saved.')], [{ label: 'Cancel', value: 'no' }, { label: "Don't save", value: 'drop' }, { label: 'Save', value: 'save', primary: true }]);
+    if (r === 'save') { if (!(await saveDoc(t, false))) return; } else if (r !== 'drop') return;
+  }
   const i = tabs.indexOf(t); if (i < 0) return;
   t.pages.forEach(release); t.doc.destroy(); t.wrap.remove(); t.tabEl.remove(); tabs.splice(i, 1);
   if (T === t) { T = null; if (tabs.length) activate(tabs[Math.min(i, tabs.length - 1)]); else { app.dataset.state = 'start'; document.title = 'PDF Reader - Free Online | Dilia Studio'; panel.textContent = ''; showRecent(); stopSpeak(); } }
@@ -524,10 +535,6 @@ async function fontList(t) {
 }
 $('#rInfo').addEventListener('click', properties);
 
-/* ---------- save a copy ---------- */
-function saveCopy() { if (!T) return; const u = URL.createObjectURL(T.file); save(u, T.name); setTimeout(() => URL.revokeObjectURL(u), 5000); }
-$('#rSave').addEventListener('click', saveCopy);
-
 /* ---------- print ---------- */
 function parseRange(s, n) { const out = []; for (const part of s.split(',')) { const m = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(part); if (!m) return null; let a = +m[1], b = m[2] ? +m[2] : a; if (a > b) [a, b] = [b, a]; if (a < 1 || b > n) return null; for (let i = a; i <= b; i++) out.push(i); } return out.length ? out : null; }
 async function printDoc() {
@@ -683,16 +690,92 @@ function drawMeas(t, p) {
   p.el.append(svg); p.ms = svg;
 }
 
-/* ---------- edit / sign / change: hand the file to the matching Dilia tool ---------- */
-async function toolsMenu() {
-  if (!T) return;
-  const list = [['edit-pdf', 'Edit text and images'], ['annotate-pdf', 'Comment, highlight, draw'], ['fill-pdf-form', 'Fill in a form'], ['sign-pdf', 'Sign'], ['redact-pdf', 'Redact'],
-    ['reorder-pdf-pages', 'Reorder pages'], ['compress-pdf', 'Compress'], ['protect-pdf', 'Add a password'], ['pdf-to-text', 'Copy out all the text'], ['ocr-pdf', 'Make scanned text searchable']];
-  const ul = el('ul', 'rtl');
-  list.forEach(([slug, label]) => { const li = el('li'); const a = el('a', 'rtla', label); a.href = '../' + slug + '/'; a.target = '_blank'; a.rel = 'noopener'; li.append(a); ul.append(li); });
-  await ask('Edit, sign or change this PDF', [p_('These open in a new tab. Choose ' + T.name + ' there again. In the next update this happens inside the app.'), ul], [{ label: 'Close', value: 'x', primary: true }]);
+/* ---------- edit / sign / change inside the app ----------
+   Each tool is the normal Dilia tool page shown in a same-origin frame (?app=1). kit.js on that page takes the file from
+   this window and sends PDF results back. Messages are accepted only from that frame on this origin. */
+const APPTOOLS = [
+  ['Edit and review', ['edit', 'annotate', 'forms', 'sign', 'add', 'redact', 'makeform']],
+  ['Pages', ['reorder', 'delete', 'rotate', 'crop', 'insert', 'extract', 'split', 'resize', 'flip', 'nup']],
+  ['Stamp and number', ['watermark', 'number', 'headfoot', 'bates', 'bookmarks', 'overlay']],
+  ['Protect and optimise', ['compress', 'protect', 'unlock', 'flatten', 'cleaner', 'meta', 'ocr', 'linearize', 'grayscale', 'repair', 'noannot', 'deskew']],
+  ['Combine and convert', ['merge', 'mix', 'pdf2img', 'text', 'table', 'extractimg', 'compare']]
+];
+const NEWDOC = new Set(['extract', 'merge', 'mix', 'nup', 'split', 'pdf2img', 'text', 'table', 'extractimg', 'compare']);   // results open as a new document
+const TOOLDEF = {}; (window.DILIA_TOOLS || []).forEach(([, list]) => list.forEach(x => { TOOLDEF[x.id] = x; }));
+const tool = { box: null, frame: null, t: null, id: null, sent: false };
+function toolBox() {
+  if (tool.box) return tool.box;
+  const b = el('div', 'rtool'); b.hidden = true; b.setAttribute('role', 'dialog'); b.setAttribute('aria-modal', 'true'); b.setAttribute('aria-label', 'Tools');
+  const head = el('div', 'rtoolh'); const back = el('button', 'btn ghost sm', 'Back to document'); back.type = 'button'; back.id = 'rToolBack'; back.addEventListener('click', closeTool);
+  const ttl = el('b', 'rtoolt'); ttl.id = 'rToolTitle'; head.append(back, ttl);
+  const body = el('div', 'rtoolb'); body.id = 'rToolBody';
+  b.append(head, body); app.append(b); tool.box = b; return b;
 }
+function toolsMenu() {
+  if (!T) return;
+  const b = toolBox(); closeFrame(); $('#rToolTitle').textContent = 'Edit, sign or change ' + T.name;
+  const body = $('#rToolBody'); body.textContent = '';
+  const wrap = el('div', 'rtgrid');
+  for (const [group, ids] of APPTOOLS) {
+    const sec = el('section', 'rtg'); sec.append(el('h3', '', group)); const ul = el('ul');
+    ids.forEach(id => { const d = TOOLDEF[id]; if (!d || !d.ready) return; const li = el('li'); const btn = el('button', 'rtbtn'); btn.type = 'button'; btn.dataset.tool = id;
+      btn.append(el('b', '', d.name), el('span', '', d.desc || '')); btn.addEventListener('click', () => openTool(id)); li.append(btn); ul.append(li); });
+    sec.append(ul); wrap.append(sec);
+  }
+  body.append(el('p', 'rtip', 'Changes come back to this tab. Nothing is saved to your file until you press Save (Ctrl+S).'), wrap);
+  b.hidden = false; b.querySelector('.rtbtn').focus();
+}
+function openTool(id) {
+  const d = TOOLDEF[id]; if (!d || !T) return;
+  toolBox(); tool.t = T; tool.id = id; tool.sent = false;
+  $('#rToolTitle').textContent = d.name + ': ' + T.name;
+  const body = $('#rToolBody'); body.textContent = '';
+  const f = el('iframe', 'rtoolf'); f.title = d.name; f.src = '../' + d.slug + '/?app=1'; tool.frame = f; body.append(f);
+  toolBox().hidden = false;
+}
+function closeFrame() { if (tool.frame) { tool.frame.src = 'about:blank'; tool.frame.remove(); tool.frame = null; } }
+function closeTool() { closeFrame(); if (tool.box) tool.box.hidden = true; tool.t = null; view.focus(); }
+addEventListener('message', async e => {
+  if (e.origin !== location.origin || !tool.frame || e.source !== tool.frame.contentWindow || !e.data) return;
+  const t = tool.t; if (!t || !tabs.includes(t)) return;
+  if (e.data.type === 'dilia-ready' && !tool.sent) {
+    tool.sent = true; const bytes = await t.file.arrayBuffer();
+    tool.frame.contentWindow.postMessage({ type: 'dilia-file', name: t.name, mod: t.mod, bytes }, location.origin, [bytes]);
+  } else if (e.data.type === 'dilia-result' && e.data.bytes instanceof ArrayBuffer) {
+    const id = tool.id, name = String(e.data.name || t.name).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_');
+    const file = new File([e.data.bytes], NEWDOC.has(id) ? name : t.name, { type: 'application/pdf', lastModified: Date.now() });
+    closeTool();
+    if (NEWDOC.has(id)) await openOne(file, null, { dirty: true });
+    else await openOne(file, t.handle, { replace: t, dirty: true });
+    toast(NEWDOC.has(id) ? 'Opened as a new document. Press Ctrl+S to save it.' : 'Changes applied. Press Ctrl+S to save them to your file.');
+  }
+});
 $('#rTools').addEventListener('click', toolsMenu);
+
+/* ---------- save: over the original file when the browser allows it, otherwise a download ---------- */
+function mark(t) { t.tabEl.firstChild.textContent = (t.dirty ? '• ' : '') + t.name.replace(/\.pdf$/i, ''); t.tabEl.title = t.name + (t.dirty ? ' (not saved)' : ''); if (t === T) document.title = (t.dirty ? '• ' : '') + t.name + ' - Dilia PDF'; }
+function downloadCopy(t) { const u = URL.createObjectURL(t.file); save(u, t.name); setTimeout(() => URL.revokeObjectURL(u), 5000); }
+async function writeTo(h, t) { const w = await h.createWritable(); await w.write(t.file); await w.close(); }
+async function saveDoc(t, as) {
+  if (!t) return false;
+  if (!as && !t.dirty) { downloadCopy(t); return true; }                 // nothing changed: Save gives a copy
+  if (!as && t.handle && t.handle.createWritable) {
+    try {
+      let perm = t.handle.queryPermission ? await t.handle.queryPermission({ mode: 'readwrite' }) : 'granted';
+      if (perm !== 'granted' && t.handle.requestPermission) perm = await t.handle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') { await writeTo(t.handle, t); t.dirty = false; mark(t); toast('Saved ' + t.name + '.'); return true; }
+    } catch (e) { toast('Could not save over the original file. Choose where to save it.', true); }
+  }
+  if (as && window.showSaveFilePicker) {
+    try {
+      const h = await showSaveFilePicker({ suggestedName: t.name, types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }] });
+      await writeTo(h, t); t.handle = h; t.name = h.name || t.name; t.dirty = false; mark(t); addRecent(t.file, h); toast('Saved ' + t.name + '.'); return true;
+    } catch (e) { if (e && e.name === 'AbortError') return false; }
+  }
+  downloadCopy(t); t.dirty = false; mark(t); return true;
+}
+$('#rSave').addEventListener('click', () => saveDoc(T, false));
+addEventListener('beforeunload', e => { if (tabs.some(t => t.dirty)) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ---------- recent files (names and file handles only, on this device) ---------- */
 function idb() { return new Promise((ok, no) => { if (!window.indexedDB) return no(new Error('no idb')); const r = indexedDB.open('dilia-reader', 1); r.onupgradeneeded = () => r.result.createObjectStore('recent', { keyPath: 'key' }); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); }); }
@@ -767,7 +850,7 @@ addEventListener('keydown', e => {
   if (!T) return;
   if (c && !e.shiftKey && k.toLowerCase() === 'f') { e.preventDefault(); openFind(); return; }
   if (c && !e.shiftKey && k.toLowerCase() === 'p') { e.preventDefault(); printDoc(); return; }
-  if (c && !e.shiftKey && k.toLowerCase() === 's') { e.preventDefault(); saveCopy(); return; }
+  if (c && k.toLowerCase() === 's') { e.preventDefault(); saveDoc(T, e.shiftKey); return; }
   if (c && !e.shiftKey && k.toLowerCase() === 'd') { e.preventDefault(); properties(); return; }
   if (c && !e.shiftKey && k.toLowerCase() === 'l') { e.preventDefault(); full(); return; }
   if (c && !e.shiftKey && k.toLowerCase() === 'h') { e.preventDefault(); readMode(); return; }
@@ -792,5 +875,5 @@ addEventListener('keydown', e => {
 
 /* ---------- start ---------- */
 night(prefs.night); toggleSide(prefs.side); showRecent(); updPage();
-window.__reader = { get tabs() { return tabs; }, get T() { return T; }, measure, goTo: n => T && goTo(T, n) };
+window.__reader = { get tabs() { return tabs; }, get T() { return T; }, measure, goTo: n => T && goTo(T, n), saveDoc, openTool };
 }

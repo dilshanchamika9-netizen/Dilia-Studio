@@ -15,9 +15,29 @@ window.Kit = (() => {
     setTimeout(() => t.remove(), bad ? 7000 : 4000);
   }
 
-  function save(url, name) {
+  /* ---- Dilia PDF app bridge. A tool page opened inside the app (same-origin iframe, ?app=1) gets its file from the app
+     and hands PDF results back instead of downloading them. Messages are accepted only from the parent on this origin. ---- */
+  const APP = window.parent !== window && new URLSearchParams(location.search).get('app') === '1';
+  if (APP) {
+    document.documentElement.classList.add('inapp');
+    addEventListener('message', e => {
+      if (e.origin !== location.origin || e.source !== window.parent || !e.data || e.data.type !== 'dilia-file') return;
+      const pick = document.getElementById('pick'); if (!pick || !(e.data.bytes instanceof ArrayBuffer)) return;
+      const f = new File([e.data.bytes], String(e.data.name || 'document.pdf'), { type: 'application/pdf', lastModified: e.data.mod || Date.now() });
+      const dt = new DataTransfer(); dt.items.add(f); pick.files = dt.files; pick.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    addEventListener('load', () => window.parent.postMessage({ type: 'dilia-ready' }, location.origin));
+  }
+  function download(url, name) {
     const a = document.createElement('a'); a.href = url; a.download = name;
     document.body.append(a); a.click(); a.remove();
+  }
+  function save(url, name) {
+    if (APP && /\.pdf$/i.test(name)) {
+      fetch(url).then(r => r.arrayBuffer()).then(b => window.parent.postMessage({ type: 'dilia-result', name, bytes: b }, location.origin, [b])).catch(() => download(url, name));
+      return;
+    }
+    download(url, name);
   }
   const cleanName = (v, fallback, ext) =>
     ((v || '').trim().replace(new RegExp('\\.' + ext + '$', 'i'), '').replace(/[\\/:*?"<>|]+/g, '-') || fallback) + '.' + ext;
@@ -158,5 +178,5 @@ window.Kit = (() => {
   }
   const isPdf = f => /pdf$/i.test(f.type) || /\.pdf$/i.test(f.name);
 
-  return { $, kb, plural, esc, COLORS, toast, save, cleanName, parseRanges, compress, zip, dropAnywhere, renderThumb, thumbs, openPdf, isPdf };
+  return { APP, $, kb, plural, esc, COLORS, toast, save, cleanName, parseRanges, compress, zip, dropAnywhere, renderThumb, thumbs, openPdf, isPdf };
 })();

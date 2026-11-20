@@ -231,7 +231,7 @@ go.addEventListener('click', async () => {
   setTimeout(() => { prog.style.width = '0'; }, 600);
   summary();
 });
-function save(url, name) { const a = document.createElement('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); }
+function save(url, name) { if (window.Kit) return Kit.save(url, name); const a = document.createElement('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); }
 function clearDone() { $('#done').hidden = true; }
 $('#reset').addEventListener('click', () => {
   files.forEach(f => f.js && f.js.destroy());

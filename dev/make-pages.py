@@ -838,7 +838,7 @@ def reader_page():
         + f'<select id="rLayout" class="rsel" aria-label="Page layout">{lay}</select>' + rb('rRotL', 'Rotate view left', 'rotl', 'Ctrl+Shift+-') + rb('rRotR', 'Rotate view right', 'rotr', 'Ctrl+Shift++')
         + '<span class="rgrow"></span>'
         + rb('rFind', 'Search the text', 'find', 'Ctrl+F') + rb('rMeasure', 'Measure', 'measure', '', ' aria-pressed="false"') + rb('rSpeak', 'Read aloud', 'speak', 'Ctrl+Shift+Y', ' aria-pressed="false"')
-        + rb('rNight', 'Night reading', 'night', '', ' aria-pressed="false"') + rb('rPrint', 'Print', 'print', 'Ctrl+P') + rb('rSave', 'Save a copy', 'save', 'Ctrl+S')
+        + rb('rNight', 'Night reading', 'night', '', ' aria-pressed="false"') + rb('rPrint', 'Print', 'print', 'Ctrl+P') + rb("rSave", "Save (Shift for Save as)", "save", "Ctrl+S")
         + rb('rInfo', 'Document properties', 'info', 'Ctrl+D') + rb('rReadMode', 'Read mode', 'read', 'Ctrl+H') + rb('rFull', 'Full screen', 'full', 'Ctrl+L')
         + rb('rTools', 'Edit, sign or change this PDF', 'tools') + rb('rInstall', 'Install Dilia PDF as an app', 'install', '', ' hidden'))
     find = ('<div class="rfind" id="rfind" hidden role="search"><input id="rq" type="search" placeholder="Find in document" aria-label="Find in document" autocomplete="off" spellcheck="false">'

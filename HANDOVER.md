@@ -188,3 +188,11 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - pdf.js 6 API notes (all handled): getAttachments returns a Map and content via getAttachmentContent(id); getPermissions returns a Set; font names need fontExtraProperties; a display layer config cannot be used with intent 'print'.
 - Tests: dev/tests/make-reader-fixtures.py builds hostile/feature PDFs; dev/tests/test-reader.py (73 checks) runs against a local server that applies _headers on :8766.
 - Pass 2 (next): comment, highlight, forms, sign, stamps, autofill, organise and the other tools inside the app (they open in a new tab today), plus moving pdf-lib/qpdf into a Worker.
+
+## 9s. Task W pass 2: tools inside the app (2026-11-20, Opus)
+- Tools button opens a panel of 42 Studio tools (APPTOOLS in reader.js; names/slugs from DILIA_TOOLS). Each runs as its normal page in a same-origin iframe with ?app=1.
+- kit.js bridge (APP): adds html.inapp (work.css hides site header and page title), posts 'dilia-ready' on load, accepts 'dilia-file' only from the parent on this origin and injects it into #pick; Kit.save sends PDF results back as 'dilia-result' instead of downloading. Non-PDF outputs (zip, images, text) still download inside the frame. merge-pdf page now loads kit.js and merge.js save() delegates to Kit.save.
+- Reader: results from extract/merge/mix/nup open as a new tab; all other tools replace the current tab (marked • unsaved). Ctrl+S writes over the original via the File System Access handle (asks for write permission), else downloads; Ctrl+Shift+S = Save as (file picker). Closing an unsaved tab asks Save / Don't save / Cancel; leaving the page warns.
+- CSP: frame-ancestors 'self' (was 'none') and frame-src 'self' so the app can show tool pages; other sites still cannot frame Dilia.
+- Tests: dev/tests/test-reader-tools.py (every tool receives the file, add text, save over original with a fake handle, extract to new tab, compress, split download, unsaved prompts, forged message ignored).
+- Open: pdf-lib/qpdf still run on the main thread (a crafted file can freeze the tab); real Windows file-write permission flow untested.
