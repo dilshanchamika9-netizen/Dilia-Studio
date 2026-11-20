@@ -21,7 +21,7 @@ body.standalone .rabout,body.standalone footer{display:none}
 .rnew:hover{background:#0b122012}
 .rd[data-state=start] .rtabs{display:none}
 /* toolbar */
-.rbar{display:flex;align-items:center;gap:2px;padding:6px 8px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin;min-height:48px}
+.rbar{display:flex;align-items:center;gap:2px;padding:6px 8px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;row-gap:2px;min-height:48px}
 .rbtn{border:0;background:none;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--ink);flex:none}
 .rbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .rbtn:hover:not(:disabled){background:#0b12200f}
