@@ -12,14 +12,13 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 45
     defaults: { run: { shell: pwsh } }
-    env:
-      REPORT: ${{ runner.temp }}\report.txt
-      SHOT: ${{ runner.temp }}\screen.png
-      APPSHOT: ${{ runner.temp }}\app.png
     steps:
       - name: Keep files byte-for-byte (no CRLF conversion)
         run: git config --global core.autocrlf false
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Report paths (outside the repo folder)
+        run: |
+          "REPORT=$env:RUNNER_TEMP\report.txt", "SHOT=$env:RUNNER_TEMP\screen.png", "APPSHOT=$env:RUNNER_TEMP\app.png", "DILIA_SHOT=$env:RUNNER_TEMP\app.png" | Add-Content $env:GITHUB_ENV
       - name: Report header
         run: Set-Content $env:REPORT "Dilia PDF Windows build $env:GITHUB_REF_NAME $env:GITHUB_SHA $(Get-Date -Format o) $((Get-CimInstance Win32_OperatingSystem).Caption)"
       - name: Install build tools (exact versions, package-lock)
@@ -30,7 +29,6 @@ jobs:
         run: npm audit --omit=dev 2>&1 | Tee-Object -Append -FilePath $env:REPORT; exit 0
       - name: App test on Windows (drives the real app)
         working-directory: desktop
-        env: { DILIA_SHOT: '${{ runner.temp }}\app.png' }
         run: |
           npx electron --version | Out-Host
           node copy-site.js 2>&1 | Tee-Object -Variable cs | Out-Host
