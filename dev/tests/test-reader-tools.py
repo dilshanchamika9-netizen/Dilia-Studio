@@ -50,6 +50,7 @@ async def main():
         await pg.evaluate("__reader.openTool('add')"); f = await frame(pg); await f.wait_for_selector('.epage'); await pg.wait_for_timeout(1500)
         bb = await f.locator('.epage').nth(0).bounding_box()
         await pg.mouse.click(bb['x'] + bb['width'] * .2, bb['y'] + bb['height'] * .4); await pg.keyboard.type('Hello from the app'); await pg.keyboard.press('Escape')
+        ck('button says Apply to document', 'Apply to document' in await f.inner_text('#go'), await f.inner_text('#go'))
         await f.click('#go'); await pg.wait_for_timeout(2500)
         ck('result returns to the app', await pg.is_hidden('.rtool'))
         ck('same tab replaced', await pg.locator('.rtab').count() == 1)

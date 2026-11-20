@@ -740,7 +740,7 @@ addEventListener('message', async e => {
   const t = tool.t; if (!t || !tabs.includes(t)) return;
   if (e.data.type === 'dilia-ready' && !tool.sent) {
     tool.sent = true; const bytes = await t.file.arrayBuffer();
-    tool.frame.contentWindow.postMessage({ type: 'dilia-file', name: t.name, mod: t.mod, bytes }, location.origin, [bytes]);
+    tool.frame.contentWindow.postMessage({ type: 'dilia-file', name: t.name, mod: t.mod, act: NEWDOC.has(tool.id) ? (['extract', 'merge', 'mix', 'nup'].includes(tool.id) ? 'new' : 'download') : 'replace', bytes }, location.origin, [bytes]);
   } else if (e.data.type === 'dilia-result' && e.data.bytes instanceof ArrayBuffer) {
     const id = tool.id, name = String(e.data.name || t.name).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_');
     const file = new File([e.data.bytes], NEWDOC.has(id) ? name : t.name, { type: 'application/pdf', lastModified: Date.now() });

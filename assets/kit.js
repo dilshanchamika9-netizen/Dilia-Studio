@@ -25,6 +25,9 @@ window.Kit = (() => {
       const pick = document.getElementById('pick'); if (!pick || !(e.data.bytes instanceof ArrayBuffer)) return;
       const f = new File([e.data.bytes], String(e.data.name || 'document.pdf'), { type: 'application/pdf', lastModified: e.data.mod || Date.now() });
       const dt = new DataTransfer(); dt.items.add(f); pick.files = dt.files; pick.dispatchEvent(new Event('change', { bubbles: true }));
+      const say = { replace: 'Apply to document', 'new': 'Open as new document' }[e.data.act];   // the result goes back to the app, not to Downloads
+      const lab = document.querySelector('#go .go-l') || document.getElementById('go');
+      if (say && lab) { const fix = () => { if (/download/i.test(lab.textContent)) lab.textContent = say; }; fix(); new MutationObserver(fix).observe(lab, { childList: true, characterData: true, subtree: true }); }
     });
     addEventListener('load', () => window.parent.postMessage({ type: 'dilia-ready' }, location.origin));
   }
