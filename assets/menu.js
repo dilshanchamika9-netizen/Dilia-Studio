@@ -4,7 +4,7 @@
   if (!btn || !head || !window.DILIA_LINES) return;
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
   const byId = {}; DILIA_TOOLS.forEach(([g, l]) => l.forEach(t => { byId[t.id] = t; }));
-  const POP = { studio: ['merge', 'split', 'compress', 'edit', 'sign', 'pdf2img', 'img2pdf', 'ocr'], pixel: ['pxcompress', 'pxresize', 'pxconvert', 'pxheic', 'pxcrop', 'pxwm'], qr: ['qrmain', 'qrwifi', 'qrvcard', 'qrbulk', 'qrread'], text: ['txcount', 'txcase', 'txclean', 'txlist', 'txfind', 'txdiff'] };
+  const POP = { studio: ['merge', 'split', 'compress', 'edit', 'sign', 'pdf2img', 'img2pdf', 'ocr'], pixel: ['pxcompress', 'pxresize', 'pxconvert', 'pxheic', 'pxcrop', 'pxwm'], qr: ['qrmain', 'qrwifi', 'qrvcard', 'qrbulk', 'qrread'], text: ['txcount', 'txcase', 'txclean', 'txlist', 'txfind', 'txdiff'], calc: ['cloan', 'ccomp', 'cvat', 'cpct'] };
   const lineOf = {}; DILIA_LINES.forEach(L => (L.cats || []).forEach(c => c.slice(1).forEach(ids => ids.forEach(id => { lineOf[id] = L.id; }))));
   const slugId = {}; Object.values(byId).forEach(t => { slugId[t.slug] = t.id; });
   const here = (location.pathname.match(/\/([^/]+)\/?(?:index\.html)?$/) || [])[1] || '';

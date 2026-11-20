@@ -626,6 +626,33 @@ def page(t):
             html = html.replace(a, b)
     return html
 
+
+# ---------------- Dilia Calc ----------------
+_sp2 = _iu.spec_from_file_location('cdata', str(ROOT / 'dev' / 'cdata.py')); _c = _iu.module_from_spec(_sp2); _sp2.loader.exec_module(_c)
+CALCS = [dict(id=i, name=n, crumb=n, kind='calc', mode=mode, lead=lead, desc=seo) for i, s, n, d, main, mode, lead, seo in _c.CALC]
+def calc_main(t):
+    head = '<div class="ws-head wrap"><div><p class="crumb"><a href="tools.html">Tools</a><span>/</span>' + t['crumb'] + '</p><h1>' + t['name'] + '</h1><p class="lead">' + t['lead'] + '</p></div></div>'
+    safe = '<p class="safe">' + SHIELD + 'Worked out in this tab. Nothing is uploaded or stored.</p>'
+    body = ('<div class="tx calc wrap"><section class="tcard" aria-label="Your numbers"><div id="cIn"></div>' + safe + '</section>'
+            '<section class="tcard" aria-label="Result"><div id="cOut" aria-live="polite"></div></section></div>')
+    return '<main class="ws-page" data-calc-page>\n  ' + head + '\n  ' + body + '\n</main>'
+def calc_page(t):
+    base = _page(dict(DUMMY, name=t['name'], crumb=t['crumb'], engine='calctool'))
+    head, rest = base.split('<main', 1); tail = rest.split('</main>', 1)[1]
+    head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/text.css">\n<link rel="stylesheet" href="assets/calc.css">')
+    head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia Calc</title>', head)
+    head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
+    head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia Calc home"').replace('<span class="l">Studio</span>', '<span class="l">Calc</span>')
+    for v in ('pdfjs/pdf.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
+    tail = tail.replace('<script src="assets/calctool.js"></script>', '<script src="assets/calcmath.js"></script>\n<script src="assets/calctool.js"></script>')
+    head = head.replace('<body class="work"', '<body class="work" data-calc="' + t['mode'] + '"')
+    return head + calc_main(t) + tail
+
+_page2 = page
+def page(t):
+    if t['kind'] == 'calc': return calc_page(t)
+    return _page2(t)
+
 SLUGS = dict(re.findall(r"id: '([^']+)', slug: '([^']+)'", (ROOT / 'assets' / 'tools.js').read_text()))
 
 def up(html):
@@ -639,7 +666,7 @@ def write_tool(t, html):
     d = ROOT / SLUGS[t['id']]; d.mkdir(exist_ok=True)
     (d / 'index.html').write_text(up(html))
 
-for t in TOOLS + QRS + TXTS:
+for t in TOOLS + QRS + TXTS + CALCS:
     write_tool(t, page(t))
     print('wrote', SLUGS[t['id']] + '/')
 
@@ -811,7 +838,7 @@ OLD = '''<!doctype html>
 <body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
 '''
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or not (ROOT / slug).is_dir(): continue
+    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid in ('cpct','cvat','cloan','ccomp') or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 
@@ -930,6 +957,7 @@ LINES = {
     'studio': dict(name='Studio', title='PDF Tools - Free Online | Dilia Studio', h1='Dilia Studio', kick='PDF tools', sub='Organise, edit, sign, convert and protect PDFs. Everything runs in your browser.', cta=('Merge PDFs', 'merge-pdf/')),
     'pixel': dict(name='Pixel', title='Image Tools - Free Online | Dilia Pixel', h1='Dilia Pixel', kick='Image tools', sub='Make images smaller, resize and crop them, change formats, add watermarks. Everything runs in your browser.', cta=('Compress image', 'compress-image/')),
     'qr': dict(name='QR', title='QR Code Tools - Free Online | Dilia QR', h1='Dilia QR', kick='QR codes', sub='Make QR codes for links, Wi-Fi, contacts and more, or read one. Everything runs in your browser.', cta=('Make a QR code', 'qr-code-generator/')),
+    'calc': dict(name='Calc', title='Calculators - Free Online | Dilia Calc', h1='Dilia Calc', kick='Calculators', sub='Percentages, VAT, loans and savings. Everything is worked out in your browser.', cta=('Loan calculator', 'loan-calculator/')),
     'text': dict(name='Text', title='Text Tools - Free Online | Dilia Text', h1='Dilia Text', kick='Text tools', sub='Count words, change case, clean up, sort and compare text. Everything runs in your browser.', cta=('Count words', 'word-counter/')),
 }
 base = (ROOT / 'tools.html').read_text()

@@ -1,0 +1,12 @@
+/* Dilia Calc pages (uses text.css for the cards and fields) */
+.ctable{max-height:480px;overflow:auto;border-radius:12px;box-shadow:inset 0 0 0 1px var(--line)}
+.ctable table{width:100%;border-collapse:collapse;font:500 13.5px var(--font);font-variant-numeric:tabular-nums}
+.ctable th,.ctable td{padding:8px 12px;text-align:right;white-space:nowrap}
+.ctable th:first-child{text-align:left}
+.ctable thead th{position:sticky;top:0;background:#f8f9fb;font-weight:700;box-shadow:0 1px 0 var(--line)}
+.ctable tbody tr:nth-child(even){background:#fafbfc}
+.tnote{font-size:14px;margin:8px 0}
+.tx.calc{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+@media(max-width:900px){.tx.calc{grid-template-columns:1fr}}
+.tx.calc .tstats{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+.tx.calc .tst b{font-size:clamp(18px,4.6vw,24px);overflow-wrap:anywhere}
