@@ -17,7 +17,7 @@ jobs:
       - name: Secret scan (plus GitHub push protection)
         run: |
           pip install --quiet detect-secrets
-          detect-secrets scan --all-files --exclude-lines 'getRandomValues' $(git ls-files | grep -v '^assets/vendor/') | python3 -c "import sys,json;d=json.load(sys.stdin)['results'];print(d or 'no secrets');sys.exit(1 if d else 0)"
+          detect-secrets scan --all-files --exclude-lines 'getRandomValues' $(git ls-files | grep -v '^assets/vendor/' | grep -v '^desktop/package-lock.json$') | python3 -c "import sys,json;d=json.load(sys.stdin)['results'];print(d or 'no secrets');sys.exit(1 if d else 0)"
   codeql:
     runs-on: ubuntu-latest
     steps:

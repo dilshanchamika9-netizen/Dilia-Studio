@@ -1,0 +1,96 @@
+{
+  "name": "dilia-pdf",
+  "productName": "Dilia PDF",
+  "version": "1.0.0",
+  "description": "Dilia PDF: read, edit, sign and convert PDFs. Files stay on your computer.",
+  "author": "Dilshan Chamika",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "site": "node copy-site.js",
+    "start": "node copy-site.js && electron .",
+    "dist:win": "node copy-site.js && electron-builder --win nsis --x64",
+    "dist:linux": "node copy-site.js && electron-builder --linux dir",
+    "test": "node copy-site.js && node test/app-test.js"
+  },
+  "devDependencies": {
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0",
+    "pdf-lib": "1.17.1",
+    "playwright-core": "1.65.1"
+  },
+  "build": {
+    "appId": "com.dilia.pdf",
+    "productName": "Dilia PDF",
+    "copyright": "Copyright \u00a9 2026 Dilshan Chamika",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "site/**/*",
+      "build/icon.png"
+    ],
+    "asar": true,
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF Document",
+        "description": "PDF document",
+        "role": "Editor",
+        "icon": "pdf"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "executableName": "DiliaPDF",
+      "legalTrademarks": "Dilia"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Dilia PDF",
+      "artifactName": "Dilia-PDF-Setup-${version}.exe",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "uninstallDisplayName": "Dilia PDF"
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "executableName": "dilia-pdf",
+      "category": "Office"
+    },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableCookieEncryption": true,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "loadBrowserProcessSpecificV8Snapshot": false,
+      "grantFileProtocolExtraPrivileges": false
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dilshanchamika9-netizen/Dilia-Studio.git"
+  }
+}

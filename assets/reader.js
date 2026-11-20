@@ -14,7 +14,11 @@ const tabs = []; let T = null, uid = 0;
 const prefs = (() => { try { return Object.assign({ layout: 'cont', zoom: 'width', side: innerWidth > 900, panel: 'pages', night: false }, JSON.parse(localStorage.getItem('dilia-reader') || '{}')); } catch (e) { return { layout: 'cont', zoom: 'width', side: true, panel: 'pages', night: false }; } })();
 const keep = () => { try { localStorage.setItem('dilia-reader', JSON.stringify(prefs)); } catch (e) { /* storage blocked */ } };
 const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
-const isStandalone = () => matchMedia('(display-mode: standalone)').matches;
+/* Windows desktop app (desktop/preload.js): files come from the app with an id, never a path; saving goes back by id. */
+const DESK = window.diliaDesktop || null;
+const deskHandle = (id, name) => ({ kind: 'file', name, desk: id, queryPermission: async () => 'granted',
+  createWritable: async () => { const parts = []; return { write: async b => { parts.push(b); }, close: async () => { await DESK.write(id, await new Blob(parts).arrayBuffer()); } }; } });
+const isStandalone = () => !!DESK || matchMedia('(display-mode: standalone)').matches;
 
 /* ---------- dialogs (one reusable <dialog>, content built with textContent) ---------- */
 function ask(title, nodes, buttons) {
@@ -34,6 +38,7 @@ const p_ = t => el('p', '', t);
 /* ---------- open ---------- */
 async function openFiles(list) { for (const it of list) await openOne(it.file, it.handle); }
 async function openPicker() {
+  if (DESK) { try { await DESK.open(); } catch (e) { toast('That file could not be read.', true); } return; }
   if (window.showOpenFilePicker) {
     let hs; try { hs = await showOpenFilePicker({ multiple: true, types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }] }); } catch (e) { return; }
     for (const h of hs) { try { await openOne(await h.getFile(), h); } catch (e) { toast('That file could not be read.', true); } }
@@ -758,13 +763,19 @@ function downloadCopy(t) { const u = URL.createObjectURL(t.file); save(u, t.name
 async function writeTo(h, t) { const w = await h.createWritable(); await w.write(t.file); await w.close(); }
 async function saveDoc(t, as) {
   if (!t) return false;
-  if (!as && !t.dirty) { downloadCopy(t); return true; }                 // nothing changed: Save gives a copy
+  if (!as && !t.dirty) { if (DESK) toast('No changes to save.'); else downloadCopy(t); return true; }   // browser: Save gives a copy
   if (!as && t.handle && t.handle.createWritable) {
     try {
       let perm = t.handle.queryPermission ? await t.handle.queryPermission({ mode: 'readwrite' }) : 'granted';
       if (perm !== 'granted' && t.handle.requestPermission) perm = await t.handle.requestPermission({ mode: 'readwrite' });
       if (perm === 'granted') { await writeTo(t.handle, t); t.dirty = false; mark(t); toast('Saved ' + t.name + '.'); return true; }
     } catch (e) { toast('Could not save over the original file. Choose where to save it.', true); }
+  }
+  if (DESK) {                                                            // desktop: Save As (also for new documents and failed saves)
+    try {
+      const r = await DESK.saveAs(t.name, await t.file.arrayBuffer()); if (!r) return false;
+      t.handle = deskHandle(r.id, r.name); t.name = r.name; t.dirty = false; mark(t); addRecent(new File([t.file], r.name), t.handle); toast('Saved ' + t.name + '.'); return true;
+    } catch (e) { toast('Could not save the file there. Try another folder.', true); return false; }
   }
   if (as && window.showSaveFilePicker) {
     try {
@@ -785,7 +796,8 @@ async function addRecent(file, handle) {
   const key = file.name + '|' + file.size;
   try {
     const old = (await recents()).find(r => r.key === key);
-    const rec = { key, name: file.name, size: file.size, when: Date.now(), star: old ? old.star : 0, handle: handle || (old && old.handle) || null };
+    const desk = (handle && handle.desk) || (old && old.desk) || null;
+    const rec = { key, name: file.name, size: file.size, when: Date.now(), star: old ? old.star : 0, desk, handle: handle && handle.desk ? null : (handle || (old && old.handle) || null) };
     try { await store('readwrite', s => s.put(rec)); } catch (e) { rec.handle = null; await store('readwrite', s => s.put(rec)); }
     const all = await recents(); const extra = all.filter(r => !r.star).slice(30); if (extra.length) await store('readwrite', s => { extra.forEach(r => s.delete(r.key)); });
   } catch (e) { /* storage blocked */ }
@@ -795,7 +807,7 @@ async function showRecent() {
   const all = await recents(); if (!all.length) return;
   const h = el('div', 'rrh'); h.append(el('h3', '', 'Recent files'));
   const clr = el('button', 'btn ghost sm', 'Forget all'); clr.type = 'button';
-  clr.addEventListener('click', async () => { try { await store('readwrite', s => s.clear()); } catch (e) { /* ignore */ } showRecent(); });
+  clr.addEventListener('click', async () => { try { await store('readwrite', s => s.clear()); } catch (e) { /* ignore */ } if (DESK) DESK.forget(null).catch(() => {}); showRecent(); });
   h.append(clr); box.append(h);
   const ul = el('ul', 'rrl');
   for (const r of all) {
@@ -805,13 +817,14 @@ async function showRecent() {
     const open = el('button', 'rro'); open.type = 'button'; open.append(el('b', '', r.name), el('span', '', kb(r.size) + ' · ' + new Date(r.when).toLocaleDateString()));
     open.addEventListener('click', () => reopen(r));
     const x = el('button', 'rrx'); x.type = 'button'; x.setAttribute('aria-label', 'Remove ' + r.name + ' from the list'); x.append(icon('M6 6l12 12M18 6 6 18'));
-    x.addEventListener('click', async () => { try { await store('readwrite', s => s.delete(r.key)); } catch (e) { /* ignore */ } showRecent(); });
+    x.addEventListener('click', async () => { try { await store('readwrite', s => s.delete(r.key)); } catch (e) { /* ignore */ } if (DESK && r.desk) DESK.forget(r.desk).catch(() => {}); showRecent(); });
     li.append(st, open, x); ul.append(li);
   }
   box.append(ul, el('p', 'rtip', 'Only file names are kept, on this device. The files themselves are never copied.'));
 }
 async function reopen(r) {
-  if (r.handle && r.handle.getFile) {
+  if (DESK && r.desk) { let ok = false; try { ok = await DESK.reopen(r.desk); } catch (e) { ok = false; } if (ok) return; toast(r.name + ' was moved or deleted. Choose it again.', true); }
+  else if (r.handle && r.handle.getFile) {
     try {
       let perm = r.handle.queryPermission ? await r.handle.queryPermission({ mode: 'read' }) : 'granted';
       if (perm !== 'granted' && r.handle.requestPermission) perm = await r.handle.requestPermission({ mode: 'read' });
@@ -828,16 +841,21 @@ addEventListener('dragleave', e => { if (!e.relatedTarget) app.classList.remove(
 addEventListener('drop', async e => {
   const items = [...(e.dataTransfer && e.dataTransfer.items || [])].filter(i => i.kind === 'file'); if (!items.length) return; e.preventDefault(); app.classList.remove('drop');
   const list = [];
+  if (DESK) {                                    // desktop: register each dropped file's real location so Ctrl+S can save over it
+    for (const f of items.map(i => i.getAsFile()).filter(Boolean)) { let reg = null; try { reg = await DESK.dropped(f); } catch (x) { reg = null; } list.push({ file: f, handle: reg ? deskHandle(reg.id, reg.name) : null }); }
+    openFiles(list); return;
+  }
   for (const it of items) { let h = null; try { if (it.getAsFileSystemHandle) { h = await it.getAsFileSystemHandle(); if (h && h.kind !== 'file') h = null; } } catch (x) { h = null; } const f = it.getAsFile(); if (f) list.push({ file: f, handle: h }); }
   openFiles(list);
 });
+if (DESK) DESK.onOpen(f => { if (f.bytes) openOne(new File([f.bytes], f.name, { type: 'application/pdf', lastModified: f.mod }), deskHandle(f.id, f.name)).catch(() => toast('That file could not be opened.', true)); });
 if ('launchQueue' in window) launchQueue.setConsumer(async p => { for (const h of p.files || []) { try { await openOne(await h.getFile(), h); } catch (e) { toast('That file could not be opened.', true); } } });
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#rInstall').hidden = false; });
 $('#rInstall').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) { /* ignore */ } installEvt = null; $('#rInstall').hidden = true; });
 addEventListener('appinstalled', () => { $('#rInstall').hidden = true; toast('Dilia PDF is installed. Set it as your PDF app in Windows Settings > Apps > Default apps.'); });
 if (isStandalone()) { document.body.classList.add('standalone'); $('#rhow').hidden = true; }
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+if (!DESK && 'serviceWorker' in navigator && location.protocol !== 'file:') {
   const had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => { /* offline mode unavailable */ });
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) toast('Dilia PDF was updated. The new version is used next time you open it.'); });

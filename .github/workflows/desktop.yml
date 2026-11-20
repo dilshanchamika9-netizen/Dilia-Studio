@@ -1,0 +1,62 @@
+name: desktop
+# Builds and tests the Dilia PDF Windows app on a real Windows machine.
+# Push to branch desktop-ci = build + test only. Push a tag desktop-v* = build + test + publish the installer as a release.
+on:
+  push:
+    branches: [desktop-ci]
+    tags: ['desktop-v*']
+permissions: { contents: write }
+concurrency: { group: desktop, cancel-in-progress: false }
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults: { run: { shell: pwsh } }
+    env:
+      REPORT: ${{ github.workspace }}\report.txt
+      SHOT: ${{ github.workspace }}\screen.png
+      APPSHOT: ${{ github.workspace }}\app.png
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Report header
+        run: Set-Content $env:REPORT "Dilia PDF Windows build $env:GITHUB_REF_NAME $env:GITHUB_SHA $(Get-Date -Format o) $((Get-CimInstance Win32_OperatingSystem).Caption)"
+      - name: Install build tools (exact versions, package-lock)
+        working-directory: desktop
+        run: npm ci --no-fund
+      - name: Build tools audit (recorded, not shipped in the app)
+        working-directory: desktop
+        run: npm audit --omit=dev 2>&1 | Tee-Object -Append -FilePath $env:REPORT; exit 0
+      - name: App test on Windows (drives the real app)
+        working-directory: desktop
+        env: { DILIA_SHOT: '${{ github.workspace }}\app.png' }
+        run: |
+          node copy-site.js
+          node test/app-test.js 2>&1 | Tee-Object -Variable out | Out-Host
+          $code = $LASTEXITCODE
+          $out | Where-Object { "$_" -match '^(PASS|FAIL|CRASH|FAILS)' } | Add-Content $env:REPORT
+          exit $code
+      - name: Build installer
+        working-directory: desktop
+        run: npx electron-builder --win nsis --x64 --publish never
+      - name: Installer smoke test (install, open a PDF, uninstall)
+        working-directory: desktop
+        run: ./test/smoke.ps1
+      - name: Publish report to branch desktop-reports
+        if: always()
+        env: { TOKEN: '${{ github.token }}' }
+        run: |
+          New-Item -ItemType Directory rep | Out-Null
+          Copy-Item $env:REPORT rep/
+          if (Test-Path $env:SHOT) { Copy-Item $env:SHOT rep/ }
+          if (Test-Path $env:APPSHOT) { Copy-Item $env:APPSHOT rep/ }
+          Set-Location rep
+          git init -q -b desktop-reports
+          git -c user.name=dilia-ci -c user.email=dilia-ci@users.noreply.github.com add -A
+          git -c user.name=dilia-ci -c user.email=dilia-ci@users.noreply.github.com commit -qm "report $env:GITHUB_REF_NAME $env:GITHUB_SHA ${{ job.status }}"
+          git push -q --force "https://x-access-token:$env:TOKEN@github.com/$env:GITHUB_REPOSITORY.git" HEAD:desktop-reports
+      - name: Publish installer (tags only)
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          $setup = Get-ChildItem desktop/dist/Dilia-PDF-Setup-*.exe | Select-Object -First 1
+          gh release create $env:GITHUB_REF_NAME $setup.FullName $env:REPORT --title "Dilia PDF for Windows $($env:GITHUB_REF_NAME -replace 'desktop-v','')" --notes "Download Dilia-PDF-Setup and run it. Windows shows 'Windows protected your PC' because the app is not signed yet: click More info, then Run anyway. Files never leave your computer. report.txt lists the tests this build passed and the installer's SHA256." --prerelease
