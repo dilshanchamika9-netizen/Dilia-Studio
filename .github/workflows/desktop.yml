@@ -1,10 +1,10 @@
 name: desktop
 # Builds and tests the Dilia PDF Windows app on a real Windows machine.
-# Push to branch desktop-ci = build + test only. Push a tag desktop-v* = build + test + publish the installer as a release.
+# Push to branch desktop-ci = build + test only. Push to branch desktop-release = build + test + publish the installer
+# as a GitHub release tagged desktop-v<version from desktop/package.json>.
 on:
   push:
-    branches: [desktop-ci]
-    tags: ['desktop-v*']
+    branches: [desktop-ci, desktop-release]
 permissions: { contents: write }
 concurrency: { group: desktop, cancel-in-progress: false }
 jobs:
@@ -61,9 +61,10 @@ jobs:
           git -c user.name=dilia-ci -c user.email=dilia-ci@users.noreply.github.com add -A
           git -c user.name=dilia-ci -c user.email=dilia-ci@users.noreply.github.com commit -qm "report $env:GITHUB_REF_NAME $env:GITHUB_SHA ${{ job.status }}"
           git push -q --force "https://x-access-token:$env:TOKEN@github.com/$env:GITHUB_REPOSITORY.git" HEAD:desktop-reports
-      - name: Publish installer (tags only)
-        if: startsWith(github.ref, 'refs/tags/desktop-v')
+      - name: Publish installer (desktop-release only)
+        if: github.ref == 'refs/heads/desktop-release'
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           $setup = Get-ChildItem desktop/dist/Dilia-PDF-Setup-*.exe | Select-Object -First 1
-          gh release create $env:GITHUB_REF_NAME $setup.FullName $env:REPORT --title "Dilia PDF for Windows $($env:GITHUB_REF_NAME -replace 'desktop-v','')" --notes "Download Dilia-PDF-Setup and run it. Windows shows 'Windows protected your PC' because the app is not signed yet: click More info, then Run anyway. Files never leave your computer. report.txt lists the tests this build passed and the installer's SHA256." --prerelease
+          $ver = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
+          gh release create "desktop-v$ver" $setup.FullName $env:REPORT --target $env:GITHUB_SHA --title "Dilia PDF for Windows $ver" --notes "Download Dilia-PDF-Setup and run it. Windows shows 'Windows protected your PC' because the app is not signed yet: click More info, then Run anyway. Files never leave your computer. report.txt lists the tests this build passed and the installer's SHA256." --prerelease
