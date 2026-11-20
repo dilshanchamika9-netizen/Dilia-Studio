@@ -30,10 +30,15 @@ jobs:
         working-directory: desktop
         env: { DILIA_SHOT: '${{ github.workspace }}\app.png' }
         run: |
-          node copy-site.js
+          node copy-site.js 2>&1 | Tee-Object -Variable cs | Out-Host
+          $code = $LASTEXITCODE
+          $cs | Add-Content $env:REPORT
+          if ($code) { exit $code }
+          "headers: " + ((Get-Content site/headers.json -Raw) -replace '\s+', ' ').Substring(0, 120) | Add-Content $env:REPORT
           node test/app-test.js 2>&1 | Tee-Object -Variable out | Out-Host
           $code = $LASTEXITCODE
-          $out | Where-Object { "$_" -match '^(PASS|FAIL|CRASH|FAILS)' } | Add-Content $env:REPORT
+          $out | Where-Object { "$_" -match '^(PASS|FAIL|CRASH|FAILS|ERRS)' } | Add-Content $env:REPORT
+          if ($code) { $out | Select-Object -Last 40 | Add-Content $env:REPORT }
           exit $code
       - name: Build installer
         working-directory: desktop
