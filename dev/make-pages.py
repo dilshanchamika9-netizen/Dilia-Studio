@@ -3,7 +3,7 @@
 Edit the TOOLS table below, run `python3 dev/make-pages.py` from the repo root, commit the html files.
 merge.html is hand-written and not touched."""
 import pathlib
-import re
+import re, json
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 SPRITE = '<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>'
@@ -803,44 +803,114 @@ for tid, slug in SLUGS.items():
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 
 
-# ---------------- PDF reader: its own layout, same header and footer as the other tools ----------------
+# ---------------- PDF reader app (Task W): full-height app, installable, offline ----------------
+RI = {  # toolbar icons (24px, stroke)
+ 'open': 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z', 'side': 'M3 4h18v16H3zM9 4v16',
+ 'prev': 'm15 18-6-6 6-6', 'next': 'm9 18 6-6-6-6', 'zout': 'M5 12h14', 'zin': 'M12 5v14M5 12h14',
+ 'rotl': 'M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5', 'rotr': 'M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5',
+ 'find': 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4', 'measure': 'M3 17 17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2',
+ 'speak': 'M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12', 'night': 'M20 15A8 8 0 1 1 9 4a6 6 0 0 0 11 11z',
+ 'print': 'M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z', 'info': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v6M12 7.5v.5',
+ 'full': 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', 'read': 'M3 5h7a3 3 0 0 1 2 1 3 3 0 0 1 2-1h7v14h-7a2 2 0 0 0-2 1 2 2 0 0 0-2-1H3z',
+ 'save': 'M12 4v11m0 0-4-4m4 4 4-4M5 20h14', 'install': 'M12 3v12m0 0-4-4m4 4 4-4M4 21h16', 'close': 'M6 6l12 12M18 6 6 18',
+ 'tools': 'M14 7l3-3 3 3-3 3M4 20l9-9M15 13l5 5-2 2-5-5',
+}
+def rb(id_, label, ico, key='', extra=''):
+    tip = label + (f' ({key})' if key else '')
+    return f'<button type="button" class="rbtn" id="{id_}" aria-label="{label}" title="{tip}"{extra}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{RI[ico]}"/></svg></button>'
 def reader_page():
-    t = dict(id='html2pdf', name='PDF reader', crumb='PDF reader', kind='file', engine='viewer', lead='', drop='', acts=[], opt='', ext='pdf', defname='', field='', go='')
     base = page(dict(DUMMY, name='PDF reader', crumb='PDF reader'))
     head, rest = base.split('<main', 1)
     tail = rest.split('</main>', 1)[1]
-    head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/viewer.css">')
-    head = head.replace('PDF reader - Free Online | Dilia Studio', 'PDF reader - Free Online | Dilia Studio')
-    tail = tail.replace('<script src="assets/html2pdf.js"></script>', '<script src="assets/viewer.js"></script>')
-    main = '''<main class="ws-page">
-  <div class="ws-head wrap"><div>
-    <p class="crumb"><a href="tools.html">Tools</a><span>/</span>PDF reader</p>
-    <h1>PDF reader</h1>
-    <p class="lead">Open a PDF and read it here. Scroll, zoom, jump to a page and search the text. Nothing is changed or uploaded.</p>
-  </div></div>
-  <div class="ws vr wrap" id="ws" data-state="empty">
-    <section class="board" aria-label="PDF reader">
-      <label class="dropzone" for="pick" id="dropzone">
-        <span class="dz-art" aria-hidden="true"><span class="dz-page p1"></span><span class="dz-page p2"></span><span class="dz-page p3">''' + UP + '''</span></span>
-        <b>Drop a PDF here</b><span>or <u>choose a file</u> from your device</span><small>The file is read by your browser and never uploaded.</small>
-      </label>
-      <input id="pick" class="vh" type="file" accept="application/pdf,.pdf">
-      <div class="vbar" role="toolbar" aria-label="Reader controls">
-        <b class="vn" id="vname"></b>
-        <span class="g"><button class="btn ghost sm" type="button" id="vprev" aria-label="Previous page">&#8249;</button><input id="vpg" type="number" min="1" value="1" aria-label="Page"><span id="vof"></span><button class="btn ghost sm" type="button" id="vnext" aria-label="Next page">&#8250;</button></span>
-        <span class="g"><button class="btn ghost sm" type="button" id="vout" aria-label="Zoom out">&minus;</button><span class="zl" id="vzoom">100%</span><button class="btn ghost sm" type="button" id="vin" aria-label="Zoom in">+</button><button class="btn ghost sm" type="button" id="vfit">Fit width</button></span>
-        <span class="g"><input id="vq" type="search" placeholder="Search the text" aria-label="Search the text"><button class="btn ghost sm" type="button" id="vqp" aria-label="Previous match">&uarr;</button><button class="btn ghost sm" type="button" id="vqn" aria-label="Next match">&darr;</button><span class="res" id="vres" aria-live="polite"></span></span>
-        <span class="sp"></span>
-        <label class="btn ghost sm" for="pick">Change PDF</label><button class="btn ghost sm" type="button" id="vreset">Close</button>
+    head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/reader.css">\n<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="assets/app/icon-192.png">')
+    head = head.replace('<title>PDF reader - Free Online | Dilia Studio</title>', '<title>PDF Reader - Free Online | Dilia Studio</title>')
+    head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="Free PDF reader in your browser, installable as a Windows app. Tabs, bookmarks, search, layers, attachments, print, measure and read aloud. Nothing is uploaded.">', head)
+    head = head.replace('<body class="work"', '<body class="work rapp"')
+    tail = tail.replace('<script src="assets/viewer.js"></script>', '<script src="assets/reader.js"></script>')
+    assert 'assets/reader.js' in tail
+    for v in ('pdf-lib.min.js', 'Sortable.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
+    zoom = ''.join(f'<option value="{v}">{t}</option>' for v, t in (('width', 'Fit width'), ('page', 'Fit page'), ('1', 'Actual size'), ('0.5', '50%'), ('0.75', '75%'), ('1.25', '125%'), ('1.5', '150%'), ('2', '200%'), ('3', '300%'), ('4', '400%')))
+    lay = ''.join(f'<option value="{v}">{t}</option>' for v, t in (('cont', 'Scrolling'), ('single', 'One page'), ('two', 'Two pages'), ('cover', 'Two pages, cover')))
+    sp = '<span class="rsep" aria-hidden="true"></span>'
+    bar = (rb('rOpen', 'Open PDF', 'open', 'Ctrl+O') + rb('rSide', 'Show or hide panels', 'side', 'F4', ' aria-pressed="true"') + sp
+        + rb('rPrev', 'Previous page', 'prev') + '<span class="rpg"><input id="rPg" type="text" inputmode="numeric" value="" aria-label="Page number" autocomplete="off"><span id="rPgs">of 0</span></span>' + rb('rNext', 'Next page', 'next') + sp
+        + rb('rZout', 'Zoom out', 'zout', 'Ctrl+-') + f'<select id="rZoom" class="rsel" aria-label="Zoom"><option value="custom" hidden>100%</option>{zoom}</select>' + rb('rZin', 'Zoom in', 'zin', 'Ctrl++') + sp
+        + f'<select id="rLayout" class="rsel" aria-label="Page layout">{lay}</select>' + rb('rRotL', 'Rotate view left', 'rotl', 'Ctrl+Shift+-') + rb('rRotR', 'Rotate view right', 'rotr', 'Ctrl+Shift++')
+        + '<span class="rgrow"></span>'
+        + rb('rFind', 'Search the text', 'find', 'Ctrl+F') + rb('rMeasure', 'Measure', 'measure', '', ' aria-pressed="false"') + rb('rSpeak', 'Read aloud', 'speak', 'Ctrl+Shift+Y', ' aria-pressed="false"')
+        + rb('rNight', 'Night reading', 'night', '', ' aria-pressed="false"') + rb('rPrint', 'Print', 'print', 'Ctrl+P') + rb('rSave', 'Save a copy', 'save', 'Ctrl+S')
+        + rb('rInfo', 'Document properties', 'info', 'Ctrl+D') + rb('rReadMode', 'Read mode', 'read', 'Ctrl+H') + rb('rFull', 'Full screen', 'full', 'Ctrl+L')
+        + rb('rTools', 'Edit, sign or change this PDF', 'tools') + rb('rInstall', 'Install Dilia PDF as an app', 'install', '', ' hidden'))
+    find = ('<div class="rfind" id="rfind" hidden role="search"><input id="rq" type="search" placeholder="Find in document" aria-label="Find in document" autocomplete="off" spellcheck="false">'
+            '<label class="rchk"><input type="checkbox" id="rqCase"> Match case</label><label class="rchk"><input type="checkbox" id="rqWord"> Whole words</label>'
+            + rb('rqPrev', 'Previous match', 'prev', 'Shift+Enter') + rb('rqNext', 'Next match', 'next', 'Enter') + '<span class="rqn" id="rqn" aria-live="polite"></span>' + rb('rqClose', 'Close search', 'close', 'Esc') + '</div>')
+    navs = ''.join(f'<button type="button" role="tab" class="rsn" data-p="{k}" aria-selected="false">{t}</button>' for k, t in (('pages', 'Pages'), ('outline', 'Bookmarks'), ('files', 'Attachments'), ('layers', 'Layers'), ('results', 'Results')))
+    main = f'''<main class="rpage">
+  <h1 class="vh">Dilia PDF reader</h1>
+  <div class="rd" id="rd" data-state="start">
+    <div class="rtabs" id="rtabs" role="tablist" aria-label="Open documents"><button type="button" class="rnew" id="rNewTab" aria-label="Open another PDF" title="Open another PDF">+</button></div>
+    <div class="rbar" role="toolbar" aria-label="Reader tools">{bar}</div>
+    {find}
+    <div class="rbody">
+      <aside class="rside" id="rside" aria-label="Panels"><div class="rsnav" role="tablist" aria-label="Panels">{navs}</div><div class="rspanel" id="rspanel" role="tabpanel"></div></aside>
+      <div class="rview" id="rview" tabindex="0" aria-label="Document pages"></div>
+    </div>
+    <section class="rstart" id="rstart" aria-label="Start">
+      <div class="rhero">
+        <svg class="rmark" aria-hidden="true"><use href="#mark"/></svg>
+        <h2>Dilia PDF</h2>
+        <p>Open and read PDFs with tabs, bookmarks, search, layers, attachments, print, measure and read aloud. Your files stay on this device.</p>
+        <div class="racts"><button type="button" class="btn go" id="rStartOpen">Open PDF</button><span>or drop PDFs anywhere</span></div>
       </div>
-      <div id="vpages"></div>
+      <div class="rrecent" id="rrecent"></div>
+      <div class="rhow" id="rhow">
+        <h3>Use it as your Windows PDF app</h3>
+        <ol><li>In Chrome or Edge, press <b>Install</b> (the download icon in the toolbar or the address bar).</li>
+        <li>Open Windows <b>Settings &gt; Apps &gt; Default apps</b>, type <b>.pdf</b>, and choose <b>Dilia PDF</b>.</li>
+        <li>Double-click any PDF in File Explorer. It opens here, also with no internet.</li></ol>
+      </div>
     </section>
   </div>
-</main>'''
+  <input id="rpick" class="vh" type="file" accept="application/pdf,.pdf" multiple>
+  <div id="rprint" aria-hidden="true"></div>
+  <dialog class="rdlg" id="rdlg"></dialog>
+</main>
+<section class="rabout wrap" aria-label="About the reader">
+  <h2>A free PDF reader that keeps your files private</h2>
+  <p>Dilia PDF reads files in your browser. Nothing is uploaded, and scripts inside PDFs never run. Web links in a PDF ask before they open. Files attached inside a PDF are never opened by Dilia.</p>
+  <ul><li>Tabs for several PDFs, recent files and favourites</li><li>Page thumbnails, bookmarks, layers and attachments</li><li>Search with match case and whole words</li><li>Fit width, fit page, two-page view, rotate, night reading, read mode and full screen</li><li>Select and copy text, print page ranges, measure distances and areas</li><li>Read aloud with the voices on your device</li></ul>
+</section>'''
     return head + main + tail
+
+def reader_files(html):
+    """Offline list for the service worker: every same-site file the reader page loads, plus the pdf.js data folders."""
+    refs = re.findall(r'(?:href|src)="(\.\./assets/[^"#?]+)"', html)
+    extra = ['../assets/vendor/pdfjs/pdf.worker.min.mjs', '../assets/app/icon-192.png', '../assets/app/icon-512.png']
+    for sub in ('wasm', 'cmaps', 'standard_fonts', 'iccs'):
+        for f in sorted((ROOT / 'assets/vendor/pdfjs' / sub).iterdir()):
+            if f.is_file() and not f.name.startswith('LICENSE'): extra.append(f'../assets/vendor/pdfjs/{sub}/{f.name}')
+    for f in ('fonts/archivo.woff2',):
+        if (ROOT / 'assets' / f).exists(): extra.append('../assets/' + f)
+    files = ['./', 'manifest.webmanifest'] + sorted(set(refs + extra))
+    import hashlib
+    h = hashlib.sha256(html.encode())
+    for f in files[2:]: h.update((ROOT / 'assets' / f[len('../assets/'):]).read_bytes())
+    return files, h.hexdigest()[:12]
+
 d = ROOT / SLUGS['viewer']; d.mkdir(exist_ok=True)
-(d / 'index.html').write_text(up(reader_page()))
-print('wrote', SLUGS['viewer'] + '/')
+_rhtml = up(reader_page())
+(d / 'index.html').write_text(_rhtml)
+_files, _ver = reader_files(_rhtml)
+(d / 'manifest.webmanifest').write_text(json.dumps({
+    'name': 'Dilia PDF', 'short_name': 'Dilia PDF', 'description': 'Read PDFs privately: tabs, bookmarks, search, print, measure and read aloud. Files stay on your device.',
+    'id': './', 'start_url': './', 'scope': './', 'display': 'standalone', 'background_color': '#ffffff', 'theme_color': '#ffffff',
+    'icons': [{'src': '../assets/app/icon-192.png', 'sizes': '192x192', 'type': 'image/png'}, {'src': '../assets/app/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
+              {'src': '../assets/app/maskable-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'}],
+    'file_handlers': [{'action': './', 'accept': {'application/pdf': ['.pdf']}, 'icons': [{'src': '../assets/app/icon-192.png', 'sizes': '192x192', 'type': 'image/png'}]}],
+    'launch_handler': {'client_mode': ['focus-existing', 'auto']},
+    'categories': ['productivity', 'utilities']}, indent=1) + '\n')
+(d / 'sw.js').write_text((ROOT / 'dev' / 'reader-sw.js').read_text().replace('__VERSION__', _ver).replace('__FILES__', json.dumps(_files)))
+print('wrote', SLUGS['viewer'] + '/ (app, ' + str(len(_files)) + ' offline files, version ' + _ver + ')')
 
 # ---------------- line pages: /studio/, /pixel/, /qr/ (own brand in the header) ----------------
 LINES = {

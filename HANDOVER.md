@@ -179,3 +179,12 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Text: DOCX inflate capped at 80 MB (zip bomb).
 - Threat models, rollback runbook: private repo 05-compliance/.
 - Known: favicon.ico missing (404 in console); comes with the app icons in Task W.
+
+## 9r. Task W pass 1: Dilia PDF app (2026-11-20, Opus)
+- /pdf-reader/ is now the app (reader_page() in make-pages.py). Engine assets/reader.js + reader.css; old viewer.js/css removed.
+- Installable: pdf-reader/manifest.webmanifest (generated) with file_handlers for .pdf and launch_handler focus-existing; launchQueue opens double-clicked PDFs as tabs. Icons assets/app/*.png, favicon.ico at root.
+- Offline: pdf-reader/sw.js generated from dev/reader-sw.js with a fixed same-origin list (204 files incl. pdf.js worker, wasm, cmaps, fonts) and a content-hash cache name. Cache-first; a new deploy changes the hash and replaces the cache.
+- Features: tabs, recent files + favourites (IndexedDB: names + file handles only), thumbnails, bookmarks, attachments (save with warning, never opened), layers, search (match case, whole words, results panel), zoom modes, 4 layouts, view rotation, text selection (pdf.js TextLayer), links (internal jump; web links ask first, look-alike warning, javascript: dropped by pdf.js), properties (incl. fonts, permissions), print (range, B/W, high quality; respects no-print), save a copy, measure (distance, perimeter, area, scale), read aloud (device voices only), night reading, read mode, full screen/presentation, Acrobat shortcuts.
+- pdf.js 6 API notes (all handled): getAttachments returns a Map and content via getAttachmentContent(id); getPermissions returns a Set; font names need fontExtraProperties; a display layer config cannot be used with intent 'print'.
+- Tests: dev/tests/make-reader-fixtures.py builds hostile/feature PDFs; dev/tests/test-reader.py (73 checks) runs against a local server that applies _headers on :8766.
+- Pass 2 (next): comment, highlight, forms, sign, stamps, autofill, organise and the other tools inside the app (they open in a new tab today), plus moving pdf-lib/qpdf into a Worker.

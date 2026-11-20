@@ -3,17 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>PDF reader - Free Online | Dilia Studio</title>
-<meta name="description" content="PDF reader in your browser with Dilia Studio. Nothing is uploaded.">
+<title>PDF Reader - Free Online | Dilia Studio</title>
+<meta name="description" content="Free PDF reader in your browser, installable as a Windows app. Tabs, bookmarks, search, layers, attachments, print, measure and read aloud. Nothing is uploaded.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/palette.css">
 <link rel="stylesheet" href="../assets/work.css">
-<link rel="stylesheet" href="../assets/viewer.css">
+<link rel="stylesheet" href="../assets/reader.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../assets/app/icon-192.png">
 </head>
-<body class="work" data-tool="html2pdf">
+<body class="work rapp" data-tool="html2pdf">
 <svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
 
 <header class="nav solid" data-solid="1">
@@ -28,44 +30,52 @@
   </div>
 </header>
 
-<main class="ws-page">
-  <div class="ws-head wrap"><div>
-    <p class="crumb"><a href="../tools.html">Tools</a><span>/</span>PDF reader</p>
-    <h1>PDF reader</h1>
-    <p class="lead">Open a PDF and read it here. Scroll, zoom, jump to a page and search the text. Nothing is changed or uploaded.</p>
-  </div></div>
-  <div class="ws vr wrap" id="ws" data-state="empty">
-    <section class="board" aria-label="PDF reader">
-      <label class="dropzone" for="pick" id="dropzone">
-        <span class="dz-art" aria-hidden="true"><span class="dz-page p1"></span><span class="dz-page p2"></span><span class="dz-page p3"><svg viewBox="0 0 24 24"><path d="M12 16V5m0 0-4.5 4.5M12 5l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
-        <b>Drop a PDF here</b><span>or <u>choose a file</u> from your device</span><small>The file is read by your browser and never uploaded.</small>
-      </label>
-      <input id="pick" class="vh" type="file" accept="application/pdf,.pdf">
-      <div class="vbar" role="toolbar" aria-label="Reader controls">
-        <b class="vn" id="vname"></b>
-        <span class="g"><button class="btn ghost sm" type="button" id="vprev" aria-label="Previous page">&#8249;</button><input id="vpg" type="number" min="1" value="1" aria-label="Page"><span id="vof"></span><button class="btn ghost sm" type="button" id="vnext" aria-label="Next page">&#8250;</button></span>
-        <span class="g"><button class="btn ghost sm" type="button" id="vout" aria-label="Zoom out">&minus;</button><span class="zl" id="vzoom">100%</span><button class="btn ghost sm" type="button" id="vin" aria-label="Zoom in">+</button><button class="btn ghost sm" type="button" id="vfit">Fit width</button></span>
-        <span class="g"><input id="vq" type="search" placeholder="Search the text" aria-label="Search the text"><button class="btn ghost sm" type="button" id="vqp" aria-label="Previous match">&uarr;</button><button class="btn ghost sm" type="button" id="vqn" aria-label="Next match">&darr;</button><span class="res" id="vres" aria-live="polite"></span></span>
-        <span class="sp"></span>
-        <label class="btn ghost sm" for="pick">Change PDF</label><button class="btn ghost sm" type="button" id="vreset">Close</button>
+<main class="rpage">
+  <h1 class="vh">Dilia PDF reader</h1>
+  <div class="rd" id="rd" data-state="start">
+    <div class="rtabs" id="rtabs" role="tablist" aria-label="Open documents"><button type="button" class="rnew" id="rNewTab" aria-label="Open another PDF" title="Open another PDF">+</button></div>
+    <div class="rbar" role="toolbar" aria-label="Reader tools"><button type="button" class="rbtn" id="rOpen" aria-label="Open PDF" title="Open PDF (Ctrl+O)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button><button type="button" class="rbtn" id="rSide" aria-label="Show or hide panels" title="Show or hide panels (F4)" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v16H3zM9 4v16"/></svg></button><span class="rsep" aria-hidden="true"></span><button type="button" class="rbtn" id="rPrev" aria-label="Previous page" title="Previous page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><span class="rpg"><input id="rPg" type="text" inputmode="numeric" value="" aria-label="Page number" autocomplete="off"><span id="rPgs">of 0</span></span><button type="button" class="rbtn" id="rNext" aria-label="Next page" title="Next page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><span class="rsep" aria-hidden="true"></span><button type="button" class="rbtn" id="rZout" aria-label="Zoom out" title="Zoom out (Ctrl+-)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><select id="rZoom" class="rsel" aria-label="Zoom"><option value="custom" hidden>100%</option><option value="width">Fit width</option><option value="page">Fit page</option><option value="1">Actual size</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option><option value="3">300%</option><option value="4">400%</option></select><button type="button" class="rbtn" id="rZin" aria-label="Zoom in" title="Zoom in (Ctrl++)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="rsep" aria-hidden="true"></span><select id="rLayout" class="rsel" aria-label="Page layout"><option value="cont">Scrolling</option><option value="single">One page</option><option value="two">Two pages</option><option value="cover">Two pages, cover</option></select><button type="button" class="rbtn" id="rRotL" aria-label="Rotate view left" title="Rotate view left (Ctrl+Shift+-)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg></button><button type="button" class="rbtn" id="rRotR" aria-label="Rotate view right" title="Rotate view right (Ctrl+Shift++)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></button><span class="rgrow"></span><button type="button" class="rbtn" id="rFind" aria-label="Search the text" title="Search the text (Ctrl+F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4"/></svg></button><button type="button" class="rbtn" id="rMeasure" aria-label="Measure" title="Measure" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/></svg></button><button type="button" class="rbtn" id="rSpeak" aria-label="Read aloud" title="Read aloud (Ctrl+Shift+Y)" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg></button><button type="button" class="rbtn" id="rNight" aria-label="Night reading" title="Night reading" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15A8 8 0 1 1 9 4a6 6 0 0 0 11 11z"/></svg></button><button type="button" class="rbtn" id="rPrint" aria-label="Print" title="Print (Ctrl+P)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z"/></svg></button><button type="button" class="rbtn" id="rSave" aria-label="Save a copy" title="Save a copy (Ctrl+S)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg></button><button type="button" class="rbtn" id="rInfo" aria-label="Document properties" title="Document properties (Ctrl+D)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v6M12 7.5v.5"/></svg></button><button type="button" class="rbtn" id="rReadMode" aria-label="Read mode" title="Read mode (Ctrl+H)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7a3 3 0 0 1 2 1 3 3 0 0 1 2-1h7v14h-7a2 2 0 0 0-2 1 2 2 0 0 0-2-1H3z"/></svg></button><button type="button" class="rbtn" id="rFull" aria-label="Full screen" title="Full screen (Ctrl+L)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button type="button" class="rbtn" id="rTools" aria-label="Edit, sign or change this PDF" title="Edit, sign or change this PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 7l3-3 3 3-3 3M4 20l9-9M15 13l5 5-2 2-5-5"/></svg></button><button type="button" class="rbtn" id="rInstall" aria-label="Install Dilia PDF as an app" title="Install Dilia PDF as an app" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg></button></div>
+    <div class="rfind" id="rfind" hidden role="search"><input id="rq" type="search" placeholder="Find in document" aria-label="Find in document" autocomplete="off" spellcheck="false"><label class="rchk"><input type="checkbox" id="rqCase"> Match case</label><label class="rchk"><input type="checkbox" id="rqWord"> Whole words</label><button type="button" class="rbtn" id="rqPrev" aria-label="Previous match" title="Previous match (Shift+Enter)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="rbtn" id="rqNext" aria-label="Next match" title="Next match (Enter)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button><span class="rqn" id="rqn" aria-live="polite"></span><button type="button" class="rbtn" id="rqClose" aria-label="Close search" title="Close search (Esc)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="rbody">
+      <aside class="rside" id="rside" aria-label="Panels"><div class="rsnav" role="tablist" aria-label="Panels"><button type="button" role="tab" class="rsn" data-p="pages" aria-selected="false">Pages</button><button type="button" role="tab" class="rsn" data-p="outline" aria-selected="false">Bookmarks</button><button type="button" role="tab" class="rsn" data-p="files" aria-selected="false">Attachments</button><button type="button" role="tab" class="rsn" data-p="layers" aria-selected="false">Layers</button><button type="button" role="tab" class="rsn" data-p="results" aria-selected="false">Results</button></div><div class="rspanel" id="rspanel" role="tabpanel"></div></aside>
+      <div class="rview" id="rview" tabindex="0" aria-label="Document pages"></div>
+    </div>
+    <section class="rstart" id="rstart" aria-label="Start">
+      <div class="rhero">
+        <svg class="rmark" aria-hidden="true"><use href="#mark"/></svg>
+        <h2>Dilia PDF</h2>
+        <p>Open and read PDFs with tabs, bookmarks, search, layers, attachments, print, measure and read aloud. Your files stay on this device.</p>
+        <div class="racts"><button type="button" class="btn go" id="rStartOpen">Open PDF</button><span>or drop PDFs anywhere</span></div>
       </div>
-      <div id="vpages"></div>
+      <div class="rrecent" id="rrecent"></div>
+      <div class="rhow" id="rhow">
+        <h3>Use it as your Windows PDF app</h3>
+        <ol><li>In Chrome or Edge, press <b>Install</b> (the download icon in the toolbar or the address bar).</li>
+        <li>Open Windows <b>Settings &gt; Apps &gt; Default apps</b>, type <b>.pdf</b>, and choose <b>Dilia PDF</b>.</li>
+        <li>Double-click any PDF in File Explorer. It opens here, also with no internet.</li></ol>
+      </div>
     </section>
   </div>
+  <input id="rpick" class="vh" type="file" accept="application/pdf,.pdf" multiple>
+  <div id="rprint" aria-hidden="true"></div>
+  <dialog class="rdlg" id="rdlg"></dialog>
 </main>
+<section class="rabout wrap" aria-label="About the reader">
+  <h2>A free PDF reader that keeps your files private</h2>
+  <p>Dilia PDF reads files in your browser. Nothing is uploaded, and scripts inside PDFs never run. Web links in a PDF ask before they open. Files attached inside a PDF are never opened by Dilia.</p>
+  <ul><li>Tabs for several PDFs, recent files and favourites</li><li>Page thumbnails, bookmarks, layers and attachments</li><li>Search with match case and whole words</li><li>Fit width, fit page, two-page view, rotate, night reading, read mode and full screen</li><li>Select and copy text, print page ranges, measure distances and areas</li><li>Read aloud with the voices on your device</li></ul>
+</section>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
 
-<script src="../assets/vendor/pdf-lib.min.js"></script>
 <script src="../assets/vendor/pdfjs/pdf.js"></script>
-<script src="../assets/vendor/Sortable.min.js"></script>
 
 <script src="../assets/tools.js"></script>
 <script src="../assets/palette.js"></script>
 <script src="../assets/menu.js"></script>
 <script src="../assets/common.js"></script>
 <script src="../assets/kit.js"></script>
-<script src="../assets/viewer.js"></script>
+<script src="../assets/reader.js"></script>
 </body>
 </html>
