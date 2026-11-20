@@ -8,7 +8,7 @@ let n = 0;
 (function walk(rel) {
   for (const e of fs.readdirSync(path.join(SRC, rel), { withFileTypes: true })) {
     if (!rel && SKIP.has(e.name)) continue;
-    if (e.name.startsWith('_g_')) continue;
+    if (e.name.startsWith('_g_') || e.name.startsWith('.')) continue;   // no dotfiles (.gitattributes, .nojekyll)
     const r = path.join(rel, e.name);
     if (e.isDirectory()) { fs.mkdirSync(path.join(DST, r), { recursive: true }); walk(r); }
     else if (e.isFile()) { fs.copyFileSync(path.join(SRC, r), path.join(DST, r)); n++; }
