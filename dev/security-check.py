@@ -2,7 +2,7 @@
 """Dilia security gate (static checks). Run from repo root: python3 dev/security-check.py
 Fails (exit 1) on: inline <script>, inline event handlers, eval/new Function/document.write,
 remote script/style/fetch URLs, vendor files that differ from dev/vendor-hashes.json,
-vendor libraries without a licence file. Use --update to rewrite the vendor hash list."""
+vendor libraries without a licence file, pdf-lib pages without the worker guard, qpdf on the main thread. Use --update to rewrite the vendor hash list."""
 import re, sys, json, glob, hashlib, os
 bad = []
 def sha(p): return hashlib.sha256(open(p,'rb').read()).hexdigest()
@@ -29,6 +29,14 @@ for p in glob.glob('assets/*.js'):
 for p in glob.glob('assets/*.js'):
     for m in re.finditer(r'getDocument\(\{[^}]*\}', open(p, encoding='utf8').read()):
         if 'isEvalSupported: false' not in m.group(0): bad.append(f'{p}: pdf.js getDocument without isEvalSupported: false')
+# Untrusted PDFs are read in a worker with a time limit first (assets/guard.js); qpdf never runs on the page itself
+for p in sorted(set(glob.glob('*.html') + glob.glob('*/index.html') + glob.glob('blog/**/*.html', recursive=True))):
+    s = open(p, encoding='utf8').read()
+    i = s.find('vendor/pdf-lib.min.js"></script>')
+    if i >= 0 and 'assets/guard.js"></script>' not in s[i:i + 120]: bad.append(f'{p}: pdf-lib loaded without assets/guard.js right after it')
+    if 'vendor/qpdf.js' in s: bad.append(f'{p}: qpdf loaded on the main thread (use DiliaGuard.qpdf)')
+for p in glob.glob('assets/*.js'):
+    if p != 'assets/guard-worker.js' and re.search(r'\bModule\s*\(\s*\{', open(p, encoding='utf8').read()): bad.append(f'{p}: qpdf Module() on the main thread (use DiliaGuard.qpdf)')
 lic = {'pdf-lib':'pdf-lib','pdfjs':'pdf.','sortable':'Sortable','qpdf':'qpdf','utif':'UTIF','pako':'pako','upng':'UPNG','svgo':'svgo','gifenc':'gifenc','gifuct':'gifuct','heic2any':'heic2any','jsquash':'jsquash','qrcode-generator':'qrcode-generator','jsqr':'jsqr'}
 for k in lic:
     if not glob.glob(f'assets/vendor/{k}-LICENSE.txt'): bad.append(f'missing licence file: {k}')

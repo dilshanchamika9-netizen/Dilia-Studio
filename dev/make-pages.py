@@ -394,7 +394,7 @@ def page(t):
     opt = f'<div class="optbar">{t["opt"]}</div>' if t['opt'] else ''
     go_label = t.get('go', {'delete': 'Delete pages and download', 'extract': 'Extract and download', 'rotate': 'Save rotated PDF', 'reorder': 'Save new order'}.get(t['id'], 'Download'))
     body_attr = (f' data-tool="{t["tool"]}" data-out="{t["out"]}"' if pix else f' data-tool="{t["id"]}"') if (pix or not img) else ''
-    qp = ('<script src="assets/vendor/qpdf.js"></script>' if t.get('qpdf') else '') + ''.join(f'<script src="{u}"></script>' for u in t.get('extra', []))
+    qp = ''.join(f'<script src="{u}"></script>' for u in t.get('extra', []))
     title = f'{t["name"]} - Free Online | Dilia {"Pixel" if pix else "Studio"}'
     return f'''<!doctype html>
 <html lang="en">
@@ -632,7 +632,8 @@ def up(html):
     """Tool pages live in /<keyword>/index.html, one folder below the site root."""
     for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"'), ('href="studio/"', 'href="../studio/"'), ('href="pixel/"', 'href="../pixel/"'), ('href="qr/"', 'href="../qr/"'), ('href="text/"', 'href="../text/"'), ('href="compress-image/"', 'href="../compress-image/"'), ('href="qr-code-generator/"', 'href="../qr-code-generator/"'), ('href="compress-pdf/"', 'href="../compress-pdf/"'), ('href="merge-pdf/"', 'href="../merge-pdf/"')):
         html = html.replace(a, b)
-    return html
+    # every page that loads pdf-lib also loads the guard, which reads files in a worker with a time limit first
+    return html.replace('src="../assets/vendor/pdf-lib.min.js"></script>', 'src="../assets/vendor/pdf-lib.min.js"></script>\n<script src="../assets/guard.js"></script>')
 
 def write_tool(t, html):
     d = ROOT / SLUGS[t['id']]; d.mkdir(exist_ok=True)

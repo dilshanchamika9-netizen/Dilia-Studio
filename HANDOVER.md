@@ -196,3 +196,9 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - CSP: frame-ancestors 'self' (was 'none') and frame-src 'self' so the app can show tool pages; other sites still cannot frame Dilia.
 - Tests: dev/tests/test-reader-tools.py (every tool receives the file, add text, save over original with a fake handle, extract to new tab, compress, split download, unsaved prompts, forged message ignored).
 - Open: pdf-lib/qpdf still run on the main thread (a crafted file can freeze the tab); real Windows file-write permission flow untested.
+
+## 9t. Worker guard for crafted files (2026-11-20, Opus)
+- assets/guard.js (page side, loaded right after pdf-lib.min.js on every page; make-pages.py up() injects it, merge-pdf by hand) wraps PDFLib.PDFDocument.load: the bytes are first parsed in assets/guard-worker.js (load + page count + form walk) with a time limit (20 s + 0.5 s/MB, max 120 s). Timeout, crash or stack overflow → worker ended, file refused with a plain message. Same bytes object is checked once (WeakSet).
+- qpdf now runs only via DiliaGuard.qpdf in its own worker (60 s + 2 s/MB, max 600 s), ended after each job; vendor/qpdf.js is no longer loaded on pages. filetool.js qpdf() delegates.
+- DiliaGuard.maxMs is a test hook (forces a tiny limit). security-check.py fails a page with pdf-lib but no guard, any page loading qpdf.js, or Module({ on the main thread.
+- Test: dev/tests/test-guard.py (+ loop.pdf, looping page tree). Full regression re-run on strict headers: all pass.

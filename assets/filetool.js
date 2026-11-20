@@ -19,18 +19,8 @@ const showErr = m => { if (errBox) { errBox.textContent = m; errBox.hidden = !m;
 const tick = () => new Promise(r => setTimeout(r, 0));
 const lvl = () => document.querySelector('input[name=lv]:checked').value;
 
-/* ---------- qpdf (WebAssembly) ---------- */
-async function qpdf(args, input) {
-  const logs = [];
-  const m = await Module({ locateFile: () => DROOT + 'assets/vendor/qpdf.wasm', noInitialRun: true, print: t => logs.push(t), printErr: t => logs.push(t) });
-  m.FS.writeFile('/in.pdf', input);
-  let code;
-  try { code = m.callMain(args); } catch (e) { code = typeof e === 'number' ? e : (e && typeof e.status === 'number' ? e.status : 2); }
-  if (code === undefined) code = 0;
-  let out = null;
-  try { out = m.FS.readFile('/out.pdf'); } catch (e) { /* none written */ }
-  return { code, out, log: logs.join('\n') };
-}
+/* ---------- qpdf (WebAssembly, in a worker) ---------- */
+const qpdf = (args, input) => DiliaGuard.qpdf(args, input);   // runs in a background worker with a time limit (guard.js)
 
 /* ---------- loading ---------- */
 async function load(list) {

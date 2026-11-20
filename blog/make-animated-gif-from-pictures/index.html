@@ -10,9 +10,12 @@
 <link rel="preload" href="../../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../assets/site.css">
 <link rel="stylesheet" href="../../assets/palette.css">
-<link rel="stylesheet" href="../../assets/blog.css">
+<link rel="stylesheet" href="../../assets/work.css">
+<link rel="stylesheet" href="../../assets/reader.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../assets/app/icon-192.png">
 </head>
-<body class="blog" data-tool="html2pdf">
+<body class="work rapp" data-tool="html2pdf">
 <svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
 
 <header class="nav solid" data-solid="1">
@@ -38,6 +41,11 @@
 <a class="btn go bcta" href="../../image-to-gif/">Open Make animated GIF</a>
 <h2>More guides</h2><div class="bgrid small"><a class="bcard" href="../compress-image-without-losing-quality/"><b>How to Compress an Image Without Losing Quality (Free, No Upload)</b></a><a class="bcard" href="../resize-image-for-instagram-and-web/"><b>How to Resize an Image for Instagram, YouTube and the Web</b></a><a class="bcard" href="../make-a-meme-online/"><b>How to Make a Meme From Your Own Picture</b></a></div>
 </article></main>
+<section class="rabout wrap" aria-label="About the reader">
+  <h2>A free PDF reader that keeps your files private</h2>
+  <p>Dilia PDF reads files in your browser. Nothing is uploaded, and scripts inside PDFs never run. Web links in a PDF ask before they open. Files attached inside a PDF are never opened by Dilia.</p>
+  <ul><li>Tabs for several PDFs, recent files and favourites</li><li>Page thumbnails, bookmarks, layers and attachments</li><li>Search with match case and whole words</li><li>Fit width, fit page, two-page view, rotate, night reading, read mode and full screen</li><li>Select and copy text, print page ranges, measure distances and areas</li><li>Read aloud with the voices on your device</li></ul>
+</section>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
@@ -47,6 +55,6 @@
 <script src="../../assets/palette.js"></script>
 <script src="../../assets/menu.js"></script>
 <script src="../../assets/common.js"></script>
-
+<script src="../../assets/reader.js"></script>
 </body>
 </html>
