@@ -661,11 +661,22 @@ EDITORS = [
  dict(id='redact', name='Redact', lead='Black out names, numbers and areas for good. Redacted pages are turned into pictures, so the hidden content cannot be copied or recovered.', only=['select', 'redact'], find=1, go='Redact and download'),
  dict(id='annotate', name='Highlight and notes', lead='Highlight lines, draw, box things in and leave notes that show in any PDF reader.'),
 ]
+MYFIELDS = [('first', 'First name', 'given-name'), ('last', 'Last name', 'family-name'), ('email', 'Email', 'email'), ('phone', 'Phone', 'tel'), ('company', 'Company', 'organization'),
+            ('address', 'Address', 'street-address'), ('city', 'City', 'address-level2'), ('state', 'State or region', 'address-level1'), ('zip', 'Postcode', 'postal-code'), ('country', 'Country', 'country-name')]
+MYDLG = ('<dialog class="sdlg" id="myDlg" aria-label="My details"><div class="sdlg-in"><h2>My details</h2>'
+         '<p class="hint">Dilia fills only empty text fields whose label clearly matches (name, email, phone, address). Check every field before you save. Details are kept on this device only and never uploaded.</p>'
+         '<div class="mygrid">' + ''.join(f'<label class="field">{lab}<input type="text" class="myin" data-my="{k}" autocomplete="{ac}" spellcheck="false" maxlength="120"></label>' for k, lab, ac in MYFIELDS) + '</div>'
+         '<label class="rchk"><input type="checkbox" id="myKeep" checked> Remember these on this device</label>'
+         '<div class="sact"><button type="button" class="linkbtn" id="myForget">Forget my details</button><button type="button" class="btn ghost" id="myCancel">Cancel</button><button type="button" class="btn" id="myFill">Fill the form</button></div>'
+         '</div></dialog>')
+
 def editor_page(t):
     if t.get('only'): tools = ''.join(tb(k, {'select': 'Select', 'redact': 'Redact'}[k]) for k in t['only'])
     else: tools = ''.join([tb('select','Select'), tb('edit','Edit text'), tb('text','Text'), tb('image','Image'), tb('sign','Sign'),
                      '<i class="esep"></i>', tb('highlight','Highlight'), tb('note','Note'), tb('draw','Draw'), tb('box','Box'), tb('whiteout','White-out')])
     find = ('<div class="rfind"><span class="name"><input id="rq" type="text" placeholder="Find a word or number to black out" spellcheck="false" autocomplete="off" aria-label="Find text"></span><button type="button" class="btn ghost sm" id="rgo">Mark all matches</button><span id="rres"></span></div><p class="rwarn">Pages you redact are saved as pictures and lose their text. Check every black box before downloading. A redaction cannot be undone once the file is saved.</p>') if t.get('find') else ''
+    my_btn = '<button type="button" class="btn ghost sm" id="myBtn">My details</button>' if t['id'] == 'forms' else ''
+    my_dlg = MYDLG if t['id'] == 'forms' else ''
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -724,7 +735,7 @@ def editor_page(t):
           <button type="button" class="ebtn" id="undo" title="Undo (Ctrl+Z)" aria-label="Undo">{ic('undo')}</button>
           <button type="button" class="ebtn" id="redo" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">{ic('redo')}</button>
           <span class="zoom"><button type="button" class="ebtn" id="zout" aria-label="Zoom out">&minus;</button><b id="zv">100%</b><button type="button" class="ebtn" id="zin" aria-label="Zoom in">+</button></span>
-          <label class="btn ghost sm" for="pick">Change PDF</label>
+          {my_btn}<label class="btn ghost sm" for="pick">Change PDF</label>
         </div>
       </div>
       {find}
@@ -773,6 +784,7 @@ def editor_page(t):
   </div>
 </dialog>
 
+{my_dlg}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="dropveil" id="veil" aria-hidden="true"><div><svg><use href="#mark"/></svg><p>Drop to add</p></div></div>
 
@@ -845,7 +857,7 @@ def reader_page():
     find = ('<div class="rfind" id="rfind" hidden role="search"><input id="rq" type="search" placeholder="Find in document" aria-label="Find in document" autocomplete="off" spellcheck="false">'
             '<label class="rchk"><input type="checkbox" id="rqCase"> Match case</label><label class="rchk"><input type="checkbox" id="rqWord"> Whole words</label>'
             + rb('rqPrev', 'Previous match', 'prev', 'Shift+Enter') + rb('rqNext', 'Next match', 'next', 'Enter') + '<span class="rqn" id="rqn" aria-live="polite"></span>' + rb('rqClose', 'Close search', 'close', 'Esc') + '</div>')
-    navs = ''.join(f'<button type="button" role="tab" class="rsn" data-p="{k}" aria-selected="false">{t}</button>' for k, t in (('pages', 'Pages'), ('outline', 'Bookmarks'), ('files', 'Attachments'), ('layers', 'Layers'), ('results', 'Results')))
+    navs = ''.join(f'<button type="button" role="tab" class="rsn" data-p="{k}" aria-selected="false">{t}</button>' for k, t in (('pages', 'Pages'), ('outline', 'Bookmarks'), ('files', 'Attachments'), ('comments', 'Comments'), ('layers', 'Layers'), ('results', 'Results')))
     main = f'''<main class="rpage">
   <h1 class="vh">Dilia PDF reader</h1>
   <div class="rd" id="rd" data-state="start">

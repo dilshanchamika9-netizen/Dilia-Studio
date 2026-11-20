@@ -294,6 +294,43 @@ pagesEl.addEventListener('input', e => {
 });
 pagesEl.addEventListener('change', e => { if (e.target.classList.contains('fld')) e.target.dispatchEvent(new Event('input', { bubbles: true })); });
 
+/* ---------- My details: fill empty, clearly matching text fields (kept on this device only) ---------- */
+const myDlg = $('#myDlg');
+if (myDlg) {
+  const KEY = 'dilia-details', ins = [...myDlg.querySelectorAll('.myin')];
+  const load_ = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } };
+  const read = () => Object.fromEntries(ins.map(i => [i.dataset.my, i.value.trim()]).filter(x => x[1]));
+  // Conservative on purpose: a missed field is better than a wrong value in someone's form.
+  const RULES = [['email', /e-?mail/], ['phone', /phone|telephone|\btel\b|mobile|\bcell\b/], ['company', /company|organi[sz]ation|employer|business name/],
+    ['first', /first\s*name|given\s*name|forename/], ['last', /last\s*name|surname|family\s*name/], ['zip', /\bzip|postal|post\s*code|postcode/], ['city', /\bcity\b|\btown\b/],
+    ['state', /\bstate\b|province|region|emirate/], ['country', /\bcountry\b/], ['address', /address|\bstreet\b/], ['full', /^(full\s*)?name$|^your\s*name$|^applicant('s)?\s*name$|^name\s*of\s*applicant$/]];
+  const BAD = /bank|account|father|mother|spouse|beneficiar|payee|holder|reference|file|user\s*name|username|password|signature|witness|guardian|parent|employer\s*address|web|url/;
+  const kindOf = f => {
+    const a = f.a, label = ((a.alternativeText || '') + ' ' + (a.fieldName || '')).toLowerCase().replace(/[_.\-\[\]\d]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (BAD.test(label) && !/e-?mail|phone/.test(label)) return null;
+    const hit = RULES.find(r => r[1].test(label)); if (!hit) return null;
+    if (hit[0] === 'address' && /e-?mail|web/.test(label)) return null;
+    return hit[0];
+  };
+  const valueFor = (k, d) => k === 'full' ? [d.first, d.last].filter(Boolean).join(' ') : d[k] || '';
+  $('#myBtn').addEventListener('click', () => { const d = load_(); ins.forEach(i => { i.value = d[i.dataset.my] || ''; }); myDlg.showModal(); });
+  $('#myCancel').addEventListener('click', () => myDlg.close());
+  $('#myForget').addEventListener('click', () => { try { localStorage.removeItem(KEY); } catch (e) { /* blocked */ } ins.forEach(i => { i.value = ''; }); toast('Your saved details were removed from this device.'); });
+  $('#myFill').addEventListener('click', () => {
+    const d = read(); myDlg.close();
+    if ($('#myKeep').checked) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* blocked */ } }
+    if (!doc || !fields.length) { toast('This PDF has no fillable fields.', true); return; }
+    let n = 0; commit();
+    document.querySelectorAll('.fld[type=text],textarea.fld').forEach(inp => {
+      const f = fields[+inp.dataset.k]; if (!f || inp.value) return;
+      const k = kindOf(f); if (!k || (inp.tagName === 'TEXTAREA' && k !== 'address')) return;
+      const v = valueFor(k, d); if (!v || (f.a.maxLen && v.length > f.a.maxLen)) return;
+      inp.value = v; inp.dispatchEvent(new Event('input', { bubbles: true })); n++;
+    });
+    toast(n ? `Filled ${plural(n, 'field')}. Check each one before you save.` : 'No empty field clearly matched your details.', !n);
+  });
+}
+
 /* ---------- existing text, for Edit text ---------- */
 async function loadText(p) {
   if (p.text) return;

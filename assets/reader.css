@@ -179,3 +179,5 @@ body.rapp:has(.rd.readmode) .rd{height:100dvh}
 .rtbtn{width:100%;text-align:left;border:0;background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;box-shadow:0 0 0 1px var(--line);display:flex;flex-direction:column;gap:2px}
 .rtbtn b{font:600 14px var(--font);color:var(--ink)}.rtbtn span{font:500 12.5px var(--font);color:var(--muted)}
 .rtbtn:hover,.rtbtn:focus-visible{box-shadow:0 0 0 2px var(--magenta);outline:none}
+
+.rcm{list-style:none;margin:0;padding:0}.rcm li{border-bottom:1px solid var(--line)}.rcmb{border:0;background:none;text-align:left;width:100%;padding:9px 6px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:var(--ink)}.rcmb:hover,.rcmb:focus-visible{background:#0b12200d;outline:none}.rcmb b{font:650 12px var(--font);color:var(--muted)}.rcmw{font:500 11.5px var(--font);color:var(--muted)}.rcmt{font:500 13px/1.4 var(--font);white-space:pre-wrap;word-break:break-word}.rcmt.none{color:var(--muted);font-style:italic}

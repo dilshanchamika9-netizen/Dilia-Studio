@@ -310,7 +310,7 @@ async function destTo(t, dest) {
 }
 
 /* ---------- side panels ---------- */
-const PANELS = ['pages', 'outline', 'files', 'layers', 'results'];
+const PANELS = ['pages', 'outline', 'files', 'comments', 'layers', 'results'];
 document.querySelectorAll('.rsn').forEach(b => b.addEventListener('click', () => showPanel(b.dataset.p)));
 $('#rSide').addEventListener('click', () => toggleSide());
 function toggleSide(on) { prefs.side = on == null ? !prefs.side : on; keep(); app.classList.toggle('noside', !prefs.side); $('#rSide').setAttribute('aria-pressed', prefs.side); if (T && (T.zoom === 'width' || T.zoom === 'page')) setTimeout(() => relayout(T, true), 0); }
@@ -324,6 +324,7 @@ async function showPanel(k) {
   if (k === 'pages') return thumbs(t);
   if (k === 'outline') return outline(t);
   if (k === 'files') return files(t);
+  if (k === 'comments') return commentsPanel(t);
   if (k === 'layers') return layersPanel(t);
   if (k === 'results') return results(t);
 }
@@ -394,6 +395,36 @@ async function saveAttachment(t, id, f) {
   f = Object.assign({}, f, { content });
   const name = String(f.filename || 'attachment').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/^\.+/, '').slice(0, 150) || 'attachment';
   const u = URL.createObjectURL(new Blob([f.content], { type: 'application/octet-stream' })); save(u, name); setTimeout(() => URL.revokeObjectURL(u), 5000);
+}
+/* ---------- comments: every note, highlight and mark in the document, click to jump ---------- */
+const MARKS = { Text: 'Note', FreeText: 'Text box', Highlight: 'Highlight', Underline: 'Underline', StrikeOut: 'Strikethrough', Squiggly: 'Squiggly underline', Caret: 'Insert mark', Stamp: 'Stamp', Ink: 'Drawing', Line: 'Line', Square: 'Box', Circle: 'Circle', Polygon: 'Shape', PolyLine: 'Shape' };
+const markDate = d => { const m = /^D:(\d{4})(\d\d)?(\d\d)?/.exec(d || ''); return m ? [m[1], m[2], m[3]].filter(Boolean).join('-') : ''; };
+async function commentsPanel(t) {
+  panel.append(el('p', 'rnone', 'Reading comments...'));
+  if (!t.marks) {
+    t.marks = [];
+    for (let i = 0; i < t.n && t.marks.length < 5000; i++) {
+      if (!t.ann[i]) { try { t.ann[i] = await (await t.doc.getPage(i + 1)).getAnnotations({ intent: 'display' }); } catch (e) { t.ann[i] = []; } }
+      for (const a of t.ann[i]) if (MARKS[a.subtype] && !a.popup) t.marks.push({ i, a });
+      if (T !== t || prefs.panel !== 'comments') { t.marks = null; return; }
+    }
+  }
+  if (T !== t || prefs.panel !== 'comments') return;
+  panel.textContent = '';
+  if (!t.marks.length) { panel.append(el('p', 'rnone', 'This PDF has no comments, notes or highlights.')); return; }
+  const withText = t.marks.filter(m => (m.a.contentsObj && m.a.contentsObj.str || m.a.contents || '').trim()).length;
+  panel.append(el('p', 'rtip', `${plural(t.marks.length, 'mark')}, ${withText} with text. Click one to go to it.`));
+  const ul = el('ul', 'rcm');
+  for (const { i, a } of t.marks) {
+    const body = ((a.contentsObj && a.contentsObj.str) || a.contents || '').trim(), who = ((a.titleObj && a.titleObj.str) || a.title || '').trim(), when = markDate(a.modificationDate);
+    const li = el('li'), b = el('button', 'rcmb'); b.type = 'button';
+    b.append(el('b', '', `Page ${i + 1} · ${MARKS[a.subtype]}`));
+    if (who || when) b.append(el('span', 'rcmw', [who, when].filter(Boolean).join(' · ')));
+    b.append(el('span', body ? 'rcmt' : 'rcmt none', body ? body.slice(0, 400) : 'No text'));
+    b.addEventListener('click', () => goTo(t, i + 1, a.rect ? Math.max(a.rect[1], a.rect[3]) : null));   // top edge of the mark, in PDF units
+    li.append(b); ul.append(li);
+  }
+  panel.append(ul);
 }
 async function layersPanel(t) {
   if (t.oc === null) { try { t.oc = await t.doc.getOptionalContentConfig(); } catch (e) { t.oc = undefined; } }
