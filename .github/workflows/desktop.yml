@@ -13,9 +13,9 @@ jobs:
     timeout-minutes: 45
     defaults: { run: { shell: pwsh } }
     env:
-      REPORT: ${{ github.workspace }}\report.txt
-      SHOT: ${{ github.workspace }}\screen.png
-      APPSHOT: ${{ github.workspace }}\app.png
+      REPORT: ${{ runner.temp }}\report.txt
+      SHOT: ${{ runner.temp }}\screen.png
+      APPSHOT: ${{ runner.temp }}\app.png
     steps:
       - name: Keep files byte-for-byte (no CRLF conversion)
         run: git config --global core.autocrlf false
@@ -30,8 +30,9 @@ jobs:
         run: npm audit --omit=dev 2>&1 | Tee-Object -Append -FilePath $env:REPORT; exit 0
       - name: App test on Windows (drives the real app)
         working-directory: desktop
-        env: { DILIA_SHOT: '${{ github.workspace }}\app.png' }
+        env: { DILIA_SHOT: '${{ runner.temp }}\app.png' }
         run: |
+          npx electron --version | Out-Host
           node copy-site.js 2>&1 | Tee-Object -Variable cs | Out-Host
           $code = $LASTEXITCODE
           $cs | Add-Content $env:REPORT
@@ -52,11 +53,12 @@ jobs:
         if: always()
         env: { TOKEN: '${{ github.token }}' }
         run: |
-          New-Item -ItemType Directory rep | Out-Null
-          Copy-Item $env:REPORT rep/
-          if (Test-Path $env:SHOT) { Copy-Item $env:SHOT rep/ }
-          if (Test-Path $env:APPSHOT) { Copy-Item $env:APPSHOT rep/ }
-          Set-Location rep
+          $rep = Join-Path $env:RUNNER_TEMP rep
+          New-Item -ItemType Directory $rep | Out-Null
+          Copy-Item $env:REPORT $rep/
+          if (Test-Path $env:SHOT) { Copy-Item $env:SHOT $rep/ }
+          if (Test-Path $env:APPSHOT) { Copy-Item $env:APPSHOT $rep/ }
+          Set-Location $rep
           git init -q -b desktop-reports
           git -c user.name=dilia-ci -c user.email=dilia-ci@users.noreply.github.com add -A
           git -c user.name=dilia-ci -c user.email=dilia-ci@users.noreply.github.com commit -qm "report $env:GITHUB_REF_NAME $env:GITHUB_SHA ${{ job.status }}"

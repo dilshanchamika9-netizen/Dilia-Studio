@@ -11,7 +11,11 @@ const pages = async p => (await PDFDocument.load(fs.readFileSync(p))).getPageCou
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
   fs.copyFileSync(D + '/ten.pdf', F); const before = h(F); 
-  const ea = await _electron.launch({ executablePath: require('electron'), args: [...(LINUX ? ['--no-sandbox'] : []), '--log-net-log=' + NET, APP, F] });
+  let ea = null;
+  for (let i = 1; i <= 3 && !ea; i++) {                          // Windows build machines are sometimes slow to start Electron
+    try { ea = await _electron.launch({ executablePath: require('electron'), args: [...(LINUX ? ['--no-sandbox'] : []), '--log-net-log=' + NET, APP, F], timeout: 90000 }); }
+    catch (e) { console.log('launch attempt ' + i + ' failed: ' + e.message.split('\n')[0]); if (i === 3) throw e; }
+  }
   const w = await ea.firstWindow(); w.on('pageerror', e => errs.push(String(e))); w.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   await w.waitForFunction(() => window.__reader && __reader.tabs.length > 0, null, { timeout: 30000 });
   ck('opens at dilia://app/pdf-reader/', w.url() === 'dilia://app/pdf-reader/', w.url());
