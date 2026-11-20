@@ -13,6 +13,7 @@ const START = ORIGIN + '/pdf-reader/';
 const SITE = path.join(__dirname, 'site');
 const MAXF = 500 * 1048576;
 const HEADERS = JSON.parse(fs.readFileSync(path.join(SITE, 'headers.json'), 'utf8'));
+if (!/default-src 'none'/.test(HEADERS['Content-Security-Policy'] || '')) throw new Error('Dilia PDF: security policy missing, refusing to start');   // fail closed
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon',
   '.webp': 'image/webp', '.gif': 'image/gif', '.woff2': 'font/woff2', '.wasm': 'application/wasm', '.bcmap': 'application/octet-stream', '.pfb': 'application/octet-stream',

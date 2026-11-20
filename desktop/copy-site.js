@@ -16,9 +16,10 @@ let n = 0;
 })('');
 // security headers: the same policy the website uses (_headers, block "/*"), minus HSTS (not HTTP)
 const H = {};
-for (const l of fs.readFileSync(path.join(SRC, '_headers'), 'utf8').split('\n')) {
+for (const l of fs.readFileSync(path.join(SRC, '_headers'), 'utf8').split(/\r?\n/)) {   // Windows checkouts use CRLF
   const m = /^\s+([A-Za-z-]+):\s*(.+)$/.exec(l);
   if (m && m[1] !== 'Strict-Transport-Security') H[m[1]] = m[2].trim();
 }
+for (const k of ['Content-Security-Policy', 'X-Content-Type-Options', 'Referrer-Policy', 'Permissions-Policy']) if (!H[k] || /[\r\n]/.test(H[k])) throw new Error('security header missing or broken: ' + k);
 fs.writeFileSync(path.join(DST, 'headers.json'), JSON.stringify(H, null, 1));
 console.log('site copied:', n, 'files');
