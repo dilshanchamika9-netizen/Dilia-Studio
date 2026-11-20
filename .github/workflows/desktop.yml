@@ -17,6 +17,8 @@ jobs:
       SHOT: ${{ github.workspace }}\screen.png
       APPSHOT: ${{ github.workspace }}\app.png
     steps:
+      - name: Keep files byte-for-byte (no CRLF conversion)
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Report header
         run: Set-Content $env:REPORT "Dilia PDF Windows build $env:GITHUB_REF_NAME $env:GITHUB_SHA $(Get-Date -Format o) $((Get-CimInstance Win32_OperatingSystem).Caption)"

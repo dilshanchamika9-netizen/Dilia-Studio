@@ -1,0 +1,12 @@
+# Binary files must never get Windows line endings (PDF offsets break)
+*.pdf binary
+*.wasm binary
+*.bcmap binary
+*.pfb binary
+*.icc binary
+*.ico binary
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.traineddata binary
+*.gz binary
