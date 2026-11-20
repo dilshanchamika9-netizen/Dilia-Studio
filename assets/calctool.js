@@ -2,7 +2,7 @@
    Results are put on the page with textContent only, never innerHTML. */
 {
 const { $, toast, save } = Kit; const CM = window.CalcMath;
-const MODE = document.body.dataset.calc || 'pct';
+const MODE = document.body.dataset.calc || 'pct', PRESET = document.body.dataset.preset || 'all';
 const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
 const ctl = {};
 const CURR = [['', 'No currency'], ['AED', 'AED'], ['USD', 'USD'], ['EUR', 'EUR'], ['GBP', 'GBP'], ['LKR', 'LKR'], ['INR', 'INR'], ['SAR', 'SAR'], ['PKR', 'PKR']];
@@ -55,8 +55,24 @@ function build() {
     select(g, 'cur', 'Currency label', CURR, '');
     g.append(el('p', 'tip wide', 'Monthly deposits go in at the end of each month. Interest rates are not guaranteed and tax is not included.'));
   }
+  else if (MODE === 'unit') {
+    const cats = Object.entries(CM.UNITS);
+    if (PRESET === 'all') select(g, 'cat', 'What are you measuring?', cats.map(([k, v]) => [k, v.name]), 'length'); else { const h = el('input'); h.type = 'hidden'; h.id = 'cat'; h.value = PRESET; ctl.cat = h; g.append(h); }
+    num(g, 'uv', 'Amount', '1');
+    select(g, 'ufrom', 'From', [], ''); select(g, 'uto', 'To', [], '');
+    const sw = el('button', 'btn ghost sm', 'Swap units'); sw.type = 'button'; sw.addEventListener('click', () => { const a = ctl.ufrom.value; ctl.ufrom.value = ctl.uto.value; ctl.uto.value = a; run(); });
+    const d = el('div', 'tact wide'); d.append(sw); g.append(d);
+    if (ctl.cat.tagName === 'SELECT') ctl.cat.addEventListener('change', () => { units(); run(); });
+    units();
+  }
   labels();
 }
+function units() {
+  const c = CM.UNITS[val('cat')], keep = [ctl.ufrom.value, ctl.uto.value];
+  [ctl.ufrom, ctl.uto].forEach((s, n) => { s.replaceChildren(); c.u.forEach(([k, name]) => { const o = el('option', '', name + (c.special ? '' : ' (' + k + ')')); o.value = k; s.append(o); }); });
+  const ks = c.u.map(x => x[0]); ctl.ufrom.value = ks.includes(keep[0]) ? keep[0] : ks[0]; ctl.uto.value = ks.includes(keep[1]) && keep[1] !== ctl.ufrom.value ? keep[1] : ks[Math.min(1, ks.length - 1)] !== ctl.ufrom.value ? ks[Math.min(1, ks.length - 1)] : ks[0];
+}
+const sig = n => { const a = Math.abs(n); if (a === 0) return '0'; if (a >= 1e-6 && a < 1e15) return new Intl.NumberFormat(undefined, { maximumSignificantDigits: 10 }).format(n); return n.toExponential(6).replace(/\.?0+e/, 'e'); };
 function labels() {
   if (MODE !== 'pct') return;
   const t = { of: ['Percent (X)', 'Number (Y)'], is: ['Number (X)', 'Total (Y)'], chg: ['From (X)', 'To (Y)'], up: ['Percent to add (X)', 'Number (Y)'], down: ['Percent to take off (X)', 'Number (Y)'] }[val('kind')];
@@ -83,6 +99,11 @@ function run() {
       const raw = r.rows.map(x => [x.m, x.payment.toFixed(2), x.principal.toFixed(2), x.interest.toFixed(2), x.balance.toFixed(2)]);
       OUT.replaceChildren(stats([[fmt(r.payment, cur), 'Monthly payment'], [fmt(r.totalInterest, cur), 'Total interest'], [fmt(r.totalPaid, cur), 'Total paid']]),
         csvBtn(head, raw, 'Dilia-loan-schedule.csv'), table(head, rows));
+    } else if (MODE === 'unit') {
+      const cat = val('cat'), v = get('uv', 'Amount'), c = CM.UNITS[cat], fr = val('ufrom'), to = val('uto'), r = CM.convert(cat, fr, to, v); if (r.error) return fail(r.error);
+      const nm = k => c.u.find(x => x[0] === k)[1].replace(/ \(.*\)$/, '');
+      const rows = c.u.map(([k, name]) => [name, sig(CM.convert(cat, fr, k, v).value || 0)]);
+      OUT.replaceChildren(stats([[sig(r.value), nm(to)]], 'two'), el('p', 'tnote', sig(v) + ' ' + nm(fr).toLowerCase() + (c.special ? '' : ' = ' + sig(r.value) + ' ' + nm(to).toLowerCase())), el('h3', 'tsub', 'All ' + c.name.toLowerCase() + ' units'), table(['Unit', 'Value'], rows));
     } else if (MODE === 'comp') {
       const cur = val('cur'), s = get('start', 'Starting amount'), m = get('monthly', 'Added every month'), rt = get('rate', 'Interest rate'), y = get('years', 'Years');
       const r = CM.compound(s, rt, y, parseInt(val('freq'), 10), m); if (r.error) return fail(r.error);

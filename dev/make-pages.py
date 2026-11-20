@@ -629,7 +629,7 @@ def page(t):
 
 # ---------------- Dilia Calc ----------------
 _sp2 = _iu.spec_from_file_location('cdata', str(ROOT / 'dev' / 'cdata.py')); _c = _iu.module_from_spec(_sp2); _sp2.loader.exec_module(_c)
-CALCS = [dict(id=i, name=n, crumb=n, kind='calc', mode=mode, lead=lead, desc=seo) for i, s, n, d, main, mode, lead, seo in _c.CALC]
+CALCS = [dict(id=i, name=n, crumb=n, kind='calc', mode=mode, lead=lead, desc=seo, preset=(pre[0] if pre else '')) for i, s, n, d, main, mode, lead, seo, *pre in _c.CALC]
 def calc_main(t):
     head = '<div class="ws-head wrap"><div><p class="crumb"><a href="tools.html">Tools</a><span>/</span>' + t['crumb'] + '</p><h1>' + t['name'] + '</h1><p class="lead">' + t['lead'] + '</p></div></div>'
     safe = '<p class="safe">' + SHIELD + 'Worked out in this tab. Nothing is uploaded or stored.</p>'
@@ -645,7 +645,7 @@ def calc_page(t):
     head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia Calc home"').replace('<span class="l">Studio</span>', '<span class="l">Calc</span>')
     for v in ('pdfjs/pdf.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
     tail = tail.replace('<script src="assets/calctool.js"></script>', '<script src="assets/calcmath.js"></script>\n<script src="assets/calctool.js"></script>')
-    head = head.replace('<body class="work"', '<body class="work" data-calc="' + t['mode'] + '"')
+    head = head.replace('<body class="work"', '<body class="work" data-calc="' + t['mode'] + '" data-preset="' + t['preset'] + '"')
     return head + calc_main(t) + tail
 
 _page2 = page
@@ -837,8 +837,9 @@ OLD = '''<!doctype html>
 <link rel="canonical" href="%s/"></head>
 <body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
 '''
+CALC_IDS = {c['id'] for c in CALCS}
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid in ('cpct','cvat','cloan','ccomp') or not (ROOT / slug).is_dir(): continue
+    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid[0] in 'cu' and tid in CALC_IDS or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 

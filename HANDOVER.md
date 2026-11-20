@@ -223,3 +223,7 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Loan: bank-style cents, last payment clears balance, schedule table + CSV. Compound: monthly steps at the rate matching the chosen compounding, deposits at month end. VAT: rate typed by user (5% default), currency is a label only.
 - Tests: node dev/tests/test-calcmath.js (unit), python3 dev/tests/test-calc.py (30 checks: values, errors, XSS, CSV, hub, no outside requests, 360 px). Strict-CSP sweep 139 pages 0 issues.
 - Next in Task 7: unit converters, date calculators + time zones, holidays (date-holidays, CC-BY-3.0 credit link needed), UAE gratuity (rules verified, see hq 01-product/task-07-calc/MATRIX.md).
+
+## 9x. Unit converters (2026-11-21, Sonnet)
+- assets/calcmath.js UNITS + convert(); assets/calctool.js mode 'unit' (preset category from body data-preset, or 'all' with a category select). dev/cdata.py rows with a 9th field = preset. 11 pages: unit-converter + length/weight/temperature/area/volume/speed/time/data-storage/energy/pressure-converter. Result shows the converted value (10 significant digits) and a table of all units in the category.
+- Tests: node dev/tests/test-calcmath.js (100+ checks incl. round trips); python3 dev/tests/test-calc.py (58 checks). Strict-CSP sweep 150 pages 0 issues.

@@ -13,7 +13,7 @@ with sync_playwright() as p:
         pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' else None)
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('request', lambda r: reqs.append(r.url) if not r.url.startswith(B) and not r.url.startswith('data:') and not r.url.startswith('blob:') else None)
-        pg.goto(B + '/' + slug + '/'); pg.wait_for_selector('#cIn input, #cIn select'); return pg, errs, reqs
+        pg.goto(B + '/' + slug + '/'); pg.wait_for_selector('#cIn input:not([type=hidden]), #cIn select'); return pg, errs, reqs
     def setv(pg, i, v): pg.fill('#' + i, v) if pg.evaluate("document.getElementById('%s').tagName" % i) == 'INPUT' else pg.select_option('#' + i, v)
     def out(pg): return pg.inner_text('#cOut')
     # percentage
@@ -51,6 +51,20 @@ with sync_playwright() as p:
     setv(pg, 'start', '0'); ok('starting amount or a monthly' in out(pg), 'comp empty')
     setv(pg, 'start', '1000'); setv(pg, 'years', '101'); ok('at most 100' in out(pg), 'comp years cap')
     ok(not e and not r, 'comp console/network %s %s' % (e, r)); pg.close()
+    # unit converters
+    pg, e, r = page('unit-converter')
+    t = out(pg); ok('All length units' in t and '1 millimetre' in t, 'unit default: ' + t[:120])
+    setv(pg, 'ufrom', 'mi'); setv(pg, 'uto', 'km'); ok('1.609344' in out(pg), 'mi->km: ' + out(pg)[:80])
+    pg.click('text=Swap units'); ok(pg.input_value('#ufrom') == 'km' and '0.6213711922' in out(pg), 'swap: ' + out(pg)[:80])
+    setv(pg, 'cat', 'temperature'); setv(pg, 'ufrom', 'C'); setv(pg, 'uto', 'F'); setv(pg, 'uv', '100'); ok('212' in out(pg), 'temp C->F: ' + out(pg)[:80])
+    setv(pg, 'uv', '-300'); ok('absolute zero' in out(pg), 'abs zero')
+    setv(pg, 'cat', 'data'); setv(pg, 'ufrom', 'GiB'); setv(pg, 'uto', 'MiB'); setv(pg, 'uv', '1'); ok('1,024' in out(pg), 'GiB->MiB: ' + out(pg)[:80])
+    setv(pg, 'uv', '1e500'); ok('Enter a number' in out(pg), 'unit huge')
+    ok(not e and not r, 'unit console/network %s %s' % (e, r)); pg.close()
+    for slug, fr, to, v, want in [('length-converter', 'ft', 'm', '10', '3.048'), ('weight-converter', 'lb', 'kg', '1', '0.45359237'), ('temperature-converter', 'F', 'C', '212', '100'), ('area-converter', 'ac', 'm2', '1', '4,046.856422'), ('volume-converter', 'gal', 'l', '1', '3.785411784'), ('speed-converter', 'mph', 'kmh', '60', '96.56064'), ('time-converter', 'd', 'h', '2', '48'), ('data-storage-converter', 'TB', 'GiB', '1', '931.3225746'), ('energy-converter', 'kWh', 'kJ', '1', '3,600'), ('pressure-converter', 'atm', 'psi', '1', '14.69594878')]:
+        pg, e, r = page(slug); setv(pg, 'ufrom', fr); setv(pg, 'uto', to); setv(pg, 'uv', v)
+        ok(want in out(pg) and pg.locator('#cIn select').count() == 2 and pg.locator('#cat').count() == 1, slug + ': ' + out(pg)[:70])
+        ok(not e and not r, slug + ' console/network %s %s' % (e, r)); pg.close()
     # hub + tools list
     pg = br.new_page(); pg.goto(B + '/calc/'); pg.wait_for_selector('#lib .tile, #lib a')
     h = pg.inner_text('#lib'); ok('Loan calculator' in h and 'VAT calculator' in h and 'Percentage calculator' in h and 'Compound' in h, 'calc hub lists tools')

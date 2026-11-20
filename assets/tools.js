@@ -108,7 +108,18 @@ window.DILIA_TOOLS = [
     { id: 'cpct', slug: 'percentage-calculator', name: 'Percentage calculator', desc: 'Percent of, percent change, increase and decrease.', ready: 1, icon: 'M5 19 19 5M7 8a1.5 1.5 0 1 0 0-.01M17 17a1.5 1.5 0 1 0 0-.01' },
     { id: 'cvat', slug: 'vat-calculator', name: 'VAT calculator', desc: 'Add VAT to a price or take it out.', ready: 1, icon: 'M5 19 19 5M7 8a1.5 1.5 0 1 0 0-.01M17 17a1.5 1.5 0 1 0 0-.01' },
     { id: 'cloan', slug: 'loan-calculator', name: 'Loan calculator', desc: 'Monthly payment, total interest, schedule.', ready: 1, icon: 'M4 6h16v12H4zM4 10h16M8 15h3' },
-    { id: 'ccomp', slug: 'compound-interest-calculator', name: 'Compound interest', desc: 'See how savings grow over time.', ready: 1, icon: 'M4 19h16M6 16l4-4 3 3 5-7' }
+    { id: 'ccomp', slug: 'compound-interest-calculator', name: 'Compound interest', desc: 'See how savings grow over time.', ready: 1, icon: 'M4 19h16M6 16l4-4 3 3 5-7' },
+    { id: 'unit', slug: 'unit-converter', name: 'Unit converter', desc: 'Length, weight, temperature and more in one place.', ready: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'ulen', slug: 'length-converter', name: 'Length converter', desc: 'Metres, feet, miles and more.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'uwt', slug: 'weight-converter', name: 'Weight converter', desc: 'Kilograms, pounds, ounces and more.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'utemp', slug: 'temperature-converter', name: 'Temperature converter', desc: 'Celsius, Fahrenheit and Kelvin.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'uarea', slug: 'area-converter', name: 'Area converter', desc: 'Square metres, acres, hectares and more.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'uvol', slug: 'volume-converter', name: 'Volume converter', desc: 'Litres, gallons, cups and more.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'uspd', slug: 'speed-converter', name: 'Speed converter', desc: 'km/h, mph, knots and m/s.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'utime', slug: 'time-converter', name: 'Time converter', desc: 'Seconds, hours, days, years.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'udata', slug: 'data-storage-converter', name: 'Data storage converter', desc: 'Bytes, MB, GB, MiB, GiB.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'uenergy', slug: 'energy-converter', name: 'Energy converter', desc: 'Joules, kWh, calories, BTU.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'upres', slug: 'pressure-converter', name: 'Pressure converter', desc: 'psi, bar, kPa, atm.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' }
   ]],
   ['Text', [
     { id: 'txcount', slug: 'word-counter', name: 'Word counter', desc: 'Words, characters, reading time.', ready: 1, icon: 'M5 7V5h14v2M12 5v14M9 19h6' },
@@ -185,7 +196,8 @@ window.DILIA_LINES = [
   ] },
   { id: 'calc', name: 'Calc', title: 'Dilia Calc', kind: 'Calculators', href: 'calc/', blurb: 'Percentages, VAT, loans and savings.', cats: [
     ['Money', ['cloan', 'ccomp', 'cvat']],
-    ['Everyday', ['cpct']]
+    ['Everyday', ['cpct']],
+    ['Convert units', ['unit'], ['ulen', 'uwt', 'utemp', 'uarea', 'uvol', 'uspd', 'utime', 'udata', 'uenergy', 'upres']]
   ] },
   { id: 'convert', name: 'Convert', title: 'Dilia Convert', kind: 'File converters', soon: 1, blurb: 'Convert documents and other files between formats.', soonItems: ['Word to PDF'] },
   { id: 'rates', name: 'Rates', title: 'Dilia Rates', kind: 'Currency', soon: 1, blurb: 'Currency converter.', soonItems: ['Currency converter'] },

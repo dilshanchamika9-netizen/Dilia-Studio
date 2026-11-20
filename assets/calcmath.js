@@ -60,6 +60,32 @@
     }
     return { balance: bal, deposits: dep, interest: bal - dep, rows };
   }
-  const api = { parse, percent, vat, loan, compound, r2 };
+
+  /* Units. Every factor is the exact legal/SI definition (NIST SP 811, ISO 80000, IEC 80000-13) expressed in the base unit. */
+  const UNITS = {
+    length: { name: 'Length', base: 'metre', u: [['mm', 'Millimetre', 0.001], ['cm', 'Centimetre', 0.01], ['m', 'Metre', 1], ['km', 'Kilometre', 1000], ['in', 'Inch', 0.0254], ['ft', 'Foot', 0.3048], ['yd', 'Yard', 0.9144], ['mi', 'Mile', 1609.344], ['nmi', 'Nautical mile', 1852]] },
+    weight: { name: 'Weight and mass', base: 'kilogram', u: [['mg', 'Milligram', 1e-6], ['g', 'Gram', 0.001], ['kg', 'Kilogram', 1], ['t', 'Tonne (metric)', 1000], ['oz', 'Ounce', 0.028349523125], ['lb', 'Pound', 0.45359237], ['st', 'Stone', 6.35029318], ['ust', 'US ton (short)', 907.18474], ['ukt', 'UK ton (long)', 1016.0469088]] },
+    area: { name: 'Area', base: 'square metre', u: [['mm2', 'Square millimetre', 1e-6], ['cm2', 'Square centimetre', 1e-4], ['m2', 'Square metre', 1], ['ha', 'Hectare', 10000], ['km2', 'Square kilometre', 1e6], ['in2', 'Square inch', 0.00064516], ['ft2', 'Square foot', 0.09290304], ['yd2', 'Square yard', 0.83612736], ['ac', 'Acre', 4046.8564224], ['mi2', 'Square mile', 2589988.110336]] },
+    volume: { name: 'Volume', base: 'litre', u: [['ml', 'Millilitre', 0.001], ['l', 'Litre', 1], ['m3', 'Cubic metre', 1000], ['tsp', 'Teaspoon (US)', 0.00492892159375], ['tbsp', 'Tablespoon (US)', 0.01478676478125], ['floz', 'Fluid ounce (US)', 0.0295735295625], ['cup', 'Cup (US)', 0.2365882365], ['pt', 'Pint (US)', 0.473176473], ['qt', 'Quart (US)', 0.946352946], ['gal', 'Gallon (US)', 3.785411784], ['ipt', 'Pint (UK)', 0.56826125], ['igal', 'Gallon (UK)', 4.54609], ['in3', 'Cubic inch', 0.016387064], ['ft3', 'Cubic foot', 28.316846592]] },
+    speed: { name: 'Speed', base: 'metre per second', u: [['ms', 'Metre per second', 1], ['kmh', 'Kilometre per hour', 1 / 3.6], ['mph', 'Mile per hour', 0.44704], ['kn', 'Knot', 1852 / 3600], ['fts', 'Foot per second', 0.3048]] },
+    time: { name: 'Time', base: 'second', u: [['ms', 'Millisecond', 0.001], ['s', 'Second', 1], ['min', 'Minute', 60], ['h', 'Hour', 3600], ['d', 'Day', 86400], ['wk', 'Week', 604800], ['mo', 'Month (average, 30.4375 days)', 2629800], ['yr', 'Year (365.25 days)', 31557600]] },
+    data: { name: 'Data storage', base: 'byte', u: [['bit', 'Bit', 0.125], ['B', 'Byte', 1], ['KB', 'Kilobyte (1000 bytes)', 1e3], ['MB', 'Megabyte', 1e6], ['GB', 'Gigabyte', 1e9], ['TB', 'Terabyte', 1e12], ['PB', 'Petabyte', 1e15], ['KiB', 'Kibibyte (1024 bytes)', 1024], ['MiB', 'Mebibyte', 1048576], ['GiB', 'Gibibyte', 1073741824], ['TiB', 'Tebibyte', 1099511627776]] },
+    energy: { name: 'Energy', base: 'joule', u: [['J', 'Joule', 1], ['kJ', 'Kilojoule', 1000], ['cal', 'Calorie (thermochemical)', 4.184], ['kcal', 'Kilocalorie (food Calorie)', 4184], ['Wh', 'Watt-hour', 3600], ['kWh', 'Kilowatt-hour', 3.6e6], ['btu', 'BTU (IT)', 1055.05585262], ['ftlb', 'Foot-pound force', 1.3558179483314004]] },
+    pressure: { name: 'Pressure', base: 'pascal', u: [['Pa', 'Pascal', 1], ['kPa', 'Kilopascal', 1000], ['bar', 'Bar', 1e5], ['atm', 'Atmosphere (standard)', 101325], ['psi', 'Pound per square inch', 6894.757293168], ['mmHg', 'Millimetre of mercury', 133.322387415], ['inHg', 'Inch of mercury', 3386.389]] },
+    temperature: { name: 'Temperature', base: 'kelvin', special: true, u: [['C', 'Celsius'], ['F', 'Fahrenheit'], ['K', 'Kelvin']] }
+  };
+  function convert(cat, from, to, v) {
+    const c = UNITS[cat]; if (!c) return { error: 'Unknown category.' };
+    if (c.special) {
+      const toK = { C: x => x + 273.15, F: x => (x - 32) * 5 / 9 + 273.15, K: x => x }[from], fromK = { C: k => k - 273.15, F: k => (k - 273.15) * 9 / 5 + 32, K: k => k }[to];
+      if (!toK || !fromK) return { error: 'Unknown unit.' };
+      const k = toK(v); if (k < 0 && Math.abs(k) > 1e-9) return { error: 'That is below absolute zero.' };
+      return { value: fromK(Math.max(k, 0)) };
+    }
+    const a = c.u.find(x => x[0] === from), b = c.u.find(x => x[0] === to);
+    if (!a || !b) return { error: 'Unknown unit.' };
+    return { value: v * a[2] / b[2] };
+  }
+  const api = { parse, percent, vat, loan, compound, r2, UNITS, convert };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.CalcMath = api;
 })(typeof window !== 'undefined' ? window : globalThis);
