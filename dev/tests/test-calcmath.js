@@ -30,4 +30,43 @@ eq('absz',cv('temperature','C','K',-273.15),0,1e-9);
 // every unit round-trips and every pair is consistent
 for(const [k,c] of Object.entries(M.UNITS)){ if(c.special)continue; for(const a of c.u)for(const b of c.u){const x=cv(k,a[0],b[0],12.5);const y=cv(k,b[0],a[0],x);eq('rt '+k+a[0]+b[0],y,12.5,1e-9*12.5);} }
 if(M.convert('length','m','zz',1).error===undefined||M.convert('nope','m','m',1).error===undefined){f++;console.log('FAIL unknown')}
+
+// ---- dates ----
+const Y=x=>M.ymd(x);const I=M.iso;
+if(M.ymd('2026-02-30')||M.ymd('2026-13-01')||M.ymd('26-1-1')||M.ymd('')||M.ymd('0999-01-01')||M.ymd('2026-11-21x')){f++;console.log('FAIL ymd bad')}
+eq('wd',M.weekday(Y('2026-11-21')),6);eq('wd2',M.weekday(Y('2000-01-01')),6);eq('wd3',M.weekday(Y('2024-02-29')),4);
+eq('doy',M.dayOfYear(Y('2024-12-31')),366);eq('doy2',M.dayOfYear(Y('2026-12-31')),365);eq('doy3',M.dayOfYear(Y('2026-03-01')),60);
+let w=M.isoWeek(Y('2026-01-01'));eq('w1',w.week,1);w=M.isoWeek(Y('2021-01-03'));eq('w53',w.week,53);eq('w53y',w.year,2020);w=M.isoWeek(Y('2024-12-30'));eq('w1b',w.week,1);eq('w1by',w.year,2025);w=M.isoWeek(Y('2026-11-21'));eq('w47',w.week,47);
+eq('dd',M.diffYMD(Y('2000-01-01'),Y('2026-11-21')).totalDays,9821);let d=M.diffYMD(Y('2000-01-01'),Y('2026-11-21'));eq('dy',d.years,26);eq('dm',d.months,10);eq('dd2',d.days,20);
+d=M.diffYMD(Y('2026-01-31'),Y('2026-03-01'));eq('j31y',d.years,0);eq('j31m',d.months,1);eq('j31d',d.days,1);eq('j31t',d.totalDays,29);
+d=M.diffYMD(Y('2020-02-29'),Y('2021-02-28'));eq('leapy',d.years,1);eq('leapd',d.days,0);d=M.diffYMD(Y('2026-11-21'),Y('2026-11-21'));eq('same',d.totalDays,0);eq('same2',d.days,0);
+let a=M.addDate(Y('2026-01-31'),0,1,0).date;eq('am',a.m,2);eq('ad',a.d,28);a=M.addDate(Y('2024-01-31'),0,1,0).date;eq('am2',a.d,29);a=M.addDate(Y('2026-11-21'),0,0,100).date;if(I(a)!=='2027-03-01'){f++;console.log('FAIL +100',I(a))}
+a=M.addDate(Y('2026-03-01'),0,0,-1).date;if(I(a)!=='2026-02-28'){f++;console.log('FAIL -1')}a=M.addDate(Y('2026-11-21'),1,2,3).date;if(I(a)!=='2028-01-24'){f++;console.log('FAIL +1y2m3d',I(a))}
+a=M.addDate(Y('2024-02-29'),1,0,0).date;if(I(a)!=='2025-02-28'){f++;console.log('FAIL leap+1y',I(a))}if(!M.addDate(Y('9999-12-31'),0,0,1).error||!M.addDate(Y('1000-01-01'),0,0,-1).error){f++;console.log('FAIL range')}
+// property: adding the difference back always lands on the end date
+let seed=12345;const rnd=n=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed%n};
+for(let i=0;i<3000;i++){const x=M.fromNum(M.num_({y:1900,m:1,d:1})+rnd(60000)),y=M.fromNum(M.num_(x)+rnd(40000));const r=M.diffYMD(x,y);const b=M.addDate(x,r.years,r.months,r.days).date;if(I(b)!==I(y)||r.days<0||r.days>31||r.months>11){f++;console.log('FAIL prop',I(x),I(y),r);break}}
+let g=M.ageOn(Y('1990-05-15'),Y('2026-11-21'));eq('ageY',g.years,36);eq('ageM',g.months,6);eq('ageD',g.days,6);eq('btd',g.daysToBirthday,175);if(I(g.nextBirthday)!=='2027-05-15'){f++;console.log('FAIL nextbd')}
+g=M.ageOn(Y('2026-11-21'),Y('2026-11-21'));eq('birthday today',g.daysToBirthday,0);g=M.ageOn(Y('2000-02-29'),Y('2026-02-28'));eq('leap age',g.years,26);if(I(g.nextBirthday)!=='2026-02-28'){f++;console.log('FAIL leap nbd',I(g.nextBirthday))}
+if(!M.ageOn(Y('2027-01-01'),Y('2026-01-01')).error){f++;console.log('FAIL future dob')}
+const sat=new Set([0,6]),frisat=new Set([5,6]);let wd=M.workdays(Y('2026-11-16'),Y('2026-11-22'),sat,null);eq('wk5',wd.workdays,5);eq('wke',wd.weekendDays,2);
+wd=M.workdays(Y('2026-11-16'),Y('2026-11-22'),frisat,null);eq('wkfs',wd.workdays,5);wd=M.workdays(Y('2026-11-16'),Y('2026-11-22'),sat,new Set(['2026-11-18','2026-11-21']));eq('wkh',wd.workdays,4);eq('wkhd',wd.holidayDays,1);
+wd=M.workdays(Y('2026-11-21'),Y('2026-11-21'),sat,null);eq('wk sat',wd.workdays,0);wd=M.workdays(Y('2026-01-01'),Y('2026-12-31'),sat,null);eq('wk year',wd.workdays,261);wd=M.workdays(Y('2026-01-01'),Y('2026-12-31'),new Set(),null);eq('noweekend',wd.workdays,365);
+if(!M.workdays(Y('2026-02-01'),Y('2026-01-01'),sat,null).error||!M.workdays(Y('1900-01-01'),Y('2026-01-01'),sat,null).error){f++;console.log('FAIL workdays errs')}
+// ---- UAE gratuity ----
+let gr=M.gratuity(10000,Y('2019-01-01'),Y('2025-12-31'),0);eq('g elig',gr.eligible?1:0,1);eq('g days',gr.gratuityDays,21*5+30*(2557/365-5),1e-9);eq('g amt',gr.amount,M.r2(10000/30*gr.gratuityDays),0.005);eq('g round',gr.amount,55054.79,0.01);
+gr=M.gratuity(10000,Y('2024-01-01'),Y('2024-12-31'),0);eq('1y',gr.eligible?1:0,1);eq('1y amt',gr.amount,M.r2(10000/30*21*366/365),0.005);
+gr=M.gratuity(10000,Y('2025-01-01'),Y('2025-12-30'),0);eq('364 days no',gr.eligible?1:0,0);gr=M.gratuity(10000,Y('2025-01-01'),Y('2025-12-31'),0);eq('365 yes',gr.eligible?1:0,1);eq('365 amt',gr.amount,7000,0.005);
+gr=M.gratuity(10000,Y('2025-01-01'),Y('2025-12-31'),1);eq('unpaid pushes under',gr.eligible?1:0,0);gr=M.gratuity(10000,Y('2020-01-01'),Y('2024-12-31'),30);eq('unpaid reduces',gr.serviceDays,1827-30);
+gr=M.gratuity(10000,Y('1985-01-01'),Y('2025-12-31'),0);eq('capped',gr.capped?1:0,1);eq('cap amt',gr.amount,240000);if(!(gr.uncapped>240000)){f++;console.log('FAIL uncapped')}
+gr=M.gratuity(3000,Y('2016-06-01'),Y('2026-05-31'),0);eq('10y',gr.gratuityDays,21*5+30*(gr.years-5),1e-9);eq('10y amt',gr.amount,M.r2(3000/30*gr.gratuityDays),0.005);eq('10y amt approx',gr.amount,3000/30*(105+150),20);
+if(!M.gratuity(0,Y('2020-01-01'),Y('2025-01-01'),0).error||!M.gratuity(1000,Y('2025-01-01'),Y('2020-01-01'),0).error||!M.gratuity(1000,Y('2020-01-01'),Y('2021-01-01'),-1).error||!M.gratuity(1000,Y('2020-01-01'),Y('2020-01-10'),50).error){f++;console.log('FAIL gratuity errs')}
+// ---- time zones ----
+const dub=Date.UTC(2026,10,21,8,0);eq('dubai off',M.offsetMin('Asia/Dubai',dub),240);eq('colombo off',M.offsetMin('Asia/Colombo',dub),330);eq('kolkata',M.offsetMin('Asia/Kolkata',dub),330);eq('kathmandu',M.offsetMin('Asia/Kathmandu',dub),345);
+eq('lon jan',M.offsetMin('Europe/London',Date.UTC(2026,0,15)),0);eq('lon jul',M.offsetMin('Europe/London',Date.UTC(2026,6,15)),60);eq('ny jan',M.offsetMin('America/New_York',Date.UTC(2026,0,15)),-300);eq('ny jul',M.offsetMin('America/New_York',Date.UTC(2026,6,15)),-240);
+let t=M.wallToUtc('Asia/Dubai',2026,11,21,12,0);eq('dub->utc',t.ms,Date.UTC(2026,10,21,8,0));t=M.wallToUtc('Asia/Colombo',2026,11,21,23,45);eq('col->utc',t.ms,Date.UTC(2026,10,21,18,15));
+t=M.wallToUtc('America/New_York',2026,3,8,2,30);if(!t.error){f++;console.log('FAIL nonexistent NY')}t=M.wallToUtc('Europe/London',2026,3,29,1,30);if(!t.error){f++;console.log('FAIL nonexistent LON')}
+t=M.wallToUtc('America/New_York',2026,11,1,1,30);eq('ambig',t.ambiguous?1:0,1);eq('ambig first',t.ms,Date.UTC(2026,10,1,5,30));t=M.wallToUtc('America/New_York',2026,11,1,3,0);eq('after fall back',t.ambiguous?1:0,0);eq('after fb ms',t.ms,Date.UTC(2026,10,1,8,0));
+t=M.wallToUtc('Pacific/Auckland',2026,12,25,9,0);eq('auckland',t.ms,Date.UTC(2026,11,24,20,0));t=M.wallToUtc('Pacific/Kiritimati',2026,6,1,0,0);eq('kiritimati +14',t.ms,Date.UTC(2026,4,31,10,0));
+for(let i=0;i<300;i++){const z=['Asia/Dubai','Europe/London','America/New_York','Australia/Lord_Howe','Asia/Kolkata','America/St_Johns'][rnd(6)],ms=Date.UTC(2026,rnd(12),1+rnd(28),rnd(24),rnd(60));const p=M.parts(z,ms);const r=M.wallToUtc(z,p.y,p.m,p.d,p.h,p.mi);if(r.error||(r.ms!==ms&&!r.ambiguous)){f++;console.log('FAIL tz roundtrip',z,new Date(ms).toISOString(),r);break}}
 console.log(f?f+' FAILED':'unit OK');process.exit(f?1:0)

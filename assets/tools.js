@@ -119,7 +119,15 @@ window.DILIA_TOOLS = [
     { id: 'utime', slug: 'time-converter', name: 'Time converter', desc: 'Seconds, hours, days, years.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
     { id: 'udata', slug: 'data-storage-converter', name: 'Data storage converter', desc: 'Bytes, MB, GB, MiB, GiB.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
     { id: 'uenergy', slug: 'energy-converter', name: 'Energy converter', desc: 'Joules, kWh, calories, BTU.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
-    { id: 'upres', slug: 'pressure-converter', name: 'Pressure converter', desc: 'psi, bar, kPa, atm.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' }
+    { id: 'upres', slug: 'pressure-converter', name: 'Pressure converter', desc: 'psi, bar, kPa, atm.', ready: 1, v: 1, icon: 'M4 17h16M7 17v-3M11 17v-5M15 17v-3M19 17v-5M5 7h14' },
+    { id: 'dd', slug: 'date-difference-calculator', name: 'Date difference calculator', desc: 'Days, weeks, months and years between two dates.', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' },
+    { id: 'dadd', slug: 'add-days-to-date', name: 'Add or subtract from a date', desc: 'Add days, weeks, months or years to a date.', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' },
+    { id: 'dage', slug: 'age-calculator', name: 'Age calculator', desc: 'Exact age in years, months and days.', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' },
+    { id: 'dwk', slug: 'day-of-the-week-calculator', name: 'Day of the week', desc: 'What weekday is any date?', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' },
+    { id: 'dwork', slug: 'working-days-calculator', name: 'Working days calculator', desc: 'Count working days between two dates.', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' },
+    { id: 'dtz', slug: 'time-zone-converter', name: 'Time zone converter', desc: 'Convert a time between cities, plan a meeting.', ready: 1, v: 1, icon: 'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18' },
+    { id: 'dhol', slug: 'public-holidays', name: 'Public holidays', desc: 'Public holidays for a country and year.', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' },
+    { id: 'dgrat', slug: 'uae-gratuity-calculator', name: 'UAE gratuity calculator', desc: 'End of service gratuity, UAE private sector.', ready: 1, v: 1, icon: 'M7 3v3M17 3v3M4 8h16M5 5h14v15H5z' }
   ]],
   ['Text', [
     { id: 'txcount', slug: 'word-counter', name: 'Word counter', desc: 'Words, characters, reading time.', ready: 1, icon: 'M5 7V5h14v2M12 5v14M9 19h6' },
@@ -197,6 +205,8 @@ window.DILIA_LINES = [
   { id: 'calc', name: 'Calc', title: 'Dilia Calc', kind: 'Calculators', href: 'calc/', blurb: 'Percentages, VAT, loans and savings.', cats: [
     ['Money', ['cloan', 'ccomp', 'cvat']],
     ['Everyday', ['cpct']],
+    ['Dates and time', ['dd', 'dtz'], ['dadd', 'dage', 'dwk', 'dwork']],
+    ['Holidays and work', ['dhol', 'dgrat']],
     ['Convert units', ['unit'], ['ulen', 'uwt', 'utemp', 'uarea', 'uvol', 'uspd', 'utime', 'udata', 'uenergy', 'upres']]
   ] },
   { id: 'convert', name: 'Convert', title: 'Dilia Convert', kind: 'File converters', soon: 1, blurb: 'Convert documents and other files between formats.', soonItems: ['Word to PDF'] },

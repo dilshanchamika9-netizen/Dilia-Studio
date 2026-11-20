@@ -839,7 +839,7 @@ OLD = '''<!doctype html>
 '''
 CALC_IDS = {c['id'] for c in CALCS}
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid[0] in 'cu' and tid in CALC_IDS or not (ROOT / slug).is_dir(): continue
+    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid in CALC_IDS or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 

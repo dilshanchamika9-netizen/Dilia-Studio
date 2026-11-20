@@ -86,6 +86,94 @@
     if (!a || !b) return { error: 'Unknown unit.' };
     return { value: v * a[2] / b[2] };
   }
-  const api = { parse, percent, vat, loan, compound, r2, UNITS, convert };
+
+  /* ---------- dates (calendar arithmetic on plain year-month-day, no time zones, no daylight saving) ---------- */
+  const DIM = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const isLeap = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  const dim = (y, m) => m === 2 && isLeap(y) ? 29 : DIM[m - 1];
+  const num_ = d => Date.UTC(d.y, d.m - 1, d.d) / 864e5;          // day number; valid for years 1000-9999
+  const fromNum = n => { const t = new Date(n * 864e5); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; };
+  function ymd(str) {                                             // "2026-11-21" -> {y,m,d} or null
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(str || '').trim()); if (!m) return null;
+    const d = { y: +m[1], m: +m[2], d: +m[3] };
+    return d.y >= 1000 && d.m >= 1 && d.m <= 12 && d.d >= 1 && d.d <= dim(d.y, d.m) ? d : null;
+  }
+  const iso = d => String(d.y).padStart(4, '0') + '-' + String(d.m).padStart(2, '0') + '-' + String(d.d).padStart(2, '0');
+  const cmp = (a, b) => num_(a) - num_(b);
+  const weekday = d => new Date(num_(d) * 864e5).getUTCDay();      // 0 = Sunday
+  function addMonths(d, n) {                                       // Jan 31 + 1 month = Feb 28/29 (clamped)
+    const t = d.y * 12 + (d.m - 1) + n, y = Math.floor(t / 12), m = t - y * 12 + 1;
+    if (y < 1000 || y > 9999) return null;
+    return { y, m, d: Math.min(d.d, dim(y, m)) };
+  }
+  function addDate(d, years, months, days) {
+    const a = addMonths(d, years * 12 + months); if (!a) return { error: 'That date is out of range (years 1000 to 9999).' };
+    const r = fromNum(num_(a) + days); return r.y < 1000 || r.y > 9999 ? { error: 'That date is out of range (years 1000 to 9999).' } : { date: r };
+  }
+  function diffYMD(a, b) {                                         // a <= b
+    let months = (b.y - a.y) * 12 + (b.m - a.m);
+    if (cmp(addMonths(a, months), b) > 0) months--;
+    const mid = addMonths(a, months), days = num_(b) - num_(mid);
+    return { years: Math.floor(months / 12), months: months % 12, days, totalDays: num_(b) - num_(a) };
+  }
+  function ageOn(dob, asOf) {
+    if (cmp(dob, asOf) > 0) return { error: 'The birth date is after the date you chose.' };
+    const r = diffYMD(dob, asOf);
+    let next = { y: asOf.y, m: dob.m, d: Math.min(dob.d, dim(asOf.y, dob.m)) };
+    if (cmp(next, asOf) < 0) next = { y: asOf.y + 1, m: dob.m, d: Math.min(dob.d, dim(asOf.y + 1, dob.m)) };
+    r.nextBirthday = next; r.daysToBirthday = num_(next) - num_(asOf); r.weekdayBorn = weekday(dob); return r;
+  }
+  const dayOfYear = d => num_(d) - num_({ y: d.y, m: 1, d: 1 }) + 1;
+  function isoWeek(d) {                                            // ISO 8601 week number and week-year
+    const wd = (weekday(d) + 6) % 7, thu = fromNum(num_(d) - wd + 3), y = thu.y;
+    return { week: Math.floor((num_(thu) - num_({ y, m: 1, d: 1 })) / 7) + 1, year: y };
+  }
+  /* Count days between two dates (both included) that are not weekend days and not in the holiday set. */
+  function workdays(a, b, weekend, holidays) {
+    if (cmp(a, b) > 0) return { error: 'The first date is after the second.' };
+    const n0 = num_(a), n1 = num_(b); if (n1 - n0 > 36600) return { error: 'Pick dates less than 100 years apart.' };
+    let work = 0, wk = 0, hol = 0;
+    for (let n = n0; n <= n1; n++) {
+      const d = fromNum(n), w = new Date(n * 864e5).getUTCDay();
+      if (weekend.has(w)) { wk++; continue; }
+      if (holidays && holidays.has(iso(d))) { hol++; continue; }
+      work++;
+    }
+    return { workdays: work, weekendDays: wk, holidayDays: hol, totalDays: n1 - n0 + 1 };
+  }
+  /* UAE end-of-service gratuity, private sector, foreign full-time worker (Federal Decree-Law 33 of 2021, Art. 51; MOHRE).
+     21 days of basic wage per year for the first 5 years, 30 days for each year after; part years pro rata; 1 year minimum;
+     unpaid absence not counted; total capped at 2 years' basic wage. Wage per day = monthly basic / 30. */
+  function gratuity(basic, start, end, unpaidDays) {
+    if (!(basic > 0)) return { error: 'Enter the monthly basic salary.' };
+    if (cmp(start, end) > 0) return { error: 'The last day is before the first day.' };
+    if (!(unpaidDays >= 0) || unpaidDays !== Math.floor(unpaidDays)) return { error: 'Unpaid leave must be a whole number of days, 0 or more.' };
+    const total = num_(end) - num_(start) + 1, service = total - unpaidDays;
+    if (service < 0) return { error: 'Unpaid leave is longer than the whole service.' };
+    const years = service / 365, d = diffYMD(start, fromNum(num_(end) + 1));   // both the first and the last day count
+    if (service < 365) return { eligible: false, serviceDays: service, years, totalDays: total, ymd: d };
+    const first = Math.min(years, 5), rest = Math.max(years - 5, 0), days = 21 * first + 30 * rest, daily = basic / 30;
+    const raw = daily * days, cap = basic * 24, capped = raw > cap;
+    return { eligible: true, serviceDays: service, totalDays: total, years, ymd: d, gratuityDays: days, dailyWage: daily, amount: r2(Math.min(raw, cap)), uncapped: r2(raw), capped, cap };
+  }
+  /* ---------- time zones (browser Intl and the IANA tz database built into it) ---------- */
+  const dtfs = {};
+  function parts(zone, ms) {
+    const f = dtfs[zone] || (dtfs[zone] = new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }));
+    const o = {}; f.formatToParts(new Date(ms)).forEach(p => { if (p.type !== 'literal') o[p.type] = +p.value; });
+    return { y: o.year, m: o.month, d: o.day, h: o.hour % 24, mi: o.minute, s: o.second };
+  }
+  const offsetMin = (zone, ms) => { const p = parts(zone, ms); return Math.round((Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi, p.s) - Math.floor(ms / 1000) * 1000) / 60000); };
+  /* wall clock time in a zone -> UTC milliseconds. Returns {ms, ambiguous} or {error} when the time does not exist (clocks jump forward). */
+  function wallToUtc(zone, y, m, d, h, mi) {
+    const guess = Date.UTC(y, m - 1, d, h, mi), cands = new Set();
+    for (const off of [offsetMin(zone, guess - 864e5), offsetMin(zone, guess + 864e5), offsetMin(zone, guess)]) {
+      const ms = guess - off * 60000, p = parts(zone, ms);
+      if (p.y === y && p.m === m && p.d === d && p.h === h && p.mi === mi) cands.add(ms);
+    }
+    if (!cands.size) return { error: 'That time does not exist in this zone on that date, because the clocks move forward.' };
+    const all = [...cands].sort((a, b) => a - b); return { ms: all[0], ambiguous: all.length > 1 };
+  }
+  const api = { ymd, iso, cmp, weekday, addMonths, addDate, diffYMD, ageOn, dayOfYear, isoWeek, workdays, gratuity, dim, isLeap, num_, fromNum, parts, offsetMin, wallToUtc, parse, percent, vat, loan, compound, r2, UNITS, convert };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.CalcMath = api;
 })(typeof window !== 'undefined' ? window : globalThis);
