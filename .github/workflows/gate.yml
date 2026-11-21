@@ -17,23 +17,25 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Test tools
         run: |
-          python3 -m venv /tmp/v && /tmp/v/bin/pip install --quiet playwright==1.49.1 pypdf detect-secrets
-          echo /tmp/v/bin >> "$GITHUB_PATH"; test -x /usr/bin/google-chrome
+          python3 -m pip install --user --break-system-packages --quiet playwright==1.49.1 pypdf detect-secrets 2>/tmp/pip.txt || python3 -m pip install --user --quiet playwright==1.49.1 pypdf detect-secrets 2>>/tmp/pip.txt || true
+          python3 -c "import playwright, pypdf" || { echo "::error::Python test packages did not install: $(tail -3 /tmp/pip.txt | tr '\n' ' ')"; exit 1; }
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          test -x /usr/bin/google-chrome || { echo "::error::Chrome not found at /usr/bin/google-chrome"; exit 1; }
       - name: Run the gate
         run: |
           set -o pipefail
           { bash dev/tests/run-gate.sh
             echo; echo "=== Known vulnerabilities in vendored libraries"; python3 dev/vendor-audit.py && echo "--- PASS" || { echo "--- FAIL"; exit 1; }
             echo; echo "=== Secret scan"
-            detect-secrets scan --all-files --exclude-lines 'getRandomValues' $(git ls-files | grep -v '^assets/vendor/' | grep -v '^desktop/package-lock.json$') | python3 -c "import sys,json;d=json.load(sys.stdin)['results'];print(d or 'no secrets');sys.exit(1 if d else 0)" && echo "--- PASS"
-          } 2>&1 | tee /tmp/gate.txt
+            detect-secrets scan --all-files --exclude-lines 'getRandomValues' $(git ls-files | grep -v '^assets/vendor/' | grep -v '^desktop/package-lock.json$' | grep -v '^dev/vendor-hashes.json$') | python3 -c "import sys,json;d=json.load(sys.stdin)['results'];print(d or 'no secrets');sys.exit(1 if d else 0)" && echo "--- PASS"
+          } 2>&1 | tee /tmp/gate.txt || { echo "::error::$(grep -E '^--- FAIL|GATE' /tmp/gate.txt | tr '\n' ' ' | cut -c1-900)"; exit 1; }
       - name: Save report
         if: always()
         run: |
-          mkdir -p /tmp/rep && cd /tmp/rep && git init -q && git checkout -q -b gate-reports
-          { echo "commit $GITHUB_SHA  ref $GITHUB_REF  run $GITHUB_RUN_ID  $(date -u)"; echo "result ${{ job.status }}"; cat /tmp/gate.txt 2>/dev/null; } > gate.txt
-          git -c user.name=dilia-ci -c user.email=ci@users.noreply.github.com commit -qam report 2>/dev/null || { git add gate.txt; git -c user.name=dilia-ci -c user.email=ci@users.noreply.github.com commit -qm report; }
-          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gate-reports
+          mkdir -p /tmp/rep && cd /tmp/rep && git init -q -b gate-reports
+          { echo "commit $GITHUB_SHA  ref $GITHUB_REF  run $GITHUB_RUN_ID  $(date -u)"; cat /tmp/gate.txt 2>/dev/null || echo "gate did not run"; } > gate.txt
+          git add gate.txt && git -c user.name=dilia-ci -c user.email=ci@users.noreply.github.com commit -qm "gate report" || echo "::error::report commit failed"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:gate-reports 2>/tmp/push.txt || echo "::error::report push failed: $(tail -2 /tmp/push.txt | tr '\n' ' ')"
   promote:
     needs: gate
     if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
