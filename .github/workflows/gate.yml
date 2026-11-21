@@ -17,7 +17,7 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Test tools
         run: |
-          python3 -m pip install --user --break-system-packages --quiet playwright==1.49.1 pypdf detect-secrets 2>/tmp/pip.txt || python3 -m pip install --user --quiet playwright==1.49.1 pypdf detect-secrets 2>>/tmp/pip.txt || true
+          python3 -m pip install --user --break-system-packages --quiet "playwright>=1.49" pypdf detect-secrets 2>/tmp/pip.txt || python3 -m pip install --user --quiet "playwright>=1.49" pypdf detect-secrets 2>>/tmp/pip.txt || true
           python3 -c "import playwright, pypdf" || { echo "::error::Python test packages did not install: $(tail -3 /tmp/pip.txt | tr '\n' ' ')"; exit 1; }
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           test -x /usr/bin/google-chrome || { echo "::error::Chrome not found at /usr/bin/google-chrome"; exit 1; }
