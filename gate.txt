@@ -1,0 +1,91 @@
+commit ecff23e7af1f56e2bc19416da4893afdc2ba8e08  ref refs/heads/staging  run 44850264505  Sat Nov 21 01:28:40 UTC 2026
+
+=== Static security gate
+security-check: OK (233 vendor files pinned)
+--- PASS
+
+=== Generated pages match their sources
+--- PASS
+
+=== Calculator maths
+unit OK
+--- PASS
+
+=== All pages: security policy, errors, no outside requests
+200 pages checked, 0 with problems
+--- PASS
+
+=== Calculator pages
+94 checks, 0 failed
+--- PASS
+
+=== Hostile PDF guard
+PASS guard loaded
+PASS main thread has no qpdf
+PASS normal file loads (10 pages) ['ok', 10, 48.5]
+PASS locked file: same "encrypted" message ['err', 'Input document to `PDFDocument.load` is encrypted. You can use `PDFDocument.load(..., { ignoreEncryption: true })` if you wish to load the document anyways.', 2.900000000023283]
+PASS looping page tree refused in worker, page alive ['err', 'Maximum call stack size exceeded', 4.699999999982538]
+PASS page responsive after hostile file
+PASS time limit stops the job with the slow message ['err', 'This file took too long to read, so Dilia stopped it to keep your browser responsive. It may be damaged or built to freeze apps.', 4.300000000017462]
+PASS after a stop, a fresh worker reads normally ['ok', 10, 63.70000000001164]
+PASS qpdf runs in worker, caller bytes intact [0, 6440, 5597]
+PASS qpdf time limit stops the job This file took too long to read, so Dilia stopped it to keep your browser responsive. It may be damaged or built to freeze apps.
+PASS same bytes are not re-checked 2
+PASS no CSP or console errors
+FAILS []
+--- PASS
+
+=== Fill forms: My details
+PASS My details button present on the fill-form page
+PASS 14 fields found 14
+PASS first name filled Alex
+PASS last name filled
+PASS email filled
+PASS phone filled
+PASS existing value NOT overwritten Existing Co
+PASS street address filled
+PASS city, postcode, country filled
+PASS full name filled from first+last Alex Example
+PASS bank account name NOT filled
+PASS father's name NOT filled
+PASS comments NOT filled
+PASS multiline address field filled
+PASS formVals recorded (will be saved into PDF) ['Mailing_Address_Lines', 'Full_Name', 'Country', 'Postcode', 'City', 'Street_Address', 'Mobile_Phone', 'Email_Address', 'Last_Name', 'First_Name']
+PASS stored on this device only (localStorage)
+PASS undo removes the autofill in one step
+PASS remembered after reload
+PASS forget empties the form
+PASS forget removes the stored copy
+PASS unticked: nothing stored
+PASS saved PDF contains the filled values (earlier typed Temp kept, not overwritten) {'First_Name': 'Temp', 'Last_Name': 'Example', 'Email_Address': 'd@example.com', 'Mobile_Phone': None}
+PASS no button on other editors
+PASS no console errors
+FAILS []
+--- PASS
+
+=== Reader: Comments panel
+PASS Comments tab exists
+['Page 1 · Note | Alex Ex · 2026-11-20 | Check the total here', 'Page 1 · Highlight | No text', 'Page 4 · Text box | <script>alert(1)</script> Signed copy needed', 'Page 6 · Note | Final page note']
+PASS 4 marks listed (popups excluded) 4
+PASS note shows page, type, author, date, text
+PASS highlight without text says No text
+PASS text box on page 4
+PASS hostile text shown as text, not run
+PASS summary line
+PASS click jumps to page 6 6
+PASS PDF without marks says so ['This PDF has no comments, notes or highlights.']
+PASS no console errors
+FAILS []
+--- PASS
+
+GATE PASSED
+
+=== Known vulnerabilities in vendored libraries
+vendor-audit (npm advisories): 16 libraries checked, 0 with known vulnerabilities
+--- PASS
+
+=== Secret scan
+no secrets
+--- PASS
+
+OVERALL: PASSED, will go live
