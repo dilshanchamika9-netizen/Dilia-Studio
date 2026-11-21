@@ -1,0 +1,27 @@
+# Checks the live site every 30 minutes: pages up, right content, key files identical to the repo, no outside scripts.
+# On a problem it opens one issue "Live site problem" (GitHub emails the owner) and fails once; when fixed it closes the issue.
+name: uptime
+on:
+  schedule: [{ cron: '7,37 * * * *' }]
+  workflow_dispatch:
+permissions: { contents: read, issues: write }
+concurrency: { group: uptime, cancel-in-progress: true }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { ref: main, fetch-depth: 1 }
+      - name: Check the live site
+        id: c
+        run: python3 dev/uptime-check.py | tee /tmp/up.txt; echo "rc=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Open, update or close the alert issue
+        env: { GH_TOKEN: '${{ github.token }}', R: '${{ github.repository }}' }
+        run: |
+          n=$(gh issue list -R "$R" --state open --search 'in:title "Live site problem"' --json number -q '.[0].number')
+          body=$(printf 'Time (UTC): %s\n\n```\n%s\n```\nRun: %s/%s/actions/runs/%s' "$(date -u)" "$(cat /tmp/up.txt)" "$GITHUB_SERVER_URL" "$R" "$GITHUB_RUN_ID")
+          if [ "${{ steps.c.outputs.rc }}" != "0" ]; then
+            if [ -z "$n" ]; then gh issue create -R "$R" --title "Live site problem" --body "$body"; exit 1; fi
+            echo "Already reported in #$n"
+          elif [ -n "$n" ]; then gh issue close "$n" -R "$R" --comment "Site is OK again. $body"; fi

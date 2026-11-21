@@ -1,6 +1,6 @@
 name: security
 on:
-  push: { branches: [main] }
+  push: { branches: [main, staging] }
   pull_request:
   schedule: [{ cron: '17 5 * * 1' }]
 permissions: { contents: read, security-events: write }

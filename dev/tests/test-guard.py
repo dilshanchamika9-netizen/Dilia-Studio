@@ -1,3 +1,5 @@
+import os, pathlib, tempfile
+FIX = str(pathlib.Path(__file__).resolve().parent / 'fixtures'); ROOT = str(pathlib.Path(__file__).resolve().parents[2]); OUT = tempfile.mkdtemp()
 import asyncio, time
 from playwright.async_api import async_playwright
 U='http://localhost:8766/'; fails=[]; errs=[]
@@ -14,14 +16,16 @@ async def main():
     async def run(js): return await pg.evaluate(js)
     load = lambda path: f"""(async()=>{{const b=new Uint8Array(await (await fetch('{path}')).arrayBuffer()); const t=performance.now();
        try{{const d=await PDFLib.PDFDocument.load(b,{{updateMetadata:false}}); return ['ok',d.getPageCount(),performance.now()-t]}}catch(e){{return ['err',e.message,performance.now()-t]}}}})()"""
-    import shutil; shutil.copy('/tmp/t2/ten.pdf','/home/claude/dilia-studio/_g_ten.pdf'); shutil.copy('/tmp/w/locked.pdf','/home/claude/dilia-studio/_g_locked.pdf'); shutil.copy('/tmp/g/loop.pdf','/home/claude/dilia-studio/_g_loop.pdf')
+    import shutil; shutil.copy(FIX+'/ten.pdf',ROOT+'/_g_ten.pdf'); shutil.copy(FIX+'/locked.pdf',ROOT+'/_g_locked.pdf'); shutil.copy(FIX+'/loop.pdf',ROOT+'/_g_loop.pdf')
     r=await run(load('/_g_ten.pdf')); ck('normal file loads (10 pages)', r[0]=='ok' and r[1]==10, r)
     r=await run(load('/_g_locked.pdf')); ck('locked file: same "encrypted" message', r[0]=='err' and 'encrypt' in r[1].lower(), r)
     r=await run(load('/_g_loop.pdf')); ck('looping page tree refused in worker, page alive', r[0]=='err', r)
     ck('page responsive after hostile file', await run("1+1")==2)
     # timeout path: force a 1 ms limit
     await run("DiliaGuard.maxMs=1")
-    r=await run(load('/_g_ten.pdf')); ck('time limit stops the job with the slow message', r[0]=='err' and 'too long' in r[1], r)
+    big = """(async()=>{const d=await PDFLib.PDFDocument.create(); for(let i=0;i<4000;i++) d.addPage(); const b=await d.save(); const t=performance.now();
+       try{const x=await PDFLib.PDFDocument.load(b); return ['ok',x.getPageCount(),performance.now()-t]}catch(e){return ['err',e.message,performance.now()-t]}})()"""
+    r=await run(big); ck('time limit stops the job with the slow message', r[0]=='err' and 'too long' in r[1], r)
     await run("DiliaGuard.maxMs=0")
     r=await run(load('/_g_ten.pdf')); ck('after a stop, a fresh worker reads normally', r[0]=='ok' and r[1]==10, r)
     # qpdf in worker
@@ -37,6 +41,6 @@ async def main():
     ck('no CSP or console errors', not [e for e in errs if 'Failed to load resource' not in e], errs[:4])
     await b.close()
   import os
-  for f in ('ten','locked','loop'): os.remove(f'/home/claude/dilia-studio/_g_{f}.pdf')
-  print('FAILS', fails)
+  for f in ('ten','locked','loop'): os.remove(ROOT+f'/_g_{f}.pdf')
+  print('FAILS', fails); import sys; sys.exit(1 if fails or errs else 0)
 asyncio.run(main())

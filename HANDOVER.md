@@ -234,3 +234,12 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Licence note: do NOT ship npm date-holidays data (CC BY-SA share-alike). It is only used by dev/holiday-crosscheck.mjs.
 - Gratuity rules and sources: hq 01-product/task-07-calc/MATRIX.md section 5a.
 - Tests: node dev/tests/test-calcmath.js (dates, workdays, gratuity, tz incl. DST edge cases), python3 dev/tests/test-calc.py (94 checks).
+
+## 9z. Release gate and uptime monitor (2026-11-21, Opus)
+- NEW WAY TO SHIP: push to `staging`, never to `main`: `git push -q origin HEAD:staging`. `.github/workflows/gate.yml` runs `dev/tests/run-gate.sh` + vendor audit + secret scan; on pass it fast-forwards `main` (live). Read results: `git fetch -q origin gate-reports && git show origin/gate-reports:gate.txt`. Check it went live: `git fetch -q origin main && git log -1 origin/main`.
+- Commits that change `.github/workflows/*` cannot be promoted by the robot token: after the gate passes on that commit, push the same commit to main yourself.
+- Run the gate locally first: `bash dev/tests/run-gate.sh` (starts its own servers via dev/tests/serve.py; 8765 plain, 8766 real headers). Takes about 4 minutes.
+- Test fixtures now live in dev/tests/fixtures (synthetic PDFs, placeholder name "Alex Ex"). Regenerate form/comments fixtures: `npm i pdf-lib` somewhere, then `NODE_PATH=... node dev/tests/make-*-fixture.js`.
+- Uptime: `.github/workflows/uptime.yml` every 30 min runs `dev/uptime-check.py` (pages, content, byte-identical key files, no outside scripts). Problem -> issue "Live site problem". Change DILIA_SITE when the domain/Cloudflare move happens.
+- Fixed while building the sweep: all 41 blog pages threw "Kit is not defined", used the reader's stylesheet instead of blog.css, linked a missing app manifest and showed the reader's "About" section (make-blog.py now uses an allow-list).
+- Not yet in the gate (still in /tmp on the build machine, need porting): per-tool suites for editor, fill-forms, protect, reader, OCR, QR, Pixel, Text. Port them next.

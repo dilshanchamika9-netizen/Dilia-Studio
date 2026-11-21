@@ -1,0 +1,53 @@
+# Release gate. Changes are pushed to the "staging" branch. This runs every check; only if all pass is the same commit
+# moved to "main", which is what the live site serves. A failing change never reaches the site.
+# Report of every run: branch gate-reports (gate.txt).
+name: release-gate
+on:
+  push: { branches: [staging] }
+  pull_request: { branches: [main] }
+  workflow_dispatch:
+concurrency: { group: gate, cancel-in-progress: false }
+permissions: { contents: write, pages: write }
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { fetch-depth: 0 }
+      - name: Test tools
+        run: |
+          python3 -m venv /tmp/v && /tmp/v/bin/pip install --quiet playwright==1.49.1 pypdf detect-secrets
+          echo /tmp/v/bin >> "$GITHUB_PATH"; test -x /usr/bin/google-chrome
+      - name: Run the gate
+        run: |
+          set -o pipefail
+          { bash dev/tests/run-gate.sh
+            echo; echo "=== Known vulnerabilities in vendored libraries"; python3 dev/vendor-audit.py && echo "--- PASS" || { echo "--- FAIL"; exit 1; }
+            echo; echo "=== Secret scan"
+            detect-secrets scan --all-files --exclude-lines 'getRandomValues' $(git ls-files | grep -v '^assets/vendor/' | grep -v '^desktop/package-lock.json$') | python3 -c "import sys,json;d=json.load(sys.stdin)['results'];print(d or 'no secrets');sys.exit(1 if d else 0)" && echo "--- PASS"
+          } 2>&1 | tee /tmp/gate.txt
+      - name: Save report
+        if: always()
+        run: |
+          mkdir -p /tmp/rep && cd /tmp/rep && git init -q && git checkout -q -b gate-reports
+          { echo "commit $GITHUB_SHA  ref $GITHUB_REF  run $GITHUB_RUN_ID  $(date -u)"; echo "result ${{ job.status }}"; cat /tmp/gate.txt 2>/dev/null; } > gate.txt
+          git -c user.name=dilia-ci -c user.email=ci@users.noreply.github.com commit -qam report 2>/dev/null || { git add gate.txt; git -c user.name=dilia-ci -c user.email=ci@users.noreply.github.com commit -qm report; }
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gate-reports
+  promote:
+    needs: gate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { fetch-depth: 0 }
+      - name: Move the tested commit to main (fast-forward only, never overwrites)
+        run: |
+          git fetch -q origin main
+          if git diff --name-only origin/main "$GITHUB_SHA" | grep -q '^\.github/workflows/'; then
+            echo "::warning::This change edits workflow files. GitHub's robot token may not push those: the lead moves it to main by hand (gate passed)."
+            git push origin "$GITHUB_SHA:refs/heads/main" || exit 0
+          else git push origin "$GITHUB_SHA:refs/heads/main"; fi
+      - name: Ask GitHub Pages to publish it
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages builds on its own"

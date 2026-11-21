@@ -10,12 +10,16 @@ head, rest = base.split('<main', 1); tail = rest.split('</main>', 1)[1]
 def shell(depth):
     up = '../' * depth
     h = head.replace('../assets/', up + 'assets/').replace('href="../"', f'href="{up}"').replace('href="../#', f'href="{up}#').replace('href="../tools.html"', f'href="{up}tools.html"').replace('href="../blog/"', f'href="{up}blog/"')
-    h = re.sub(r'<link rel="stylesheet" href="[^"]*work\.css">\s*<link rel="stylesheet" href="[^"]*viewer\.css">', f'<link rel="stylesheet" href="{up}assets/blog.css">', h)
-    h = h.replace('<body class="work"', '<body class="blog"')
+    h = re.sub(r'<link rel="stylesheet" href="[^"]*(work|viewer|reader)\.css">\n?', '', h)          # template (reader) styles out
+    h = re.sub(r'<link rel="(manifest|apple-touch-icon)"[^>]*>\n?', '', h)                          # the app manifest belongs to the reader only
+    h = h.replace('</head>', f'<link rel="stylesheet" href="{up}assets/blog.css">\n</head>', 1)
+    assert 'blog.css' in h and 'reader.css' not in h and 'manifest' not in h
+    h = re.sub(r'<body class="[^"]*"', '<body class="blog"', h, count=1)
     t = tail.replace('../assets/', up + 'assets/').replace('<script src="' + up + 'assets/viewer.js"></script>', '').replace('<script src="../assets/viewer.js"></script>', '')
     # these pages need no tool scripts: keep search palette, menu and common only
-    for s in ('pdf-lib.min.js', 'guard.js', 'pdfjs/pdf.js', 'Sortable.min.js', 'kit.js'):
-        t = re.sub(r'<script src="[^"]*' + re.escape(s) + r'"></script>\n?', '', t)
+    t = re.sub(r'<section class="rabout[^"]*".*?</section>\n?', '', t, flags=re.S)            # reader-only text
+    keep = ('tools.js', 'palette.js', 'menu.js', 'common.js')      # allow-list: anything else from the template is dropped
+    t = re.sub(r'<script src="[^"]*?([^/"]+)"></script>\n?', lambda m: m.group(0) if m.group(1) in keep else '', t)
     return h, t
 
 def retitle(h, title, desc):
