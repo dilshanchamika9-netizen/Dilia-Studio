@@ -1,4 +1,4 @@
-/* Dilia Pixel engine: compress, resize, crop, rotate, convert, watermark, meme, blur, GIF maker, metadata.
+/* Dilia Image engine: compress, resize, crop, rotate, convert, watermark, meme, blur, GIF maker, metadata.
    One file, one mode per page (body data-tool). Everything runs in this tab; nothing is uploaded. */
 {
 const { $, kb, plural, esc, toast, save, cleanName } = Kit;

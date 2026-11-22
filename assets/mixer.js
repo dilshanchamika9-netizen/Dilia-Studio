@@ -141,7 +141,7 @@ async function buildCompare() {
     y -= 2;
   }
   for (const im of imgs) { const img = await out.embedPng(new Uint8Array(await im.blob.arrayBuffer())), p2 = out.addPage([im.w, im.h]); p2.drawImage(img, { x: 0, y: 0, width: im.w, height: im.h }); }
-  out.setProducer('Dilia Studio');
+  out.setProducer('Dilia');
   const blob = new Blob([await out.save()], { type: 'application/pdf' });
   return { blob, name: cleanName($('#outName').value, 'Dilia-compared', 'pdf'), info: `${changed.length} of ${plural(N, 'page')} differ` };
 }
@@ -228,7 +228,7 @@ async function buildBatch() {
         if (ops.includes('bBates')) counter += pgs.length;
       }
       if (ops.includes('bMeta')) { const info = d.getInfoDict(); info.keys().forEach(x => info.delete(x)); d.catalog.delete(N('Metadata')); }
-      else d.setProducer('Dilia Studio');
+      else d.setProducer('Dilia');
       out.push({ name: f.name, data: await d.save() });
     } catch (e) { bad.push(f.name); }
   }
@@ -300,7 +300,7 @@ go.addEventListener('click', async () => {
         const va = box(ap), j = each ? Math.min(i, B.count - 1) : 0, vb = box(B.lib.getPage(j)), pg = out.addPage([va.vw, va.vh]);
         if (over) { at(pg, ea[i], va, va.vw, va.vh); at(pg, eb[j], vb, va.vw, va.vh); } else { at(pg, eb[j], vb, va.vw, va.vh); at(pg, ea[i], va, va.vw, va.vh); }
       });
-      out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+      out.setProducer('Dilia'); out.setCreator('Dilia');
       const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, 'Dilia-letterhead', 'pdf');
       prog.style.width = '100%'; if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(blob); save(lastUrl, name);
       $('#doneName').textContent = name; $('#doneInfo').textContent = `${p.info}, ${kb(blob.size)}`; $('#again').href = lastUrl; $('#again').download = name; $('#done').hidden = false;
@@ -314,7 +314,7 @@ go.addEventListener('click', async () => {
       out.addPage(pg);
       if (k % 20 === 19) { prog.style.width = Math.round(8 + 84 * (k + 1) / p.list.length) + '%'; await tick(); }
     }
-    out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+    out.setProducer('Dilia'); out.setCreator('Dilia');
     const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, INSERT ? 'Dilia-inserted' : 'Dilia-mixed', 'pdf');
     prog.style.width = '100%';
     if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(blob); save(lastUrl, name);

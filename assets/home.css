@@ -1,7 +1,5 @@
 /* Dilia hub: search first. Light base, magenta is the only action colour. */
 /* Dilia home (design system v1, approved 23 Nov 2026): left-aligned hero, today strip, four area doors. */
-.adot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:1px;font-style:normal}
-.adot.t{background:#e5007d}.adot.l{background:#009fe3}.adot.p{background:#7a5cff}.adot.r{background:#3a4252}
 .hub{position:relative;margin-top:-72px;padding:128px 0 48px;overflow:hidden}
 .hub .flow{opacity:.75}
 .hub .veil{position:absolute;inset:0;background:linear-gradient(90deg,#ffffffe6 0%,#ffffffb3 45%,#ffffff40 100%),linear-gradient(#ffffff00 70%,#fff)}

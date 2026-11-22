@@ -1,4 +1,4 @@
-// Tool library: all lines on tools.html, or one line on /studio/, /pixel/, /qr/ (body[data-line]).
+// Tool library: all lines on tools.html, or one line on /pdf/, /image/, /qr/ (body[data-line]).
 {
   inkFlow(document.getElementById('ink'), { start: 19 });
   const lib = document.getElementById('lib'), q = document.getElementById('q');
@@ -7,7 +7,7 @@
   const byId = {}; DILIA_TOOLS.forEach(([g, l]) => l.forEach(t => { byId[t.id] = t; }));
   const tile = t => `<a class="tile ready" href="${diliaUrl(t)}" data-s="${esc((t.name + ' ' + t.desc).toLowerCase())}"><span class="ic">${diliaIcon(t.icon)}</span><b>${esc(t.name)}</b><span>${esc(t.desc)}</span></a>`;
   const lines = DILIA_LINES.filter(L => !only || L.id === only);
-  { const qi = document.getElementById('q'), ex = { studio: 'sign or compress', pixel: 'resize or HEIC', qr: 'Wi-Fi or contact', text: 'count or sort' }[only]; if (qi && ex) qi.placeholder = 'Search ' + lines[0].title + ', for example ' + ex; }
+  { const qi = document.getElementById('q'), ex = { pdf: 'sign or compress', image: 'resize or HEIC', qr: 'Wi-Fi or contact', text: 'count or sort' }[only]; if (qi && ex) qi.placeholder = 'Search ' + lines[0].title + ', for example ' + ex; }
   const live = lines.filter(L => !L.soon), soon = lines.filter(L => L.soon);
   const sec = L => {
     const head = only ? '' : `<div class="lhead"><div><h2>${esc(L.title)}</h2><p>${esc(L.blurb)}</p></div><a class="lopen" href="${DROOT}${L.href}">Open ${esc(L.title)} →</a></div>`;

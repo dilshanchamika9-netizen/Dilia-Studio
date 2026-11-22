@@ -252,3 +252,8 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - `life/index.html` (Available now: 8 live date/holiday/gratuity tools + Coming soon list) and `play/index.html` (Coming soon, noindex until games exist). Styles: `assets/area.css`.
 - Test: dev/tests/test-home.py (76 checks: 3 pages x 1440/820/390, errors, CSP, outside requests, sideways scroll, every link, today strip, door counts, search, drop). Added to run-gate.sh.
 - Local gate note: Python 3.13 rewrites the committed dev/__pycache__/*.pyc and trips "Generated pages match"; run the gate with PYTHONDONTWRITEBYTECODE=1 and `git checkout dev/__pycache__` first.
+
+## 11. Rename and new menu everywhere (23 Nov 2026)
+- Studio is now PDF (/pdf/), Pixel is now Image (/image/). Old /studio/ and /pixel/ are small redirect pages (made by make-pages.py).
+- One menu on every page (Tools, Life, Play, Read), applied by dev/navpass.py at the end of make-pages.py and make-blog.py. It also shows on phones.
+- Home search list, quick buttons, popular tools and footer now mix all areas (PDF, image, QR, holidays, time zones, text), not PDF only.

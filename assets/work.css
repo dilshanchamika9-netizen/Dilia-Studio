@@ -249,7 +249,7 @@ body.work{background:var(--mist)}
 .ffrow.on{border-color:var(--magenta)}.ffk{font-size:13px;color:var(--muted);min-width:76px}
 .ffrow .name{flex:1;min-width:140px}
 
-/* ---- Dilia Pixel ---- */
+/* ---- Dilia Image ---- */
 .card.pix{cursor:grab}
 .pstat{margin:6px 2px 0;font-size:12px;line-height:1.4;color:var(--muted)}
 .pstat .bad{color:#b42318;font-weight:600}

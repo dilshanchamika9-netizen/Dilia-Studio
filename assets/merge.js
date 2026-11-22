@@ -212,7 +212,7 @@ go.addEventListener('click', async () => {
       prog.style.width = Math.round(8 + 80 * i / pages.length) + '%';
       await new Promise(r => setTimeout(r, 0));
     }
-    out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+    out.setProducer('Dilia'); out.setCreator('Dilia');
     const bytes = await out.save();
     prog.style.width = '100%';
     const blob = new Blob([bytes], { type: 'application/pdf' });

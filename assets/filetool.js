@@ -156,7 +156,7 @@ async function compressFile() {
     } catch (e) { /* leave this photo as it is */ }
     prog.style.width = Math.round(8 + 80 * (k + 1) / found.length) + '%'; await tick();
   }
-  lib.setProducer('Dilia Studio');
+  lib.setProducer('Dilia');
   const out = await lib.save({ useObjectStreams: true });
   return { out, changed, total: found.length };
 }
@@ -225,7 +225,7 @@ async function ocrFile() {
     }
   } finally { await worker.terminate(); }
   if (!words) { const e = new Error('none'); e.small = 'No text could be recognised. The scan may be too faint, or not in English.'; throw e; }
-  out.setProducer('Dilia Studio');
+  out.setProducer('Dilia');
   return { out: await out.save(), pages: todo.length, words };
 }
 
@@ -268,7 +268,7 @@ async function run() {
         prog.style.width = Math.round(8 + 84 * (i + 1) / doc.count) + '%'; await tick();
       }
       if (!n) throw new Error('no page could be read');
-      out.setProducer('Dilia Studio'); const bytes = await out.save(); doc.outSize = bytes.length; summary();
+      out.setProducer('Dilia'); const bytes = await out.save(); doc.outSize = bytes.length; summary();
       return { bytes, name: cleanName(outName.value, CFG.fallback, 'pdf'), info: `${plural(n, 'page')} recovered as pictures (text is not selectable)` };
     }
     if (!r.out || (r.code !== 0 && r.code !== 3)) throw new Error('the file could not be rewritten');

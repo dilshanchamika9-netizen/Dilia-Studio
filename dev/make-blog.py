@@ -23,7 +23,7 @@ def shell(depth):
     return h, t
 
 def retitle(h, title, desc):
-    h = re.sub(r'<title>.*?</title>', f'<title>{EA(title)} | Dilia Studio blog</title>', h)
+    h = re.sub(r'<title>.*?</title>', f'<title>{EA(title)} | Dilia blog</title>', h)
     h = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{EA(desc)}">', h)
     return h
 
@@ -64,3 +64,7 @@ for p in POSTS:
 </article></main>'''
     d = ROOT / 'blog' / p['slug']; d.mkdir(parents=True, exist_ok=True); (d / 'index.html').write_text(h + body + t)
 print('blog pages:', len(POSTS) + 1)
+
+import importlib.util as _nu
+_s = _nu.spec_from_file_location('navpass', str(ROOT / 'dev' / 'navpass.py')); _n = _nu.module_from_spec(_s); _s.loader.exec_module(_n)
+print('menu updated on', _n.run(), 'pages')

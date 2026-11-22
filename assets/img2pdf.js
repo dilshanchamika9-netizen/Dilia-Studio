@@ -169,7 +169,7 @@ async function build() {
     prog.style.width = Math.round(6 + 86 * (n + 1) / items.length) + '%';
     await new Promise(r => setTimeout(r, 0));
   }
-  out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+  out.setProducer('Dilia'); out.setCreator('Dilia');
   return new Blob([await out.save()], { type: 'application/pdf' });
 }
 go.addEventListener('click', async () => {

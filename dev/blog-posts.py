@@ -1,4 +1,4 @@
-# Blog posts for Dilia Studio. Plain text only (the generator escapes it). Each post is tied to one tool.
+# Blog posts for Dilia. Plain text only (the generator escapes it). Each post is tied to one tool.
 # Rules: only claim what the tool really does; no legal advice; no claims about other companies.
 POSTS = [
 dict(slug='merge-pdf-files', tool='merge-pdf', toolname='Merge PDF', title='How to Merge PDF Files Into One (Free, No Upload)',
@@ -537,7 +537,7 @@ dict(slug='compare-two-texts-online', tool='compare-text', toolname='Compare two
  steps=['Open Compare two texts.', 'Paste the original on the left and the changed text on the right.', 'Choose to compare by line, word or character.', 'Tick "Ignore capital letters" or "Ignore extra spaces" if those changes do not matter.'],
  sections=[('Which level to use', ['By line suits lists and code. By word suits paragraphs. By character suits short strings such as codes.']),
   ('Very large texts', ['Two very different long texts may be too big for word or character mode. Use By line, or compare smaller parts.'])],
- faq=[('Is my text uploaded?', 'No.'), ('Can it compare PDFs?', 'Compare PDFs in Dilia Studio. Here you paste plain text.')],
+ faq=[('Is my text uploaded?', 'No.'), ('Can it compare PDFs?', 'Compare PDFs in Dilia. Here you paste plain text.')],
  related=['find-and-replace-in-text-online', 'count-words-and-characters-online', 'clean-up-messy-text']),
 
 dict(slug='generate-lorem-ipsum', tool='lorem-ipsum-generator', toolname='Lorem ipsum generator', title='How to Generate Lorem Ipsum Placeholder Text',

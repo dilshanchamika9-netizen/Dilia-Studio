@@ -301,7 +301,7 @@ TOOLS = [
 ]
 
 
-# ---------------- Dilia Pixel (image tools) ----------------
+# ---------------- Dilia Image (image tools) ----------------
 def qsl(i='q', label='Quality', v=75, mn=5):
     return f'<div class="optfield"><label class="lbl" for="{i}">{label}</label><span class="name qs"><input id="{i}" type="range" min="{mn}" max="100" value="{v}" aria-label="{label}"><output for="{i}" id="{i}o">{v}</output></span></div>'
 def hid(i, v): return f'<input id="{i}" type="hidden" value="{v}">'
@@ -395,14 +395,14 @@ def page(t):
     go_label = t.get('go', {'delete': 'Delete pages and download', 'extract': 'Extract and download', 'rotate': 'Save rotated PDF', 'reorder': 'Save new order'}.get(t['id'], 'Download'))
     body_attr = (f' data-tool="{t["tool"]}" data-out="{t["out"]}"' if pix else f' data-tool="{t["id"]}"') if (pix or not img) else ''
     qp = ''.join(f'<script src="{u}"></script>' for u in t.get('extra', []))
-    title = f'{t["name"]} - Free Online | Dilia {"Pixel" if pix else "Studio"}'
+    title = f'{t["name"]} - Free Online | Dilia {"Image" if pix else "PDF"}'
     return f'''<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{title}</title>
-<meta name="description" content="{t['name']} in your browser with Dilia Studio. Nothing is uploaded.">
+<meta name="description" content="{t['name']} in your browser with Dilia. Nothing is uploaded.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
@@ -415,7 +415,7 @@ def page(t):
 
 <header class="nav solid" data-solid="1">
   <div class="wrap">
-    <a class="brand" href="./" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+    <a class="brand" href="./" aria-label="Dilia PDF home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">PDF</span></span></a>
     <nav class="links" aria-label="Main">
       <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <a class="opt" href="./#privacy">Privacy</a>
@@ -549,7 +549,7 @@ def qr_page(t):
     head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/qr.css">')
     head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia QR</title>', head)
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
-    head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia QR home"').replace('<span class="l">Studio</span>', '<span class="l">QR</span>')
+    head = head.replace('aria-label="Dilia PDF home"', 'aria-label="Dilia QR home"').replace('<span class="l">PDF</span>', '<span class="l">QR</span>')
     tail = tail.replace('<script src="assets/vendor/pdfjs/pdf.js"></script>\n', '').replace('<script src="assets/vendor/Sortable.min.js"></script>\n', '')
     if t['mode'] != 'make': tail = tail.replace('<script src="assets/vendor/pdf-lib.min.js"></script>\n', '')
     tail = tail.replace('<script src="assets/qrtool.js"></script>', '<script src="assets/qrtool.js"></script>')
@@ -610,7 +610,7 @@ def txt_page(t):
     head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/text.css">')
     head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia Text</title>', head)
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
-    head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia Text home"').replace('<span class="l">Studio</span>', '<span class="l">Text</span>')
+    head = head.replace('aria-label="Dilia PDF home"', 'aria-label="Dilia Text home"').replace('<span class="l">PDF</span>', '<span class="l">Text</span>')
     for v in ('pdfjs/pdf.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
     head = head.replace('<body class="work"', '<body class="work" data-txt="' + t['mode'] + '" data-preset="' + t['preset'] + '"')
     return head + txt_main(t) + tail
@@ -621,7 +621,7 @@ def page(t):
     if t['kind'] == 'txt': return txt_page(t)
     html = _page(t)
     if t['kind'] == 'pix':
-        for a, b in (('aria-label="Dilia Studio home"', 'aria-label="Dilia Pixel home"'), ('<span class="l">Studio</span>', '<span class="l">Pixel</span>'),
+        for a, b in (('aria-label="Dilia PDF home"', 'aria-label="Dilia Image home"'), ('<span class="l">PDF</span>', '<span class="l">Image</span>'),
                      ('<script src="assets/vendor/pdf-lib.min.js"></script>\n', ''), ('<script src="assets/vendor/pdfjs/pdf.js"></script>\n', ''), ('Your new PDF', 'Your new images')):
             html = html.replace(a, b)
     return html
@@ -642,7 +642,7 @@ def calc_page(t):
     head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/text.css">\n<link rel="stylesheet" href="assets/calc.css">')
     head = re.sub(r'<title>.*?</title>', '<title>' + t['name'] + ' - Free Online | Dilia Calc</title>', head)
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + t['desc'] + '">', head)
-    head = head.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia Calc home"').replace('<span class="l">Studio</span>', '<span class="l">Calc</span>')
+    head = head.replace('aria-label="Dilia PDF home"', 'aria-label="Dilia Calc home"').replace('<span class="l">PDF</span>', '<span class="l">Calc</span>')
     for v in ('pdfjs/pdf.js', 'Sortable.min.js', 'pdf-lib.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
     tail = tail.replace('<script src="assets/calctool.js"></script>', '<script src="assets/calcmath.js"></script>\n<script src="assets/calctool.js"></script>')
     head = head.replace('<body class="work"', '<body class="work" data-calc="' + t['mode'] + '" data-preset="' + t['preset'] + '"')
@@ -657,7 +657,7 @@ SLUGS = dict(re.findall(r"id: '([^']+)', slug: '([^']+)'", (ROOT / 'assets' / 't
 
 def up(html):
     """Tool pages live in /<keyword>/index.html, one folder below the site root."""
-    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"'), ('href="studio/"', 'href="../studio/"'), ('href="pixel/"', 'href="../pixel/"'), ('href="qr/"', 'href="../qr/"'), ('href="text/"', 'href="../text/"'), ('href="compress-image/"', 'href="../compress-image/"'), ('href="qr-code-generator/"', 'href="../qr-code-generator/"'), ('href="compress-pdf/"', 'href="../compress-pdf/"'), ('href="merge-pdf/"', 'href="../merge-pdf/"')):
+    for a, b in (('href="assets/', 'href="../assets/'), ('src="assets/', 'src="../assets/'), ('href="./"', 'href="../"'), ('href="./#', 'href="../#'), ('href="tools.html"', 'href="../tools.html"'), ('href="blog/"', 'href="../blog/"'), ('href="pdf/"', 'href="../pdf/"'), ('href="image/"', 'href="../image/"'), ('href="qr/"', 'href="../qr/"'), ('href="text/"', 'href="../text/"'), ('href="compress-image/"', 'href="../compress-image/"'), ('href="qr-code-generator/"', 'href="../qr-code-generator/"'), ('href="compress-pdf/"', 'href="../compress-pdf/"'), ('href="merge-pdf/"', 'href="../merge-pdf/"')):
         html = html.replace(a, b)
     # every page that loads pdf-lib also loads the guard, which reads files in a worker with a time limit first
     return html.replace('src="../assets/vendor/pdf-lib.min.js"></script>', 'src="../assets/vendor/pdf-lib.min.js"></script>\n<script src="../assets/guard.js"></script>')
@@ -709,8 +709,8 @@ def editor_page(t):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>{t['name']} - Free Online | Dilia Studio</title>
-<meta name="description" content="{t['name']} in your browser with Dilia Studio. Nothing is uploaded.">
+<title>{t['name']} - Free Online | Dilia PDF</title>
+<meta name="description" content="{t['name']} in your browser with Dilia. Nothing is uploaded.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
@@ -724,7 +724,7 @@ def editor_page(t):
 
 <header class="nav solid" data-solid="1">
   <div class="wrap">
-    <a class="brand" href="./" aria-label="Dilia Studio home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Studio</span></span></a>
+    <a class="brand" href="./" aria-label="Dilia PDF home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">PDF</span></span></a>
     <nav class="links" aria-label="Main">
       <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <a class="opt" href="./#privacy">Privacy</a>
@@ -864,7 +864,7 @@ def reader_page():
     head, rest = base.split('<main', 1)
     tail = rest.split('</main>', 1)[1]
     head = head.replace('assets/work.css">', 'assets/work.css">\n<link rel="stylesheet" href="assets/reader.css">\n<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="assets/app/icon-192.png">')
-    head = head.replace('<title>PDF reader - Free Online | Dilia Studio</title>', '<title>PDF Reader - Free Online | Dilia Studio</title>')
+    head = head.replace('<title>PDF reader - Free Online | Dilia PDF</title>', '<title>PDF Reader - Free Online | Dilia PDF</title>')
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="Free PDF reader in your browser, installable as a Windows app. Tabs, bookmarks, search, layers, attachments, print, measure and read aloud. Nothing is uploaded.">', head)
     head = head.replace('<body class="work"', '<body class="work rapp"')
     tail = tail.replace('<script src="assets/viewer.js"></script>', '<script src="assets/reader.js"></script>')
@@ -953,10 +953,10 @@ _files, _ver = reader_files(_rhtml)
 (d / 'sw.js').write_text((ROOT / 'dev' / 'reader-sw.js').read_text().replace('__VERSION__', _ver).replace('__FILES__', json.dumps(_files)))
 print('wrote', SLUGS['viewer'] + '/ (app, ' + str(len(_files)) + ' offline files, version ' + _ver + ')')
 
-# ---------------- line pages: /studio/, /pixel/, /qr/ (own brand in the header) ----------------
+# ---------------- line pages: /pdf/, /image/, /qr/ (own brand in the header) ----------------
 LINES = {
-    'studio': dict(name='Studio', title='PDF Tools - Free Online | Dilia Studio', h1='Dilia Studio', kick='PDF tools', sub='Organise, edit, sign, convert and protect PDFs. Everything runs in your browser.', cta=('Merge PDFs', 'merge-pdf/')),
-    'pixel': dict(name='Pixel', title='Image Tools - Free Online | Dilia Pixel', h1='Dilia Pixel', kick='Image tools', sub='Make images smaller, resize and crop them, change formats, add watermarks. Everything runs in your browser.', cta=('Compress image', 'compress-image/')),
+    'pdf': dict(name='PDF', title='PDF Tools - Free Online | Dilia PDF', h1='Dilia PDF', kick='PDF tools', sub='Organise, edit, sign, convert and protect PDFs. Everything runs in your browser.', cta=('Merge PDFs', 'merge-pdf/')),
+    'image': dict(name='Image', title='Image Tools - Free Online | Dilia Image', h1='Dilia Image', kick='Image tools', sub='Make images smaller, resize and crop them, change formats, add watermarks. Everything runs in your browser.', cta=('Compress image', 'compress-image/')),
     'qr': dict(name='QR', title='QR Code Tools - Free Online | Dilia QR', h1='Dilia QR', kick='QR codes', sub='Make QR codes for links, Wi-Fi, contacts and more, or read one. Everything runs in your browser.', cta=('Make a QR code', 'qr-code-generator/')),
     'calc': dict(name='Calc', title='Calculators - Free Online | Dilia Calc', h1='Dilia Calc', kick='Calculators', sub='Percentages, VAT, loans and savings. Everything is worked out in your browser.', cta=('Loan calculator', 'loan-calculator/')),
     'text': dict(name='Text', title='Text Tools - Free Online | Dilia Text', h1='Dilia Text', kick='Text tools', sub='Count words, change case, clean up, sort and compare text. Everything runs in your browser.', cta=('Count words', 'word-counter/')),
@@ -965,7 +965,7 @@ base = (ROOT / 'tools.html').read_text()
 for lid, c in LINES.items():
     h = base
     h = h.replace('<title>All Tools - Free Online | Dilia</title>', '<title>' + c['title'] + '</title>')
-    h = h.replace('aria-label="Dilia Studio home"', 'aria-label="Dilia ' + c['name'] + ' home"').replace('<span class="l">Studio</span>', '<span class="l">' + c['name'] + '</span>')
+    h = h.replace('aria-label="Dilia home"', 'aria-label="Dilia ' + c['name'] + ' home"').replace('<span class="w">Dilia</span></span>', '<span class="w">Dilia</span><span class="l">' + c['name'] + '</span></span>')
     h = h.replace('<p>PDF tools that run on your own device. Your files are never uploaded.</p>', '<p>' + c['kick'] + ' that run on your own device. Your files are never uploaded.</p>')
     h = h.replace('<p class="kicker">All Dilia tools</p>', '<p class="kicker">' + c['kick'] + '</p>').replace('<h1>Pick a tool.</h1>', '<h1>' + c['h1'] + '</h1>')
     h = h.replace('<p class="sub">Every tool runs in your browser. Pick a line, then a tool.</p>', '<p class="sub">' + c['sub'] + '</p>')
@@ -974,3 +974,25 @@ for lid, c in LINES.items():
     h = up(h)
     d = ROOT / lid; d.mkdir(exist_ok=True); (d / 'index.html').write_text(h)
     print('wrote line page', lid + '/')
+
+# ---------------- old line addresses: /studio/ -> /pdf/, /pixel/ -> /image/ (old links keep working) ----------------
+for old, new, label in (('studio', 'pdf', 'Dilia PDF'), ('pixel', 'image', 'Dilia Image')):
+    d = ROOT / old; d.mkdir(exist_ok=True)
+    (d / 'index.html').write_text(f'''<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{label} - moved</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="../{new}/">
+<meta http-equiv="refresh" content="0; url=../{new}/">
+</head>
+<body><p>This page moved to <a href="../{new}/">{label}</a>.</p></body>
+</html>
+''')
+    print('wrote redirect', old + '/')
+
+import importlib.util as _nu
+_s = _nu.spec_from_file_location('navpass', str(ROOT / 'dev' / 'navpass.py')); _n = _nu.module_from_spec(_s); _s.loader.exec_module(_n)
+print('menu updated on', _n.run(), 'pages')

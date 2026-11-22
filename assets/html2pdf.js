@@ -114,7 +114,7 @@ async function build() {
     prog.style.width = Math.round(8 + 84 * (k + 1) / blocks.length) + '%'; if (k % 40 === 0) await tick();
   }
   if (doc.title) out.setTitle(clean(F.r, doc.title));
-  out.setProducer('Dilia Studio');
+  out.setProducer('Dilia');
   return { bytes: await out.save(), pages, lost };
 }
 

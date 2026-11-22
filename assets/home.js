@@ -7,12 +7,12 @@
   inkFlow(document.getElementById('ink'));
   DiliaSearch.mount(document.getElementById('q'), document.getElementById('plist'), 4);
 
-  const QUICK = ['merge', 'compress', 'sign', 'edit', 'pdf2img', 'ocr'];
+  const QUICK = ['merge', 'pxcompress', 'qrmain', 'dhol', 'dtz', 'txcount'];
   const quick = document.getElementById('quick');
   QUICK.forEach(id => { const a = el('a', '', byId[id].name); a.href = diliaUrl(byId[id]); quick.append(a); });
 
   const pg = document.getElementById('pgrid');
-  ['merge', 'compress', 'edit', 'sign', 'split', 'pdf2img', 'img2pdf', 'ocr'].forEach(id => {
+  ['merge', 'compress', 'pxcompress', 'pxresize', 'qrmain', 'dhol', 'dtz', 'txcount'].forEach(id => {
     const t = byId[id], a = el('a', 'pcard'); a.href = diliaUrl(t);
     const i = el('span', 'pi'); i.innerHTML = diliaIcon(t.icon);
     a.append(i, el('b', '', t.name), el('span', 'd', t.desc)); pg.append(a);
@@ -20,9 +20,9 @@
 
   // Tools door: live lines with real counts.
   const n = g => ready.filter(t => t.group === g).length;
-  const nPdf = ready.length - n('Pixel') - n('QR') - n('Text') - n('Calc');
+  const nPdf = ready.length - n('Image') - n('QR') - n('Text') - n('Calc');
   const dt = document.getElementById('door-tools');
-  [['PDF', nPdf], ['Image', n('Pixel')], ['Text', n('Text')], ['QR codes', n('QR')], ['Calculators', n('Calc')]].forEach(([k, v]) => { if (v) dt.append(el('li', '', k + ' · ' + v)); });
+  [['PDF', nPdf], ['Image', n('Image')], ['Text', n('Text')], ['QR codes', n('QR')], ['Calculators', n('Calc')]].forEach(([k, v]) => { if (v) dt.append(el('li', '', k + ' · ' + v)); });
 
   // Today strip: worked out on this device from the clock. No network.
   const now = new Date();

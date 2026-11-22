@@ -1,4 +1,4 @@
-/* Dilia Studio editor: edit text, add text / images / shapes / drawing, sign, highlight, notes, fill forms.
+/* Dilia PDF editor: edit text, add text / images / shapes / drawing, sign, highlight, notes, fill forms.
    Positions are stored in "view points": the page as it is shown (rotation applied), 1 unit = 1 PDF point, origin top-left. */
 {
 const { $, kb, plural, esc, toast, save, cleanName } = Kit;
@@ -752,7 +752,7 @@ async function burn(bytes, reds) {
       fin.addPage([v1.width, v1.height]).drawImage(img, { x: 0, y: 0, width: v1.width, height: v1.height });
     }
   } finally { js2.destroy(); }
-  fin.setProducer('Dilia Studio');
+  fin.setProducer('Dilia');
   return await fin.save();
 }
 
@@ -888,7 +888,7 @@ async function build_() {
       }
     }
   }
-  out.setProducer('Dilia Studio');
+  out.setProducer('Dilia');
   let bytes = await out.save();
   const reds = objs.filter(o => o.type === 'redact');
   if (reds.length) bytes = await burn(bytes, reds);

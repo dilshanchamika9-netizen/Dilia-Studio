@@ -127,7 +127,7 @@ async function closeTab(t, force) {
   }
   const i = tabs.indexOf(t); if (i < 0) return;
   t.pages.forEach(release); t.doc.destroy(); t.wrap.remove(); t.tabEl.remove(); tabs.splice(i, 1);
-  if (T === t) { T = null; if (tabs.length) activate(tabs[Math.min(i, tabs.length - 1)]); else { app.dataset.state = 'start'; document.title = 'PDF Reader - Free Online | Dilia Studio'; panel.textContent = ''; showRecent(); stopSpeak(); } }
+  if (T === t) { T = null; if (tabs.length) activate(tabs[Math.min(i, tabs.length - 1)]); else { app.dataset.state = 'start'; document.title = 'PDF Reader - Free Online | Dilia PDF'; panel.textContent = ''; showRecent(); stopSpeak(); } }
 }
 
 /* ---------- layout and zoom ---------- */

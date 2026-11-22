@@ -576,7 +576,7 @@ async function stamp() {
       pg.drawText(t, { x: ux, y: uy, size: sp.size, font, color: PDFLib.rgb(.04, .07, .13), rotate: PDFLib.degrees(r) });
     }
   });
-  out.setProducer('Dilia Studio');
+  out.setProducer('Dilia');
   return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: plural(pages.length, 'page') };
 }
 
@@ -595,7 +595,7 @@ async function halfSplit() {
     }
     prog.style.width = Math.round(8 + 84 * (n + 1) / pages.length) + '%'; if (n % 4 === 3) await tick();
   }
-  out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+  out.setProducer('Dilia'); out.setCreator('Dilia');
   return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: plural(pages.length * 2, 'page') };
 }
 async function sizeSplit() {
@@ -624,7 +624,7 @@ async function subset(idxs) {
   const out = await PDFLib.PDFDocument.create();
   const copied = await out.copyPages(doc.lib, idxs);
   copied.forEach(pg => out.addPage(pg));
-  out.setProducer('Dilia Studio'); out.setCreator('Dilia Studio');
+  out.setProducer('Dilia'); out.setCreator('Dilia');
   return out;
 }
 function tiffBlob(c, dpi) {                             // plain uncompressed RGB TIFF, opens in every image program
@@ -674,7 +674,7 @@ async function build() {
       const pg = out.getPage(p.i), a = ((pg.getRotation().angle % 360) + 360) % 360;
       pg.setRotation(PDFLib.degrees((a + p.rot) % 360));
     });
-    out.setProducer('Dilia Studio');
+    out.setProducer('Dilia');
     return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info: `${plural(pages.length, 'page')}` };
   }
   if (MODE === 'split') {
@@ -762,7 +762,7 @@ function metaFill() {
   $('#mClear').checked = false;
 }
 async function whole() {
-  const fin = async (out, info) => { if (!out.getProducer || MODE !== 'meta') out.setProducer('Dilia Studio'); return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info }; };
+  const fin = async (out, info) => { if (!out.getProducer || MODE !== 'meta') out.setProducer('Dilia'); return { blob: new Blob([await out.save()], { type: 'application/pdf' }), name: cleanName(outName.value, CFG.fallback, 'pdf'), info }; };
   const L = PDFLib;
   if (MODE === 'flip') {
     const d = radio('fd'), which = val('fPages'), out = await L.PDFDocument.create(), src = doc.lib.getPages();

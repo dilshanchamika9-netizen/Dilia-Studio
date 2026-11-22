@@ -4,7 +4,7 @@
   if (!btn || !head || !window.DILIA_LINES) return;
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
   const byId = {}; DILIA_TOOLS.forEach(([g, l]) => l.forEach(t => { byId[t.id] = t; }));
-  const POP = { studio: ['merge', 'split', 'compress', 'edit', 'sign', 'pdf2img', 'img2pdf', 'ocr'], pixel: ['pxcompress', 'pxresize', 'pxconvert', 'pxheic', 'pxcrop', 'pxwm'], qr: ['qrmain', 'qrwifi', 'qrvcard', 'qrbulk', 'qrread'], text: ['txcount', 'txcase', 'txclean', 'txlist', 'txfind', 'txdiff'], calc: ['cloan', 'ccomp', 'cvat', 'dtz', 'dhol', 'unit'] };
+  const POP = { pdf: ['merge', 'split', 'compress', 'edit', 'sign', 'pdf2img', 'img2pdf', 'ocr'], image: ['pxcompress', 'pxresize', 'pxconvert', 'pxheic', 'pxcrop', 'pxwm'], qr: ['qrmain', 'qrwifi', 'qrvcard', 'qrbulk', 'qrread'], text: ['txcount', 'txcase', 'txclean', 'txlist', 'txfind', 'txdiff'], calc: ['cloan', 'ccomp', 'cvat', 'dtz', 'dhol', 'unit'] };
   const lineOf = {}; DILIA_LINES.forEach(L => (L.cats || []).forEach(c => c.slice(1).forEach(ids => ids.forEach(id => { lineOf[id] = L.id; }))));
   const slugId = {}; Object.values(byId).forEach(t => { slugId[t.slug] = t.id; });
   const here = (location.pathname.match(/\/([^/]+)\/?(?:index\.html)?$/) || [])[1] || '';
@@ -20,7 +20,7 @@
   const cols = el('div', 'mcols'), rail = el('div', 'mrail'), body = el('div', 'mbody'), results = el('div', 'mres'); results.hidden = true;
   cols.append(rail, body); inner.append(find, cols, results); panel.append(glow, inner); head.append(panel);
 
-  let cur = lineOf[slugId[here]] || (DILIA_LINES.find(L => L.href && L.href.replace('/', '') === here) || {}).id || 'studio', tab = 'pop';
+  let cur = lineOf[slugId[here]] || (DILIA_LINES.find(L => L.href && L.href.replace('/', '') === here) || {}).id || 'pdf', tab = 'pop';
   const btns = {};
   const card = t => { const a = el('a', 'mcard'); a.href = diliaUrl(t); const i = el('span', 'mi'); i.innerHTML = diliaIcon(t.icon); const w = el('span', 'mt'); w.append(el('b', '', t.name), el('small', '', t.desc)); a.append(i, w); return a; };
 

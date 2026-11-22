@@ -53,7 +53,7 @@ window.DILIA_TOOLS = [
     { id: 'html2pdf', slug: 'html-to-pdf', name: 'HTML to PDF', desc: 'Turn a saved web page into a text PDF. Low fidelity.', ready: 1, icon: 'M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16' },
     { id: 'word', slug: 'word-to-pdf', name: 'Word to PDF', desc: 'Convert DOCX files. Needs a converter server.', server: 1, icon: 'M6 3h9l4 4v14H6zM9 10l1.5 7L12 12l1.5 5L15 10' }
   ]],
-  ['Pixel', [
+  ['Image', [
     { id: 'pxcompress', slug: 'compress-image', name: 'Compress image', desc: 'Make JPG, PNG, WebP, GIF and SVG files smaller.', ready: 1, icon: 'M12 3v6M9 6l3 3 3-3M12 21v-6M9 18l3-3 3 3M4 12h16' },
     { id: 'pxjpg', slug: 'compress-jpg', name: 'Compress JPG', desc: 'Shrink JPG photos for email and forms.', ready: 1, v: 1, icon: 'M12 3v6M9 6l3 3 3-3M12 21v-6M9 18l3-3 3 3M4 12h16' },
     { id: 'pxpng', slug: 'compress-png', name: 'Compress PNG', desc: 'Shrink PNG files with fewer colours.', ready: 1, v: 1, icon: 'M12 3v6M9 6l3 3 3-3M12 21v-6M9 18l3-3 3 3M4 12h16' },
@@ -176,7 +176,7 @@ window.DILIA_TOOLS = [
 window.diliaIcon = (d, cls) => `<svg class="${cls || 'ico'}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 /* Product lines. Each line has groups of tool ids ('c'), and 'more' ids (keyword pages shown as small links). soon:1 = not built yet. */
 window.DILIA_LINES = [
-  { id: 'studio', name: 'Studio', title: 'Dilia Studio', kind: 'PDF tools', href: 'studio/', blurb: 'Everything for PDF files: organise, edit, sign, convert and protect.', cats: [
+  { id: 'pdf', name: 'PDF', title: 'Dilia PDF', kind: 'PDF tools', href: 'pdf/', blurb: 'Everything for PDF files: organise, edit, sign, convert and protect.', cats: [
     ['Organise pages', ['merge', 'split', 'reorder', 'delete', 'extract', 'insert', 'rotate', 'flip', 'mix', 'crop', 'resize']],
     ['Edit and sign', ['edit', 'add', 'annotate', 'sign', 'forms', 'makeform', 'redact', 'noannot']],
     ['Stamp and number', ['watermark', 'number', 'bates', 'headfoot', 'bookmarks', 'overlay']],
@@ -185,7 +185,7 @@ window.DILIA_LINES = [
     ['Fix and print', ['repair', 'deskew', 'grayscale', 'booklet', 'poster', 'nup']],
     ['More', ['compare', 'rename', 'batch', 'viewer']]
   ] },
-  { id: 'pixel', name: 'Pixel', title: 'Dilia Pixel', kind: 'Image tools', href: 'pixel/', blurb: 'Make images smaller, resize and crop them, change formats, add watermarks.', cats: [
+  { id: 'image', name: 'Image', title: 'Dilia Image', kind: 'Image tools', href: 'image/', blurb: 'Make images smaller, resize and crop them, change formats, add watermarks.', cats: [
     ['Compress', ['pxcompress'], ['pxjpg', 'pxpng', 'pxwebp', 'pxgif', 'pxsvg', 'pxtarget', 'pxsmall']],
     ['Resize and crop', ['pxresize', 'pxcrop', 'pxrotate']],
     ['Convert', ['pxconvert', 'pxheic'], ['pxpng2jpg', 'pxjpg2png', 'pxwebp2jpg', 'pxwebp2png', 'pxjpg2webp', 'pxheicpng', 'pxavif', 'pxico', 'pxbmp', 'pxtiff', 'pxgifpng']],
