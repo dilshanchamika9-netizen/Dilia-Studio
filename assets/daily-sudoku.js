@@ -106,6 +106,7 @@
     $('dline').textContent = (fresh ? 'Solved! ' : 'You solved today\'s ' + NAME[lv].toLowerCase() + ' board. ') + (r.h ? r.h + (r.h === 1 ? ' hint' : ' hints') + ' used. ' : '') + 'Streak: ' + s + (s === 1 ? ' day.' : ' days.');
     const nx = $('dnext'); nx.hidden = !nextLv; if (nextLv) { nx.textContent = 'Play ' + NAME[nextLv].toLowerCase(); nx.dataset.lv = nextLv; }
     stats(); draw();
+    P.prepare(shareData());
   }
   function stats() {
     $('streak').textContent = P.streak();

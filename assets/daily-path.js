@@ -126,6 +126,7 @@
     $('dtime').textContent = P.fmt(r.t);
     const s = P.streak(); $('dline').textContent = (fresh ? 'Solved! ' : 'You solved today\'s path. ') + 'Streak: ' + s + (s === 1 ? ' day' : ' days') + '. A new board comes at midnight.';
     $('streak').textContent = s; stats();
+    P.prepare(shareData());
   }
   const shareData = () => { const r = P.result(GAME, KEY), s = P.streak(); return { title: 'Daily path #' + B.no, line: '✅ ' + P.fmt(r.t) + ' · ' + n + '×' + n + ' · 🔥 ' + s, big: P.fmt(r.t), lines: [n + ' × ' + n + ' board · solved', 'Streak: ' + s + (s === 1 ? ' day' : ' days')], date: P.niceDate(KEY), file: 'dilia-daily-path-' + B.no }; };
   $('share').addEventListener('click', () => P.share(shareData(), say));

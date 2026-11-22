@@ -75,14 +75,18 @@ window.DiliaPlay = (() => {
     g.fillStyle = '#8e97ad'; g.font = F(600, 32); g.fillText('Same puzzle for everyone today. No sign-up, no ads.', 80, 970);
     return new Promise(res => c.toBlob(res, 'image/png'));
   }
-  async function share(o, note) {
-    const text = shareText(o.title, o.line);
+  // the image is made right after a win, so a tap on Share can open the share sheet at once (Safari needs that)
+  const ready = {};
+  function prepare(o) { if (!ready[o.file]) { ready[o.file] = { blob: null }; card(o).then(b => { ready[o.file].blob = b; }); } }
+  function share(o, note) {
+    const text = shareText(o.title, o.line), r = ready[o.file], blob = r && r.blob;
+    const fail = e => { if (e && e.name === 'AbortError') return; copy(); };
+    const copy = () => (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => note('Result copied. Paste it anywhere.'), () => note('Could not copy. Use "Save image".'));
     try {
-      const blob = await card(o), file = new File([blob], o.file + '.png', { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
-      if (navigator.share) { await navigator.share({ text }); return; }
-    } catch (e) { if (e && e.name === 'AbortError') return; }
-    try { await navigator.clipboard.writeText(text); note('Result copied. Paste it anywhere.'); } catch (e) { note('Could not copy. Use "Save image".'); }
+      if (blob) { const file = new File([blob], o.file + '.png', { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [file] })) return navigator.share({ files: [file], text }).catch(fail); }
+      if (navigator.share) return navigator.share({ text }).catch(fail);
+    } catch (e) { /* fall back to copy */ }
+    return copy();
   }
   async function saveImage(o) {
     const blob = await card(o), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = o.file + '.png';
@@ -104,5 +108,5 @@ window.DiliaPlay = (() => {
   }
 
   const niceDate = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
-  return { today, fmt, addDays, result, record, streak, bestStreak, stats, week, load, save, clearSave, timer, share, saveImage, burst, niceDate };
+  return { today, fmt, addDays, result, record, streak, bestStreak, stats, week, load, save, clearSave, timer, prepare, share, saveImage, burst, niceDate };
 })();

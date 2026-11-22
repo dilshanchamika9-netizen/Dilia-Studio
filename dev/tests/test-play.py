@@ -75,7 +75,9 @@ async def path_tests(br, w, when, key):
     # share falls back to copying text when the browser cannot share files
     # (capture the copied text on the page: the system clipboard is shared between test runs)
     await pg.evaluate("navigator.share = undefined; navigator.canShare = undefined; window.__clip = ''; Object.defineProperty(navigator, 'clipboard', { value: { writeText: t => { window.__clip = t; return Promise.resolve(); } }, configurable: true })")
-    await pg.click('#share'); await pg.wait_for_timeout(300)
+    await pg.click('#share')
+    try: await pg.wait_for_function('window.__clip', timeout=8000)
+    except Exception: pass
     clip = await pg.evaluate('window.__clip')
     ok('copied' in await pg.inner_text('#msg'), f'[{w}] no "copied" message')
     ok(f'Daily path #{Bd["no"]}' in clip and 'daily-path/' in clip, f'[{w}] share text wrong: {clip!r}')
