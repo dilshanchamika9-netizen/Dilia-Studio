@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Dilia - Free Online Tools That Run On Your Device</title>
-<meta name="description" content="Dilia: free online tools that run in your browser. Merge, compress, sign and edit PDFs without uploading a file. No account needed.">
+<meta name="description" content="Dilia: free online tools that run in your browser. PDF, image, text, QR and calculator tools without uploading a file. No account, no ads.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
@@ -20,10 +20,10 @@
   <div class="wrap">
     <a class="brand" href="./" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
     <nav class="links" aria-label="Main">
-      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega">Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <a class="opt" href="#lines">Lines</a>
-      <a class="opt" href="#privacy">Privacy</a>
-      <a class="opt" href="blog/">Blog</a>
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="blog/"><i class="adot r"></i>Read</a>
     </nav>
     <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
   </div>
@@ -33,12 +33,13 @@
 <section class="hub" id="top">
   <div class="flow" aria-hidden="true"><canvas id="ink"></canvas><div class="veil"></div></div>
   <div class="wrap hub-in">
-    <p class="kicker">Free tools. Your files never leave your device.</p>
-    <h1>What do you need<br>to do today?</h1>
+    <p class="eyebrow"><span id="count"></span> free tools · no sign-up · no uploads</p>
+    <h1>Do it here.<br><span class="grad">Nothing leaves your device.</span></h1>
+    <p class="lead">PDF, photos, text, QR codes and calculators today. Holidays, trips and daily games coming next. No account, no ads.</p>
     <div class="finder" role="search">
       <label class="ftop" for="q">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        <input id="q" type="text" placeholder="Try merge, compress, sign, scan" spellcheck="false" aria-label="Search tools">
+        <input id="q" type="text" placeholder="What do you want to do? Try merge, compress, HEIC, VAT" spellcheck="false" aria-label="Search tools">
         <kbd>/</kbd>
       </label>
       <div class="plist" id="plist"></div>
@@ -48,19 +49,28 @@
   </div>
 </section>
 
-<section class="popular wrap" id="popular">
-  <div class="sec-head rise"><h2>Popular tools</h2><a href="tools.html">All <span id="count"></span> tools &rarr;</a></div>
-  <div class="pgrid rise" id="pgrid"></div>
+<section class="wrap today-wrap" aria-label="Today">
+  <div class="today">
+    <div class="tcell"><p class="tk life">Today</p><b id="t-date"></b><span id="t-sub"></span></div>
+    <a class="tcell" href="public-holidays/"><p class="tk life">Public holidays</p><b>249 countries</b><span>Find the next day off where you are</span></a>
+    <a class="tcell" href="play/"><p class="tk play">Daily puzzle</p><b>Coming soon</b><span>A new puzzle every day, same for everyone</span></a>
+    <a class="tcell" id="t-tool"><p class="tk tools">Tool of the day</p><b id="t-tn"></b><span id="t-td"></span></a>
+  </div>
 </section>
 
-<section class="lines" id="lines">
-  <div class="wrap">
-    <div class="rise">
-      <h2>One brand, every kind of file</h2>
-      <p class="sub">Each line is a set of tools for one kind of job. More lines are on the way.</p>
-    </div>
-    <div class="lgrid rise" id="lgrid"></div>
+<section class="wrap areas" id="areas">
+  <div class="sec-head rise"><h2>Four areas</h2></div>
+  <div class="doors rise">
+    <a class="door d-tools" href="tools.html"><b>Tools</b><p>Do a job on a file or numbers</p><ul id="door-tools"></ul></a>
+    <a class="door d-life" href="life/"><b>Life</b><p>Time, holidays, trips and goals</p><ul><li>Public holidays · time zones</li><li>Date and work-day calculators</li><li>Holiday planner · trips <em>soon</em></li><li>Life goals <em>soon</em></li></ul></a>
+    <a class="door d-play" href="play/"><b>Play</b><p>A reason to come back daily</p><ul><li>Daily puzzle <em>soon</em></li><li>Merge tiles · sudoku <em>soon</em></li><li>Solitaire · chess <em>soon</em></li><li>Typing · reaction <em>soon</em></li></ul></a>
+    <a class="door d-read" href="blog/"><b>Read</b><p>Guides and how-tos</p><ul><li>How-to guides</li><li>Tips for every tool</li><li>Daily brief <em>soon</em></li></ul></a>
   </div>
+</section>
+
+<section class="popular wrap" id="popular">
+  <div class="sec-head rise"><h2>Popular tools</h2><a href="tools.html">All tools &rarr;</a></div>
+  <div class="pgrid rise" id="pgrid"></div>
 </section>
 
 <section class="proof wrap" id="privacy">
@@ -84,6 +94,7 @@
   <details><summary>Where do my files go?</summary><p>Nowhere. They are opened and changed by your browser on your own device. They are not sent to a server.</p></details>
   <details><summary>Does it work on a phone?</summary><p>Yes, in any modern browser. Scan to PDF can use your phone camera.</p></details>
   <details><summary>Which files can I drop on this page?</summary><p>PDFs and pictures (JPG, PNG, TIFF and more). Dilia shows the tools that fit, then opens the one you pick with your file ready.</p></details>
+  <details><summary>What is coming next?</summary><p>Life (holiday planner, trip planner, life goals) and Play (a daily puzzle and classic games). They will run on your device too.</p></details>
 </section>
 </main>
 
@@ -103,7 +114,7 @@
       <p>Free online tools that run on your own device. Your files are never uploaded.</p>
     </div>
     <div><h4>Dilia Studio</h4><ul><li><a href="merge-pdf/">Merge</a></li><li><a href="compress-pdf/">Compress</a></li><li><a href="sign-pdf/">Sign</a></li><li><a href="tools.html">All PDF tools</a></li><li><a href="blog/">Blog</a></li></ul></div>
-    <div><h4>Dilia</h4><ul><li><a href="#lines">Lines</a></li><li><a href="#privacy">Privacy</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="tools.html">Tools</a></li><li><a href="life/">Life</a></li><li><a href="play/">Play</a></li><li><a href="blog/">Read</a></li><li><a href="#privacy">Privacy</a></li></ul></div>
     <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Files are processed in your browser.</span></div>
   </div>
 </footer>

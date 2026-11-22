@@ -15,5 +15,6 @@ step "Calculator pages" python3 dev/tests/test-calc.py
 step "Hostile PDF guard" python3 dev/tests/test-guard.py
 step "Fill forms: My details" python3 dev/tests/test-autofill.py
 step "Reader: Comments panel" python3 dev/tests/test-comments.py
+step "Home page and Life/Play hubs" python3 dev/tests/test-home.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail

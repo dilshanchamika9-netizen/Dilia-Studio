@@ -1,4 +1,4 @@
-// Dilia hub: search, popular tools, lines, and "drop a file to see what fits".
+// Dilia home: search, today strip, area doors, popular tools, and "drop a file to see what fits".
 {
   const T = DiliaSearch.all(), byId = Object.fromEntries(T.map(t => [t.id, t]));
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -18,18 +18,29 @@
     a.append(i, el('b', '', t.name), el('span', 'd', t.desc)); pg.append(a);
   });
 
-  const lg = document.getElementById('lgrid');
-  const line = (name, text, soon, href, go) => {
-    const c = el(soon ? 'div' : 'a', 'lcard' + (soon ? ' soon' : '')); if (href) c.href = href;
-    const w = el('span', 'wm'); w.append(el('span', 'w', 'Dilia'), el('span', 'l', name));
-    c.append(w, el('p', '', text), el('span', 'go', go)); lg.append(c);
-  };
-  const nPix = ready.filter(t => t.group === 'Pixel').length, nQr = ready.filter(t => t.group === 'QR').length, nTxt = ready.filter(t => t.group === 'Text').length;
-  line('Studio', 'PDF: organise, edit, sign, convert and secure.', false, 'studio/', (ready.length - nPix - nQr - nTxt) + ' tools →');
-  line('Pixel', 'Compress, resize, crop and convert images. Watermark, blur, make GIFs.', false, 'pixel/', nPix + ' tools →');
-  line('QR', 'QR codes for links, Wi-Fi and contacts. Read QR codes too.', false, 'qr/', nQr + ' tools →');
-  line('Text', 'Count words, change case, clean up, sort and compare text.', false, 'text/', nTxt + ' tools →');
-  DILIA_LINES.filter(L => L.soon).forEach(L => line(L.name, L.blurb, true, '', 'Coming soon'));
+  // Tools door: live lines with real counts.
+  const n = g => ready.filter(t => t.group === g).length;
+  const nPdf = ready.length - n('Pixel') - n('QR') - n('Text') - n('Calc');
+  const dt = document.getElementById('door-tools');
+  [['PDF', nPdf], ['Image', n('Pixel')], ['Text', n('Text')], ['QR codes', n('QR')], ['Calculators', n('Calc')]].forEach(([k, v]) => { if (v) dt.append(el('li', '', k + ' · ' + v)); });
+
+  // Today strip: worked out on this device from the clock. No network.
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  const doy = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - start) / 864e5) + 1;
+  document.getElementById('t-date').textContent = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const bits = ['Day ' + doy];
+  try { const f = new Intl.DateTimeFormat('en-GB-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); if (f.resolvedOptions().calendar === 'islamic-umalqura') bits.push(f.format(now)); } catch (e) {}
+  const P = 29.530588853, age = (((now - Date.UTC(2000, 0, 6, 18, 14)) / 864e5) % P + P) % P;
+  bits.push('moon ' + Math.round((1 - Math.cos(2 * Math.PI * age / P)) / 2 * 100) + '% lit');
+  document.getElementById('t-sub').textContent = bits.join(' · ');
+
+  // Tool of the day: one live tool, changes at local midnight, same order for everyone.
+  const key = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  const pool = ready.slice().sort((a, b) => a.id < b.id ? -1 : 1);
+  const tod = pool[(key * 2654435761 >>> 0) % pool.length];
+  const tl = document.getElementById('t-tool'); tl.href = diliaUrl(tod);
+  document.getElementById('t-tn').textContent = tod.name; document.getElementById('t-td').textContent = tod.desc;
 
   // Drop a file anywhere: show the tools that fit, then open one with the file ready.
   const veil = document.getElementById('veil'), fit = document.getElementById('fit');
