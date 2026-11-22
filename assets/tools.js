@@ -171,6 +171,10 @@ window.DILIA_TOOLS = [
     { id: 'ocr', slug: 'ocr-pdf', name: 'Recognise text', desc: 'Make scanned pages searchable.', ready: 1, icon: 'M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M7 12h10' },
     { id: 'redact', slug: 'redact-pdf', name: 'Redact', desc: 'Remove sensitive text for good.', ready: 1, icon: 'M6 3h9l4 4v14H6zM8 9h8v3H8zM8 15h6v2H8z' },
     { id: 'crop', slug: 'crop-pdf', name: 'Crop', desc: 'Trim margins or cut a page to an area.', ready: 1, icon: 'M6 2v16h16M2 6h16v16' }
+  ]],
+  ['Play', [
+    { id: 'gpath', slug: 'daily-path', name: 'Daily path', desc: 'Draw one line through every square. New every day.', ready: 1, icon: 'M5 5h5v5H5zM14 14h5v5h-5zM7.5 10v6.5h6.5M16.5 14V7.5H10' },
+    { id: 'gsudoku', slug: 'daily-sudoku', name: 'Daily sudoku', desc: 'Easy, medium and hard boards. New every day.', ready: 1, icon: 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16' }
   ]]
 ];
 window.diliaIcon = (d, cls) => `<svg class="${cls || 'ico'}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;

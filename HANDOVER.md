@@ -257,3 +257,11 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Studio is now PDF (/pdf/), Pixel is now Image (/image/). Old /studio/ and /pixel/ are small redirect pages (made by make-pages.py).
 - One menu on every page (Tools, Life, Play, Read), applied by dev/navpass.py at the end of make-pages.py and make-blog.py. It also shows on phones.
 - Home search list, quick buttons, popular tools and footer now mix all areas (PDF, image, QR, holidays, time zones, text), not PDF only.
+
+## 12. Play: hub + Daily path + Daily sudoku (23 Nov 2026, Area 3 build steps 1-2)
+- Pages: /play/ (hub, dark stage), /daily-path/, /daily-sudoku/. Built by dev/make-play.py (called from make-pages.py before the menu pass). Shell comes from /life/index.html.
+- assets/playgen.js: generators, integer-only seeded RNG from the local date, so every browser builds the same board. Day #1 = 23 Nov 2026. Path size by weekday: Mon-Tue 5x5, Wed-Fri 6x6, Sat-Sun 7x7. Every path and sudoku board is checked to have exactly one answer.
+- assets/playkit.js: results, streaks, saved games (localStorage keys dilia-play-v1 and dilia-play-save:<game>:<date>), timer (pauses when the tab is hidden), share card (PNG made on a canvas, Web Share, or copy text), win burst.
+- Games are in tools.js group 'Play' (found by search). Home counts and tool of the day exclude them.
+- Tests: dev/tests/test-playgen.js (400 days, Node) and dev/tests/test-play.py (139 browser checks: rules, drag, keyboard, resume, win, share, hub, other dates). Both are in the gate.
+- Next in the Area 3 build order: step 3 (2048-style merge, solitaire, minesweeper). The merge game waits on the name check.

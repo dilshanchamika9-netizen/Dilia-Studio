@@ -838,8 +838,9 @@ OLD = '''<!doctype html>
 <body><p>This page has moved: <a href="%s/">continue</a>.</p></body></html>
 '''
 CALC_IDS = {c['id'] for c in CALCS}
+PLAY_IDS = set(re.findall(r"id: '([^']+)'", (ROOT / 'assets' / 'tools.js').read_text().split("['Play', [", 1)[1]))  # games never had old addresses
 for tid, slug in SLUGS.items():
-    if tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid in CALC_IDS or not (ROOT / slug).is_dir(): continue
+    if tid in PLAY_IDS or tid in ('merge',) or tid.startswith('px') or tid.startswith('qr') or tid.startswith('tx') or tid in CALC_IDS or not (ROOT / slug).is_dir(): continue
     (ROOT / (tid + '.html')).write_text(OLD % (slug, slug, slug))
 (ROOT / 'merge.html').write_text(OLD % ('merge-pdf', 'merge-pdf', 'merge-pdf'))
 
@@ -992,6 +993,8 @@ for old, new, label in (('studio', 'pdf', 'Dilia PDF'), ('pixel', 'image', 'Dili
 </html>
 ''')
     print('wrote redirect', old + '/')
+
+exec(compile((ROOT / 'dev' / 'make-play.py').read_text(), 'make-play.py', 'exec'), {'__file__': str(ROOT / 'dev' / 'make-play.py')})
 
 import importlib.util as _nu
 _s = _nu.spec_from_file_location('navpass', str(ROOT / 'dev' / 'navpass.py')); _n = _nu.module_from_spec(_s); _s.loader.exec_module(_n)

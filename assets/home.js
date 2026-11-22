@@ -2,7 +2,7 @@
 {
   const T = DiliaSearch.all(), byId = Object.fromEntries(T.map(t => [t.id, t]));
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-  const ready = T.filter(t => t.ready);
+  const ready = T.filter(t => t.ready && t.group !== 'Play'); // tools only; games are counted in Play
   document.getElementById('count').textContent = ready.length;
   inkFlow(document.getElementById('ink'));
   DiliaSearch.mount(document.getElementById('q'), document.getElementById('plist'), 4);
@@ -39,6 +39,12 @@
   const key = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
   const pool = ready.slice().sort((a, b) => a.id < b.id ? -1 : 1);
   const tod = pool[(key * 2654435761 >>> 0) % pool.length];
+  // Daily puzzle: today's path number and size, worked out from the date
+  if (window.DiliaPlayGen) {
+    const G = DiliaPlayGen, k = G.dayKey(now), sz = [7, 5, 5, 6, 6, 6, 7][G.weekday(k)];
+    document.getElementById('t-pz').textContent = 'Daily path #' + G.dayNo(k);
+    document.getElementById('t-pzd').textContent = sz + ' × ' + sz + ' today · same board for everyone';
+  }
   const tl = document.getElementById('t-tool'); tl.href = diliaUrl(tod);
   document.getElementById('t-tn').textContent = tod.name; document.getElementById('t-td').textContent = tod.desc;
 

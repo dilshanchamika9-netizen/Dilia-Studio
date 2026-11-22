@@ -38,7 +38,7 @@ async def main():
                     doy = now.timetuple().tm_yday
                     ok(f'Day {doy}' in await pg.inner_text('#t-sub'), 'today strip: day of year wrong')
                     cnt = int(await pg.inner_text('#count'))
-                    ready = await pg.evaluate("DiliaSearch.all().filter(t=>t.ready).length")
+                    ready = await pg.evaluate("DiliaSearch.all().filter(t=>t.ready && t.group!=='Play').length")
                     ok(cnt == ready and cnt > 100, f'tool count {cnt} vs {ready}')
                     items = await pg.evaluate("[...document.querySelectorAll('#door-tools li')].map(l=>+l.textContent.split('· ')[1])")
                     ok(len(items) == 5 and sum(items) == ready, f'Tools door counts {items} sum != {ready}')
