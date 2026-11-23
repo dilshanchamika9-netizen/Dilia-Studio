@@ -71,6 +71,13 @@ ART_CHECKERS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect 
 ART_REVERSI = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#2f8f5b"/><circle cx="62" cy="62" r="17" fill="#f4f4f4"/><circle cx="88" cy="62" r="17" fill="#111"/><circle cx="62" cy="88" r="17" fill="#111"/><circle cx="88" cy="88" r="17" fill="#f4f4f4"/></svg>'
 ART_C4 = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="18" y="26" width="114" height="98" rx="12" fill="#1d4ed8"/><g><circle cx="46" cy="54" r="12" fill="#0b1f66"/><circle cx="75" cy="54" r="12" fill="#0b1f66"/><circle cx="104" cy="54" r="12" fill="#0b1f66"/><circle cx="46" cy="84" r="12" fill="#d4202a"/><circle cx="75" cy="84" r="12" fill="#f2c200"/><circle cx="104" cy="84" r="12" fill="#0b1f66"/><circle cx="46" cy="112" r="0"/><circle cx="75" cy="112" r="0"/></g></svg>'
 ART_LUDO = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#f6f3ea"/><rect x="20" y="20" width="44" height="44" rx="8" fill="#e5484d"/><rect x="86" y="20" width="44" height="44" rx="8" fill="#2fa84f"/><rect x="86" y="86" width="44" height="44" rx="8" fill="#f2c200"/><rect x="20" y="86" width="44" height="44" rx="8" fill="#2b6fe0"/><circle cx="42" cy="42" r="9" fill="#fff"/><circle cx="108" cy="108" r="9" fill="#fff"/><rect x="62" y="62" width="26" height="26" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><circle cx="75" cy="75" r="3" fill="#111"/></svg>'
+ART_BRICK = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#1b2238"/><g fill="#e5484d"><rect x="30" y="34" width="26" height="12" rx="3"/><rect x="60" y="34" width="26" height="12" rx="3"/><rect x="90" y="34" width="26" height="12" rx="3"/></g><g fill="#f2c200"><rect x="30" y="50" width="26" height="12" rx="3"/><rect x="60" y="50" width="26" height="12" rx="3"/><rect x="90" y="50" width="26" height="12" rx="3"/></g><circle cx="86" cy="96" r="7" fill="#fff"/><rect x="56" y="114" width="40" height="8" rx="4" fill="#fff"/></svg>'
+ART_PONG = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#1b2238"/><g fill="#fff"><rect x="32" y="52" width="8" height="38" rx="4"/><rect x="110" y="62" width="8" height="38" rx="4"/><circle cx="76" cy="76" r="7"/></g><g fill="#fff" opacity=".4"><rect x="73" y="28" width="4" height="10"/><rect x="73" y="48" width="4" height="10"/><rect x="73" y="92" width="4" height="10"/><rect x="73" y="112" width="4" height="10"/></g></svg>'
+ART_AIM = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#1b2238"/><circle cx="75" cy="75" r="42" fill="#e5007d"/><circle cx="75" cy="75" r="30" fill="#fff"/><circle cx="75" cy="75" r="18" fill="#e5007d"/><circle cx="75" cy="75" r="6" fill="#fff"/></svg>'
+ART_NONO = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#7a5cff"/><g fill="#fff"><rect x="34" y="34" width="82" height="82" rx="6"/></g><g fill="#1b2238"><rect x="40" y="40" width="22" height="22"/><rect x="84" y="40" width="22" height="22"/><rect x="62" y="62" width="22" height="22"/><rect x="40" y="84" width="22" height="22"/><rect x="84" y="84" width="22" height="22"/></g></svg>'
+ART_SLIDE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#e5007d"/><g fill="#fff"><rect x="32" y="32" width="38" height="38" rx="7"/><rect x="80" y="32" width="38" height="38" rx="7"/><rect x="32" y="80" width="38" height="38" rx="7"/></g><g fill="#1b2238" font-family="Archivo,sans-serif" font-weight="800" font-size="24" text-anchor="middle"><text x="51" y="59">1</text><text x="99" y="59">2</text><text x="51" y="107">3</text></g></svg>'
+ART_WS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#009fe3"/><g fill="#fff" font-family="Archivo,sans-serif" font-weight="800" font-size="22" text-anchor="middle"><text x="42" y="56">C</text><text x="75" y="56">A</text><text x="108" y="56">T</text><text x="42" y="90">D</text><text x="75" y="90">O</text><text x="108" y="90">G</text><text x="42" y="122">B</text><text x="75" y="122">E</text><text x="108" y="122">E</text></g><rect x="30" y="34" width="92" height="28" rx="14" fill="none" stroke="#f2c200" stroke-width="4"/></svg>'
+ART_MEM = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="12" fill="#2fa84f"/><g><rect x="30" y="34" width="38" height="38" rx="8" fill="#fff"/><rect x="82" y="34" width="38" height="38" rx="8" fill="#7a5cff"/><rect x="30" y="80" width="38" height="38" rx="8" fill="#7a5cff"/><rect x="82" y="80" width="38" height="38" rx="8" fill="#fff"/><text x="49" y="62" font-size="26" text-anchor="middle">&#9733;</text><text x="101" y="108" font-size="26" text-anchor="middle">&#9733;</text></g></svg>'
 ART_MJ = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" text-anchor="middle"><rect x="22" y="36" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="26" y="30" width="52" height="68" rx="9" fill="#fbfbff"/><text x="52" y="72" font-size="30" fill="#1d4ed8">5</text><text x="52" y="90" font-size="14" fill="#1d4ed8">●</text><rect x="72" y="46" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="76" y="40" width="52" height="68" rx="9" fill="#fbfbff"/><text x="102" y="86" font-size="34" fill="#e5007d">◆</text></g></svg>'
 # ---------------- hub ----------------
 ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transform="translate(75 80)">' + ''.join(f'<path d="M0 0L{54*__import__("math").cos(i*1.0472):.1f} {54*__import__("math").sin(i*1.0472):.1f}A54 54 0 0 1 {54*__import__("math").cos((i+1)*1.0472):.1f} {54*__import__("math").sin((i+1)*1.0472):.1f}Z" fill="{c}"/>' for i, c in enumerate(['#e5007d', '#7a5cff', '#0780b8', '#0f8a4f', '#c2410c', '#6d28d9'])) + '<circle r="9" fill="#0b1220" stroke="#fff" stroke-width="3"/></g><path d="M66 12h18l-9 20z" fill="#ffd400"/></svg>'
@@ -121,6 +128,13 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../reversi/">{ART_REVERSI}<span class="no">Board</span><b>Reversi</b><p>Flip your opponent's discs. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../connect-four/">{ART_C4}<span class="no">Board</span><b>Connect Four</b><p>Drop discs, get four in a row. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../ludo/">{ART_LUDO}<span class="no">Board</span><b>Ludo</b><p>2 to 4 players. Computers at four levels, or friends on one device.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../brick-breaker/">{ART_BRICK}<span class="no">Arcade</span><b>Brick breaker</b><p>Steer the paddle, break every brick.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../pong/">{ART_PONG}<span class="no">Arcade</span><b>Pong</b><p>First to 7 against the computer.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../aim-trainer/">{ART_AIM}<span class="no">Skill</span><b>Aim trainer</b><p>30 seconds. Hits, accuracy and speed.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../nonogram/">{ART_NONO}<span class="no">Puzzle</span><b>Nonogram</b><p>Logic picture puzzles. No guessing needed.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../sliding-puzzle/">{ART_SLIDE}<span class="no">Puzzle</span><b>Sliding puzzle</b><p>3×3, 4×4 or 5×5. Fewest moves.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../word-search/">{ART_WS}<span class="no">Puzzle</span><b>Word search</b><p>Six themes, easy or hard.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../memory-game/">{ART_MEM}<span class="no">Brain</span><b>Memory</b><p>Match the pairs in few moves.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
     <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
     <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
@@ -138,10 +152,10 @@ HUB = f'''<section class="phero"><div class="wrap">
   <h2 id="h-soon">Coming next</h2>
   <div class="pgrid">
     <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Crossword-style puzzles</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Backgammon</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>One-button games</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Speed reading</li></ul></div>
   </div>
 </section>'''
 
@@ -626,6 +640,69 @@ def ludo_body():
 </section>
 </div>"""
 PAGES['ludo'] = ('Ludo - Free Online, 2 to 4 Players | Dilia Play', 'Free Ludo for 2 to 4 players. Play computers at four levels, or friends on one device. Fair dice, saved game. No ads, no sign-up.', ludo_body(), GAME_JS + '<script src="../assets/ludo.js"></script><script src="../assets/ludo-game.js"></script>', 'free')
+def mini_body(slug, title, sub, meters, best, howto, about, tools, stage, btns='', more=''):
+    how = ''.join(f'<li>{h}</li>' for h in howto)
+    ms = ''.join(f'<div><small>{lab}</small><b id="{i}">{v}</b></div>' for i, lab, v in meters)
+    bl = f'<div class="gcard"><p class="eyeb">{best[1]}</p><span class="big" id="{best[0]}">–</span></div>'
+    return f"""<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    {bl}
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small">{how}</ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>{title}</b></p>
+    <div class="ghead"><div><h1>{title}</h1><p class="sub">{sub}</p></div><div class="meter">{ms}</div></div>
+    <div class="cchips">{tools}</div>
+    {stage}
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns">{btns}<button type="button" class="pbtn" id="newgame">New game</button></div>
+    <div class="done" id="done"><p class="eyeb" id="deyebrow">Done</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">Play again</button><a class="pbtn" href="../play/">All of Play</a></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small">{more or '<a href="../chess/">Chess</a> · <a href="../snake/">Snake</a> · <a href="../daily-sudoku/">Daily sudoku</a>'} · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About {title}</h2>
+  {about}
+  <p>Your scores stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+def grp(label, attr, items, on=None):
+    return f'<div class="mlevel" role="group" aria-label="{label}">' + ''.join(f'<button type="button" data-{attr}="{k}" aria-pressed="{"true" if k == on else "false"}">{t}</button>' for k, t in items) + '</div>'
+MJS = GAME_JS + '<script src="../assets/mini.js"></script>'
+PAGES['brick-breaker'] = ('Brick Breaker - Free Online Breakout Game | Dilia Play', 'Free brick breaker. Steer the paddle, break every brick, survive three lives. Mouse, touch or keys. No ads, no sign-up.',
+    mini_body('brick', 'Brick breaker', 'Break every brick, keep the ball alive', [('bscore', 'SCORE', 0), ('blives', 'LIVES', 3), ('blevel', 'LEVEL', 1)], ('bbest', 'Best score'),
+      ['Move the mouse, drag on a phone, or use the arrow keys to steer the paddle.', 'Tap or press Space to launch the ball.', 'Hit the ball with the edge of the paddle to change its angle.', 'Clear all bricks to reach the next level. It gets faster. Lose the ball three times and the game ends.'],
+      '<p>A classic breakout game. The ball speeds up with each level and from level 3 some bricks need two hits. The best score is kept in this browser.</p>', '', '<canvas class="mcv" id="bbc" role="img" aria-label="Brick breaker playfield"></canvas>'), MJS + '<script src="../assets/brick-game.js"></script>', 'free')
+PAGES['pong'] = ('Pong - Play the Computer Free Online | Dilia Play', 'Free Pong against the computer at three levels. First to 7 wins. Mouse, touch or keys. No ads, no sign-up.',
+    mini_body('pong', 'Pong', 'First to 7 points wins', [('pme', 'YOU', 0), ('pcpu', 'COMPUTER', 0)], ('pbest', 'Your record'),
+      ['Move the mouse, drag, or use W and S (or the arrow keys) to move your paddle.', 'Tap or press Space to serve.', 'Hit the ball with the paddle edge to send it at a sharper angle. It speeds up every hit.', 'First to 7 wins. Pick Easy, Medium or Hard.'],
+      '<p>The original two-paddle game. Easy gives you time to react, Hard moves fast and rarely misses until the ball gets quick.</p>', grp('Level', 'pl', [(1, 'Easy'), (2, 'Medium'), (3, 'Hard')], 2), '<canvas class="mcv wide" id="pgc" role="img" aria-label="Pong court"></canvas>'), MJS + '<script src="../assets/pong-game.js"></script>', 'free')
+PAGES['aim-trainer'] = ('Aim Trainer - Test Your Click Speed and Accuracy | Dilia Play', 'Free aim trainer. Hit as many targets as you can in 30 seconds and see your accuracy and speed. No ads, no sign-up.',
+    mini_body('aim', 'Aim trainer', 'Hit as many targets as you can in 30 seconds', [('ahits', 'HITS', 0), ('atime', 'TIME', 30)], ('abest', 'Best hits'),
+      ['Press Start.', 'Tap or click each target as soon as it appears. Only one shows at a time.', 'Targets shrink as you hit them. Missing a target counts against your accuracy.', 'After 30 seconds you see hits, accuracy and average time per target.'],
+      '<p>Aim trainers measure how fast and precisely you can point. Your result is hits in 30 seconds, plus accuracy and average reaction time per target. Targets shrink a little with every hit.</p>', '', '<div class="aimst" id="aim"><button type="button" class="pbtn go astart" id="astart">Start</button></div>'), MJS + '<script src="../assets/aim-game.js"></script>', 'free')
+PAGES['nonogram'] = ('Nonogram (Picross) - Free Logic Puzzles | Dilia Play', 'Free nonogram puzzles in four sizes. Every puzzle can be solved by logic alone, no guessing. No ads, no sign-up.',
+    mini_body('nonogram', 'Nonogram', 'Fill the squares that the numbers describe', [('ntime', 'TIME', '0:00'), ('nfilled', 'FILLED', '0')], ('nbest', 'Best time (this size)'),
+      ['The numbers beside a row or column tell the lengths of the runs of filled squares, in order.', 'Tap or drag to fill squares. Switch to the X tool to mark squares you know are empty (key: X).', 'A clue fades when its line matches.', 'Every puzzle can be solved with logic alone.'],
+      '<p>Nonograms, also called Picross, hide a small picture. Each clue number is a run of filled squares in that row or column, with at least one gap between runs. Every puzzle here is generated and checked so a solver using only line logic can finish it, so you never need to guess.</p>',
+      grp('Size', 'ns', [(5, '5×5'), (8, '8×8'), (10, '10×10'), (12, '12×12')], 8) + grp('Tool', 'nm', [(1, 'Fill'), (2, 'X mark')], 1), '<div class="nng" id="nng"></div>', '<button type="button" class="pbtn" id="nclear">Clear</button>'), MJS + '<script src="../assets/puzzles.js"></script><script src="../assets/nonogram-game.js"></script>', 'free')
+PAGES['sliding-puzzle'] = ('Sliding Puzzle - 8, 15 and 24 Puzzle, Free | Dilia Play', 'Free sliding tile puzzle in 3x3, 4x4 and 5x5. Count your moves and beat your best. No ads, no sign-up.',
+    mini_body('slide', 'Sliding puzzle', 'Put the tiles in order', [('stime', 'TIME', '0:00'), ('smoves', 'MOVES', 0)], ('sbest', 'Fewest moves (this size)'),
+      ['Tap a tile in the same row or column as the blank to slide it. Tiles in between move too.', 'Put the numbers in order from 1, with the blank last.', 'Keys: arrow keys slide tiles into the blank.', 'Every shuffle is solvable.'],
+      '<p>The classic 15 puzzle, also in 3×3 (the 8 puzzle) and 5×5. Boards are shuffled by making real moves from the solved position, so they can always be solved. Your fewest moves per size are kept in this browser.</p>', grp('Size', 'sn', [(3, '3×3'), (4, '4×4'), (5, '5×5')], 4), '<div class="slb" id="slb"></div>'), MJS + '<script src="../assets/puzzles.js"></script><script src="../assets/slide-game.js"></script>', 'free')
+PAGES['word-search'] = ('Word Search - Free Printable-Free Online Puzzles | Dilia Play', 'Free word search puzzles with six themes. Drag across letters to find the words. No ads, no sign-up.',
+    mini_body('wordsearch', 'Word search', 'Find the hidden words', [('wtime', 'TIME', '0:00'), ('wleft', 'LEFT', 0)], ('wbest', 'Best time'),
+      ['Drag across letters in a straight line to select a word from the list.', 'Words go across and down. Hard mode also uses diagonals and backwards words.', 'Found words turn green and are crossed off.', 'Pick a theme and a grid size.'],
+      '<p>Pick a theme, drag across the letters, and find every word in the list. Easy puzzles hide words left to right, top to bottom and diagonally down; Hard puzzles use all eight directions, including backwards.</p>',
+      '<div class="mlevel" id="wtheme" role="group" aria-label="Theme"></div>' + grp('Size', 'wn', [(10, '10×10'), (12, '12×12')], 10) + grp('Directions', 'wh', [(0, 'Easy'), (1, 'Hard')], 0), '<div class="wsg" id="wsg"></div><ul class="wsl" id="wsl"></ul>'), MJS + '<script src="../assets/puzzles.js"></script><script src="../assets/wordsearch-game.js"></script>', 'free')
+PAGES['memory-game'] = ('Memory Game - Match the Pairs, Free Online | Dilia Play', 'Free memory card game with three sizes. Flip cards and match pairs in as few moves as you can. No ads, no sign-up.',
+    mini_body('memory', 'Memory', 'Find all the matching pairs', [('mtime', 'TIME', '0:00'), ('mmoves', 'MOVES', 0)], ('mbest', 'Fewest moves (this level)'),
+      ['Tap a card to flip it, then a second card.', 'If they match, they stay face up. If not, they flip back.', 'Remember where each picture is and clear the board in as few moves as you can.', 'Easy has 6 pairs, Medium 8, Hard 12.'],
+      '<p>A card-matching game that exercises short-term memory. A move is one pair of flipped cards. Your fewest moves per level are kept in this browser.</p>', grp('Level', 'ml', [(1, 'Easy'), (2, 'Medium'), (3, 'Hard')], 2), '<div class="mmb" id="mmb"></div>'), MJS + '<script src="../assets/puzzles.js"></script><script src="../assets/memory-game.js"></script>', 'free')
 PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
 PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')

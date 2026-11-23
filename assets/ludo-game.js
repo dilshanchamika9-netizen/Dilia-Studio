@@ -16,7 +16,7 @@
   const HC = [[1, 2, 3, 4, 5].map(c => [7, c]), [1, 2, 3, 4, 5].map(r => [r, 7]), [13, 12, 11, 10, 9].map(c => [7, c]), [13, 12, 11, 10, 9].map(r => [r, 7])];
   const BASE = [[[1, 1], [1, 4], [4, 1], [4, 4]], [[1, 10], [1, 13], [4, 10], [4, 13]], [[10, 10], [10, 13], [13, 10], [13, 13]], [[10, 1], [10, 4], [13, 1], [13, 4]]];
   const CEN = [[7, 6.25], [6.25, 7], [7, 7.75], [7.75, 7]];
-  let G = L.create(SEATS[cfg.players]), pend = [], busy = false, timer = 0, over = false, resultLine = '';
+  let gid = 0, G = L.create(SEATS[cfg.players]), pend = [], busy = false, timer = 0, over = false, resultLine = '';
   const seatOf = p => G.seats[p], isCpu = p => cfg.mode === 'cpu' && p !== 0;
   // draw the static board
   const px = v => (v * 100 / 15) + '%';
@@ -64,9 +64,9 @@
   function finish() {
     const w = G.winner, s = seatOf(w), cpu = cfg.mode === 'cpu', head = NAMES[s] + ' wins'; let line = NAMES[s] + ' got all four tokens home.';
     if (cpu) { const rec = rd(REC, {}), t = rec[cfg.level] || [0, 0], key = G.n + ':' + G.winner + ':' + cfg.level; if (rec._done !== key) { t[w === 0 ? 0 : 1]++; rec[cfg.level] = t; rec._done = key; wr(REC, rec); } if (w === 0) line = 'You won against the ' + LNAME[cfg.level] + ' computers.'; else line += ' The ' + LNAME[cfg.level] + ' level wins this one.'; }
-    resultLine = head + ' · ' + line; $('deyebrow').textContent = head; $('dtime').textContent = G.n + ' rolls'; $('dline').textContent = line; $('done').classList.add('on'); P.prepare(shareData()); say(head + '. ' + line, 0);
+    gid = Date.now(); resultLine = head + ' · ' + line; $('deyebrow').textContent = head; $('dtime').textContent = G.n + ' rolls'; $('dline').textContent = line; $('done').classList.add('on'); P.prepare(shareData()); say(head + '. ' + line, 0);
   }
-  const shareData = () => ({ title: 'Ludo · ' + cfg.players + ' players', line: '🎲 ' + resultLine, big: String(G.n), lines: [resultLine, cfg.mode === 'cpu' ? 'vs computer, ' + LNAME[cfg.level] : 'All human players'], file: 'dilia-ludo' });
+  const shareData = () => ({ title: 'Ludo · ' + cfg.players + ' players', line: '🎲 ' + resultLine, big: String(G.n), lines: [resultLine, cfg.mode === 'cpu' ? 'vs computer, ' + LNAME[cfg.level] : 'All human players'], file: 'dilia-ludo-' + gid });
   function fresh() { clearTimeout(timer); G = L.create(SEATS[cfg.players]); pend = []; busy = false; over = false; $('done').classList.remove('on'); say(''); build(); save(); render(); loop(); }
   $('lroll').addEventListener('click', () => roll()); $('ldie').addEventListener('click', () => { if (!$('lroll').disabled) roll(); });
   $('newgame').addEventListener('click', fresh); $('dagain').addEventListener('click', fresh);

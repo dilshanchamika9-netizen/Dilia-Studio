@@ -432,3 +432,36 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .lctl{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0 4px}
 .lhome{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0 0;font:600 13px/1 var(--font)}
 .lh{padding:6px 10px;border-radius:999px;border:2px solid var(--lc);color:var(--pt)}
+/* arcade and puzzles */
+.mcv{display:block;width:100%;max-width:480px;margin:0 auto;border-radius:10px;touch-action:none;box-shadow:0 10px 30px -14px #000c;background:#0d1424}
+.mcv.wide{max-width:640px}
+.aimst{position:relative;width:100%;max-width:640px;aspect-ratio:4/3;margin:0 auto;border-radius:12px;background:var(--pc1);border:1px solid var(--pl);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.aimst.miss{box-shadow:inset 0 0 0 3px #e5484d88}
+.atg{position:absolute;border-radius:50%;border:0;padding:0;cursor:pointer;background:radial-gradient(circle,#fefefd 0 18%,#e5007d 19% 38%,#fefefd 39% 58%,#e5007d 59%);touch-action:none}
+.aimst .astart{position:absolute;inset:0;margin:auto;width:max-content;height:max-content}
+.nng{--n:8;--cw:3;display:grid;grid-template-columns:calc(var(--cw)*1.3em + .8em) repeat(var(--n),1fr);width:100%;max-width:560px;margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;font:650 clamp(9px,2.6vw,14px)/1.1 var(--font)}
+.nn-corner{grid-row:1}
+.nn-cc{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:1px;padding-bottom:3px;color:var(--pt)}
+.nn-rc{display:flex;justify-content:flex-end;align-items:center;gap:.5em;padding-right:.5em;color:var(--pt)}
+.nn-cc i,.nn-rc i{font-style:normal}.nn-cc.ok,.nn-rc.ok{opacity:.38}
+.nn-c{aspect-ratio:1;background:#fefefd;border:1px solid #c9ceda;box-sizing:border-box;position:relative;cursor:pointer}
+.nn-c.vr{border-right:2px solid #6b7490}.nn-c.hr{border-bottom:2px solid #6b7490}
+.nn-c.on{background:#1b2238}.nn-c.x::after{content:"×";position:absolute;inset:0;display:grid;place-items:center;color:#8b93aa;font:700 1.4em/1 var(--font)}
+.slb{--n:4;position:relative;width:100%;max-width:440px;aspect-ratio:1;margin:0 auto;border-radius:12px;background:var(--pc1);border:1px solid var(--pl);touch-action:manipulation}
+.slt{position:absolute;width:calc(100%/var(--n));height:calc(100%/var(--n));box-sizing:border-box;padding:3px;border:0;background:none;cursor:pointer;transition:left .14s,top .14s;font:800 clamp(20px,calc(26vw/var(--n)),48px)/1 var(--font)}
+.slt::before{content:"";position:absolute;inset:3px;border-radius:12px;background:linear-gradient(145deg,#7a5cff,#e5007d)}
+.slt.ok::before{background:linear-gradient(145deg,#2fa84f,#1d7f39)}
+.slt{color:#fefefd}.slt{z-index:0}.slt{display:grid;place-items:center}.slt::before{z-index:-1}
+.wsg{--n:10;display:grid;grid-template-columns:repeat(var(--n),1fr);width:100%;max-width:520px;margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:10px;overflow:hidden;border:1px solid var(--pl);background:var(--pc1)}
+.wsc{aspect-ratio:1;display:grid;place-items:center;font:750 clamp(12px,4.4vw,22px)/1 var(--font);color:var(--pt);cursor:pointer}
+.wsc.sel{background:#7a5cff55;border-radius:50%}.wsc.found{background:#2fa84f55;border-radius:50%}
+.wsl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font:700 13px/1 var(--font);letter-spacing:.04em}
+.wsl li.got{text-decoration:line-through;opacity:.45}
+.mmb{--cols:4;display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:8px;width:100%;max-width:520px;margin:0 auto}
+.mmc{position:relative;aspect-ratio:1;border:0;border-radius:12px;padding:0;cursor:pointer;perspective:600px;background:none}
+.mmc .f,.mmc .b{position:absolute;inset:0;display:grid;place-items:center;border-radius:12px;backface-visibility:hidden;transition:transform .3s}
+.mmc .b{background:linear-gradient(145deg,#7a5cff,#e5007d)}
+.mmc .f{background:#fefefd;transform:rotateY(180deg);font-size:clamp(22px,8vw,44px)}
+.mmc.up .b{transform:rotateY(180deg)}.mmc.up .f{transform:rotateY(0)}.mmc.done .f{background:#d9f3e0}
+@media (prefers-reduced-motion:reduce){.mmc .f,.mmc .b,.slt{transition:none}}
+.mini-pl{margin-top:6px}

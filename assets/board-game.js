@@ -7,7 +7,7 @@
   const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const say = (t, ms) => { msgEl.textContent = t; clearTimeout(say.t); if (t && ms !== 0) say.t = setTimeout(() => { msgEl.textContent = ''; }, ms || 3000); };
   const cfg = Object.assign({ mode: 'cpu', level: 2, side: 0, flip: false }, rd(SAVE, {}).cfg || {});
-  let S = [G.start()], H = [], started = false, sel = -1, token = 0, thinking = false, over = false, worker = null, resultLine = '', last = [];
+  let gid = 0, S = [G.start()], H = [], started = false, sel = -1, token = 0, thinking = false, over = false, worker = null, resultLine = '', last = [];
   const cur = () => S[S.length - 1], legal = s => (G.legal ? G.legal(s) : G.moves(s));
   if (kind === 'connect4') board.classList.add('c4');
   const cells = []; for (let i = 0; i < N; i++) { const e = document.createElement('div'); e.className = 'bgc'; board.append(e); cells.push(e); }
@@ -54,9 +54,9 @@
     thinking = false; token++; const cpu = cfg.mode === 'cpu'; let head, line, res;
     if (r === -1) { head = 'Draw'; line = kind === 'connect4' ? 'The board is full.' : 'Neither side wins.'; res = cpu ? 1 : 3; } else { head = NAMES[r] + ' wins'; line = kind === 'connect4' ? NAMES[r] + ' connected four.' : kind === 'reversi' ? NAMES[r] + ' has more discs (' + G.count(cur()).join(' to ') + ').' : NAMES[r] + (cur().side === r ? ' wins.' : ' wins: the other side cannot move.'); res = cpu ? (r === cfg.side ? 0 : 2) : 3; }
     if (cpu) { const rec = rd(REC, {}), t = rec[cfg.level] || [0, 0, 0], key = JSON.stringify(H).length + ':' + H.length + ':' + cfg.level; if (rec._done !== key) { t[res]++; rec[cfg.level] = t; rec._done = key; wr(REC, rec); } if (res === 0) line = 'You beat the ' + LNAME[cfg.level] + ' level.'; else if (res === 2) line += ' The ' + LNAME[cfg.level] + ' level wins this one.'; }
-    resultLine = head + ' · ' + line; $('deyebrow').textContent = head; $('dtime').textContent = Math.ceil(H.length / 2) + ' moves'; $('dline').textContent = line; $('done').classList.add('on'); P.prepare(shareData()); say(head + '. ' + line, 0);
+    gid = Date.now(); resultLine = head + ' · ' + line; $('deyebrow').textContent = head; $('dtime').textContent = Math.ceil(H.length / 2) + ' moves'; $('dline').textContent = line; $('done').classList.add('on'); P.prepare(shareData()); say(head + '. ' + line, 0);
   }
-  const shareData = () => ({ title: TITLE + ' · ' + (cfg.mode === 'cpu' ? LNAME[cfg.level] : 'Two players'), line: (kind === 'reversi' ? '⚫ ' : kind === 'connect4' ? '🔴 ' : '⛀ ') + resultLine, big: String(Math.ceil(H.length / 2)), lines: [resultLine, cfg.mode === 'cpu' ? 'vs computer, ' + LNAME[cfg.level] : 'Two players'], file: 'dilia-' + kind });
+  const shareData = () => ({ title: TITLE + ' · ' + (cfg.mode === 'cpu' ? LNAME[cfg.level] : 'Two players'), line: (kind === 'reversi' ? '⚫ ' : kind === 'connect4' ? '🔴 ' : '⛀ ') + resultLine, big: String(Math.ceil(H.length / 2)), lines: [resultLine, cfg.mode === 'cpu' ? 'vs computer, ' + LNAME[cfg.level] : 'Two players'], file: 'dilia-' + kind + '-' + gid });
 
   function startWorker() { if (worker !== null) return; try { worker = new Worker('../assets/board-worker.js'); worker.onmessage = e => got(e.data); worker.onerror = () => { worker = false; if (thinking) fb(); }; } catch (e) { worker = false; } }
   function fb() { setTimeout(() => got({ move: B.think(G, cur(), cfg.level, Math.random), tk: token }), 30); }

@@ -9,7 +9,7 @@
   const LNAME = { 1: 'Beginner', 2: 'Casual', 3: 'Club', 4: 'Expert' };
   const PNAME = { 1: 'pawn', 2: 'knight', 3: 'bishop', 4: 'rook', 5: 'queen', 6: 'king' };
   const cfg = Object.assign({ mode: 'cpu', level: 2, side: 0, flip: false }, rd(SAVE, {}).cfg || {});
-  let started = false, pos, moves = [], sans = [], startFen = C.START, status = 'ongoing', sel = -1, legal = [], last = null, token = 0, thinking = false, worker = null, pend = 0, drag = null, over = false, resultLine = '';
+  let gid = 0, started = false, pos, moves = [], sans = [], startFen = C.START, status = 'ongoing', sel = -1, legal = [], last = null, token = 0, thinking = false, worker = null, pend = 0, drag = null, over = false, resultLine = '';
   const sqEls = [];
   for (let i = 0; i < 64; i++) { const e = document.createElement('div'); e.className = 'sq'; const s = document.createElement('span'); e.append(s); board.append(e); sqEls.push(e); }
   const idx = (r, f) => r * 16 + f;
@@ -87,10 +87,10 @@
     if (status === 'checkmate') { const winner = whiteMoved ? 'White' : 'Black'; head = 'Checkmate'; line = winner + ' wins.'; res = cpu ? ((whiteMoved ? 0 : 1) === cfg.side ? 0 : 2) : 3; }
     else { head = 'Draw'; res = cpu ? 1 : 3; line = { stalemate: 'Stalemate: no legal move and no check.', fifty: 'Fifty moves without a capture or pawn move.', repetition: 'The same position came up three times.', insufficient: 'Neither side has enough pieces to mate.' }[status] || 'Drawn game.'; }
     if (cpu) { const rec = rd(REC, {}), r = rec[cfg.level] || [0, 0, 0]; if (!(rec._done === moves.join(',') + cfg.level)) { r[res]++; rec[cfg.level] = r; rec._done = moves.join(',') + cfg.level; wr(REC, rec); } if (res === 0) line = 'You beat the ' + LNAME[cfg.level] + ' level.'; else if (res === 2) line = line + ' The ' + LNAME[cfg.level] + ' level wins this one.'; }
-    resultLine = head + ' · ' + line; $('deyebrow').textContent = head; $('dtime').textContent = moves.length ? Math.ceil(moves.length / 2) + ' moves' : ''; $('dline').textContent = line; $('done').classList.add('on');
+    gid = Date.now(); resultLine = head + ' · ' + line; $('deyebrow').textContent = head; $('dtime').textContent = moves.length ? Math.ceil(moves.length / 2) + ' moves' : ''; $('dline').textContent = line; $('done').classList.add('on');
     P.prepare(shareData()); say(head + '. ' + line, 0);
   }
-  const shareData = () => ({ title: 'Chess · ' + (cfg.mode === 'cpu' ? LNAME[cfg.level] : 'Two players'), line: '♞ ' + resultLine + ' (' + Math.ceil(moves.length / 2) + ' moves)', big: String(Math.ceil(moves.length / 2)), lines: [resultLine, cfg.mode === 'cpu' ? 'vs computer, ' + LNAME[cfg.level] : 'Two players'], file: 'dilia-chess' });
+  const shareData = () => ({ title: 'Chess · ' + (cfg.mode === 'cpu' ? LNAME[cfg.level] : 'Two players'), line: '♞ ' + resultLine + ' (' + Math.ceil(moves.length / 2) + ' moves)', big: String(Math.ceil(moves.length / 2)), lines: [resultLine, cfg.mode === 'cpu' ? 'vs computer, ' + LNAME[cfg.level] : 'Two players'], file: 'dilia-chess-' + gid });
 
   // input
   function select(s) {
