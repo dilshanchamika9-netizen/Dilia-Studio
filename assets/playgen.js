@@ -262,7 +262,82 @@
     return { at, v };
   }
 
-  const API = { mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
+  // =====================================================================================
+  // MINESWEEPER: boards where the first square opens an area; "no guessing" boards can be solved by logic alone
+  // =====================================================================================
+  function around(w, h) {
+    const A = [];
+    for (let i = 0; i < w * h; i++) { const x = i % w, y = (i / w) | 0, a = []; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { if (!dx && !dy) continue; const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < w && Y < h) a.push(Y * w + X); } A.push(a); }
+    return A;
+  }
+  function counts(w, h, mine, A) { const c = new Int8Array(w * h); for (let i = 0; i < w * h; i++) { let k = 0; for (const j of A[i]) if (mine[j]) k++; c[i] = mine[i] ? -1 : k; } return c; }
+  // logic solver: opens squares that must be safe, marks squares that must be mines. true if it clears the board.
+  function mineSolve(w, h, mine, start, A) {
+    A = A || around(w, h); const N = w * h, c = counts(w, h, mine, A);
+    const open = new Uint8Array(N), flag = new Uint8Array(N); let left = 0; for (let i = 0; i < N; i++) if (!mine[i]) left++;
+    const stack = [];
+    const reveal = i => { if (open[i] || flag[i]) return; if (mine[i]) throw new Error('solver opened a mine'); open[i] = 1; left--; if (c[i] === 0) for (const j of A[i]) if (!open[j]) stack.push(j); };
+    const flood = i => { stack.push(i); while (stack.length) reveal(stack.pop()); };
+    const mark = j => { if (!mine[j]) throw new Error('solver marked a safe square'); flag[j] = 1; };
+    flood(start);
+    let changed = true;
+    while (changed && left > 0) {
+      changed = false;
+      const cons = []; // constraints: unknown squares around an open number, and how many of them are mines
+      for (let i = 0; i < N; i++) {
+        if (!open[i] || c[i] <= 0) continue;
+        const u = []; let f = 0; for (const j of A[i]) { if (flag[j]) f++; else if (!open[j]) u.push(j); }
+        if (!u.length) continue;
+        const m = c[i] - f;
+        if (m === 0) { u.forEach(flood); changed = true; }
+        else if (m === u.length) { u.forEach(j => { mark(j); }); changed = true; }
+        else cons.push({ u, m, set: new Set(u) });
+      }
+      if (changed) continue;
+      // subset rule: if A's squares are all inside B, the rest of B holds B.m - A.m mines
+      for (let x = 0; x < cons.length && !changed; x++) for (let y = 0; y < cons.length && !changed; y++) {
+        if (x === y) continue; const P = cons[x], Q = cons[y];
+        if (P.u.length >= Q.u.length || !P.u.every(j => Q.set.has(j))) continue;
+        const rest = Q.u.filter(j => !P.set.has(j)), m = Q.m - P.m;
+        if (m === 0) { rest.forEach(flood); changed = true; } else if (m === rest.length) { rest.forEach(j => { mark(j); }); changed = true; }
+      }
+      if (changed) continue;
+      // overlap rule: A has more mines than fit outside B, so some must be in the shared part
+      for (let x = 0; x < cons.length && !changed; x++) for (let y = 0; y < cons.length && !changed; y++) {
+        if (x === y) continue; const P = cons[x], Q = cons[y];
+        const both = P.u.filter(j => Q.set.has(j)); if (!both.length) continue;
+        const pOnly = P.u.length - both.length, qOnly = Q.u.filter(j => !P.set.has(j));
+        if (P.m - pOnly === Q.m && qOnly.length) { // shared part holds all of Q's mines -> Q's other squares are safe; P's other squares are mines
+          qOnly.forEach(flood); P.u.filter(j => !Q.set.has(j)).forEach(j => { mark(j); }); changed = true;
+        }
+      }
+    }
+    return left === 0;
+  }
+  // mines placed by the random stream, keeping the start square and its neighbours free
+  function mineLayout(w, h, n, start, R, A) {
+    const N = w * h, keep = new Set([start, ...A[start]]), mine = new Uint8Array(N), spots = [];
+    for (let i = 0; i < N; i++) if (!keep.has(i)) spots.push(i);
+    R.shuffle(spots); for (let k = 0; k < n; k++) mine[spots[k]] = 1;
+    return mine;
+  }
+  function makeMines(seed, w, h, n, start, noGuess, tries) {
+    const A = around(w, h); let t = 0;
+    for (; t < (tries || 2000); t++) {
+      const R = rng(seed + (t ? '#' + t : '')), mine = mineLayout(w, h, n, start, R, A);
+      if (!noGuess || mineSolve(w, h, mine, start, A)) return { w, h, n, start, mine: Array.from(mine), tries: t + 1 };
+    }
+    return null;
+  }
+  // daily board: 16 × 16 with 40 mines, starting from a fixed square, solvable without guessing
+  function makeDailyMines(key) {
+    const R = rng('minestart:' + key), w = 16, h = 16;
+    const start = (3 + R.int(10)) * w + 3 + R.int(10);
+    const B = makeMines('mines:' + key, w, h, 40, start, true, 5000);
+    B.no = dayNo(key); return B;
+  }
+
+  const API = { around, mineSolve, makeMines, makeDailyMines, mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
   root.DiliaPlayGen = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

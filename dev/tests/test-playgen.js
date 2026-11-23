@@ -30,6 +30,17 @@ for (let L = 1; L <= 100; L++) {
   if (r.out || r.count !== 1) bad.push('level ' + L + ' answers: ' + r.count + (r.out ? ' (search cut)' : ''));
   if (!G.checkPath(P.n, P.clues, P.last, P.path)) bad.push('level ' + L + ' fails its own rules');
 }
+// minesweeper: daily boards (400 days) and free no-guess boards open safely and solve by logic alone
+for (let i = 0; i < DAYS; i++) {
+  const key = new Date(d0 + i * 864e5).toISOString().slice(0, 10), t = Date.now(), M = G.makeDailyMines(key); slow = Math.max(slow, Date.now() - t);
+  if (!M || M.mine.filter(Boolean).length !== 40 || M.mine[M.start]) bad.push(key + ' daily mines layout');
+  else if (!G.mineSolve(16, 16, M.mine, M.start)) bad.push(key + ' daily mines need a guess');
+  if (M && JSON.stringify(G.makeDailyMines(key)) !== JSON.stringify(M)) bad.push(key + ' daily mines not repeatable');
+}
+for (const [w, h, n] of [[9, 9, 10], [16, 16, 40], [30, 16, 99], [16, 30, 99]]) for (let k = 0; k < 20; k++) {
+  const st = (k * 37) % (w * h), t = Date.now(), M = G.makeMines('t' + k, w, h, n, st, true, 3000); slow = Math.max(slow, Date.now() - t);
+  if (!M || !G.mineSolve(w, h, M.mine, st) || M.mine.filter(Boolean).length !== n || M.mine[st]) bad.push('free ' + w + 'x' + h + ' #' + k);
+}
 if (slow > 1500) bad.push('slowest board took ' + slow + ' ms');
 console.log(DAYS + ' days and 100 levels checked, slowest board ' + slow + ' ms, ' + bad.length + ' problems'); bad.slice(0, 10).forEach(b => console.log('  ' + b));
 process.exit(bad.length ? 1 : 0);

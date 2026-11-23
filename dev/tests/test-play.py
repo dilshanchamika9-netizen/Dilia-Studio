@@ -221,6 +221,75 @@ async def merge_tests(br, w):
     ok(int(await pg.inner_text('#mbest')) >= 500, f'[{w}] best score not kept')
     await ctx.close(); ok(not errs, f'[{w}] merge errors {errs[:3]}')
 
+async def mines_tests(br, w):
+    errs = []; ctx, pg = await page(br, w, datetime.datetime.fromisoformat('2026-11-23T09:00:00'), errs)
+    st = lambda: pg.evaluate('DiliaMines.state()')
+    cell = lambda i: pg.locator('#mines .mq').nth(i)
+    # ---- daily: same board as Node, opened at the same square; a mine restarts the same board ----
+    await pg.goto(B + 'daily-minesweeper/'); await pg.wait_for_timeout(300)
+    S = await st(); ref = node('G.makeDailyMines("2026-11-23")')
+    ok(S['mine'] == ref['mine'] and S['start'] == ref['start'] and S['w'] == 16 and S['n'] == 40, f'[{w}] daily mines differ from Node')
+    ok(S['open'][ref['start']] == 1 and sum(S['open']) > 1, f'[{w}] daily start not opened')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on daily mines')
+    m0 = S['mine'].index(1); await cell(m0).click(); await pg.wait_for_timeout(1700)
+    S2 = await st(); ok(S2['tries'] == 2 and not S2['lost'] and S2['open'] == S['open'], f'[{w}] mine did not restart same board: tries {S2["tries"]}')
+    ok(await pg.inner_text('#mtries') == '2', f'[{w}] tries shown')
+    # flag a mine with the right button, open a few safe squares by clicking, then reload and resume
+    await cell(m0).click(button='right'); safe = [i for i in range(256) if not S['mine'][i] and not S['open'][i]]
+    for i in safe[:3]: await cell(i).click()
+    await pg.wait_for_timeout(200); before = await st(); await pg.reload(); await pg.wait_for_timeout(300); after = await st()
+    ok(after['open'] == before['open'] and after['flag'] == before['flag'] and after['tries'] == 2, f'[{w}] daily mines not resumed')
+    await pg.evaluate("(() => { const s = DiliaMines.state(); s.mine.forEach((m, i) => { if (!m && !s.open[i]) DiliaMines.act(i, false); }); })()"); await pg.wait_for_timeout(300)
+    ok(await pg.is_visible('#done') and (await st())['won'], f'[{w}] daily mines not won')
+    rec = await pg.evaluate("JSON.parse(localStorage.getItem('dilia-play-v1')).days['2026-11-23'].mines")
+    ok(rec and rec['tries'] == 2, f'[{w}] daily mines result {rec}')
+    await pg.reload(); await pg.wait_for_timeout(300); ok(await pg.is_visible('#done') and 'Cleared' in await pg.text_content('#deyebrow'), f'[{w}] cleared daily not shown after reload')
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)
+    ok('Cleared in' in await pg.inner_text('#s-mines'), f'[{w}] hub mines {await pg.inner_text("#s-mines")!r}')
+    # ---- free play ----
+    await pg.goto(B + 'minesweeper/'); await pg.wait_for_timeout(300)
+    S = await st(); ok(S['w'] == 9 and S['h'] == 9 and S['mine'] is None, f'[{w}] free start {S["w"]}x{S["h"]}')
+    for k in range(6):  # first tap is always safe and, with No guessing on, the board solves by logic
+        await pg.click('#newgame'); await pg.wait_for_timeout(50); first = (k * 13 + 7) % 81
+        await cell(first).click(); S = await st()
+        ok(not S['lost'] and S['mine'][first] == 0, f'[{w}] first tap hit a mine')
+        ok(await pg.evaluate(f"DiliaPlayGen.mineSolve(9, 9, DiliaMines.state().mine, {first})"), f'[{w}] no-guess board needs a guess')
+    # keyboard: arrows + F flags, Enter opens
+    await pg.click('#newgame'); await pg.focus('#mines'); await pg.keyboard.press('ArrowRight'); await pg.keyboard.press('ArrowDown'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+    S = await st(); ok(S['open'][0] == 1 or sum(S['open']) > 0, f'[{w}] keyboard open')
+    closed = next(i for i in range(81) if not S['open'][i])
+    await pg.evaluate(f"DiliaMines.act({closed}, true)"); ok((await st())['flag'][closed] == 1, f'[{w}] flag')
+    # long-press on touch flags; flag mode makes a tap flag
+    S = await st(); closed2 = next(i for i in range(81) if not S['open'][i] and i != closed)
+    await pg.evaluate(f"""(() => {{ const c = document.querySelectorAll('#mines .mq')[{closed2}], r = c.getBoundingClientRect(), o = {{ pointerType: 'touch', button: 0, bubbles: true, clientX: r.x + 5, clientY: r.y + 5 }}; c.dispatchEvent(new PointerEvent('pointerdown', o)); setTimeout(() => c.dispatchEvent(new PointerEvent('pointerup', o)), 600); }})()""")
+    await pg.wait_for_timeout(800); ok((await st())['flag'][closed2] == 1, f'[{w}] long-press did not flag')
+    await pg.click('#flagmode'); S = await st(); closed3 = next(i for i in range(81) if not S['open'][i] and not S['flag'][i])
+    await cell(closed3).click(); ok((await st())['flag'][closed3] == 1, f'[{w}] flag mode tap did not flag'); await pg.click('#flagmode')
+    # chord: flag every mine around an open number, then tap the number
+    S = await st(); A = node('G.around(9, 9)')
+    num = next((i for i in range(81) if S['open'][i] and any(not S['open'][j] and not S['mine'][j] for j in A[i]) and any(S['mine'][j] for j in A[i])), None)
+    if num is not None:
+        for j in A[num]:
+            if S['mine'][j] and not S['flag'][j]: await pg.evaluate(f"DiliaMines.act({j}, true)")
+            if not S['mine'][j] and S['flag'][j]: await pg.evaluate(f"DiliaMines.act({j}, true)")
+        await cell(num).click(); S2 = await st()
+        ok(all(S2['open'][j] for j in A[num] if not S2['mine'][j]), f'[{w}] chord did not open neighbours')
+    # lose: share hidden; win: best time saved
+    S = await st(); mi = next(i for i in range(81) if S['mine'][i] and not S['flag'][i]); await cell(mi).click(); await pg.wait_for_timeout(150)
+    ok(await pg.is_visible('#done') and await pg.text_content('#deyebrow') == 'Boom' and await pg.is_hidden('#share'), f'[{w}] lose panel')
+    ok(await pg.locator('#mines .mq.boom').count() == 1 and await pg.locator('#mines .mq.m').count() >= 1, f'[{w}] mines not shown after loss')
+    await pg.click('#dagain'); await cell(40).click()
+    await pg.evaluate("(() => { const s = DiliaMines.state(); s.mine.forEach((m, i) => { if (!m && !s.open[i]) DiliaMines.act(i, false); }); })()"); await pg.wait_for_timeout(300)
+    ok(await pg.is_visible('#done') and await pg.text_content('#deyebrow') == 'Cleared' and await pg.inner_text('#sbest') != '–', f'[{w}] free win / best time')
+    # expert: wide on desktop, tall on phones; custom size
+    await pg.click('.mlevel button[data-lv="expert"]'); S = await st()
+    ok((S['w'], S['h']) == ((16, 30) if w < 700 else (30, 16)) and S['n'] == 99, f'[{w}] expert shape {S["w"]}x{S["h"]}')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on expert')
+    await pg.click('.mlevel button[data-lv="custom"]'); await pg.fill('#cw', '10'); await pg.fill('#ch', '8'); await pg.fill('#cm', '12'); await pg.click('#capply')
+    S = await st(); ok((S['w'], S['h'], S['n']) == (10, 8, 12) and await pg.locator('#mines .mq').count() == 80, f'[{w}] custom board')
+    await pg.fill('#cm', '999'); await pg.click('#capply'); ok((await st())['n'] == 24, f'[{w}] custom mines not capped at 30%')
+    await ctx.close(); ok(not errs, f'[{w}] mines errors {errs[:3]}')
+
 async def sudoku_tests(br, w, when, key):
     errs = []; ctx, pg = await page(br, w, when, errs)
     await pg.goto(B + 'daily-sudoku/'); await pg.wait_for_timeout(300)
@@ -292,6 +361,7 @@ async def main():
         for when in ('2026-11-23T09:00:00', '2026-11-24T09:00:00', '2026-11-26T09:00:00', '2026-11-29T09:00:00'):
             await order_rule(br, datetime.datetime.fromisoformat(when), when[:10])
         await early_end(br)
+        await mines_tests(br, 1280); await mines_tests(br, 390)
         await merge_tests(br, 1280); await merge_tests(br, 390)
         await levels_tests(br, 1280); await levels_tests(br, 390)
         # the day number follows the local date (#1 on launch day, #6 on Saturday 28 Nov)

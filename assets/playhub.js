@@ -35,4 +35,7 @@
   $('s-merge').append(mr ? el('span', 'chip ok', '✓ ' + mr.s + ' points') : saved('merge') ? el('span', 'chip on', 'Continue') : el('span', 'chip', 'Play now'));
   let mbest = 0; try { const d = JSON.parse(localStorage.getItem('dilia-play-v1') || '{}').days || {}; for (const k in d) if (d[k].merge && d[k].merge.s > mbest) mbest = d[k].merge.s; } catch (e) {}
   if (mbest) { bits.push('Merge ' + mbest + ' points'); $('hbest').textContent = bits.join(' · '); }
+  const xr = P.result('mines', KEY);
+  $('n-mines').textContent = 'Daily minesweeper #' + no;
+  $('s-mines').append(xr ? el('span', 'chip ok', '✓ Cleared in ' + P.fmt(xr.t)) : saved('mines') ? el('span', 'chip on', 'Continue') : el('span', 'chip', 'Play now'));
 }
