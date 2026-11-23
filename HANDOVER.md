@@ -293,3 +293,12 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - `assets/menu.js` adds an "also" strip after `<main>` on pages of grouped tools (styles `.relgrp` in site.css). Image/QR/Text/Calc were already grouped this way (keyword pages = presets).
 - Still open: real multi-mode merged pages (one engine page with mode switch) — not built; owner to decide. tools.html shows 66 tiles.
 - `dev/__pycache__` is no longer tracked (it made the gate's rebuild check fail).
+
+## 16. Home "Orbit" (23 Nov 2026, approved concept Orbit 3)
+- Files: `index.html` (hand-written), `assets/orbit.css` (home only), `assets/home.js` (rewritten), `assets/theme.js` (in head; applies saved dark mode before paint). `assets/home.css` still loaded for proof/FAQ/drop dialog and is shared with life/ and play/ hubs — do not remove rules there.
+- Left: search (results open only when the box is used), Try chips, "Today on Dilia": tool of the day, next public holiday (country from time zone map in home.js, then browser language; data from assets/holidays/CC.json), today's daily path, guide of the day (GUIDES list in home.js generated from dev/blog-posts.py; update it when guides are added).
+- Right: 4 planets (CSS 3D, pause on hover, stop with reduced motion). Hover/focus = preview card; click = colour "warp" then the world page (skipped for reduced motion / modifier clicks).
+- Journeys: 4 constellations; clicking a step marks it done (localStorage `dilia-journeys-v1`), progress bar, Start again. Phone/tablet: vertical list.
+- Light is default; switch in the header (localStorage `dilia-theme`). Dark styling exists ONLY on the home page so far — other pages are still light-only (next job: site-wide dark).
+- Count wording: "150+ tasks" (no "jobs"). Palette now labels calculators "Dilia Calc"/"Dilia Life" (was wrongly "Dilia PDF").
+- Tests: dev/tests/test-home.py now also checks planets, preview, journeys (links, save, reset), theme switch, holiday card (Dubai time zone).
