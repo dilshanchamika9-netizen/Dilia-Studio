@@ -14,7 +14,7 @@ async def main():
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
         for path in ('', 'life/', 'play/'):
             for w in (1440, 820, 390):
-                pg = await br.new_page(viewport={'width': w, 'height': 900}); msgs = []
+                pg = await (await br.new_context(viewport={'width': w, 'height': 900}, timezone_id='Asia/Dubai')).new_page(); msgs = []
                 pg.on('console', lambda m: msgs.append(m.text) if m.type == 'error' or 'Content Security' in m.text else None)
                 pg.on('pageerror', lambda e: msgs.append(str(e)))
                 pg.on('request', lambda r: msgs.append('OUTSIDE ' + r.url) if not r.url.startswith((B, 'data:', 'blob:', 'about:')) else None)
@@ -36,14 +36,46 @@ async def main():
                     now = datetime.date.today()
                     ok(now.strftime('%A') in await pg.inner_text('#t-date'), 'today strip: weekday wrong')
                     doy = now.timetuple().tm_yday
-                    ok(f'Day {doy}' in await pg.inner_text('#t-sub'), 'today strip: day of year wrong')
-                    cnt = int(await pg.inner_text('#count'))
+                    ok(f'Day {doy}' in await pg.inner_text('#t-date'), 'today strip: day of year wrong')
+                    cnt = int(await pg.get_attribute('#corecount', 'data-n'))
                     ready = await pg.evaluate("DiliaSearch.all().filter(t=>t.ready && t.group!=='Play').length")
                     ok(cnt == ready and cnt > 100, f'tool count {cnt} vs {ready}')
                     items = await pg.evaluate("[...document.querySelectorAll('#door-tools li')].map(l=>+l.textContent.split('· ')[1])")
                     ok(len(items) == 5 and sum(items) == ready, f'Tools door counts {items} sum != {ready}')
                     tl = await pg.get_attribute('#t-tool', 'href')
                     ok(tl and tl.endswith('/') and (await pg.inner_text('#t-tn')).strip(), 'tool of the day missing')
+                    ok(not await pg.is_visible('#plist'), 'search list shows before the box is used')
+                    # Orbit: 4 planets link to the 4 worlds; hover changes the preview
+                    ph = await pg.evaluate("[...document.querySelectorAll('.planet')].map(a=>a.getAttribute('href'))")
+                    ok(ph == ['tools.html', 'life/', 'play/', 'blog/'], f'planets {ph}')
+                    await pg.dispatch_event('.planet.p-life', 'mouseenter'); await pg.wait_for_timeout(150)
+                    ok('Life' in await pg.inner_text('#pv') and 'Public holidays' in await pg.inner_text('#pv'), 'planet hover preview')
+                    ok(await pg.get_attribute('#pv .go', 'href') == 'life/', 'preview enter link')
+                    # Today: life card shows a holiday (UAE time zone in this test), read card is a real guide
+                    ok(await pg.get_attribute('#t-read', 'href') != 'blog/', 'guide of the day missing')
+                    lt = await pg.inner_text('#t-lt'); ok(any(x in lt for x in (' in ', ' today', ' tomorrow')) and 'United Arab Emirates' in await pg.inner_text('#t-sub'), f'next holiday card: {lt}')
+                    gs = await pg.evaluate("[...new Set([...document.querySelectorAll('#jstars a, #t-read, #tries a, #pv a')].map(a=>a.href))]")
+                    for h in gs:
+                        try: code = urllib.request.urlopen(h).status
+                        except Exception as e: code = str(e)
+                        ok(code == 200, f'home link {h} -> {code}')
+                    # Journeys: every tab, every step link resolves; clicking a step marks it done and survives reload
+                    for i in range(4):
+                        await pg.click(f'#jtabs button >> nth={i}'); await pg.wait_for_timeout(80)
+                        for h in await pg.evaluate("[...document.querySelectorAll('#jstars a')].map(a=>a.href)"):
+                            try: code = urllib.request.urlopen(h).status
+                            except Exception as e: code = str(e)
+                            ok(code == 200, f'journey {i} link {h} -> {code}')
+                    await pg.click('#jtabs button >> nth=0')
+                    await pg.evaluate("document.querySelector('#jstars a').addEventListener('click',e=>e.preventDefault())")
+                    await pg.click('#jstars a >> nth=0'); await pg.reload(); await pg.wait_for_timeout(400)
+                    ok('1 of 5' in await pg.inner_text('#jdone') and 'done' in (await pg.get_attribute('#jstars li >> nth=0', 'class')), 'journey progress not saved')
+                    await pg.click('#jreset'); ok('Tap step 1' in await pg.inner_text('#jdone'), 'journey reset')
+                    # Light by default; the switch turns dark and is remembered
+                    ok(await pg.evaluate("document.documentElement.dataset.theme") is None, 'not light by default')
+                    await pg.click('#theme'); await pg.reload(); await pg.wait_for_timeout(300)
+                    ok(await pg.evaluate("document.documentElement.dataset.theme") == 'dark', 'dark not remembered')
+                    await pg.click('#theme'); ok(await pg.evaluate("localStorage.getItem('dilia-theme')") == 'light', 'light not saved')
                     await pg.fill('#q', 'merge'); await pg.wait_for_timeout(200)
                     ok('Merge' in await pg.inner_text('#plist'), 'search: "merge" not found')
                     # drop a PDF on the page: the tool chooser opens with PDF tools

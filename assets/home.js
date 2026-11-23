@@ -1,59 +1,173 @@
-// Dilia home: search, today strip, area doors, popular tools, and "drop a file to see what fits".
+// Dilia home "Orbit": search, Today on Dilia, the four worlds as planets, journeys as constellations, world cards,
+// light/dark switch, and "drop a file to see what fits". Everything is worked out on this device. Text via textContent only.
 {
   const T = DiliaSearch.all(), byId = Object.fromEntries(T.map(t => [t.id, t]));
+  const $ = id => document.getElementById(id);
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-  const ready = T.filter(t => t.ready && t.group !== 'Play'); // tools only; games are counted in Play
-  document.getElementById('count').textContent = ready.length;
-  inkFlow(document.getElementById('ink'));
-  DiliaSearch.mount(document.getElementById('q'), document.getElementById('plist'), 4);
+  const link = (href, cls, txt) => { const a = el('a', cls, txt); a.href = href; return a; };
+  const ready = T.filter(t => t.ready && t.group !== 'Play');           // tools only
+  const games = T.filter(t => t.ready && t.group === 'Play');
+  const GUIDES = [["merge-pdf-files", "How to Merge PDF Files Into One"], ["compress-pdf-for-email", "How to Compress a PDF for Email"], ["edit-pdf-text-free", "How to Edit Text in a PDF for Free"], ["sign-pdf-without-printing", "How to Sign a PDF Without Printing It"], ["split-pdf-into-pages", "How to Split a PDF Into Separate Pages or Files"], ["protect-pdf-with-password", "How to Protect a PDF With a Password"], ["unlock-pdf-you-know-the-password", "How to Remove a Password From a PDF You Own"], ["jpg-to-pdf", "How to Convert JPG and PNG Photos to a PDF"], ["extract-tables-from-pdf-to-excel", "How to Get Tables Out of a PDF and Into Excel"], ["safe-online-pdf-tools", "Are Online PDF Tools Safe? What Happens to Your File"], ["rotate-pdf-pages", "How to Rotate PDF Pages and Save Them That Way"], ["delete-pages-from-pdf", "How to Delete Pages From a PDF"], ["fill-pdf-form-online", "How to Fill In a PDF Form Online"], ["make-scanned-pdf-searchable", "How to Make a Scanned PDF Searchable (OCR)"], ["add-watermark-to-pdf", "How to Add a Watermark to a PDF"], ["redact-pdf-properly", "How to Redact a PDF So the Hidden Text Really Is Gone"], ["compress-image-without-losing-quality", "How to Compress an Image Without Losing Quality"], ["resize-image-for-instagram-and-web", "How to Resize an Image for Instagram, YouTube and the Web"], ["crop-image-to-a-shape-or-ratio", "How to Crop an Image to a Ratio or Circle"], ["rotate-or-flip-an-image", "How to Rotate or Flip an Image"], ["convert-image-to-png-jpg-webp", "How to Convert an Image to PNG, JPG, WebP, AVIF and More"], ["heic-to-jpg-free", "How to Open iPhone HEIC Photos as JPG"], ["add-watermark-to-photos", "How to Add a Watermark to Photos"], ["make-a-meme-online", "How to Make a Meme From Your Own Picture"], ["blur-faces-and-text-in-an-image", "How to Blur Faces, Plates and Text in a Picture"], ["make-animated-gif-from-pictures", "How to Make an Animated GIF From Pictures"], ["remove-metadata-from-photos", "How to Remove Location and Camera Data From Photos"], ["create-a-qr-code-free", "How to Create a QR Code"], ["wifi-qr-code-for-guests", "How to Make a Wi-Fi QR Code So Guests Can Join Instantly"], ["contact-card-qr-code-vcard", "How to Make a Contact Card QR Code for Your Business Card"], ["make-many-qr-codes-at-once", "How to Make Many QR Codes at Once"], ["read-a-qr-code-from-an-image", "How to Read a QR Code From an Image or With Your Camera"], ["count-words-and-characters-online", "How to Count Words and Characters in Any Text"], ["change-text-case-online", "How to Change Text to Uppercase, Lowercase or Title Case"], ["clean-up-messy-text", "How to Remove Extra Spaces, Line Breaks and Odd Characters"], ["sort-and-dedupe-a-list-online", "How to Sort a List and Remove Duplicate Lines"], ["find-and-replace-in-text-online", "How to Find and Replace Words in a Text"], ["compare-two-texts-online", "How to Compare Two Texts and See What Changed"], ["generate-lorem-ipsum", "How to Generate Lorem Ipsum Placeholder Text"], ["extract-emails-and-links-from-text", "How to Extract Emails, Links and Numbers from a Text"]];
+  const plus = n => Math.floor(n / 10) * 10 + '+';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } } };
 
-  const QUICK = ['merge', 'pxcompress', 'qrmain', 'dhol', 'dtz', 'txcount'];
-  const quick = document.getElementById('quick');
-  QUICK.forEach(id => { const a = el('a', '', byId[id].name); a.href = diliaUrl(byId[id]); quick.append(a); });
-
-  const pg = document.getElementById('pgrid');
-  ['merge', 'compress', 'pxcompress', 'pxresize', 'qrmain', 'dhol', 'dtz', 'txcount'].forEach(id => {
-    const t = byId[id], a = el('a', 'pcard'); a.href = diliaUrl(t);
-    const i = el('span', 'pi'); i.innerHTML = diliaIcon(t.icon);
-    a.append(i, el('b', '', t.name), el('span', 'd', t.desc)); pg.append(a);
+  /* ---------- light / dark ---------- */
+  const tb = $('theme');
+  const paintTheme = () => { const d = document.documentElement.dataset.theme === 'dark'; tb.setAttribute('aria-pressed', d ? 'true' : 'false'); tb.setAttribute('aria-label', d ? 'Light mode' : 'Dark mode'); };
+  tb.addEventListener('click', () => {
+    const d = document.documentElement.dataset.theme !== 'dark';
+    if (d) document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem('dilia-theme', d ? 'dark' : 'light'); } catch (e) { /* private mode */ }
+    paintTheme();
   });
+  paintTheme();
 
-  // Tools door: live lines with real counts.
+  /* ---------- search ---------- */
+  DiliaSearch.mount($('q'), $('plist'), 4);
+  const tries = $('tries');
+  [['compress PDF', 'compress-pdf/', '#e5007d'], ['time in London', 'time-zone-converter/', '#009fe3'], ['sudoku', 'daily-sudoku/', '#7a5cff'], ['sign a PDF guide', 'blog/sign-pdf-without-printing/', '#f0a800']]
+    .forEach(([n, h, c]) => { const a = link(h, '', n), i = el('i'); i.style.background = c; a.prepend(i); tries.append(a); });
+
+  /* ---------- counts ---------- */
+  $('corecount').textContent = plus(ready.length) + ' TASKS · ' + games.length + ' GAMES';
+  $('corecount').dataset.n = ready.length;
+  $('w-tk').textContent = plus(ready.length) + ' tasks';
+  $('w-pk').textContent = games.length + ' games';
+  $('w-rk').textContent = GUIDES.length + ' guides';
   const n = g => ready.filter(t => t.group === g).length;
   const nPdf = ready.length - n('Image') - n('QR') - n('Text') - n('Calc');
-  const dt = document.getElementById('door-tools');
-  [['PDF', nPdf], ['Image', n('Image')], ['Text', n('Text')], ['QR codes', n('QR')], ['Calculators', n('Calc')]].forEach(([k, v]) => { if (v) dt.append(el('li', '', k + ' · ' + v)); });
+  [['PDF', nPdf], ['Image', n('Image')], ['Text', n('Text')], ['QR codes', n('QR')], ['Calculators', n('Calc')]].forEach(([k, v]) => { if (v) $('door-tools').append(el('li', '', k + ' · ' + v)); });
 
-  // Today strip: worked out on this device from the clock. No network.
+  /* ---------- Today on Dilia ---------- */
   const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const doy = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - start) / 864e5) + 1;
-  document.getElementById('t-date').textContent = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  const bits = ['Day ' + doy];
-  try { const f = new Intl.DateTimeFormat('en-GB-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); if (f.resolvedOptions().calendar === 'islamic-umalqura') bits.push(f.format(now)); } catch (e) {}
-  const P = 29.530588853, age = (((now - Date.UTC(2000, 0, 6, 18, 14)) / 864e5) % P + P) % P;
-  bits.push('moon ' + Math.round((1 - Math.cos(2 * Math.PI * age / P)) / 2 * 100) + '% lit');
-  document.getElementById('t-sub').textContent = bits.join(' · ');
-
-  // Tool of the day: one live tool, changes at local midnight, same order for everyone.
+  const doy = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(now.getFullYear(), 0, 1)) / 864e5) + 1;
+  const bits = [now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }), 'Day ' + doy];
+  try { const f = new Intl.DateTimeFormat('en-GB-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); if (f.resolvedOptions().calendar === 'islamic-umalqura') bits.push(f.format(now)); } catch (e) { /* no Hijri support */ }
+  $('t-date').textContent = bits.join(' · ');
   const key = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-  const pool = ready.slice().sort((a, b) => a.id < b.id ? -1 : 1);
-  const tod = pool[(key * 2654435761 >>> 0) % pool.length];
-  // Daily puzzle: today's path number and size, worked out from the date
+  const pickDay = (list, salt) => list[((key + salt) * 2654435761 >>> 0) % list.length];
+  // Tools: one live tool a day, same for everyone.
+  const tod = pickDay(ready.slice().sort((a, b) => (a.id < b.id ? -1 : 1)), 0);
+  $('t-tool').href = diliaUrl(tod); $('t-tn').textContent = tod.name; $('t-td').textContent = tod.desc;
+  // Play: today's path number and size.
   if (window.DiliaPlayGen) {
     const G = DiliaPlayGen, k = G.dayKey(now), sz = [7, 5, 5, 6, 6, 6, 7][G.weekday(k)];
-    document.getElementById('t-pz').textContent = 'Daily path #' + G.dayNo(k);
-    document.getElementById('t-pzd').textContent = sz + ' × ' + sz + ' today · same board for everyone';
+    $('t-pz').textContent = 'Daily path #' + G.dayNo(k);
+    $('t-pzd').textContent = sz + ' × ' + sz + ' today · same board for everyone';
   }
-  const tl = document.getElementById('t-tool'); tl.href = diliaUrl(tod);
-  document.getElementById('t-tn').textContent = tod.name; document.getElementById('t-td').textContent = tod.desc;
+  // Read: one guide a day.
+  const gd = pickDay(GUIDES, 7); $('t-read').href = 'blog/' + gd[0] + '/'; $('t-rt').textContent = gd[1];
+  // Life: next public holiday where this device is. Country from the time zone, then the browser language.
+  const TZC = { 'Asia/Dubai': 'AE', 'Asia/Muscat': 'OM', 'Asia/Riyadh': 'SA', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH', 'Asia/Kuwait': 'KW', 'Asia/Colombo': 'LK', 'Asia/Kolkata': 'IN', 'Asia/Calcutta': 'IN', 'Asia/Karachi': 'PK', 'Asia/Dhaka': 'BD', 'Asia/Kathmandu': 'NP', 'Asia/Manila': 'PH', 'Asia/Jakarta': 'ID', 'Asia/Singapore': 'SG', 'Asia/Kuala_Lumpur': 'MY', 'Asia/Bangkok': 'TH', 'Asia/Tokyo': 'JP', 'Asia/Seoul': 'KR', 'Asia/Shanghai': 'CN', 'Asia/Hong_Kong': 'HK', 'Asia/Cairo': 'EG', 'Africa/Cairo': 'EG', 'Asia/Amman': 'JO', 'Asia/Beirut': 'LB', 'Asia/Baghdad': 'IQ', 'Asia/Tehran': 'IR', 'Europe/Istanbul': 'TR', 'Europe/London': 'GB', 'Europe/Dublin': 'IE', 'Europe/Paris': 'FR', 'Europe/Berlin': 'DE', 'Europe/Madrid': 'ES', 'Europe/Rome': 'IT', 'Europe/Amsterdam': 'NL', 'Europe/Lisbon': 'PT', 'Europe/Moscow': 'RU', 'Africa/Lagos': 'NG', 'Africa/Nairobi': 'KE', 'Africa/Johannesburg': 'ZA', 'America/New_York': 'US', 'America/Chicago': 'US', 'America/Denver': 'US', 'America/Los_Angeles': 'US', 'America/Toronto': 'CA', 'America/Vancouver': 'CA', 'America/Mexico_City': 'MX', 'America/Sao_Paulo': 'BR', 'America/Argentina/Buenos_Aires': 'AR', 'Australia/Sydney': 'AU', 'Australia/Melbourne': 'AU', 'Pacific/Auckland': 'NZ' };
+  (async () => {
+    try {
+      let cc = ''; try { cc = TZC[Intl.DateTimeFormat().resolvedOptions().timeZone] || ''; } catch (e) { /* ignore */ }
+      if (!cc) { const r = (navigator.languages || [navigator.language]).map(l => (l.split('-')[1] || '').toUpperCase()).find(x => /^[A-Z]{2}$/.test(x)); cc = r || ''; }
+      if (!cc) return;
+      const res = await fetch('assets/holidays/' + cc + '.json'); if (!res.ok) return;
+      const data = await res.json(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let next = null;
+      for (const y of [now.getFullYear(), now.getFullYear() + 1]) for (const [md, name] of (data[y] || [])) {
+        const [m, d] = md.split('-').map(Number), dt = new Date(y, m - 1, d);
+        if (dt >= today && (!next || dt < next.dt)) next = { dt, name };
+      }
+      if (!next) return;
+      const days = Math.round((next.dt - today) / 864e5);
+      let country = cc; try { country = new Intl.DisplayNames(['en'], { type: 'region' }).of(cc); } catch (e) { /* keep code */ }
+      $('t-lt').textContent = next.name + (days === 0 ? ' is today' : days === 1 ? ' is tomorrow' : ' in ' + days + ' days');
+      $('t-sub').textContent = next.dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + country;
+    } catch (e) { /* leave the general card */ }
+  })();
+  $('t-sub').textContent = 'Find the next day off in 249 countries';
 
-  // Drop a file anywhere: show the tools that fit, then open one with the file ready.
-  const veil = document.getElementById('veil'), fit = document.getElementById('fit');
+  /* ---------- the four planets ---------- */
+  const W = {
+    tools: { name: 'Tools', href: 'tools.html', c: '#e5007d', t: 'var(--w-tools-t)', line: plus(ready.length) + ' tasks', items: [['Merge PDF', 'merge-pdf/'], ['Compress image', 'compress-image/'], ['QR code generator', 'qr-code-generator/']] },
+    life: { name: 'Life', href: 'life/', c: '#009fe3', t: 'var(--w-life-t)', line: 'Time and plans', items: [['Public holidays', 'public-holidays/'], ['Time zone converter', 'time-zone-converter/'], ['Date difference', 'date-difference-calculator/']] },
+    play: { name: 'Play', href: 'play/', c: '#7a5cff', t: 'var(--w-play-t)', line: games.length + ' games', items: [['Daily path', 'daily-path/'], ['Daily sudoku', 'daily-sudoku/'], ['Typing test', 'typing-test/']] },
+    read: { name: 'Read', href: 'blog/', c: '#f0a800', t: 'var(--w-read-t)', fg: '#0b1220', line: GUIDES.length + ' guides', items: GUIDES.slice(0, 3).map(g => [g[1].replace(/^How to /, ''), 'blog/' + g[0] + '/']) }
+  };
+  const spin = $('spin'), pv = $('pv'), planets = {};
+  let shown = '';
+  function preview(k) {
+    if (shown === k) return; shown = k; const w = W[k];
+    Object.entries(planets).forEach(([j, p]) => p.classList.toggle('on', j === k));
+    pv.style.setProperty('--c', w.c); pv.style.setProperty('--t', w.t); pv.style.setProperty('--fg', w.fg || '#fff');
+    const h = el('div', 'ph'); h.append(el('i'), el('b', '', w.name), el('span', '', w.line));
+    const ul = el('ul'); w.items.forEach(([n, href]) => { const a = link(href, '', ''); a.append(el('span', '', n[0].toUpperCase()), document.createTextNode(n)); const li = el('li'); li.append(a); ul.append(li); });
+    const go = link(w.href, 'go', 'Enter ' + w.name + ' →'); go.addEventListener('click', e => warp(e, k));
+    pv.replaceChildren(h, ul, go);
+  }
+  function warp(e, k) {
+    if (reduce || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    e.preventDefault(); const w = W[k];
+    const o = el('div', 'ob-warp'); o.style.background = w.c; o.style.color = w.fg || '#fff';
+    if (e.clientX) { o.style.setProperty('--x', e.clientX + 'px'); o.style.setProperty('--y', e.clientY + 'px'); }
+    const inner = el('div'); inner.append(el('p', '', 'ENTERING'), el('b', '', w.name)); o.append(inner); document.body.append(o);
+    setTimeout(() => { location.href = w.href; }, 520);
+  }
+  Object.keys(W).forEach((k, i) => {
+    const arm = el('div', 'ob-arm'); arm.style.setProperty('--a', (i * 90 + 20) + 'deg');
+    const un = el('div', 'ob-unspin'), up = el('div', 'ob-up');
+    const p = link(W[k].href, 'planet p-' + k, W[k].name); p.setAttribute('aria-label', 'Enter ' + W[k].name);
+    p.addEventListener('mouseenter', () => preview(k)); p.addEventListener('focus', () => preview(k));
+    p.addEventListener('click', e => warp(e, k));
+    planets[k] = p; up.append(p); un.append(up); arm.append(un); spin.append(arm);
+  });
+  preview('tools');
+  addEventListener('pageshow', e => { if (e.persisted) document.querySelectorAll('.ob-warp').forEach(o => o.remove()); });
+
+  /* ---------- journeys ---------- */
+  const CW = { T: ['tools', 'Tools'], L: ['life', 'Life'], P: ['play', 'Play'], R: ['read', 'Read'] };
+  const J = [
+    { id: 'cv', n: 'Send your CV', sub: 'Make it, sign it, send it', st: [['T', 'Edit your CV PDF', 'edit-pdf/', 10, 62], ['T', 'Sign the cover letter', 'sign-pdf/', 28, 30], ['T', 'Join CV and letter', 'merge-pdf/', 48, 60], ['T', 'Shrink for email', 'compress-pdf/', 68, 28], ['L', 'Count days to deadline', 'date-difference-calculator/', 88, 56]] },
+    { id: 'trip', n: 'Trip abroad', sub: 'Plan, sort the papers, go', st: [['L', 'Holidays where you go', 'public-holidays/', 10, 36], ['L', 'Time zone for calls', 'time-zone-converter/', 28, 66], ['T', 'Scan passport to PDF', 'scan-to-pdf/', 48, 30], ['T', 'Photo to a size limit', 'compress-image-to-size/', 68, 62], ['P', 'Puzzles for the flight', 'play/', 88, 32]] },
+    { id: 'inv', n: 'Small business invoice', sub: 'Price it, send it, get paid', st: [['T', 'Add VAT to the price', 'vat-calculator/', 10, 50], ['T', 'Receipts to one PDF', 'jpg-to-pdf/', 28, 24], ['T', 'Payment QR code', 'qr-code-generator/', 48, 60], ['T', 'Sign the invoice', 'sign-pdf/', 68, 28], ['R', 'Lock it with a password', 'blog/protect-pdf-with-password/', 88, 58]] },
+    { id: 'break', n: 'Coffee break', sub: 'Ten minutes, three games', st: [['P', 'Reaction warm-up', 'reaction-time/', 14, 56], ['P', "Today's path", 'daily-path/', 38, 28], ['P', 'Daily sudoku', 'daily-sudoku/', 62, 62], ['R', 'One quick guide', 'blog/', 86, 32]] }
+  ];
+  const JKEY = 'dilia-journeys-v1';
+  let ji = Math.min(J.length - 1, Math.max(0, store.get('dilia-journey-tab', 0) | 0));
+  const tabs = $('jtabs');
+  J.forEach((j, i) => { const b = el('button', '', j.n); b.type = 'button'; b.setAttribute('role', 'tab'); b.addEventListener('click', () => { ji = i; store.set('dilia-journey-tab', i); drawJ(); }); tabs.append(b); });
+  const SVG = 'http://www.w3.org/2000/svg', lines = $('jlines');
+  const dust = []; for (let i = 0; i < 40; i++) { const c = document.createElementNS(SVG, 'circle'); c.setAttribute('class', 'dust'); const r1 = ((i * 2654435761) >>> 0) / 4294967296, r2 = ((i * 2246822519 + 3266489917) >>> 0) / 4294967296; c.setAttribute('cx', Math.round(r1 * 1000)); c.setAttribute('cy', Math.round(r2 * 480)); c.setAttribute('r', 1 + (i % 3) * 0.6); c.style.animationDelay = (i % 7) * 0.5 + 's'; dust.push(c); }
+  function drawJ() {
+    const j = J[ji], done = new Set(store.get(JKEY, {})[j.id] || []);
+    [...tabs.children].forEach((b, i) => b.setAttribute('aria-selected', i === ji ? 'true' : 'false'));
+    $('jname').textContent = j.n; $('jsub').textContent = j.sub;
+    const cnt = j.st.filter((s, i) => done.has(i)).length, nextI = j.st.findIndex((s, i) => !done.has(i));
+    $('jbar').style.width = Math.round(cnt / j.st.length * 100) + '%';
+    $('jdone').textContent = cnt === 0 ? 'Tap step 1 to start' : cnt === j.st.length ? 'Constellation complete ✦' : cnt + ' of ' + j.st.length + ' steps done';
+    $('jreset').hidden = cnt === 0;
+    lines.replaceChildren(...dust);
+    j.st.slice(1).forEach((b, i) => {
+      const a = j.st[i], lit = done.has(i) && done.has(i + 1), l = document.createElementNS(SVG, 'line');
+      l.setAttribute('x1', a[3] * 10); l.setAttribute('y1', a[4] * 4.8); l.setAttribute('x2', b[3] * 10); l.setAttribute('y2', b[4] * 4.8);
+      if (lit) { l.setAttribute('stroke', W[CW[b[0]][0]].c); l.setAttribute('stroke-width', 3); l.setAttribute('stroke-opacity', .9); } else l.setAttribute('class', 'todo');
+      lines.append(l);
+    });
+    const ol = $('jstars'); ol.replaceChildren();
+    j.st.forEach(([w, n, href, x, y], i) => {
+      const li = el('li', 'jstar w-' + CW[w][0] + (done.has(i) ? ' done' : '') + (i === nextI ? ' next' : ''));
+      li.style.setProperty('--x', x + '%'); li.style.setProperty('--y', y + '%');
+      const a = link(href, '', ''); a.setAttribute('aria-label', 'Step ' + (i + 1) + ' of ' + j.st.length + ': ' + n + (done.has(i) ? ' (done)' : ''));
+      const lab = el('span', 'lab'); lab.append(el('small', '', 'Step ' + (i + 1) + ' · ' + CW[w][1]), el('b', '', n));
+      a.append(el('span', 'dot', done.has(i) ? '✓' : String(i + 1)), lab);
+      a.addEventListener('click', () => { const all = store.get(JKEY, {}); all[j.id] = [...new Set([...(all[j.id] || []), i])]; store.set(JKEY, all); });
+      li.append(a); ol.append(li);
+    });
+  }
+  $('jreset').addEventListener('click', () => { const all = store.get(JKEY, {}); delete all[J[ji].id]; store.set(JKEY, all); drawJ(); });
+  drawJ();
+  addEventListener('pageshow', e => { if (e.persisted) drawJ(); });
+
+  /* ---------- drop a file anywhere: show the tools that fit, then open one with the file ready ---------- */
+  const veil = $('veil'), fit = $('fit');
   const PDF_TOOLS = ['compress', 'merge', 'split', 'edit', 'sign', 'protect', 'unlock', 'ocr', 'pdf2img', 'redact', 'watermark', 'number', 'rotate', 'reorder', 'delete', 'extract', 'crop', 'forms', 'flatten', 'repair'];
   const IMG_TOOLS = ['img2pdf', 'scan'];
   const kind = f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf' ? 'pdf' : /\.(jpe?g|png|webp|gif|bmp|avif|tiff?)$/i.test(f.name) || /^image\//.test(f.type) ? 'img' : '';
-  const size = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+  const size = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
   let depth = 0;
   const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
   addEventListener('dragenter', e => { if (hasFiles(e)) { depth++; veil.classList.add('on'); } });
@@ -65,22 +179,22 @@
   });
   function showFit(files) {
     const k = kind(files[0]), same = files.filter(f => kind(f) === k);
-    const g = document.getElementById('fit-g'); g.textContent = '';
-    document.getElementById('fit-k').textContent = same.length > 1 ? same.length + ' files' : (k ? (k === 'pdf' ? 'PDF' : 'Picture') : 'File');
-    document.getElementById('fit-t').textContent = same.length > 1 ? same.map(f => f.name).slice(0, 2).join(', ') + (same.length > 2 ? ' and ' + (same.length - 2) + ' more' : '') : files[0].name;
+    const g = $('fit-g'); g.textContent = '';
+    $('fit-k').textContent = same.length > 1 ? same.length + ' files' : (k ? (k === 'pdf' ? 'PDF' : 'Picture') : 'File');
+    $('fit-t').textContent = same.length > 1 ? same.map(f => f.name).slice(0, 2).join(', ') + (same.length > 2 ? ' and ' + (same.length - 2) + ' more' : '') : files[0].name;
     if (!k) {
-      document.getElementById('fit-s').textContent = 'Dilia cannot open that kind of file yet. Today it works with PDFs and pictures (JPG, PNG, TIFF and more).';
+      $('fit-s').textContent = 'Dilia cannot open that kind of file yet. Today it works with PDFs and pictures (JPG, PNG, TIFF and more).';
     } else {
-      document.getElementById('fit-s').textContent = (same.length > 1 ? same.length + ' files, ' : size(same[0].size) + ', ') + 'read in this tab only. Pick what to do. Your file is passed to the next page on this device and is never uploaded.';
+      $('fit-s').textContent = (same.length > 1 ? same.length + ' files, ' : size(same[0].size) + ', ') + 'read in this tab only. Pick what to do. Your file is passed to the next page on this device and is never uploaded.';
       (k === 'pdf' ? PDF_TOOLS : IMG_TOOLS).map(id => byId[id]).filter(t => t && t.ready && (same.length === 1 || /^(merge|img2pdf|scan|mix)$/.test(t.id))).forEach(t => {
         const b = el('button'); b.type = 'button'; b.append(el('b', '', t.name), el('small', '', t.desc));
         b.addEventListener('click', async () => { b.disabled = true; try { await DiliaHandoff.put(same); } catch (err) { /* private mode: tool opens empty */ } location.href = diliaUrl(t); });
         g.append(b);
       });
     }
-    fit.hidden = false; document.getElementById('fit-x').focus();
+    fit.hidden = false; $('fit-x').focus();
   }
-  document.getElementById('fit-x').addEventListener('click', () => { fit.hidden = true; });
+  $('fit-x').addEventListener('click', () => { fit.hidden = true; });
   fit.addEventListener('mousedown', e => { if (e.target === fit) fit.hidden = true; });
   addEventListener('keydown', e => { if (e.key === 'Escape' && !fit.hidden) fit.hidden = true; });
 }

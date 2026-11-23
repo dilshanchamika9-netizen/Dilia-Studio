@@ -9,7 +9,7 @@
     watermark: 'stamp draft confidential', number: 'page numbers', crop: 'trim margins', word: 'docx office convert', text: 'pdf to text txt'
   };
   const isDeep = location.pathname.split('/').filter(Boolean).length > 1;
-  const all = () => (window.DILIA_TOOLS || []).flatMap(([g, list]) => list.map(t => ({ ...t, group: g, line: g === 'Play' ? 'Dilia Play' : g === 'Image' ? 'Dilia Image' : g === 'QR' ? 'Dilia QR' : g === 'Text' ? 'Dilia Text' : 'Dilia PDF', hay: (t.name + ' ' + t.desc + ' ' + g + ' ' + (KEYS[t.id] || '')).toLowerCase() })));
+  const all = () => (window.DILIA_TOOLS || []).flatMap(([g, list]) => list.map(t => ({ ...t, group: g, line: g === 'Play' ? 'Dilia Play' : g === 'Image' ? 'Dilia Image' : g === 'QR' ? 'Dilia QR' : g === 'Text' ? 'Dilia Text' : g === 'Calc' ? (/^d/.test(t.id) ? 'Dilia Life' : 'Dilia Calc') : 'Dilia PDF', hay: (t.name + ' ' + t.desc + ' ' + g + ' ' + (KEYS[t.id] || '')).toLowerCase() })));
   const score = (t, q) => {
     const w = q.toLowerCase().split(/\s+/).filter(Boolean); if (!w.length) return 1;
     let s = 0; const n = t.name.toLowerCase();
