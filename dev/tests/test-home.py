@@ -33,7 +33,7 @@ async def main():
                         except Exception as e: code = str(e)
                         ok(code == 200, f'{path or "/"}: link {h} -> {code}')
                 if path == '' and w == 1440:
-                    now = datetime.date.today()
+                    import zoneinfo; now = datetime.datetime.now(zoneinfo.ZoneInfo('Asia/Dubai')).date()
                     ok(now.strftime('%A') in await pg.inner_text('#t-date'), 'today strip: weekday wrong')
                     doy = now.timetuple().tm_yday
                     ok(f'Day {doy}' in await pg.inner_text('#t-date'), 'today strip: day of year wrong')
