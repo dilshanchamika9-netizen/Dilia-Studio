@@ -313,3 +313,16 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - tools.html has a goals block (`#goals`, built in assets/tools-page.js from the GOALS array): 5 rows (Documents, Photos, QR codes, Text, Numbers and dates), each chip opens the tool directly. Hidden while searching; full library stays below.
 - To add a goal, add `['plain words', 'toolId']` to GOALS. test-theme.py checks every chip link returns 200.
 - Not done: same goals idea on the Home page; mobile header at 390px is tight (logo touches "Tools").
+
+## 19. START HERE: state at end of chat "Dilia Studio 02" (23 Nov 2026, 18:20 Dubai)
+**Live on main (all gates green):** Orbit home; Life, Play, Read hubs; PDF cards grouped 51→33; site-wide light/dark switch (light default); Play in brand colours (light) and dark; Tools page "I want to…" goals block. Last commits: dark mode (82229ff), Tools goals.
+**How to work (owner rules):** short replies, bullets, flaws first; say which model a job needs BEFORE asking for decisions (Sonnet default; Opus only if needed, tell first); ask when in doubt, never decide alone; think whole-site consistency, not parts; test before saying done. Release: push `staging` → CI gate → fast-forwards `main`. After editing CSS or pages run `python3 dev/make-pages.py` and `python3 dev/make-blog.py`, commit generated files (incl. pdf-reader/sw.js), then run dev/tests/run-gate.sh (~10 min, run in background and poll).
+**Open decisions for the owner (ask first, one at a time, say model needed):**
+1. Real multi-mode PDF merged pages (e.g. one "Organise pages" page with modes) or stay with grouped cards. Current: grouped cards only, old URLs unchanged.
+2. Small-business pack (PO, invoices with VAT, journal entries; idea in dilia-hq 01-product/IDEAS-FUTURE-2026-11-21.md): inside Tools or a new 5th area "Work"; when to research it. Research first.
+3. Tools goals list (35 chips in assets/tools-page.js GOALS): owner to add or remove goals; maybe a bolder look; same idea on Home.
+4. "150+ tasks" wording (replaced "jobs" so the site does not look like a job-search site) — owner to confirm.
+**On hold:** Shopper Toolkit / UAE price comparison (research doc exists; on hold until the business plan is final; no trade licence spend now). App issues APP-01..08 parked.
+**Not tested yet:** real iPhone/Safari; dark mode on mega menu, search palette and an edit-pdf session with a PDF loaded; Arabic/Hindi typing word lists not reviewed by native speakers; mobile header at 390px is tight (logo touches "Tools"); Snake board stays dark navy in light mode (checked, acceptable, owner has not seen it).
+**Later:** Play step 5+ (more games, typing lessons), Life build (holiday planner, trip planner, goals), Read area, Tools page extras, uptime monitor review.
+**Where things are:** Home = index.html + assets/orbit.css + assets/home.js; registry = assets/tools.js (DILIA_TOOLS, DILIA_LINES); library = assets/tools-page.js; theme = assets/theme.js, generated assets/dark.css and assets/play-light.css from dev/make-dark.py; tests in dev/tests (test-home, test-theme, test-play, test-sweep...). Decisions log: dilia-hq 00-company/DECISIONS.md. Design canvas (Orbit 3) is an artifact, not in the repo.
