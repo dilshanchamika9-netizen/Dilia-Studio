@@ -189,6 +189,7 @@ window.DILIA_TOOLS = [
     { id: 'gcheckers', slug: 'checkers', name: 'Checkers', desc: 'American rules. Computer at four levels, or two players.', ready: 1, icon: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8z' },
     { id: 'greversi', slug: 'reversi', name: 'Reversi', desc: 'Flip discs, win by count. Computer or two players.', ready: 1, icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 2v14a7 7 0 0 1 0-14z' },
     { id: 'gconnect4', slug: 'connect-four', name: 'Connect Four', desc: 'Drop discs, get four in a row. Computer or two players.', ready: 1, icon: 'M5 5h14v14H5zM9 9a1 1 0 1 0 0 .01M15 9a1 1 0 1 0 0 .01M9 15a1 1 0 1 0 0 .01M15 15a1 1 0 1 0 0 .01' },
+    { id: 'gludo', slug: 'ludo', name: 'Ludo', desc: '2 to 4 players. Computers or friends on one device.', ready: 1, icon: 'M5 5h14v14H5zM9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01' },
     { id: 'gmahjong', slug: 'mahjong', name: 'Mahjong', desc: 'Turtle layout, every deal clearable.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gsnake', slug: 'snake', name: 'Snake', desc: 'Classic and modern snake. Keyboard or swipe.', ready: 1, icon: 'M4 18h6V12h6V6h4M20 6h.01' },
     { id: 'gtyping', slug: 'typing-test', name: 'Typing test', desc: '15, 30 or 60 seconds in 5 languages. Speed and accuracy.', ready: 1, icon: 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8' },

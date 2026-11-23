@@ -70,6 +70,7 @@ ART_CHESS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g><rect 
 ART_CHECKERS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#8a5a3b"/><g fill="#ead9b8"><rect x="20" y="20" width="27.5" height="27.5"/><rect x="75" y="20" width="27.5" height="27.5"/><rect x="47.5" y="47.5" width="27.5" height="27.5"/><rect x="102.5" y="47.5" width="27.5" height="27.5"/><rect x="20" y="75" width="27.5" height="27.5"/><rect x="75" y="75" width="27.5" height="27.5"/><rect x="47.5" y="102.5" width="27.5" height="27.5"/><rect x="102.5" y="102.5" width="27.5" height="27.5"/></g><circle cx="61" cy="61" r="11" fill="#f4f1e6" stroke="#c9c2ac" stroke-width="3"/><circle cx="89" cy="89" r="11" fill="#222" stroke="#000" stroke-width="3"/></svg>'
 ART_REVERSI = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#2f8f5b"/><circle cx="62" cy="62" r="17" fill="#f4f4f4"/><circle cx="88" cy="62" r="17" fill="#111"/><circle cx="62" cy="88" r="17" fill="#111"/><circle cx="88" cy="88" r="17" fill="#f4f4f4"/></svg>'
 ART_C4 = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="18" y="26" width="114" height="98" rx="12" fill="#1d4ed8"/><g><circle cx="46" cy="54" r="12" fill="#0b1f66"/><circle cx="75" cy="54" r="12" fill="#0b1f66"/><circle cx="104" cy="54" r="12" fill="#0b1f66"/><circle cx="46" cy="84" r="12" fill="#d4202a"/><circle cx="75" cy="84" r="12" fill="#f2c200"/><circle cx="104" cy="84" r="12" fill="#0b1f66"/><circle cx="46" cy="112" r="0"/><circle cx="75" cy="112" r="0"/></g></svg>'
+ART_LUDO = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#f6f3ea"/><rect x="20" y="20" width="44" height="44" rx="8" fill="#e5484d"/><rect x="86" y="20" width="44" height="44" rx="8" fill="#2fa84f"/><rect x="86" y="86" width="44" height="44" rx="8" fill="#f2c200"/><rect x="20" y="86" width="44" height="44" rx="8" fill="#2b6fe0"/><circle cx="42" cy="42" r="9" fill="#fff"/><circle cx="108" cy="108" r="9" fill="#fff"/><rect x="62" y="62" width="26" height="26" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><circle cx="75" cy="75" r="3" fill="#111"/></svg>'
 ART_MJ = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" text-anchor="middle"><rect x="22" y="36" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="26" y="30" width="52" height="68" rx="9" fill="#fbfbff"/><text x="52" y="72" font-size="30" fill="#1d4ed8">5</text><text x="52" y="90" font-size="14" fill="#1d4ed8">●</text><rect x="72" y="46" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="76" y="40" width="52" height="68" rx="9" fill="#fbfbff"/><text x="102" y="86" font-size="34" fill="#e5007d">◆</text></g></svg>'
 # ---------------- hub ----------------
 ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transform="translate(75 80)">' + ''.join(f'<path d="M0 0L{54*__import__("math").cos(i*1.0472):.1f} {54*__import__("math").sin(i*1.0472):.1f}A54 54 0 0 1 {54*__import__("math").cos((i+1)*1.0472):.1f} {54*__import__("math").sin((i+1)*1.0472):.1f}Z" fill="{c}"/>' for i, c in enumerate(['#e5007d', '#7a5cff', '#0780b8', '#0f8a4f', '#c2410c', '#6d28d9'])) + '<circle r="9" fill="#0b1220" stroke="#fff" stroke-width="3"/></g><path d="M66 12h18l-9 20z" fill="#ffd400"/></svg>'
@@ -119,6 +120,7 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../checkers/">{ART_CHECKERS}<span class="no">Board</span><b>Checkers</b><p>American rules. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../reversi/">{ART_REVERSI}<span class="no">Board</span><b>Reversi</b><p>Flip your opponent's discs. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../connect-four/">{ART_C4}<span class="no">Board</span><b>Connect Four</b><p>Drop discs, get four in a row. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../ludo/">{ART_LUDO}<span class="no">Board</span><b>Ludo</b><p>2 to 4 players. Computers at four levels, or friends on one device.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
     <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
     <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
@@ -137,7 +139,7 @@ HUB = f'''<section class="phero"><div class="wrap">
   <div class="pgrid">
     <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Ludo</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Backgammon</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
   </div>
@@ -591,6 +593,39 @@ PAGES['connect-four'] = ('Connect Four - Play the Computer or a Friend, Free | D
       ['Tap a column to drop your disc. It falls to the lowest free spot.', 'Get four in a row: across, down or diagonally.', 'Block your opponent as well as building your own line.', 'If the board fills up with no four in a row, it is a draw. Keys: U undo.'],
       '<p>Two players take turns dropping discs into a seven-column, six-row grid. The first to line up four discs in a row, in any direction, wins. Red moves first.</p><p>Beginner overlooks threats. Casual sees short tactics. Club and Expert search many moves ahead and are very hard to beat as the second player, because Connect Four is a theoretical win for whoever moves first.</p>',
       '<a href="../chess/">Chess</a> · <a href="../checkers/">Checkers</a> · <a href="../reversi/">Reversi</a>'), BOARD_JS, 'free')
+def ludo_body():
+    return """<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Your record</p><span class="big" id="clvname">Club</span><span class="small" id="crec">0 won · 0 lost</span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Roll the dice. A 6 brings a token out of the base and gives you another roll.</li><li>Move a token the number shown. Tap one of the glowing tokens.</li><li>Land on an enemy token to send it back to base. Star squares and start squares are safe.</li><li>Walk all the way round, then into your coloured lane. You need the exact number to get home. First to bring all 4 tokens home wins.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Ludo</b></p>
+    <div class="ghead"><div><h1>Ludo</h1><p class="sub">2 to 4 players · computer or friends on one device</p></div></div>
+    <div class="cchips"><div class="mlevel" role="group" aria-label="Players"><button type="button" data-lp="2" aria-pressed="false">2 players</button><button type="button" data-lp="3" aria-pressed="false">3 players</button><button type="button" data-lp="4" aria-pressed="true">4 players</button></div>
+      <div class="mlevel" role="group" aria-label="Mode"><button type="button" data-lm="cpu" aria-pressed="true">Me vs computers</button><button type="button" data-lm="all" aria-pressed="false">All human</button></div>
+      <div class="mlevel" id="llevels" role="group" aria-label="Computer level"><button type="button" data-ll="1" aria-pressed="false">Beginner</button><button type="button" data-ll="2" aria-pressed="false">Casual</button><button type="button" data-ll="3" aria-pressed="true">Club</button><button type="button" data-ll="4" aria-pressed="false">Expert</button></div></div>
+    <div class="chbox"><div class="ldb" id="ldb" role="application" aria-label="Ludo board"></div></div>
+    <div class="lctl"><button type="button" class="ldie" id="ldie" aria-label="Dice">·</button><button type="button" class="pbtn go" id="lroll">Roll the dice</button></div>
+    <p class="cturn" id="lturn" aria-live="polite"></p>
+    <div class="lhome" id="lhome"></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="newgame">New game</button></div>
+    <div class="done" id="done"><p class="eyeb" id="deyebrow">Game over</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">New game</button><a class="pbtn" href="../play/">All of Play</a></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../chess/">Chess</a> · <a href="../connect-four/">Connect Four</a> · <a href="../reversi/">Reversi</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About Ludo</h2>
+  <p>Ludo is a race game for two to four players. Each player has four tokens that start in the base. A 6 brings a token onto the track and gives another roll; three 6s in a row lose the turn. Tokens travel once around the board and then up their own coloured lane. A token needs the exact number to reach home.</p>
+  <p>Play against computers at four levels, or pass the device between friends. The dice use your browser's secure random generator, and nothing is sent anywhere. Your game stays in this browser.</p>
+</section>
+</div>"""
+PAGES['ludo'] = ('Ludo - Free Online, 2 to 4 Players | Dilia Play', 'Free Ludo for 2 to 4 players. Play computers at four levels, or friends on one device. Fair dice, saved game. No ads, no sign-up.', ludo_body(), GAME_JS + '<script src="../assets/ludo.js"></script><script src="../assets/ludo-game.js"></script>', 'free')
 PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
 PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')

@@ -31,5 +31,7 @@ step "Chess: rules, perft, engine" node dev/tests/test-chess-core.js
 step "Chess: page" python3 dev/tests/test-chess.py
 step "Checkers and reversi: rules and computer" node dev/tests/test-boards.js
 step "Checkers and reversi: pages" python3 dev/tests/test-boards.py
+step "Ludo: rules and computer" node dev/tests/test-ludo.js
+step "Ludo: page" python3 dev/tests/test-ludo.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
