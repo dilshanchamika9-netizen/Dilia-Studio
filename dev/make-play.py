@@ -67,6 +67,8 @@ ART_PYR = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#f
 ART_PEAKS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fbfbff">' + ''.join(f'<rect x="{x}" y="{y}" width="18" height="24" rx="4"/>' for x, y in [(30,28),(75,28),(120,28),(21,48),(39,48),(66,48),(84,48),(111,48),(129,48),(12,68),(30,68),(48,68),(57,68),(75,68),(93,68),(102,68),(120,68),(138,68)] if x < 132) + '</g><rect x="40" y="108" width="30" height="30" rx="5" fill="#ffffff44"/><rect x="80" y="108" width="30" height="30" rx="5" fill="#fbfbff"/></svg>'
 ART_SPIDER = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850"><rect x="24" y="26" width="46" height="64" rx="7" fill="#fbfbff"/><text x="30" y="46" font-size="15" fill="#0b1220">K♠</text><rect x="52" y="44" width="46" height="64" rx="7" fill="#fbfbff"/><text x="58" y="64" font-size="15" fill="#0b1220">Q♠</text><rect x="80" y="62" width="46" height="64" rx="7" fill="#fbfbff"/><text x="86" y="82" font-size="15" fill="#e5007d">J♥</text></g></svg>'
 ART_CHESS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g><rect x="20" y="20" width="110" height="110" rx="10" fill="#a97b52"/><g fill="#ead9b8"><rect x="20" y="20" width="27.5" height="27.5"/><rect x="75" y="20" width="27.5" height="27.5"/><rect x="47.5" y="47.5" width="27.5" height="27.5"/><rect x="102.5" y="47.5" width="27.5" height="27.5"/><rect x="20" y="75" width="27.5" height="27.5"/><rect x="75" y="75" width="27.5" height="27.5"/><rect x="47.5" y="102.5" width="27.5" height="27.5"/><rect x="102.5" y="102.5" width="27.5" height="27.5"/></g><text x="75" y="104" font-size="78" text-anchor="middle" fill="#232323" font-family="Segoe UI Symbol,Noto Sans Symbols 2,DejaVu Sans,serif">&#9822;&#xFE0E;</text></g></svg>'
+ART_CHECKERS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#8a5a3b"/><g fill="#ead9b8"><rect x="20" y="20" width="27.5" height="27.5"/><rect x="75" y="20" width="27.5" height="27.5"/><rect x="47.5" y="47.5" width="27.5" height="27.5"/><rect x="102.5" y="47.5" width="27.5" height="27.5"/><rect x="20" y="75" width="27.5" height="27.5"/><rect x="75" y="75" width="27.5" height="27.5"/><rect x="47.5" y="102.5" width="27.5" height="27.5"/><rect x="102.5" y="102.5" width="27.5" height="27.5"/></g><circle cx="61" cy="61" r="11" fill="#f4f1e6" stroke="#c9c2ac" stroke-width="3"/><circle cx="89" cy="89" r="11" fill="#222" stroke="#000" stroke-width="3"/></svg>'
+ART_REVERSI = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="20" y="20" width="110" height="110" rx="10" fill="#2f8f5b"/><circle cx="62" cy="62" r="17" fill="#f4f4f4"/><circle cx="88" cy="62" r="17" fill="#111"/><circle cx="62" cy="88" r="17" fill="#111"/><circle cx="88" cy="88" r="17" fill="#f4f4f4"/></svg>'
 ART_MJ = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" text-anchor="middle"><rect x="22" y="36" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="26" y="30" width="52" height="68" rx="9" fill="#fbfbff"/><text x="52" y="72" font-size="30" fill="#1d4ed8">5</text><text x="52" y="90" font-size="14" fill="#1d4ed8">●</text><rect x="72" y="46" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="76" y="40" width="52" height="68" rx="9" fill="#fbfbff"/><text x="102" y="86" font-size="34" fill="#e5007d">◆</text></g></svg>'
 # ---------------- hub ----------------
 ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transform="translate(75 80)">' + ''.join(f'<path d="M0 0L{54*__import__("math").cos(i*1.0472):.1f} {54*__import__("math").sin(i*1.0472):.1f}A54 54 0 0 1 {54*__import__("math").cos((i+1)*1.0472):.1f} {54*__import__("math").sin((i+1)*1.0472):.1f}Z" fill="{c}"/>' for i, c in enumerate(['#e5007d', '#7a5cff', '#0780b8', '#0f8a4f', '#c2410c', '#6d28d9'])) + '<circle r="9" fill="#0b1220" stroke="#fff" stroke-width="3"/></g><path d="M66 12h18l-9 20z" fill="#ffd400"/></svg>'
@@ -113,6 +115,8 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../spider/">{ART_SPIDER}<span class="no">Free play</span><b>Spider</b><p>1, 2 or 4 suits. Build down, take off full runs.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../mahjong/">{ART_MJ}<span class="no">Free play</span><b>Mahjong</b><p>Classic turtle layout. Match free tiles. Every deal clearable.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../chess/">{ART_CHESS}<span class="no">Board</span><b>Chess</b><p>Full rules. Play the computer at four levels, or two players on one device.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../checkers/">{ART_CHECKERS}<span class="no">Board</span><b>Checkers</b><p>American rules. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../reversi/">{ART_REVERSI}<span class="no">Board</span><b>Reversi</b><p>Flip your opponent's discs. Computer at four levels, or two players.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
     <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
     <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
@@ -131,7 +135,7 @@ HUB = f'''<section class="phero"><div class="wrap">
   <div class="pgrid">
     <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Checkers, reversi</li><li>Ludo, connect four</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Ludo, connect four</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
   </div>
@@ -537,6 +541,49 @@ def chess_body():
 </section>
 </div>"""
 PAGES['chess'] = ('Chess - Play the Computer or a Friend, Free | Dilia Play', 'Free chess with full rules. Play the computer at four levels, or two players on one device. Undo, flip board, saved game. No ads, no sign-up.', chess_body(), GAME_JS + '<script src="../assets/chess-core.js"></script><script src="../assets/chess-game.js"></script>', 'free')
+def board_body(slug, title, sub, names, howto, about, more):
+    how = ''.join(f'<li>{h}</li>' for h in howto)
+    return f"""<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Your record</p><span class="big" id="clvname">Casual</span><span class="small" id="crec">0 won · 0 drawn · 0 lost</span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small">{how}</ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>{title}</b></p>
+    <div class="ghead"><div><h1>{title}</h1><p class="sub">{sub}</p></div><div class="meter"><div><small>{names[0].upper()}</small><b id="ca">0</b></div><div><small>{names[1].upper()}</small><b id="cb">0</b></div></div></div>
+    <div class="cchips"><div class="mlevel" role="group" aria-label="Mode"><button type="button" data-cm="cpu" aria-pressed="true">Vs computer</button><button type="button" data-cm="two" aria-pressed="false">Two players</button></div>
+      <div class="mlevel" id="clevels" role="group" aria-label="Level"><button type="button" data-cl="1" aria-pressed="false">Beginner</button><button type="button" data-cl="2" aria-pressed="true">Casual</button><button type="button" data-cl="3" aria-pressed="false">Club</button><button type="button" data-cl="4" aria-pressed="false">Expert</button></div>
+      <div class="mlevel" id="cside" role="group" aria-label="Your colour"><button type="button" data-cs="0" aria-pressed="true">Play {names[0]} (first)</button><button type="button" data-cs="1" aria-pressed="false">Play {names[1]}</button></div></div>
+    <div class="chbox"><div class="bgb" id="bgb" data-game="{slug}" role="application" aria-label="{title} board"></div></div>
+    <p class="cturn" id="cturn" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn go" id="cstart" hidden>Start game</button></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="undo">Undo</button><button type="button" class="pbtn" id="flip">Flip board</button><button type="button" class="pbtn" id="newgame">New game</button></div>
+    <div class="done" id="done"><p class="eyeb" id="deyebrow">Game over</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">New game</button><a class="pbtn" href="../play/">All of Play</a></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small">{more} · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About {title}</h2>
+  {about}
+  <p>The computer runs inside your browser, so nothing is sent anywhere. Undo is unlimited, and your game stays in this browser.</p>
+</section>
+</div>"""
+BOARD_JS = GAME_JS + '<script src="../assets/boardgames.js"></script><script src="../assets/board-game.js"></script>'
+PAGES['checkers'] = ('Checkers - Play the Computer or a Friend, Free | Dilia Play', 'Free checkers (draughts) with American rules. Play the computer at four levels, or two players on one device. Undo, saved game. No ads, no sign-up.',
+    board_body('checkers', 'Checkers', 'American rules · play the computer or a friend', ['Light', 'Dark'],
+      ['Tap a piece, then a marked square. Pieces move one step diagonally forward.', 'You must jump an enemy piece when you can, and keep jumping if more jumps follow.', 'Reach the far row to become a king, which moves and jumps both ways.', 'Win by taking all enemy pieces or leaving them with no move. Keys: U undo, F flip.'],
+      '<p>This is American checkers (English draughts) on an 8 by 8 board: men move one step forward, kings move one step in any direction, and capturing is compulsory. A man that reaches the last row is crowned and its turn ends. Forty moves each without a capture or a man moving is a draw.</p><p>Beginner and Casual make mistakes. Club thinks several jumps ahead. Expert searches deepest and is hard to beat.</p>',
+      '<a href="../chess/">Chess</a> · <a href="../reversi/">Reversi</a>'), BOARD_JS, 'free')
+PAGES['reversi'] = ('Reversi (Othello) - Play the Computer or a Friend, Free | Dilia Play', 'Free reversi, also known as Othello. Play the computer at four levels, or two players on one device. Undo, saved game. No ads, no sign-up.',
+    board_body('reversi', 'Reversi', 'Also called Othello · flip your opponent\'s discs', ['Black', 'White'],
+      ['Tap a marked square to place a disc. It must trap a line of enemy discs between your new disc and one of yours.', 'Trapped discs flip to your colour.', 'If you have no legal move you pass. The game ends when neither side can move.', 'Most discs wins. Corners cannot be flipped. Keys: U undo, F flip.'],
+      '<p>Reversi is played on an 8 by 8 board with discs that are black on one side and white on the other. Black moves first. Every move must flip at least one enemy disc; if you cannot, you pass. When neither player can move, the side with more discs wins.</p><p>Corners are strong because they can never be flipped. Beginner and Casual play loosely, Club plans around corners and mobility, and Expert searches deepest.</p>',
+      '<a href="../chess/">Chess</a> · <a href="../checkers/">Checkers</a>'), BOARD_JS, 'free')
 PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
 PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')

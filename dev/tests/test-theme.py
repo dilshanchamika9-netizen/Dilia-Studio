@@ -3,7 +3,7 @@ Run: python3 dev/tests/serve.py &  then  python3 dev/tests/test-theme.py"""
 import asyncio
 from playwright.async_api import async_playwright
 B = 'http://127.0.0.1:8766/'
-PAGES = ['', 'tools.html', 'life/', 'play/', 'blog/', 'edit-pdf/', 'pdf-reader/', 'calc/', 'snake/', 'wheel-spinner/', 'dice-roller/', 'bingo-card-generator/', 'quiz-maker/', 'chess/', 'freecell/', 'pyramid/', 'tripeaks/', 'spider/', 'mahjong/', 'daily-sudoku/', 'typing-test/', 'solitaire/', 'compress-image/', 'age-calculator/']
+PAGES = ['', 'tools.html', 'life/', 'play/', 'blog/', 'edit-pdf/', 'pdf-reader/', 'calc/', 'snake/', 'wheel-spinner/', 'dice-roller/', 'bingo-card-generator/', 'quiz-maker/', 'chess/', 'checkers/', 'reversi/', 'freecell/', 'pyramid/', 'tripeaks/', 'spider/', 'mahjong/', 'daily-sudoku/', 'typing-test/', 'solitaire/', 'compress-image/', 'age-calculator/']
 fails, n = [], 0
 def ok(c, m):
     global n; n += 1

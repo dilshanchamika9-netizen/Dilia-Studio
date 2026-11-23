@@ -29,5 +29,7 @@ step "Card games: rules and solvers" node dev/tests/test-cards.js
 step "Card games: FreeCell, Pyramid, TriPeaks" python3 dev/tests/test-cards.py
 step "Chess: rules, perft, engine" node dev/tests/test-chess-core.js
 step "Chess: page" python3 dev/tests/test-chess.py
+step "Checkers and reversi: rules and computer" node dev/tests/test-boards.js
+step "Checkers and reversi: pages" python3 dev/tests/test-boards.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
