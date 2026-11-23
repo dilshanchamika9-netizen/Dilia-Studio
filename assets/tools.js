@@ -185,6 +185,7 @@ window.DILIA_TOOLS = [
     { id: 'gpyramid', slug: 'pyramid', name: 'Pyramid', desc: 'Remove pairs that add up to 13.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gtripeaks', slug: 'tripeaks', name: 'TriPeaks', desc: 'Clear three peaks, one rank up or down.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gspider', slug: 'spider', name: 'Spider', desc: 'Spider solitaire with 1, 2 or 4 suits.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
+    { id: 'gchess', slug: 'chess', name: 'Chess', desc: 'Full rules. Computer at four levels, or two players.', ready: 1, icon: 'M9 3h6v2h-1l1 4-2 2v3h3l1 3H7l1-3h3v-3L9 9l1-4H9zM6 19h12v2H6z' },
     { id: 'gmahjong', slug: 'mahjong', name: 'Mahjong', desc: 'Turtle layout, every deal clearable.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gsnake', slug: 'snake', name: 'Snake', desc: 'Classic and modern snake. Keyboard or swipe.', ready: 1, icon: 'M4 18h6V12h6V6h4M20 6h.01' },
     { id: 'gtyping', slug: 'typing-test', name: 'Typing test', desc: '15, 30 or 60 seconds in 5 languages. Speed and accuracy.', ready: 1, icon: 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8' },

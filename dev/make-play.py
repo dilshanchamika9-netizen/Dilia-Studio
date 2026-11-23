@@ -66,6 +66,7 @@ ART_RX = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><circle cx="
 ART_PYR = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fbfbff">' + ''.join(f'<rect x="{75 - (r + 1) * 11 + k * 22}" y="{22 + r * 26}" width="20" height="26" rx="4"/>' for r in range(4) for k in range(r + 1)) + '</g><g font-family="Archivo,sans-serif" font-weight="850" font-size="12" text-anchor="middle" fill="#0b1220"><text x="75" y="40">13</text></g></svg>'
 ART_PEAKS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fbfbff">' + ''.join(f'<rect x="{x}" y="{y}" width="18" height="24" rx="4"/>' for x, y in [(30,28),(75,28),(120,28),(21,48),(39,48),(66,48),(84,48),(111,48),(129,48),(12,68),(30,68),(48,68),(57,68),(75,68),(93,68),(102,68),(120,68),(138,68)] if x < 132) + '</g><rect x="40" y="108" width="30" height="30" rx="5" fill="#ffffff44"/><rect x="80" y="108" width="30" height="30" rx="5" fill="#fbfbff"/></svg>'
 ART_SPIDER = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850"><rect x="24" y="26" width="46" height="64" rx="7" fill="#fbfbff"/><text x="30" y="46" font-size="15" fill="#0b1220">K♠</text><rect x="52" y="44" width="46" height="64" rx="7" fill="#fbfbff"/><text x="58" y="64" font-size="15" fill="#0b1220">Q♠</text><rect x="80" y="62" width="46" height="64" rx="7" fill="#fbfbff"/><text x="86" y="82" font-size="15" fill="#e5007d">J♥</text></g></svg>'
+ART_CHESS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g><rect x="20" y="20" width="110" height="110" rx="10" fill="#a97b52"/><g fill="#ead9b8"><rect x="20" y="20" width="27.5" height="27.5"/><rect x="75" y="20" width="27.5" height="27.5"/><rect x="47.5" y="47.5" width="27.5" height="27.5"/><rect x="102.5" y="47.5" width="27.5" height="27.5"/><rect x="20" y="75" width="27.5" height="27.5"/><rect x="75" y="75" width="27.5" height="27.5"/><rect x="47.5" y="102.5" width="27.5" height="27.5"/><rect x="102.5" y="102.5" width="27.5" height="27.5"/></g><text x="75" y="104" font-size="78" text-anchor="middle" fill="#232323" font-family="Segoe UI Symbol,Noto Sans Symbols 2,DejaVu Sans,serif">&#9822;&#xFE0E;</text></g></svg>'
 ART_MJ = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" text-anchor="middle"><rect x="22" y="36" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="26" y="30" width="52" height="68" rx="9" fill="#fbfbff"/><text x="52" y="72" font-size="30" fill="#1d4ed8">5</text><text x="52" y="90" font-size="14" fill="#1d4ed8">●</text><rect x="72" y="46" width="52" height="68" rx="9" fill="#d9dcf0"/><rect x="76" y="40" width="52" height="68" rx="9" fill="#fbfbff"/><text x="102" y="86" font-size="34" fill="#e5007d">◆</text></g></svg>'
 # ---------------- hub ----------------
 ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transform="translate(75 80)">' + ''.join(f'<path d="M0 0L{54*__import__("math").cos(i*1.0472):.1f} {54*__import__("math").sin(i*1.0472):.1f}A54 54 0 0 1 {54*__import__("math").cos((i+1)*1.0472):.1f} {54*__import__("math").sin((i+1)*1.0472):.1f}Z" fill="{c}"/>' for i, c in enumerate(['#e5007d', '#7a5cff', '#0780b8', '#0f8a4f', '#c2410c', '#6d28d9'])) + '<circle r="9" fill="#0b1220" stroke="#fff" stroke-width="3"/></g><path d="M66 12h18l-9 20z" fill="#ffd400"/></svg>'
@@ -111,6 +112,7 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../tripeaks/">{ART_PEAKS}<span class="no">Free play</span><b>TriPeaks</b><p>Clear three peaks, one rank up or down. Winnable deals.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../spider/">{ART_SPIDER}<span class="no">Free play</span><b>Spider</b><p>1, 2 or 4 suits. Build down, take off full runs.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../mahjong/">{ART_MJ}<span class="no">Free play</span><b>Mahjong</b><p>Classic turtle layout. Match free tiles. Every deal clearable.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../chess/">{ART_CHESS}<span class="no">Board</span><b>Chess</b><p>Full rules. Play the computer at four levels, or two players on one device.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
     <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
     <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
@@ -129,7 +131,7 @@ HUB = f'''<section class="phero"><div class="wrap">
   <div class="pgrid">
     <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Checkers, reversi</li><li>Ludo, connect four</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
   </div>
@@ -502,6 +504,38 @@ def typing_body():
 </section>
 </div>"""
 
+def chess_body():
+    return """<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Your record</p><span class="big" id="clvname">Casual</span><span class="small" id="crec">0 won · 0 drawn · 0 lost</span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Tap a piece, then a green mark. Or drag it.</li><li>All rules are in: castling, en passant, promotion, check, stalemate and draws.</li><li>Undo takes back your last move (and the reply). Keys: U undo, F flip board.</li><li>Your game is saved in this browser.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Chess</b></p>
+    <div class="ghead"><div><h1>Chess</h1><p class="sub">Play the computer or a friend on one device</p></div><div class="meter"><div><small>MOVE</small><b id="cmoves">0</b></div></div></div>
+    <div class="cchips"><div class="mlevel" role="group" aria-label="Mode"><button type="button" data-cm="cpu" aria-pressed="true">Vs computer</button><button type="button" data-cm="two" aria-pressed="false">Two players</button></div>
+      <div class="mlevel" id="clevels" role="group" aria-label="Level"><button type="button" data-cl="1" aria-pressed="false">Beginner</button><button type="button" data-cl="2" aria-pressed="true">Casual</button><button type="button" data-cl="3" aria-pressed="false">Club</button><button type="button" data-cl="4" aria-pressed="false">Expert</button></div>
+      <div class="mlevel" id="cside" role="group" aria-label="Your colour"><button type="button" data-cs="0" aria-pressed="true">Play White</button><button type="button" data-cs="1" aria-pressed="false">Play Black</button></div></div>
+    <div class="chbox"><div class="chb" id="chb" role="application" aria-label="Chess board"></div><div class="cpromo" id="promo" hidden></div></div>
+    <p class="cturn" id="cturn" aria-live="polite">White to move</p>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="undo">Undo</button><button type="button" class="pbtn" id="flip">Flip board</button><button type="button" class="pbtn" id="newgame">New game</button></div>
+    <div class="done" id="done"><p class="eyeb" id="deyebrow">Game over</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">New game</button><a class="pbtn" href="../play/">All of Play</a></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Moves</p><ol class="clist" id="clist" style="list-style:none"></ol></div>
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../solitaire/">Solitaire</a> · <a href="../mahjong/">Mahjong</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About Chess</h2>
+  <p>Play the full game of chess against a computer opponent at four levels, or pass the device between two players. The computer is an engine written for Dilia that runs inside your browser, so nothing is sent anywhere. Beginner and Casual make human-like mistakes. Club plays solid, tactical chess. Expert searches deeper and uses the full thinking time, and on a slow phone it will play weaker than on a computer.</p>
+  <p>Draws are applied automatically: stalemate, threefold repetition, the fifty-move rule and positions where neither side can mate. Undo is unlimited. Your game stays in this browser.</p>
+</section>
+</div>"""
+PAGES['chess'] = ('Chess - Play the Computer or a Friend, Free | Dilia Play', 'Free chess with full rules. Play the computer at four levels, or two players on one device. Undo, flip board, saved game. No ads, no sign-up.', chess_body(), GAME_JS + '<script src="../assets/chess-core.js"></script><script src="../assets/chess-game.js"></script>', 'free')
 PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
 PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')

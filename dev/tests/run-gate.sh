@@ -27,5 +27,7 @@ step "Party tools: wheel, picker, teams, dice, coin, numbers" python3 dev/tests/
 step "Party tools 2: bingo, quiz, scoreboard, Secret Santa" python3 dev/tests/test-party2.py
 step "Card games: rules and solvers" node dev/tests/test-cards.js
 step "Card games: FreeCell, Pyramid, TriPeaks" python3 dev/tests/test-cards.py
+step "Chess: rules, perft, engine" node dev/tests/test-chess-core.js
+step "Chess: page" python3 dev/tests/test-chess.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
