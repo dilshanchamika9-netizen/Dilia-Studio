@@ -265,3 +265,13 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Games are in tools.js group 'Play' (found by search). Home counts and tool of the day exclude them.
 - Tests: dev/tests/test-playgen.js (400 days, Node) and dev/tests/test-play.py (139 browser checks: rules, drag, keyboard, resume, win, share, hub, other dates). Both are in the gate.
 - Next in the Area 3 build order: step 3 (2048-style merge, solitaire, minesweeper). The merge game waits on the name check.
+
+## 13. Play step 3 + Endless path (23 Nov 2026)
+- New pages (all built by dev/make-play.py): /path-puzzle/ (endless levels), /merge/ + /daily-merge/, /minesweeper/ + /daily-minesweeper/, /solitaire/ + /daily-solitaire/.
+- Game files: assets/daily-path.js (daily + levels, body data-mode), assets/merge-game.js, assets/mines-game.js, assets/solitaire-game.js. Rules/generators all in assets/playgen.js.
+  - NOTE: assets/merge.js is the PDF Merge tool. Never reuse tool file names; check `ls assets` first. Also avoid class names used elsewhere (.pcard, .mc, .card clashed; play uses .gcard, .mq, .kc/.ks).
+- Endless path: levels 1-10 5x5, to 30 6x6, to 60 7x7, then 8x8; every level proven one-answer (boards that cannot be proven are skipped to the next seed).
+- Merge: name approved ("Merge"/"Daily merge"; "2048" is a live US trademark). Daily = same tile stream (seeded, draw count saved), no undo.
+- Minesweeper: first tap safe; "No guessing" boards checked by a logic solver; daily 16x16/40 opened at a fixed square, a mine restarts the same board (tries counted). Expert turns 16x30 on phones.
+- Solitaire: Klondike; winnable deals (draw 1) proven by a solver that treats the stock as an open pool (exact for draw 1 with unlimited passes); klReplay turns its moves into real moves and the tests replay them to a win. Draw 3 deals are random.
+- Tests: dev/tests/test-playgen.js (Node: 400 days, 100 levels, mines, 120 solitaire deals), dev/tests/test-merge.js, dev/tests/test-play.py (326 browser checks).
