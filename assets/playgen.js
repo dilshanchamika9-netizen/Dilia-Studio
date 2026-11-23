@@ -99,12 +99,17 @@
     return { count, sols, out, nodes };
   }
 
-  function makePath(key) {
-    const n = PATH_SIZE[weekday(key)], N = n * n, R = rng('path:' + key);
+  function makePath(key) { const B = pathBoard('path:' + key, PATH_SIZE[weekday(key)]); B.no = dayNo(key); return B; }
+  // endless levels: size grows with the level; seed is the level number, so level 12 is the same for everyone
+  const levelSize = L => (L <= 10 ? 5 : L <= 30 ? 6 : L <= 60 ? 7 : 8);
+  function makeLevel(L) { const B = pathBoard('pathlevel:' + L, levelSize(L)); B.no = L; return B; }
+  function pathBoard(seed, n) { for (let t = 0; t < 8; t++) { const B = tryBoard(t ? seed + '#' + t : seed, n); if (B) return B; } throw new Error('no board for ' + seed); }
+  function tryBoard(seed, n) {
+    const N = n * n, R = rng(seed);
     const p = randomPath(n, R);
     // clue positions along the path: always the start and the end, plus a few spread out
     const idx = new Set([0, N - 1]);
-    const want = { 5: 5, 6: 6, 7: 7 }[n];
+    const want = n < 8 ? n : 14; // 8×8 starts with more numbers so the one-answer check stays fast on phones
     while (idx.size < want) idx.add(1 + R.int(N - 2));
     const build = () => {
       const s = [...idx].sort((a, b) => a - b), clue = new Int32Array(N);
@@ -114,7 +119,7 @@
     for (let round = 0; round < 40; round++) {
       const b = build();
       const res = solvePath(n, b.clue, b.K, 400000);
-      if (!res.out && res.count === 1) return { n, path: p, clues: Array.from(b.clue), last: b.K, no: dayNo(key) };
+      if (!res.out && res.count === 1) return { n, path: p, clues: Array.from(b.clue), last: b.K };
       const alt = res.sols.find(x => x.some((c, i) => c !== p[i]));
       let fixed = false;
       if (alt) {
@@ -133,8 +138,7 @@
         idx.add(at);
       }
     }
-    const b = build();
-    return { n, path: p, clues: Array.from(b.clue), last: b.K, no: dayNo(key) };
+    return null; // could not prove one answer: the caller tries the next seed
   }
 
   // rules check used by the page: does this drawn line solve the board?
@@ -208,7 +212,7 @@
     return { grid: g, solution: sol, clues, level };
   }
 
-  const API = { hash, rng, dayKey, dayNo, weekday, makePath, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
+  const API = { hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
   root.DiliaPlayGen = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

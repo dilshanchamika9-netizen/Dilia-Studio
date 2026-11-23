@@ -6,7 +6,7 @@ src = (ROOT / 'life' / 'index.html').read_text()
 SPRITE = re.search(r'<svg class="sprite".*?</svg>\n', src, re.S).group(0)
 HEADER = re.search(r'<header class="nav">.*?</header>\n', src, re.S).group(0).replace('<span class="l">Life</span>', '<span class="l">Play</span>').replace('aria-label="Dilia home"', 'aria-label="Dilia Play home"', 1)
 
-def shell(title, desc, body, scripts, robots=''):
+def shell(title, desc, body, scripts, robots='', mode=''):
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -21,7 +21,7 @@ def shell(title, desc, body, scripts, robots=''):
 <link rel="stylesheet" href="../assets/palette.css">
 <link rel="stylesheet" href="../assets/play.css">
 </head>
-<body class="stage area-play">
+<body class="stage area-play"{(' data-mode="' + mode + '"') if mode else ''}>
 {SPRITE}
 {HEADER}
 <main>
@@ -34,7 +34,7 @@ def shell(title, desc, body, scripts, robots=''):
       <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
       <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
     </div>
-    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
     <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
     <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
   </div>
@@ -76,6 +76,13 @@ HUB = f'''<section class="phero"><div class="wrap">
   </div>
 </section>
 
+<section class="wrap psec" aria-labelledby="h-any">
+  <h2 id="h-any">Play any time</h2>
+  <div class="dailies">
+    <a class="daily" href="../path-puzzle/" id="c-levels">{ART_PATH}<span class="no" id="n-levels">Levels</span><b>Path puzzle</b><p>Endless levels, from 5 × 5 up to 8 × 8. Your next level is saved.</p><span class="st" id="s-levels"></span></a>
+  </div>
+</section>
+
 <section class="wrap psec" aria-labelledby="h-soon">
   <h2 id="h-soon">Coming next</h2>
   <div class="pgrid">
@@ -104,11 +111,11 @@ PATH = f'''<div class="wrap">
     <p class="msg" id="msg" role="status" aria-live="polite"></p>
     <div class="gbtns"><button type="button" class="pbtn" id="undo">Undo</button><button type="button" class="pbtn" id="reset">Clear</button></div>
     <div class="done" id="done"><p class="eyeb">Solved</p><div class="t" id="dtime"></div><p id="dline"></p>
-      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><a class="pbtn" href="../daily-sudoku/">Next: Daily sudoku</a></div></div>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><a class="pbtn" href="../path-puzzle/">More paths</a><a class="pbtn" href="../daily-sudoku/">Daily sudoku</a></div></div>
   </div>
   <div class="gside">
     <div class="pcard"><p class="eyeb">How to play</p><ul class="small"><li>Start on 1. Drag through the squares, or use the arrow keys.</li><li>Go through every square once.</li><li>Pass the numbers in order and finish on the last one.</li><li>Drag back, or press Undo, to fix a step.</li></ul></div>
-    <div class="pcard"><p class="eyeb">More games</p><span class="small"><a href="../daily-sudoku/">Daily sudoku</a> · <a href="../play/">All of Play</a></span></div>
+    <div class="pcard"><p class="eyeb">More games</p><span class="small"><a href="../path-puzzle/">Path puzzle levels</a> · <a href="../daily-sudoku/">Daily sudoku</a> · <a href="../play/">All of Play</a></span></div>
   </div>
 </div>
 <section class="gtext">
@@ -149,13 +156,28 @@ SUD = '''<div class="wrap">
 </section>
 </div>'''
 
+LEVELS = PATH.replace('<p class="eyeb">Today</p><span class="big" id="pno">#1</span><span class="small" id="pdate"></span>',
+  '<p class="eyeb">Level</p><span class="big" id="pno">Level 1</span><span class="small" id="pdate"></span><div class="levnav"><button type="button" class="pbtn" id="lprev">Previous</button><button type="button" class="pbtn" id="lnext">Next</button></div>')
+LEVELS = LEVELS.replace('<p class="eyeb">Streak</p><span class="big"><span id="streak">0</span></span><span class="small">Best time <b id="sbest">–</b> · solved <b id="ssolved">0</b></span>',
+  '<p class="eyeb">Levels solved</p><span class="big" id="streak">0</span><span class="small">Best on <span id="sbestn"></span>: <b id="sbest">–</b></span>')
+LEVELS = LEVELS.replace('<b>Daily path</b></p>', '<b>Path puzzle</b></p>').replace('<h1>Daily path</h1><p class="sub"><span id="psize"></span> · same board for everyone today</p>', '<h1>Path puzzle</h1><p class="sub"><span id="psize"></span> · endless levels</p>')
+LEVELS = LEVELS.replace('<a class="pbtn" href="../path-puzzle/">More paths</a><a class="pbtn" href="../daily-sudoku/">Daily sudoku</a>', '<button type="button" class="pbtn" id="dnext">Next level</button>')
+LEVELS = LEVELS.replace('<span class="small"><a href="../path-puzzle/">Path puzzle levels</a> · ', '<span class="small"><a href="../daily-path/">Daily path</a> · ')
+LEVELS = LEVELS.replace(LEVELS[LEVELS.index('<section class="gtext">'):LEVELS.index('</section>') + 10], """<section class="gtext">
+  <h2>About the path puzzle</h2>
+  <p>Draw one line through every square and pass the numbers in order. Levels 1 to 10 are 5 × 5, then 6 × 6 up to level 30, 7 × 7 up to level 60, and 8 × 8 after that. Every level has exactly one answer, and each level is the same for everyone.</p>
+  <p>Your solved levels and best times stay in this browser. Nothing is sent anywhere.</p>
+</section>""")
+assert LEVELS.count('id="dnext"') == 1 and 'id="lprev"' in LEVELS
+
 GAME_JS = '<script src="../assets/playgen.js"></script>\n<script src="../assets/playkit.js"></script>\n'
 PAGES = {
     'play': ('Play: daily puzzles and games | Dilia', 'Free daily puzzles, the same for everyone: daily path and daily sudoku. No ads, no sign-up. Scores stay on your device.', HUB, GAME_JS + '<script src="../assets/playhub.js"></script>'),
     'daily-path': ('Daily Path Puzzle - Free, New Every Day | Dilia Play', 'Draw one line through every square and pass the numbers in order. A new puzzle every day, the same for everyone. Free, no ads, no sign-up.', PATH, GAME_JS + '<script src="../assets/daily-path.js"></script>'),
+    'path-puzzle': ('Path Puzzle - Endless Levels, Free | Dilia Play', 'Draw one line through every square and pass the numbers in order. Endless levels from 5x5 to 8x8. Free, no ads, no sign-up.', LEVELS, GAME_JS + '<script src="../assets/daily-path.js"></script>', 'levels'),
     'daily-sudoku': ('Daily Sudoku - Easy, Medium and Hard, Free | Dilia Play', 'Three new sudoku boards every day: easy, medium and hard. Notes, hints and mistake check. Free, no ads, no sign-up.', SUD, GAME_JS + '<script src="../assets/daily-sudoku.js"></script>'),
 }
-for slug, (t, d, body, js) in PAGES.items():
+for slug, (t, d, body, js, *mode) in PAGES.items():
     dd = ROOT / slug; dd.mkdir(exist_ok=True)
-    (dd / 'index.html').write_text(shell(t, d, body, js))
+    (dd / 'index.html').write_text(shell(t, d, body, js, mode=(mode[0] if mode else 'daily' if slug == 'daily-path' else '')))
     print('wrote', slug + '/')

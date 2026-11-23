@@ -27,4 +27,7 @@
   });
   const bits = [['Path', 'path'], ['Easy', 'sudoku-easy'], ['Medium', 'sudoku-medium'], ['Hard', 'sudoku-hard']].map(([k, g]) => { const st = P.stats(g); return st.best ? k + ' ' + P.fmt(st.best) : ''; }).filter(Boolean);
   if (bits.length) $('hbest').textContent = bits.join(' · ');
+  const top = P.levelTop('path');
+  $('n-levels').textContent = 'Level ' + top + ' · ' + G.levelSize(top) + ' × ' + G.levelSize(top);
+  $('s-levels').append(el('span', top > 1 ? 'chip on' : 'chip', top > 1 ? 'Continue: level ' + top : 'Start level 1'));
 }

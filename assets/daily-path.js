@@ -1,33 +1,52 @@
-// Daily path: draw one line from 1 through every square, passing the numbers in order. Same board worldwide.
+// Path puzzle engine: draw one line from 1 through every square, passing the numbers in order.
+// <body data-mode="daily">: today's board (same worldwide). <body data-mode="levels">: endless levels, 5×5 up to 8×8.
 {
   const G = DiliaPlayGen, P = DiliaPlay, $ = id => document.getElementById(id);
-  const KEY = P.today(), GAME = 'path';
-  const B = G.makePath(KEY), n = B.n, N = n * n;
-  const board = $('board'), msg = $('msg');
+  const set = (id, t) => { const e = $(id); if (e) e.textContent = t; };
+  const LEVELS = document.body.dataset.mode === 'levels';
+  const KEY = P.today(), board = $('board'), msg = $('msg');
   const say = (t, ms) => { msg.textContent = t; clearTimeout(say.t); if (t) say.t = setTimeout(() => { msg.textContent = ''; }, ms || 2600); };
+  const NS = 'http://www.w3.org/2000/svg';
 
-  $('pno').textContent = '#' + B.no; $('psize').textContent = n + ' × ' + n;
-  $('pdate').textContent = P.niceDate(KEY);
-  board.style.gridTemplateColumns = 'repeat(' + n + ',1fr)';
-
-  const cells = [];
-  for (let i = 0; i < N; i++) {
-    const c = document.createElement('div'); c.className = 'pcell'; c.dataset.i = i;
-    if (B.clues[i]) { const b = document.createElement('b'); b.textContent = B.clues[i]; c.append(b); c.setAttribute('aria-label', 'number ' + B.clues[i]); }
-    board.append(c); cells.push(c);
-  }
-  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('class', 'line'); svg.setAttribute('viewBox', '0 0 ' + n + ' ' + n); svg.setAttribute('preserveAspectRatio', 'none');
-  svg.innerHTML = '<defs><linearGradient id="pg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="' + n + '" y2="' + n + '"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#a08bff"/><stop offset="1" stop-color="#3fc3ff"/></linearGradient></defs>';
-  const pl = document.createElementNS(NS, 'polyline');
-  pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', 'url(#pg)'); pl.setAttribute('stroke-width', '0.36'); pl.setAttribute('stroke-linecap', 'round'); pl.setAttribute('stroke-linejoin', 'round');
-  pl.setAttribute('vector-effect', 'none'); svg.append(pl); board.append(svg);
-
+  let B, n, N, cells, pl, line, done, clock, warned, L, game, drag = false;
   const adj = (a, b) => Math.abs(((a / n) | 0) - ((b / n) | 0)) + Math.abs((a % n) - (b % n)) === 1;
-  let line = [], done = false;
-  const saved = P.result(GAME, KEY), state = P.load(GAME, KEY);
-  const clock = P.timer(t => { $('ptime').textContent = P.fmt(t); }, state ? state.t : 0);
-  if (state && Array.isArray(state.line) && valid(state.line)) line = state.line;
+  const saveKey = () => (LEVELS ? 'pathlv' + L : 'path');
+
+  function open(level) {
+    if (clock && clock.live) clock.stop();
+    if (LEVELS) { L = level; B = G.makeLevel(L); game = 'pathlv'; } else { B = G.makePath(KEY); game = 'path'; }
+    n = B.n; N = n * n; line = []; done = false; warned = 0;
+    board.textContent = ''; board.classList.remove('win'); $('done').classList.remove('on');
+    board.style.gridTemplateColumns = 'repeat(' + n + ',1fr)';
+    board.classList.toggle('n8', n >= 8);
+    cells = [];
+    for (let i = 0; i < N; i++) {
+      const c = document.createElement('div'); c.className = 'pcell'; c.dataset.i = i;
+      if (B.clues[i]) { const b = document.createElement('b'); b.textContent = B.clues[i]; c.append(b); c.setAttribute('aria-label', 'number ' + B.clues[i]); }
+      board.append(c); cells.push(c);
+    }
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'line'); svg.setAttribute('viewBox', '0 0 ' + n + ' ' + n); svg.setAttribute('preserveAspectRatio', 'none');
+    svg.innerHTML = '<defs><linearGradient id="pg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="' + n + '" y2="' + n + '"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#a08bff"/><stop offset="1" stop-color="#3fc3ff"/></linearGradient></defs>';
+    pl = document.createElementNS(NS, 'polyline');
+    pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', 'url(#pg)'); pl.setAttribute('stroke-width', '0.36'); pl.setAttribute('stroke-linecap', 'round'); pl.setAttribute('stroke-linejoin', 'round');
+    svg.append(pl); board.append(svg);
+
+    set('psize', n + ' × ' + n);
+    if (LEVELS) {
+      set('pno', 'Level ' + L); set('pdate', 'Solved ' + P.levelsDone('path') + ' levels');
+      $('lprev').disabled = L <= 1; $('lnext').disabled = L >= P.levelTop('path');
+      try { history.replaceState(null, '', '#' + L); } catch (e) {}
+    } else { set('pno', '#' + B.no); set('pdate', P.niceDate(KEY)); }
+
+    const solved = LEVELS ? P.levelResult('path', L) : P.result('path', KEY), state = P.load(saveKey(), KEY);
+    clock = P.timer(t => { set('ptime', P.fmt(t)); }, state ? state.t : 0);
+    stats();
+    if (solved) { line = B.path.slice(); done = true; set('ptime', P.fmt(solved.t)); finish(solved, false); return; }
+    if (state && Array.isArray(state.line) && valid(state.line)) line = state.line;
+    draw(); set('ptime', P.fmt(clock.get()));
+    if (line.length) { clock.start(); say('Welcome back. Your line is where you left it.'); }
+  }
 
   function valid(l) { // a saved line must still follow the rules
     const seen = new Set(); let want = 1;
@@ -45,9 +64,9 @@
     const inL = new Set(line);
     cells.forEach((c, i) => { c.classList.toggle('v', inL.has(i)); c.classList.toggle('h', i === line[line.length - 1]); });
     pl.setAttribute('points', line.map(i => ((i % n) + .5) + ',' + (((i / n) | 0) + .5)).join(' '));
-    $('pfill').textContent = line.length + ' / ' + N;
+    set('pfill', line.length + ' / ' + N);
     $('undo').disabled = $('reset').disabled = !line.length || done;
-    if (!done && line.length) P.save(GAME, KEY, { line, t: clock.get() });
+    if (!done && line.length) P.save(saveKey(), KEY, { line, t: clock.get() });
   }
 
   // try to move the end of the line onto cell c (one step). Returns true if the line changed.
@@ -83,7 +102,6 @@
     return col < 0 || row < 0 || col >= n || row >= n ? -1 : row * n + col;
   }
 
-  let drag = false;
   board.addEventListener('pointerdown', e => {
     if (done) return;
     const c = cellAt(e.clientX, e.clientY); if (c < 0) return;
@@ -114,7 +132,6 @@
   $('reset').addEventListener('click', () => { if (done) return; line = []; draw(); say('Cleared. Start again from 1.'); });
 
   // reached the last number too early: say how many squares are empty and flash them
-  let warned = 0;
   function early() {
     const end = line[line.length - 1];
     if (!(B.clues[end] === B.last && line.length < N)) { warned = 0; return; }
@@ -127,29 +144,41 @@
     early();
     if (done || line.length !== N) return;
     if (!G.checkPath(n, B.clues, B.last, line)) return;
-    done = true; const t = clock.stop();
-    const r = P.record(GAME, KEY, { t: Math.round(t) });
+    done = true; const t = Math.round(clock.stop());
+    const r = LEVELS ? P.levelRecord('path', L, t) : P.record('path', KEY, { t });
     board.classList.add('win'); P.burst(board.parentNode); finish(r, true);
   }
   function finish(r, fresh) {
     draw();
     $('done').classList.add('on');
-    $('dtime').textContent = P.fmt(r.t);
-    const s = P.streak(); $('dline').textContent = (fresh ? 'Solved! ' : 'You solved today\'s path. ') + 'Streak: ' + s + (s === 1 ? ' day' : ' days') + '. A new board comes at midnight.';
-    $('streak').textContent = s; stats();
-    P.prepare(shareData());
+    set('dtime', P.fmt(r.t));
+    if (LEVELS) {
+      set('dline', (fresh ? 'Level ' + L + ' solved! ' : 'You solved level ' + L + '. ') + 'Next: level ' + (L + 1) + ', ' + G.levelSize(L + 1) + ' × ' + G.levelSize(L + 1) + '.');
+      $('lnext').disabled = false; set('pdate', 'Solved ' + P.levelsDone('path') + ' levels');
+    } else {
+      const s = P.streak(); set('dline', (fresh ? 'Solved! ' : 'You solved today\'s path. ') + 'Streak: ' + s + (s === 1 ? ' day' : ' days') + '. A new board comes at midnight.');
+    }
+    stats(); P.prepare(shareData());
   }
-  const shareData = () => { const r = P.result(GAME, KEY), s = P.streak(); return { title: 'Daily path #' + B.no, line: '✅ ' + P.fmt(r.t) + ' · ' + n + '×' + n + ' · 🔥 ' + s, big: P.fmt(r.t), lines: [n + ' × ' + n + ' board · solved', 'Streak: ' + s + (s === 1 ? ' day' : ' days')], date: P.niceDate(KEY), file: 'dilia-daily-path-' + B.no }; };
+  const shareData = () => {
+    if (LEVELS) { const r = P.levelResult('path', L); return { title: 'Path puzzle · level ' + L, line: '✅ ' + P.fmt(r.t) + ' · ' + n + '×' + n, big: P.fmt(r.t), lines: ['Level ' + L + ' · ' + n + ' × ' + n + ' board', 'Solved ' + P.levelsDone('path') + ' levels'], date: P.niceDate(KEY), file: 'dilia-path-level-' + L }; }
+    const r = P.result('path', KEY), s = P.streak();
+    return { title: 'Daily path #' + B.no, line: '✅ ' + P.fmt(r.t) + ' · ' + n + '×' + n + ' · 🔥 ' + s, big: P.fmt(r.t), lines: [n + ' × ' + n + ' board · solved', 'Streak: ' + s + (s === 1 ? ' day' : ' days')], date: P.niceDate(KEY), file: 'dilia-daily-path-' + B.no };
+  };
   $('share').addEventListener('click', () => P.share(shareData(), say));
   $('saveimg').addEventListener('click', () => P.saveImage(shareData()));
-  function stats() { const st = P.stats(GAME); $('streak').textContent = P.streak(); $('sbest').textContent = st.best ? P.fmt(st.best) : '–'; $('ssolved').textContent = st.solved; }
-
-  stats();
-  if (saved) {               // already solved today: show the finished board
-    line = B.path.slice(); done = true; $('ptime').textContent = P.fmt(saved.t); finish(saved, false);
-  } else {
-    draw(); $('ptime').textContent = P.fmt(clock.get());
-    if (line.length) { clock.start(); say('Welcome back. Your line is where you left it.'); }
+  function stats() {
+    if (LEVELS) { set('streak', P.levelsDone('path')); const b = P.levelBest('path', n); set('sbest', b ? P.fmt(b) : '–'); set('sbestn', n + ' × ' + n); return; }
+    const st = P.stats('path'); set('streak', P.streak()); set('sbest', st.best ? P.fmt(st.best) : '–'); set('ssolved', st.solved);
   }
-  window.DiliaPathBoard = B; // used by the page test
+
+  if (LEVELS) {
+    const go = l => { open(Math.max(1, Math.min(l, P.levelTop('path')))); board.focus({ preventScroll: true }); };
+    $('lprev').addEventListener('click', () => go(L - 1));
+    $('lnext').addEventListener('click', () => go(L + 1));
+    $('dnext').addEventListener('click', () => go(L + 1));
+    const h = parseInt(location.hash.slice(1), 10);
+    open(h >= 1 && h <= P.levelTop('path') ? h : P.levelTop('path'));
+  } else open();
+  window.DiliaPathBoard = () => B; // used by the page test
 }

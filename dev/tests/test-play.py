@@ -31,7 +31,7 @@ async def centre(pg, i, n):
 async def path_tests(br, w, when, key):
     errs = []; ctx, pg = await page(br, w, when, errs)
     await pg.goto(B + 'daily-path/'); await pg.wait_for_timeout(300)
-    Bd = await pg.evaluate('DiliaPathBoard'); n = Bd['n']; N = n * n
+    Bd = await pg.evaluate('DiliaPathBoard()'); n = Bd['n']; N = n * n
     ok(Bd == node(f'G.makePath({json.dumps(key)})'), f'[{w}] browser board differs from Node board for {key}')
     ok(n == [7, 5, 5, 6, 6, 6, 7][(datetime.date.fromisoformat(key).isoweekday()) % 7], f'[{w}] wrong size {n} for {key}')
     ok(await pg.locator('#board .pcell').count() == N, f'[{w}] cell count')
@@ -97,7 +97,7 @@ async def order_rule(br, when, key):
     """Entering a number before its turn is refused (mouse click next to the line end)."""
     errs = []; ctx, pg = await page(br, 1280, when, errs)
     await pg.goto(B + 'daily-path/'); await pg.wait_for_timeout(300)
-    Bd = await pg.evaluate('DiliaPathBoard'); n = Bd['n']; clues = Bd['clues']
+    Bd = await pg.evaluate('DiliaPathBoard()'); n = Bd['n']; clues = Bd['clues']
     one = clues.index(1)
     adj = [one + d for d in (1, -1, n, -n) if 0 <= one + d < n * n and not (d == 1 and one % n == n - 1) and not (d == -1 and one % n == 0)]
     bad = [c for c in adj if clues[c] and clues[c] != 2]
@@ -113,7 +113,7 @@ async def early_end(br):
     """Owner's case, 23 Nov 2026: the line reaches 7 with 4 squares empty. The page must say so and flash them."""
     errs = []; ctx, pg = await page(br, 390, datetime.datetime.fromisoformat('2026-11-23T06:43:00'), errs)
     await pg.goto(B + 'daily-path/'); await pg.wait_for_timeout(300)
-    Bd = await pg.evaluate('DiliaPathBoard'); n = Bd['n']
+    Bd = await pg.evaluate('DiliaPathBoard()'); n = Bd['n']
     line = [0, 1, 2, 3, 4, 9, 14, 19, 18, 13, 12, 17, 22, 21, 20, 15, 16, 11, 6, 7, 8]
     ok(n == 5 and Bd['clues'][8] == Bd['last'] == 7, 'owner board changed (expected 7 at row 2 col 4)')
     await pg.focus('#board'); await pg.keyboard.press('ArrowRight')
@@ -124,6 +124,41 @@ async def early_end(br):
     ok(await pg.locator('#board .pcell.miss').count() == 4, 'empty squares not flashed')
     ok(not await pg.is_visible('#done'), 'early line counted as solved')
     await ctx.close(); ok(not errs, f'early errors {errs[:3]}')
+
+async def solve_keys(pg, Bd):
+    n = Bd['n']; path = Bd['path']
+    await pg.focus('#board'); await pg.keyboard.press('ArrowRight')
+    for a, c in zip(path, path[1:]):
+        await pg.keyboard.press({1: 'ArrowRight', -1: 'ArrowLeft', n: 'ArrowDown', -n: 'ArrowUp'}[c - a])
+
+async def levels_tests(br, w):
+    """Endless path: level 1 first, next level opens only after a win, progress kept, 8×8 from level 61."""
+    errs = []; ctx, pg = await page(br, w, datetime.datetime.fromisoformat('2026-11-23T08:00:00'), errs)
+    await pg.goto(B + 'path-puzzle/'); await pg.wait_for_timeout(300)
+    ok(await pg.inner_text('#pno') == 'Level 1' and await pg.is_disabled('#lnext') and await pg.is_disabled('#lprev'), f'[{w}] levels start: {await pg.inner_text("#pno")}')
+    L1 = await pg.evaluate('DiliaPathBoard()'); ok(L1 == node('(b => (b.no = b.no, b))(G.makeLevel(1))'), f'[{w}] level 1 board differs from Node')
+    await solve_keys(pg, L1); await pg.wait_for_timeout(300)
+    ok(await pg.is_visible('#done') and 'Level 1 solved' in await pg.inner_text('#dline'), f'[{w}] level 1 win: {await pg.inner_text("#dline")}')
+    ok(await pg.inner_text('#streak') == '1', f'[{w}] levels solved count')
+    await pg.click('#dnext'); await pg.wait_for_timeout(200)
+    ok(await pg.inner_text('#pno') == 'Level 2' and not await pg.is_visible('#done') and not await pg.is_disabled('#lprev'), f'[{w}] next level')
+    ok(await pg.evaluate("JSON.parse(localStorage.getItem('dilia-play-v1')).days") is None, f'[{w}] level win counted as a daily')
+    await pg.goto(B + 'path-puzzle/#40'); await pg.wait_for_timeout(300)
+    ok(await pg.inner_text('#pno') == 'Level 2', f'[{w}] locked level opened: {await pg.inner_text("#pno")}')
+    await pg.click('#lprev'); await pg.wait_for_timeout(200)
+    ok(await pg.inner_text('#pno') == 'Level 1' and await pg.is_visible('#done'), f'[{w}] solved level 1 not shown as solved')
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)
+    ok('Continue: level 2' in await pg.inner_text('#s-levels'), f'[{w}] hub levels: {await pg.inner_text("#s-levels")}')
+    # jump to level 61 (8×8) by marking 1-60 solved
+    await pg.evaluate("(() => { const o = JSON.parse(localStorage.getItem('dilia-play-v1')); for (let i = 1; i <= 60; i++) o.lv.path[i] = 100 + i; localStorage.setItem('dilia-play-v1', JSON.stringify(o)); })()")
+    t0 = await pg.evaluate('performance.now()')
+    await pg.goto(B + 'path-puzzle/'); await pg.wait_for_timeout(300)
+    B8 = await pg.evaluate('DiliaPathBoard()')
+    ok(await pg.inner_text('#pno') == 'Level 61' and B8['n'] == 8 and await pg.locator('#board .pcell').count() == 64, f'[{w}] level 61 not 8x8')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on 8x8')
+    await solve_keys(pg, B8); await pg.wait_for_timeout(300)
+    ok(await pg.is_visible('#done'), f'[{w}] 8x8 win')
+    await ctx.close(); ok(not errs, f'[{w}] levels errors {errs[:3]}')
 
 async def sudoku_tests(br, w, when, key):
     errs = []; ctx, pg = await page(br, w, when, errs)
@@ -196,6 +231,7 @@ async def main():
         for when in ('2026-11-23T09:00:00', '2026-11-24T09:00:00', '2026-11-26T09:00:00', '2026-11-29T09:00:00'):
             await order_rule(br, datetime.datetime.fromisoformat(when), when[:10])
         await early_end(br)
+        await levels_tests(br, 1280); await levels_tests(br, 390)
         # the day number follows the local date (#1 on launch day, #6 on Saturday 28 Nov)
         errs = []; ctx, pg = await page(br, 1280, datetime.datetime.fromisoformat('2026-11-28T12:00:00'), errs)
         await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)

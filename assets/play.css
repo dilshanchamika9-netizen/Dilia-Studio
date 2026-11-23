@@ -90,6 +90,10 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .board .pcell{position:relative;aspect-ratio:1;border-radius:12px;background:#ffffff0c;display:grid;place-items:center;transition:background .15s}
 .board .pcell.v{background:#7a5cff30}
 .board .pcell.h{background:#7a5cff55}
+.board.n8{gap:4px}
+.board.n8 .pcell{border-radius:9px}
+.board.n8 .pcell b{width:70%;font-size:clamp(12px,2.6vw,18px)}
+.levnav{display:flex;align-items:center;gap:8px}
 .board .pcell.miss{animation:miss .5s ease-in-out 3}
 @keyframes miss{50%{background:#ffd40055;box-shadow:0 0 0 2px #ffd400 inset}}
 .board .pcell b{position:relative;z-index:3;display:grid;place-items:center;width:62%;aspect-ratio:1;border-radius:50%;background:#fff;color:#0b1220;font:850 clamp(14px,3.4vw,22px)/1 var(--font);box-shadow:0 6px 16px -6px #000c}

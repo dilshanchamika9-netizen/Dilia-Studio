@@ -22,6 +22,14 @@ for (let i = 0; i < DAYS; i++) {
     if (JSON.stringify(G.makeSudoku(key, lv)) !== JSON.stringify(S)) bad.push(key + lv + ' not repeatable');
   }
 }
+// endless path levels 1-100 (sizes 5×5 to 8×8)
+for (let L = 1; L <= 100; L++) {
+  const t = Date.now(), P = G.makeLevel(L); slow = Math.max(slow, Date.now() - t);
+  if (P.n !== G.levelSize(L)) bad.push('level ' + L + ' size');
+  const r = G.solvePath(P.n, Int32Array.from(P.clues), P.last, 2e8);
+  if (r.out || r.count !== 1) bad.push('level ' + L + ' answers: ' + r.count + (r.out ? ' (search cut)' : ''));
+  if (!G.checkPath(P.n, P.clues, P.last, P.path)) bad.push('level ' + L + ' fails its own rules');
+}
 if (slow > 1500) bad.push('slowest board took ' + slow + ' ms');
-console.log(DAYS + ' days checked, slowest board ' + slow + ' ms, ' + bad.length + ' problems'); bad.slice(0, 10).forEach(b => console.log('  ' + b));
+console.log(DAYS + ' days and 100 levels checked, slowest board ' + slow + ' ms, ' + bad.length + ' problems'); bad.slice(0, 10).forEach(b => console.log('  ' + b));
 process.exit(bad.length ? 1 : 0);

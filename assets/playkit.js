@@ -36,6 +36,14 @@ window.DiliaPlay = (() => {
   }
   function week() { const out = []; for (let i = 6; i >= 0; i--) { const k = addDays(today(), -i); out.push({ key: k, done: solvedOn(k) }); } return out; }
 
+  // ---- endless levels: best time per level; the next level opens when the one before is solved ----
+  const lv = (o, game) => ((o.lv = o.lv || {})[game] = o.lv[game] || {});
+  function levelResult(game, L) { const t = lv(read(), game)[L]; return t != null ? { t } : null; }
+  function levelRecord(game, L, t) { const o = read(), g = lv(o, game); if (g[L] == null || t < g[L]) g[L] = t; write(o); clearSave(game + L, today()); return { t: g[L] }; }
+  function levelsDone(game) { return Object.keys(lv(read(), game)).length; }
+  function levelTop(game) { const k = Object.keys(lv(read(), game)).map(Number); return (k.length ? Math.max(...k) : 0) + 1; }
+  function levelBest(game, n) { const g = lv(read(), game); let b = 0; for (const k in g) if (G.levelSize(+k) === n && (!b || g[k] < b)) b = g[k]; return b; }
+
   // ---- saved game in progress (one per game per day; older days are dropped) ----
   const SK = (game, key) => 'dilia-play-save:' + game + ':' + key;
   function load(game, key) { try { return JSON.parse(localStorage.getItem(SK(game, key)) || 'null'); } catch (e) { return null; } }
@@ -108,5 +116,5 @@ window.DiliaPlay = (() => {
   }
 
   const niceDate = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); };
-  return { today, fmt, addDays, result, record, streak, bestStreak, stats, week, load, save, clearSave, timer, prepare, share, saveImage, burst, niceDate };
+  return { today, fmt, addDays, result, record, levelResult, levelRecord, levelsDone, levelTop, levelBest, streak, bestStreak, stats, week, load, save, clearSave, timer, prepare, share, saveImage, burst, niceDate };
 })();

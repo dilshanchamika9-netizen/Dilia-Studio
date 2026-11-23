@@ -174,6 +174,7 @@ window.DILIA_TOOLS = [
   ]],
   ['Play', [
     { id: 'gpath', slug: 'daily-path', name: 'Daily path', desc: 'Draw one line through every square. New every day.', ready: 1, icon: 'M5 5h5v5H5zM14 14h5v5h-5zM7.5 10v6.5h6.5M16.5 14V7.5H10' },
+    { id: 'gpathlv', slug: 'path-puzzle', name: 'Path puzzle', desc: 'Endless path levels, 5×5 up to 8×8.', ready: 1, icon: 'M5 5h5v5H5zM14 14h5v5h-5zM7.5 10v6.5h6.5M16.5 14V7.5H10' },
     { id: 'gsudoku', slug: 'daily-sudoku', name: 'Daily sudoku', desc: 'Easy, medium and hard boards. New every day.', ready: 1, icon: 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16' }
   ]]
 ];
