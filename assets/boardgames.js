@@ -35,7 +35,7 @@
       return { b, side: s.side ^ 1, quiet: (m.caps.length || (!isKing(s.b[from]))) ? 0 : s.quiet + 1, n: s.n + 1 };
     },
     result(s) { if (s.quiet >= 80) return -1; return this.moves(s).length ? null : s.side ^ 1; },   // winner side, -1 draw, null = going on
-    eval(s) {
+    rate(s) {
       let v = 0; for (let i = 0; i < 64; i++) { const p = s.b[i]; if (!p) continue; const sd = sideOf(p), r = i >> 3, c = i & 7; let x;
         if (isKing(p)) x = 165 + (c > 1 && c < 6 && r > 1 && r < 6 ? 6 : 0); else { const adv = sd === 0 ? 7 - r : r; x = 100 + adv * 4 + ((sd === 0 ? r === 7 : r === 0) ? 8 : 0) + (c === 0 || c === 7 ? -2 : 0); }
         v += sd === s.side ? x : -x; }
@@ -66,7 +66,7 @@
     legal(s) { const mv = this.moves(s); if (mv.length) return mv; const o = this.moves({ b: s.b, side: s.side ^ 1 }); return o.length ? [{ pass: true }] : []; },
     count(s) { let a = 0, c = 0; for (const v of s.b) { if (v === 1) a++; else if (v === 2) c++; } return [a, c]; },
     result(s) { if (this.legal(s).length) return null; const [a, c] = this.count(s); return a > c ? 0 : c > a ? 1 : -1; },
-    eval(s) {
+    rate(s) {
       const me = s.side + 1, opp = 3 - me; let v = 0, mine = 0, theirs = 0, empt = 0;
       for (let i = 0; i < 64; i++) { const x = s.b[i]; if (x === me) { v += WTAB[i]; mine++; } else if (x === opp) { v -= WTAB[i]; theirs++; } else empt++; }
       const mm = this.moves(s).length, om = this.moves({ b: s.b, side: s.side ^ 1 }).length;
@@ -83,7 +83,7 @@
       const mv = lg(st);
       if (!mv.length) { const r = G.result(st); return r === -1 || r === null ? 0 : (r === st.side ? 100000 - ply : -100000 + ply); }
       if (G.name === 'checkers' && st.quiet >= 80) return 0;
-      if (d <= 0) return G.eval(st);
+      if (d <= 0) return G.rate(st);
       let best = -INF;
       if (G.name === 'checkers') mv.sort((x, y) => y.caps.length - x.caps.length);
       for (const m of mv) { const v = -rec(G.apply(st, m), d - 1, -b, -a, ply + 1); if (stop) return 0; if (v > best) { best = v; if (v > a) { a = v; if (a >= b) break; } } }
