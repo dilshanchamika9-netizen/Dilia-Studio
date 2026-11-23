@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bingo Card Generator - Printable Bingo Cards, Free | Dilia Play</title>
+<meta name="description" content="Make printable bingo cards: classic 1 to 75 or your own words. Up to 30 different cards at once. Free, no ads, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-play" data-mode="free">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Play home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Play</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Choose classic 1 to 75 or your own words (at least 24).</li><li>Choose how many cards (up to 30). Every card is different.</li><li>Press Make cards, then Print the cards.</li><li>Use the Bingo caller to call the numbers.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Bingo card generator</b></p>
+    <div class="ghead"><div><h1>Bingo card generator</h1><p class="sub">Printable cards, classic or with your own words.</p></div></div>
+    <div id="party" data-pm="cards">
+    <div class="pt-noprint">
+      <div class="pt-row"><div role="group" aria-label="Kind of card" class="mlevel"><label class="pbtn" style="min-height:36px"><input type="radio" name="bkind" value="classic" checked> Classic 1 to 75</label><label class="pbtn" style="min-height:36px"><input type="radio" name="bkind" value="words"> My own words</label></div>
+        <label for="bn">How many cards<input class="pt-in" id="bn" type="number" min="1" max="30" value="4" inputmode="numeric"></label></div>
+      <div id="btitlebox" hidden><label class="pt-lbl" for="btitle">Title on the cards</label><input class="pt-in" id="btitle" type="text" maxlength="20" value="BINGO" style="width:100%"></div>
+      <div id="bwordsbox" hidden><label class="pt-lbl" for="bwords">Words or phrases, one per line (at least 24)</label><textarea class="pt-ta" id="bwords" rows="8" maxlength="6000" spellcheck="false"></textarea></div>
+      <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      <div class="gbtns" style="margin-top:12px"><button type="button" class="pbtn go" id="go">Make cards</button></div>
+      <div id="bactions" hidden><div class="gbtns"><button type="button" class="pbtn" id="bprint">Print the cards</button></div></div>
+    </div>
+    <div class="pt-bcards" id="bcards"></div>
+  </div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More party tools</p><span class="small"><a href="../wheel-spinner/">Wheel spinner</a> · <a href="../random-name-picker/">Random name picker</a> · <a href="../team-maker/">Team maker</a> · <a href="../dice-roller/">Dice roller</a> · <a href="../coin-flip/">Coin flip</a> · <a href="../random-number-generator/">Random number</a> · <a href="../bingo-caller/">Bingo caller</a> · <a href="../quiz-maker/">Quiz maker</a> · <a href="../score-keeper/">Scoreboard</a> · <a href="../secret-santa-generator/">Secret Santa</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the bingo card generator</h2>
+  <p>Classic cards follow the 75-ball rules: column B holds numbers 1 to 15, I 16 to 30, N 31 to 45, G 46 to 60 and O 61 to 75, with a free space in the middle. With your own words, each card takes 24 of your words in a random order.</p><p>Cards are made on your device and printed from your browser. Nothing is sent anywhere.</p>
+</section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/party-rng.js"></script>
+<script src="../assets/party-bingo.js"></script>
+</body>
+</html>

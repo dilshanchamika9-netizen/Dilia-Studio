@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Quiz Maker - Make and Play a Multiple-Choice Quiz, Free | Dilia Play</title>
+<meta name="description" content="Write multiple-choice questions, play them on one screen with a score, and save the quiz as a file to share. Free, no ads, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-play" data-mode="free">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Play home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Play</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Write questions with up to 4 answers and mark the right one.</li><li>Press Play the quiz. Tap an answer, or use Show answer as host.</li><li>Save the quiz as a file and load it later or on another device.</li><li>Your quiz is kept in this browser while you edit.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Quiz maker</b></p>
+    <div class="ghead"><div><h1>Quiz maker</h1><p class="sub">Write a quiz, play it on one screen.</p></div></div>
+    <div id="party" data-pm="quiz">
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div id="qedit">
+      <label class="pt-lbl" for="qtitle">Quiz title <span id="qcount"></span></label><input class="pt-in" id="qtitle" type="text" maxlength="60" style="width:100%" placeholder="My quiz">
+      <div id="qlist" style="margin-top:14px"></div>
+      <div class="gbtns"><button type="button" class="pbtn" id="qadd">Add a question</button></div>
+      <label class="pt-chk"><input type="checkbox" id="qshuf"> Ask the questions in random order</label>
+      <label class="pt-chk"><input type="checkbox" id="qshufa"> Shuffle the answers</label>
+      <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="qstart">Play the quiz</button><button type="button" class="pbtn" id="qsave">Save as a file</button><label class="pbtn pt-file">Load a quiz file<input type="file" id="qfile" accept=".json,application/json"></label><button type="button" class="pbtn" id="qnew">New quiz</button></div>
+    </div>
+    <div id="qplay" hidden>
+      <p class="eyeb" id="qprog"></p>
+      <div id="qstage"></div>
+      <div class="gbtns"><button type="button" class="pbtn" id="qshow">Show answer</button><button type="button" class="pbtn go" id="qnext">Next question</button><button type="button" class="pbtn" id="qback">Back to editing</button></div>
+      <div id="qfinal" hidden><div class="done pt-res on"><p class="eyeb">Your score</p><div class="t" id="qscore"></div><p id="qline"></p><div class="gbtns"><button type="button" class="pbtn go" id="qagain">Play again</button><button type="button" class="pbtn" id="qedit2">Edit the quiz</button></div></div></div>
+    </div>
+  </div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More party tools</p><span class="small"><a href="../wheel-spinner/">Wheel spinner</a> · <a href="../random-name-picker/">Random name picker</a> · <a href="../team-maker/">Team maker</a> · <a href="../dice-roller/">Dice roller</a> · <a href="../coin-flip/">Coin flip</a> · <a href="../random-number-generator/">Random number</a> · <a href="../bingo-card-generator/">Bingo cards</a> · <a href="../bingo-caller/">Bingo caller</a> · <a href="../score-keeper/">Scoreboard</a> · <a href="../secret-santa-generator/">Secret Santa</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the quiz maker</h2>
+  <p>Each question has up to four answers and one right answer. In play mode, tapping an answer shows the right one at once and counts a point if you were right. As a host, press Show answer to reveal it without scoring.</p><p>Save as a file gives you a small file you can send to someone. Loading a file only accepts the quiz format and is checked before it is used. Nothing is sent anywhere.</p>
+</section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/party-rng.js"></script>
+<script src="../assets/party-quiz.js"></script>
+</body>
+</html>

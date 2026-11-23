@@ -190,6 +190,11 @@ window.DILIA_TOOLS = [
     { id: 'gdice', slug: 'dice-roller', name: 'Dice roller', desc: 'Roll up to 10 dice with any number of sides.', ready: 1, icon: 'M5 5h14v14H5zM9 9h.01M15 9h.01M9 15h.01M15 15h.01M12 12h.01' },
     { id: 'gcoin', slug: 'coin-flip', name: 'Coin flip', desc: 'Heads or tails, with a running tally.', ready: 1, v: 1, icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v8M9.5 10.5h5' },
     { id: 'grandnum', slug: 'random-number-generator', name: 'Random number generator', desc: 'Whole numbers between any two values, no repeats if you like.', ready: 1, v: 1, icon: 'M4 7h6M4 12h6M4 17h6M14 7l3-2v6M14 17h6' },
+    { id: 'gbingo', slug: 'bingo-card-generator', name: 'Bingo cards', desc: 'Printable bingo cards, classic or your own words.', ready: 1, icon: 'M4 4h16v16H4zM4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16' },
+    { id: 'gcaller', slug: 'bingo-caller', name: 'Bingo caller', desc: 'Call numbers 1 to 75, never the same twice.', ready: 1, v: 1, icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9 10l3-2v8' },
+    { id: 'gquiz', slug: 'quiz-maker', name: 'Quiz maker', desc: 'Write a quiz and play it on one screen. Save as a file.', ready: 1, icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 17h.01' },
+    { id: 'gscore', slug: 'score-keeper', name: 'Scoreboard', desc: 'Keep score for teams or players. Tap to add points.', ready: 1, icon: 'M5 20V10M12 20V4M19 20v-7' },
+    { id: 'gsanta', slug: 'secret-santa-generator', name: 'Secret Santa', desc: 'Draw names on one device. Everyone sees only their own person.', ready: 1, icon: 'M4 12h16v8H4zM3 8h18v4H3zM12 8v12M12 8c-3-4-6-2-4 0M12 8c3-4 6-2 4 0' },
     { id: 'gsudoku', slug: 'daily-sudoku', name: 'Daily sudoku', desc: 'Easy, medium and hard boards. New every day.', ready: 1, icon: 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16' }
   ]]
 ];

@@ -24,5 +24,6 @@ step "Arcade rules: snake, typing score, word lists" node dev/tests/test-arcade.
 step "Arcade: snake, reaction time, typing test" python3 dev/tests/test-arcade.py
 step "Party tools: fair random picks" node dev/tests/test-party-rng.js
 step "Party tools: wheel, picker, teams, dice, coin, numbers" python3 dev/tests/test-party.py
+step "Party tools 2: bingo, quiz, scoreboard, Secret Santa" python3 dev/tests/test-party2.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail

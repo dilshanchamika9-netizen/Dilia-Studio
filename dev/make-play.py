@@ -68,6 +68,10 @@ ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transf
 ART_TEAMS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fff"><circle cx="45" cy="52" r="14"/><circle cx="105" cy="52" r="14" fill="#c4b5ff"/><circle cx="75" cy="92" r="14" fill="#3fc3ff"/></g><g fill="#ffffff55"><path d="M22 112a23 23 0 0 1 46 0z"/><path d="M82 112a23 23 0 0 1 46 0z"/></g></svg>'
 ART_DICE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="30" y="30" width="90" height="90" rx="18" fill="#fbfbff"/><g fill="#0b1220"><circle cx="58" cy="58" r="8"/><circle cx="92" cy="58" r="8"/><circle cx="58" cy="92" r="8"/><circle cx="92" cy="92" r="8"/></g><circle cx="75" cy="75" r="8" fill="#e5007d"/></svg>'
 
+ART_BINGO = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="22" y="22" width="106" height="106" rx="14" fill="#fbfbff"/><g font-family="Archivo,sans-serif" font-weight="850" font-size="15" text-anchor="middle" fill="#0b1220"><text x="40" y="52">B</text><text x="63" y="52">I</text><text x="86" y="52">N</text><text x="109" y="52" fill="#e5007d">G</text><text x="40" y="82">7</text><text x="63" y="82">22</text><text x="86" y="82" fill="#7a5cff">★</text><text x="109" y="82">51</text><text x="40" y="112">14</text><text x="63" y="112">38</text><text x="86" y="112">60</text><text x="109" y="112">71</text></g></svg>'
+ART_QUIZ = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="22" y="22" width="106" height="40" rx="12" fill="#ffffff22"/><rect x="22" y="72" width="50" height="26" rx="10" fill="#0f8a4f"/><rect x="78" y="72" width="50" height="26" rx="10" fill="#ffffff22"/><rect x="22" y="104" width="50" height="26" rx="10" fill="#ffffff22"/><rect x="78" y="104" width="50" height="26" rx="10" fill="#ffffff22"/><text x="75" y="50" font-family="Archivo,sans-serif" font-weight="850" font-size="26" text-anchor="middle" fill="#fff">?</text></svg>'
+ART_SCORE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" text-anchor="middle"><rect x="20" y="26" width="110" height="46" rx="12" fill="#ffffff22"/><rect x="20" y="82" width="110" height="46" rx="12" fill="#ffd40033" stroke="#ffd400" stroke-width="2"/><text x="105" y="58" font-size="26" fill="#fff">12</text><text x="105" y="114" font-size="26" fill="#ffd400">18</text></g></svg>'
+ART_SANTA = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="28" y="62" width="94" height="66" rx="10" fill="#e5007d"/><rect x="68" y="62" width="14" height="66" fill="#ffd400"/><rect x="22" y="46" width="106" height="24" rx="8" fill="#7a5cff"/><rect x="68" y="46" width="14" height="24" fill="#ffd400"/><path d="M75 46c-14-22-34-14-26-4 5 6 26 4 26 4zM75 46c14-22 34-14 26-4-5 6-26 4-26 4z" fill="none" stroke="#ffd400" stroke-width="5" stroke-linejoin="round"/></svg>'
 HUB = f'''<section class="phero"><div class="wrap">
   <p class="crumbp"><a href="../">Dilia</a> › <b>Play</b></p>
   <p class="eyeb" id="hno">Today's dailies</p>
@@ -104,6 +108,10 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../wheel-spinner/">{ART_WHEEL}<span class="no">Party</span><b>Wheel spinner</b><p>Type the options, spin, get one fair winner. Share the wheel by link.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../team-maker/">{ART_TEAMS}<span class="no">Party</span><b>Team maker</b><p>Split a list of names into fair random teams. Or pick a name at random.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../dice-roller/">{ART_DICE}<span class="no">Party</span><b>Dice, coin, number</b><p>Roll dice with any sides, flip a coin, draw random numbers.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../bingo-card-generator/">{ART_BINGO}<span class="no">Party</span><b>Bingo</b><p>Print bingo cards, classic or with your own words, and call the numbers.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../quiz-maker/">{ART_QUIZ}<span class="no">Party</span><b>Quiz maker</b><p>Write a multiple-choice quiz and play it on one screen. Save it as a file.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../score-keeper/">{ART_SCORE}<span class="no">Party</span><b>Scoreboard</b><p>Keep score for up to 12 teams. Tap to add points.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../secret-santa-generator/">{ART_SANTA}<span class="no">Party</span><b>Secret Santa</b><p>Draw names on one device. Everyone sees only their own person.</p><span class="st"><span class="chip">Play</span></span></a>
   </div>
 </section>
 
@@ -115,7 +123,6 @@ HUB = f'''<section class="phero"><div class="wrap">
     <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Spider, FreeCell, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Bingo, quiz maker</li><li>Scoreboard</li><li>Secret Santa draw</li></ul></div>
   </div>
 </section>'''
 
@@ -430,7 +437,7 @@ PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia P
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')
 
 # ---------------- party and decide: wheel, picker, team maker, dice, coin, random number (free play, nothing saved but your own lists) ----------------
-PARTY_LINKS = [('wheel-spinner', 'Wheel spinner'), ('random-name-picker', 'Random name picker'), ('team-maker', 'Team maker'), ('dice-roller', 'Dice roller'), ('coin-flip', 'Coin flip'), ('random-number-generator', 'Random number')]
+PARTY_LINKS = [('wheel-spinner', 'Wheel spinner'), ('random-name-picker', 'Random name picker'), ('team-maker', 'Team maker'), ('dice-roller', 'Dice roller'), ('coin-flip', 'Coin flip'), ('random-number-generator', 'Random number'), ('bingo-card-generator', 'Bingo cards'), ('bingo-caller', 'Bingo caller'), ('quiz-maker', 'Quiz maker'), ('score-keeper', 'Scoreboard'), ('secret-santa-generator', 'Secret Santa')]
 def party_body(slug, title, sub, how, tool, about):
     more = ' · '.join(f'<a href="../{s}/">{n}</a>' for s, n in PARTY_LINKS if s != slug)
     lis = ''.join(f'<li>{x}</li>' for x in how)
@@ -525,6 +532,77 @@ PAGES['coin-flip'] = ('Coin Flip - Heads or Tails, Fair and Free | Dilia Play', 
 PAGES['random-number-generator'] = ('Random Number Generator - Any Range, No Repeats | Dilia Play', 'Generate random whole numbers between any two values, one or many, with an option for no repeats. Free, no ads, no sign-up.',
     party_body('random-number-generator', 'Random number generator', 'Whole numbers between any two values.', ['Set the lowest and highest number.', 'Choose how many numbers you want (up to 100).', 'Tick "No number twice" for a draw without repeats.', 'Copy the numbers with one tap.'], TOOL_NUM,
     '<p>Each number is a fair random pick, so every whole number from the lowest to the highest value has the same chance. Use it for raffles, games and picking sample numbers. Values can be from -1,000,000,000 to 1,000,000,000.</p><p>Nothing is sent anywhere.</p>'), PJS + '<script src="../assets/party-dice.js"></script>', 'free')
+
+TOOL_BCARDS = """<div id="party" data-pm="cards">
+    <div class="pt-noprint">
+      <div class="pt-row"><div role="group" aria-label="Kind of card" class="mlevel"><label class="pbtn" style="min-height:36px"><input type="radio" name="bkind" value="classic" checked> Classic 1 to 75</label><label class="pbtn" style="min-height:36px"><input type="radio" name="bkind" value="words"> My own words</label></div>
+        <label for="bn">How many cards<input class="pt-in" id="bn" type="number" min="1" max="30" value="4" inputmode="numeric"></label></div>
+      <div id="btitlebox" hidden><label class="pt-lbl" for="btitle">Title on the cards</label><input class="pt-in" id="btitle" type="text" maxlength="20" value="BINGO" style="width:100%"></div>
+      <div id="bwordsbox" hidden><label class="pt-lbl" for="bwords">Words or phrases, one per line (at least 24)</label><textarea class="pt-ta" id="bwords" rows="8" maxlength="6000" spellcheck="false"></textarea></div>
+      <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      <div class="gbtns" style="margin-top:12px"><button type="button" class="pbtn go" id="go">Make cards</button></div>
+      <div id="bactions" hidden><div class="gbtns"><button type="button" class="pbtn" id="bprint">Print the cards</button></div></div>
+    </div>
+    <div class="pt-bcards" id="bcards"></div>
+  </div>"""
+TOOL_CALLER = """<div id="party" data-pm="caller">
+    <div class="done pt-res on"><p class="eyeb">Last number called</p><div class="pt-big" id="clast" aria-live="polite">–</div><p id="cprev"></p><p class="small" id="ccount"></p></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn go" id="go">Call next number</button><button type="button" class="pbtn" id="cundo">Undo last</button><button type="button" class="pbtn" id="creset">New game</button></div>
+    <div class="pt-cboard" id="cboard" role="group" aria-label="Numbers 1 to 75"></div>
+  </div>"""
+TOOL_SCORE = """<div id="party" data-pm="score">
+    <div class="pt-sides" role="group" aria-label="Points per tap"><button type="button" class="pbtn" data-st="1" aria-pressed="true">1 point</button><button type="button" class="pbtn" data-st="2" aria-pressed="false">2</button><button type="button" class="pbtn" data-st="5" aria-pressed="false">5</button><button type="button" class="pbtn" data-st="10" aria-pressed="false">10</button></div>
+    <div id="slist" style="margin-top:14px"></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="sadd">Add a team</button><button type="button" class="pbtn" id="ssort" aria-pressed="false">Rank by score</button><button type="button" class="pbtn" id="scopy">Copy standings</button><button type="button" class="pbtn" id="sreset">Reset scores</button></div>
+  </div>"""
+TOOL_QUIZ = """<div id="party" data-pm="quiz">
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div id="qedit">
+      <label class="pt-lbl" for="qtitle">Quiz title <span id="qcount"></span></label><input class="pt-in" id="qtitle" type="text" maxlength="60" style="width:100%" placeholder="My quiz">
+      <div id="qlist" style="margin-top:14px"></div>
+      <div class="gbtns"><button type="button" class="pbtn" id="qadd">Add a question</button></div>
+      <label class="pt-chk"><input type="checkbox" id="qshuf"> Ask the questions in random order</label>
+      <label class="pt-chk"><input type="checkbox" id="qshufa"> Shuffle the answers</label>
+      <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="qstart">Play the quiz</button><button type="button" class="pbtn" id="qsave">Save as a file</button><label class="pbtn pt-file">Load a quiz file<input type="file" id="qfile" accept=".json,application/json"></label><button type="button" class="pbtn" id="qnew">New quiz</button></div>
+    </div>
+    <div id="qplay" hidden>
+      <p class="eyeb" id="qprog"></p>
+      <div id="qstage"></div>
+      <div class="gbtns"><button type="button" class="pbtn" id="qshow">Show answer</button><button type="button" class="pbtn go" id="qnext">Next question</button><button type="button" class="pbtn" id="qback">Back to editing</button></div>
+      <div id="qfinal" hidden><div class="done pt-res on"><p class="eyeb">Your score</p><div class="t" id="qscore"></div><p id="qline"></p><div class="gbtns"><button type="button" class="pbtn go" id="qagain">Play again</button><button type="button" class="pbtn" id="qedit2">Edit the quiz</button></div></div></div>
+    </div>
+  </div>"""
+TOOL_SANTA = """<div id="party" data-pm="santa">
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div id="ssetup">
+      <label class="pt-lbl" for="sn">Names, one per line (3 to 50)</label><textarea class="pt-ta" id="sn" rows="7" maxlength="3000" spellcheck="false" placeholder="Amira&#10;Ben&#10;Chen&#10;Diego"></textarea>
+      <label class="pt-lbl" for="sx">Do not pair (optional), one pair per line, like: Amira, Ben</label><textarea class="pt-ta" id="sx" rows="3" maxlength="1500" spellcheck="false" style="min-height:70px"></textarea>
+      <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="go">Make the draw</button></div>
+    </div>
+    <div id="sflow" hidden>
+      <div class="done pt-res on"><div id="sstage"></div></div>
+      <div class="gbtns"><button type="button" class="pbtn go" id="snext">I am …</button><button type="button" class="pbtn" id="sfullbtn" hidden>Show full list (spoils the surprise)</button><button type="button" class="pbtn" id="sagain">Start over</button></div>
+      <div id="sfull" hidden class="gcard" style="margin-top:16px"><p class="eyeb">Full list, for the organiser</p><ul class="pt-hist" id="sfulllist"></ul><div class="gbtns"><button type="button" class="pbtn" id="sfullcopy">Copy list</button></div></div>
+    </div>
+  </div>"""
+PJ2 = lambda f: PJS + f'<script src="../assets/{f}.js"></script>'
+PAGES['bingo-card-generator'] = ('Bingo Card Generator - Printable Bingo Cards, Free | Dilia Play', 'Make printable bingo cards: classic 1 to 75 or your own words. Up to 30 different cards at once. Free, no ads, no sign-up.',
+    party_body('bingo-card-generator', 'Bingo card generator', 'Printable cards, classic or with your own words.', ['Choose classic 1 to 75 or your own words (at least 24).', 'Choose how many cards (up to 30). Every card is different.', 'Press Make cards, then Print the cards.', 'Use the Bingo caller to call the numbers.'], TOOL_BCARDS,
+    '<p>Classic cards follow the 75-ball rules: column B holds numbers 1 to 15, I 16 to 30, N 31 to 45, G 46 to 60 and O 61 to 75, with a free space in the middle. With your own words, each card takes 24 of your words in a random order.</p><p>Cards are made on your device and printed from your browser. Nothing is sent anywhere.</p>'), PJ2('party-bingo'), 'free')
+PAGES['bingo-caller'] = ('Bingo Caller - Call Bingo Numbers 1 to 75, Free | Dilia Play', 'Call bingo numbers 1 to 75 without repeats, with a board of called numbers and undo. Free, no ads, no sign-up.',
+    party_body('bingo-caller', 'Bingo caller', 'Call the numbers, never the same one twice.', ['Press Call next number or the space bar.', 'The board shows every number called so far.', 'Undo last takes back a number.', 'New game clears the board (press twice).'], TOOL_CALLER,
+    '<p>Each number from 1 to 75 is called at most once, picked fairly from the numbers left. The letter shows which column it belongs to. The game is saved in this browser, so a page reload does not lose it.</p><p>Make matching cards with the bingo card generator.</p>'), PJ2('party-bingo'), 'free')
+PAGES['score-keeper'] = ('Scoreboard - Free Online Score Keeper for Teams | Dilia Play', 'Keep score for up to 12 teams or players. Tap to add or remove points, rank by score and copy the standings. Free, no ads, no sign-up.',
+    party_body('score-keeper', 'Scoreboard', 'Keep score for teams or players.', ['Type a name for each team (up to 12).', 'Pick 1, 2, 5 or 10 points, then tap + or −.', 'Rank by score puts the leader on top.', 'Scores are saved in this browser.'], TOOL_SCORE,
+    '<p>Use the scoreboard for game nights, quizzes, sports days and classrooms. The team in the lead is outlined in gold. Scores and names stay in this browser, so you can close the page and come back.</p>'), PJ2('party-score').replace(PJS, ''), 'free')
+PAGES['quiz-maker'] = ('Quiz Maker - Make and Play a Multiple-Choice Quiz, Free | Dilia Play', 'Write multiple-choice questions, play them on one screen with a score, and save the quiz as a file to share. Free, no ads, no sign-up.',
+    party_body('quiz-maker', 'Quiz maker', 'Write a quiz, play it on one screen.', ['Write questions with up to 4 answers and mark the right one.', 'Press Play the quiz. Tap an answer, or use Show answer as host.', 'Save the quiz as a file and load it later or on another device.', 'Your quiz is kept in this browser while you edit.'], TOOL_QUIZ,
+    '<p>Each question has up to four answers and one right answer. In play mode, tapping an answer shows the right one at once and counts a point if you were right. As a host, press Show answer to reveal it without scoring.</p><p>Save as a file gives you a small file you can send to someone. Loading a file only accepts the quiz format and is checked before it is used. Nothing is sent anywhere.</p>'), PJ2('party-quiz'), 'free')
+PAGES['secret-santa-generator'] = ('Secret Santa Generator - Draw Names on One Device, Free | Dilia Play', 'Draw Secret Santa names on one device: pass it around, everyone sees only their own person. Optional do-not-pair rules. Free, no ads, no sign-up.',
+    party_body('secret-santa-generator', 'Secret Santa generator', 'Draw names on one device, nobody sees the others.', ['Type the names (3 to 50). Optionally add pairs who must not draw each other.', 'Press Make the draw.', 'Pass the device: each person taps their name, sees their person, then hides it.', 'The draw is never saved. Leaving the page clears it.'], TOOL_SANTA,
+    '<p>Nobody draws themselves, and pairs you list under "do not pair" never draw each other. The draw is made fairly among all valid arrangements. Only the names you typed are saved in this browser; the result of the draw lives in memory until you leave the page.</p><p>The organiser can open the full list at the end, which spoils the surprise for the organiser.</p>'), PJ2('party-santa'), 'free')
 for slug, (t, d, body, js, *mode) in PAGES.items():
     dd = ROOT / slug; dd.mkdir(exist_ok=True)
     (dd / 'index.html').write_text(shell(t, d, body, js, mode=(mode[0] if mode else 'daily' if slug == 'daily-path' else '')))

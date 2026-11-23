@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bingo Caller - Call Bingo Numbers 1 to 75, Free | Dilia Play</title>
+<meta name="description" content="Call bingo numbers 1 to 75 without repeats, with a board of called numbers and undo. Free, no ads, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-play" data-mode="free">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Play home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Play</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Press Call next number or the space bar.</li><li>The board shows every number called so far.</li><li>Undo last takes back a number.</li><li>New game clears the board (press twice).</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Bingo caller</b></p>
+    <div class="ghead"><div><h1>Bingo caller</h1><p class="sub">Call the numbers, never the same one twice.</p></div></div>
+    <div id="party" data-pm="caller">
+    <div class="done pt-res on"><p class="eyeb">Last number called</p><div class="pt-big" id="clast" aria-live="polite">–</div><p id="cprev"></p><p class="small" id="ccount"></p></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn go" id="go">Call next number</button><button type="button" class="pbtn" id="cundo">Undo last</button><button type="button" class="pbtn" id="creset">New game</button></div>
+    <div class="pt-cboard" id="cboard" role="group" aria-label="Numbers 1 to 75"></div>
+  </div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More party tools</p><span class="small"><a href="../wheel-spinner/">Wheel spinner</a> · <a href="../random-name-picker/">Random name picker</a> · <a href="../team-maker/">Team maker</a> · <a href="../dice-roller/">Dice roller</a> · <a href="../coin-flip/">Coin flip</a> · <a href="../random-number-generator/">Random number</a> · <a href="../bingo-card-generator/">Bingo cards</a> · <a href="../quiz-maker/">Quiz maker</a> · <a href="../score-keeper/">Scoreboard</a> · <a href="../secret-santa-generator/">Secret Santa</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the bingo caller</h2>
+  <p>Each number from 1 to 75 is called at most once, picked fairly from the numbers left. The letter shows which column it belongs to. The game is saved in this browser, so a page reload does not lose it.</p><p>Make matching cards with the bingo card generator.</p>
+</section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/party-rng.js"></script>
+<script src="../assets/party-bingo.js"></script>
+</body>
+</html>
