@@ -308,3 +308,8 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Dark CSS is GENERATED: `dev/make-dark.py` reads the site CSS and writes assets/dark.css (dark twin under `html[data-theme=dark]`) and assets/play-light.css (Play pages in brand colours when light). Run `python3 dev/make-pages.py` after any CSS change, then commit the output.
 - dev/navpass.py injects dark.css + theme.js into every page. New colours: check them in both themes (QR preview and PDF page "paper" stay white on purpose).
 - Test: dev/tests/test-theme.py (14 page families). Not yet checked: real iPhone/Safari.
+
+## 18. Tools page: "I want to…" (chosen by owner)
+- tools.html has a goals block (`#goals`, built in assets/tools-page.js from the GOALS array): 5 rows (Documents, Photos, QR codes, Text, Numbers and dates), each chip opens the tool directly. Hidden while searching; full library stays below.
+- To add a goal, add `['plain words', 'toolId']` to GOALS. test-theme.py checks every chip link returns 200.
+- Not done: same goals idea on the Home page; mobile header at 390px is tight (logo touches "Tools").

@@ -115,6 +115,8 @@
 :root[data-theme=dark] .chips a:hover{background:#ff008626}
 :root[data-theme=dark] .tile{background:#131b30}
 :root[data-theme=dark] .tile.srv em{background:#131b30}
+:root[data-theme=dark] .grow a:hover,:root[data-theme=dark] .grow a:focus-visible{background:#ff008626}
+:root[data-theme=dark] .grow[data-line=image] a:hover,:root[data-theme=dark] .grow[data-line=image] a:focus-visible{background:#00b1ff26}
 :root[data-theme=dark] .ebar{background:#131b30f2}
 :root[data-theme=dark] .props{background:#131b30}
 :root[data-theme=dark] .props.on{box-shadow:0 8px 16px -12px #00000033}

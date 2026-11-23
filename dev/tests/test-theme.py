@@ -30,6 +30,12 @@ async def main():
                 ok(await th() == 'light', f'{path}: toggle did not return to light')
             ok(not msgs, f'{path}: {msgs[:2]}')
             await ctx.close()
+        pg = await (await br.new_context()).new_page(); await pg.goto(B + 'tools.html'); await pg.wait_for_timeout(400)
+        hs = await pg.eval_on_selector_all('#goals .grow a', 'a => a.map(x => x.href)')
+        ok(len(hs) >= 30, f'goals: only {len(hs)} chips')
+        for h in hs:
+            r = await pg.request.get(h); ok(r.status == 200, f'goal link {h} -> {r.status}')
+        await pg.fill('#q', 'merge'); ok(await pg.is_hidden('#goals'), 'goals stay visible while searching')
         await br.close()
     print(f'{n} checks,', 'FAIL' if fails else 'ok')
     for f in fails: print(' -', f)
