@@ -999,3 +999,4 @@ exec(compile((ROOT / 'dev' / 'make-play.py').read_text(), 'make-play.py', 'exec'
 import importlib.util as _nu
 _s = _nu.spec_from_file_location('navpass', str(ROOT / 'dev' / 'navpass.py')); _n = _nu.module_from_spec(_s); _s.loader.exec_module(_n)
 print('menu updated on', _n.run(), 'pages')
+_sd = _nu.spec_from_file_location('makedark', str(ROOT / 'dev' / 'make-dark.py')); _d = _nu.module_from_spec(_sd); _sd.loader.exec_module(_d); print('dark.css', _d.main(), 'bytes')

@@ -302,3 +302,9 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Light is default; switch in the header (localStorage `dilia-theme`). Dark styling exists ONLY on the home page so far — other pages are still light-only (next job: site-wide dark).
 - Count wording: "150+ tasks" (no "jobs"). Palette now labels calculators "Dilia Calc"/"Dilia Life" (was wrongly "Dilia PDF").
 - Tests: dev/tests/test-home.py now also checks planets, preview, journeys (links, save, reset), theme switch, holiday card (Dubai time zone).
+
+## 17. Light/dark mode (site-wide)
+- Light is the default. Switch (`.themebtn`, made by assets/theme.js) is in the header on every page; choice saved in localStorage `dilia-theme`.
+- Dark CSS is GENERATED: `dev/make-dark.py` reads the site CSS and writes assets/dark.css (dark twin under `html[data-theme=dark]`) and assets/play-light.css (Play pages in brand colours when light). Run `python3 dev/make-pages.py` after any CSS change, then commit the output.
+- dev/navpass.py injects dark.css + theme.js into every page. New colours: check them in both themes (QR preview and PDF page "paper" stay white on purpose).
+- Test: dev/tests/test-theme.py (14 page families). Not yet checked: real iPhone/Safari.

@@ -20,6 +20,7 @@ def shell(title, desc, body, scripts, robots='', mode=''):
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/palette.css">
 <link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
 </head>
 <body class="stage area-play"{(' data-mode="' + mode + '"') if mode else ''}>
 {SPRITE}

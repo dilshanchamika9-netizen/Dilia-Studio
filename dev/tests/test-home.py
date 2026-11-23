@@ -73,9 +73,9 @@ async def main():
                     await pg.click('#jreset'); ok('Tap step 1' in await pg.inner_text('#jdone'), 'journey reset')
                     # Light by default; the switch turns dark and is remembered
                     ok(await pg.evaluate("document.documentElement.dataset.theme") is None, 'not light by default')
-                    await pg.click('#theme'); await pg.reload(); await pg.wait_for_timeout(300)
+                    await pg.click('.themebtn'); await pg.reload(); await pg.wait_for_timeout(300)
                     ok(await pg.evaluate("document.documentElement.dataset.theme") == 'dark', 'dark not remembered')
-                    await pg.click('#theme'); ok(await pg.evaluate("localStorage.getItem('dilia-theme')") == 'light', 'light not saved')
+                    await pg.click('.themebtn'); ok(await pg.evaluate("localStorage.getItem('dilia-theme')") == 'light', 'light not saved')
                     await pg.fill('#q', 'merge'); await pg.wait_for_timeout(200)
                     ok('Merge' in await pg.inner_text('#plist'), 'search: "merge" not found')
                     # drop a PDF on the page: the tool chooser opens with PDF tools

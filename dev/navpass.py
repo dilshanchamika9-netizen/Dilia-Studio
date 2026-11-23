@@ -22,6 +22,10 @@ def run():
         if '<nav class="links" aria-label="Main">' not in s: continue
         p = '../' * (len(rel.parts) - 1)
         t = NAV.sub(lambda m: nav(p), s, count=1)
+        if 'assets/dark.css' not in t:
+            t = re.sub(r'(<link rel="stylesheet" href="[^"]*assets/[a-z\-]+\.css">)(?![\s\S]*<link rel="stylesheet")', lambda m: m.group(1) + f'\n<link rel="stylesheet" href="{p}assets/dark.css">', t, count=1)
+        if 'assets/theme.js' not in t:
+            t = t.replace('</head>', f'<script src="{p}assets/theme.js"></script>\n</head>', 1)
         if t != s: f.write_text(t); n += 1
     return n
 

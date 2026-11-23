@@ -12,17 +12,6 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } } };
 
-  /* ---------- light / dark ---------- */
-  const tb = $('theme');
-  const paintTheme = () => { const d = document.documentElement.dataset.theme === 'dark'; tb.setAttribute('aria-pressed', d ? 'true' : 'false'); tb.setAttribute('aria-label', d ? 'Light mode' : 'Dark mode'); };
-  tb.addEventListener('click', () => {
-    const d = document.documentElement.dataset.theme !== 'dark';
-    if (d) document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
-    try { localStorage.setItem('dilia-theme', d ? 'dark' : 'light'); } catch (e) { /* private mode */ }
-    paintTheme();
-  });
-  paintTheme();
-
   /* ---------- search ---------- */
   DiliaSearch.mount($('q'), $('plist'), 4);
   const tries = $('tries');

@@ -2,16 +2,10 @@
    journeys drawn as constellations, four world cards. Light by default; dark via html[data-theme=dark]. */
 .orbit-home{--w-tools:#e5007d;--w-tools-t:#c2006a;--w-life:#009fe3;--w-life-t:#0079b0;--w-play:#7a5cff;--w-play-t:#5a3ee0;--w-read:#f0a800;--w-read-t:#946500;
   --glass:#ffffffa8;--glass2:#ffffffde;--edge:#ffffffee;--orbit:#7a5cff45;--sh:0 30px 70px -30px #281e7861;background:#f5f6fb}
-html[data-theme=dark]{color-scheme:dark;--bg:#060914;--mist:#0c1222;--ink:#f4f6fb;--text:#cdd3e1;--muted:#9aa3b8;--line:#ffffff1f;--line2:#ffffff2e}
 html[data-theme=dark] .orbit-home{--w-tools-t:#ff5fb0;--w-life-t:#4cc6ff;--w-play-t:#ab98ff;--w-read-t:#ffd54d;--glass:#141c32a8;--glass2:#18203ae0;--edge:#ffffff1f;--orbit:#a08bff59;--sh:0 30px 70px -30px #000000d9;background:#060914}
 
 /* header bits on this page */
 .orbit-home .nav.solid{background:color-mix(in srgb,var(--bg) 88%,transparent)}
-.themebtn{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line2);background:var(--glass2);color:var(--ink);cursor:pointer}
-.themebtn svg{width:20px;height:20px}
-.themebtn .moon,html[data-theme=dark] .themebtn .sun{display:none}
-html[data-theme=dark] .themebtn .moon{display:block}
-.themebtn:focus-visible{outline:2px solid var(--w-tools);outline-offset:2px}
 
 /* hero */
 .ob-hero{position:relative;margin-top:-72px;padding:96px 0 24px;overflow:hidden}
