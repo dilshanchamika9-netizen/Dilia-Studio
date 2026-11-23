@@ -286,3 +286,10 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Word lists for Arabic and Hindi were written by Claude and have NOT been checked by a native speaker.
 - Tests: dev/tests/test-arcade.js (Node: snake rules incl. random play + a bot that fills 4x4 and 6x6, typing score, word lists) and dev/tests/test-arcade.py (browser, both widths). Both in run-gate.sh.
 - Next in the Area 3 build order: step 5 (wheel, dice, teams).
+
+## 15. PDF grouping (23 Nov 2026)
+- Tool merge step 1 done: PDF cards 51 -> 33. Grouping is DATA only: `DILIA_LINES` pdf cats in `assets/tools.js` (third array = "Also:" tools). No engine changed; every old address works as before.
+- Group primaries carry `gname`/`gdesc` (display name in library and menu): Organise pages (reorder), Number and stamp (number), Clean up (cleaner), Print layout (nup), Repair (repair). Clicking a group card opens that primary tool's page, not a merged page.
+- `assets/menu.js` adds an "also" strip after `<main>` on pages of grouped tools (styles `.relgrp` in site.css). Image/QR/Text/Calc were already grouped this way (keyword pages = presets).
+- Still open: real multi-mode merged pages (one engine page with mode switch) — not built; owner to decide. tools.html shows 66 tiles.
+- `dev/__pycache__` is no longer tracked (it made the gate's rebuild check fail).
