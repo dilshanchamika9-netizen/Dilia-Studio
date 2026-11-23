@@ -9,7 +9,7 @@
   const LNAME = { 1: 'Beginner', 2: 'Casual', 3: 'Club', 4: 'Expert' };
   const PNAME = { 1: 'pawn', 2: 'knight', 3: 'bishop', 4: 'rook', 5: 'queen', 6: 'king' };
   const cfg = Object.assign({ mode: 'cpu', level: 2, side: 0, flip: false }, rd(SAVE, {}).cfg || {});
-  let pos, moves = [], sans = [], startFen = C.START, status = 'ongoing', sel = -1, legal = [], last = null, token = 0, thinking = false, worker = null, pend = 0, drag = null, over = false, resultLine = '';
+  let started = false, pos, moves = [], sans = [], startFen = C.START, status = 'ongoing', sel = -1, legal = [], last = null, token = 0, thinking = false, worker = null, pend = 0, drag = null, over = false, resultLine = '';
   const sqEls = [];
   for (let i = 0; i < 64; i++) { const e = document.createElement('div'); e.className = 'sq'; const s = document.createElement('span'); e.append(s); board.append(e); sqEls.push(e); }
   const idx = (r, f) => r * 16 + f;
@@ -38,7 +38,8 @@
     const n = moves.length; $('cmoves').textContent = Math.ceil(n / 2);
     let h = ''; for (let i = 0; i < sans.length; i += 2) h += '<li><span class="mn">' + (i / 2 + 1) + '.</span> <b>' + sans[i] + '</b> <b>' + (sans[i + 1] || '') + '</b></li>';
     const ml = $('clist'); ml.innerHTML = h; ml.scrollTop = ml.scrollHeight;
-    $('cturn').textContent = over ? 'Game over' : thinking ? 'Computer is thinking…' : (pos.side ? 'Black' : 'White') + ' to move' + (pos.inCheck() ? ' · check' : '');
+    const idle = !started && !moves.length && cfg.mode === 'cpu' && !over; $('cstart').hidden = !idle;
+    $('cturn').textContent = idle ? (cfg.side ? 'You play Black. Press Start game and the computer plays first.' : 'You play White. Make your first move, or press Start game.') : over ? 'Game over' : thinking ? 'Computer is thinking…' : (pos.side ? 'Black' : 'White') + ' to move' + (pos.inCheck() ? ' · check' : '');
     $('undo').disabled = !n; $('cside').hidden = cfg.mode !== 'cpu';
     document.querySelectorAll('[data-cm]').forEach(b => b.setAttribute('aria-pressed', String(cfg.mode === b.dataset.cm)));
     document.querySelectorAll('[data-cl]').forEach(b => b.setAttribute('aria-pressed', String(cfg.level === +b.dataset.cl)));
@@ -58,7 +59,7 @@
   }
   function need() { const s = document.createElement('script'); s.src = '../assets/chess-engine.js'; s.onload = () => fallback(); document.head.append(s); }
   function think() {
-    if (over || cfg.mode !== 'cpu' || pos.side === cfg.side) return;
+    if (!started || over || cfg.mode !== 'cpu' || pos.side === cfg.side) return;
     thinking = true; const tk = ++token; pend = tk; render(); startWorker();
     const t0 = Date.now(), job = { fen: startFen, moves, level: cfg.level, tk };
     if (worker) { worker.postMessage(job); worker._tk = tk; worker._t0 = t0; } else fallback();
@@ -72,7 +73,7 @@
 
   function play(u, byCpu) {
     const m = pos.fromUci(u); if (!m) return false;
-    sans.push(pos.san(m)); pos.make(m); moves.push(u); last = [C.nameSq(u.slice(0, 2)), C.nameSq(u.slice(2, 4))]; sel = -1; legal = [];
+    sans.push(pos.san(m)); pos.make(m); moves.push(u); last = [C.nameSq(u.slice(0, 2)), C.nameSq(u.slice(2, 4))]; sel = -1; legal = []; started = true;
     save(); check(); return true;
   }
   function check() {
@@ -135,7 +136,7 @@
   window.addEventListener('pointerup', e => { if (drag && drag.moved) { const sw = ev => { ev.stopPropagation(); ev.preventDefault(); }; window.addEventListener('click', sw, { capture: true, once: true }); setTimeout(() => window.removeEventListener('click', sw, true), 50); } }, true);
 
   function fresh(keepCfg) {
-    token++; thinking = false; over = false; startFen = C.START; load(); last = null; sel = -1; legal = []; status = 'ongoing'; $('done').classList.remove('on'); $('promo').hidden = true; say('');
+    token++; thinking = false; over = false; started = false; startFen = C.START; load(); last = null; sel = -1; legal = []; status = 'ongoing'; $('done').classList.remove('on'); $('promo').hidden = true; say('');
     if (cfg.mode === 'cpu' && cfg.side === 1) cfg.flip = true; else if (cfg.mode === 'cpu') cfg.flip = false;
     if (worker) worker.postMessage({ type: 'new' });
     save(); render(); think();
@@ -145,6 +146,7 @@
     let n = 1; if (cfg.mode === 'cpu') n = pos.side === cfg.side ? 2 : 1;
     let list = moves.slice(0, Math.max(0, moves.length - n)); over = false; replay(list); $('done').classList.remove('on'); say(''); save(); render(); think();
   }
+  $('cstart').addEventListener('click', () => { started = true; render(); think(); });
   $('undo').addEventListener('click', undo);
   $('flip').addEventListener('click', () => { cfg.flip = !cfg.flip; save(); render(); });
   $('newgame').addEventListener('click', () => fresh());
@@ -157,7 +159,7 @@
   document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; if (e.key === 'u' || e.key === 'U') undo(); else if (e.key === 'f' || e.key === 'F') $('flip').click(); });
 
   const sv = rd(SAVE, {});
-  if (Array.isArray(sv.moves) && sv.moves.length) { replay(sv.moves); if (moves.length !== sv.moves.length) { load(); moves = []; sans = []; last = null; } over = pos.status() !== 'ongoing'; status = pos.status(); render(); if (over) finish(); else think(); }
+  if (Array.isArray(sv.moves) && sv.moves.length) { started = true; replay(sv.moves); if (moves.length !== sv.moves.length) { load(); moves = []; sans = []; last = null; } over = pos.status() !== 'ongoing'; status = pos.status(); render(); if (over) finish(); else think(); }
   else fresh();
-  window.DiliaChessGame = { state: () => ({ fen: pos.fen(), moves: moves.slice(), sans: sans.slice(), over, status, thinking, cfg: Object.assign({}, cfg) }), move: u => { if (over || thinking) return false; return play(u, false); }, tap: tapSq, set: o => { Object.assign(cfg, o); fresh(); }, undo, setMoves: list => { replay(list); over = pos.status() !== 'ongoing'; render(); if (over) finish(); else think(); } };
+  window.DiliaChessGame = { state: () => ({ fen: pos.fen(), moves: moves.slice(), sans: sans.slice(), over, status, thinking, cfg: Object.assign({}, cfg) }), move: u => { if (over || thinking) return false; return play(u, false); }, tap: tapSq, set: o => { Object.assign(cfg, o); fresh(); }, undo, start: () => { started = true; render(); think(); }, setMoves: list => { started = true; replay(list); over = pos.status() !== 'ongoing'; render(); if (over) finish(); else think(); } };
 }

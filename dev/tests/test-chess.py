@@ -81,7 +81,7 @@ async def promo(br):
 
 async def computer_white(br):
     ctx, pg, errs = await open_(br, 1280)
-    await pg.click('[data-cs="1"]'); s = await wait_cpu(pg, 1)
+    await pg.click('[data-cs="1"]'); await pg.wait_for_timeout(1200); s0 = await st(pg); ok(len(s0['moves']) == 0, 'computer waits until Start is pressed'); ok(await pg.locator('#cstart').is_visible(), 'Start button visible'); await pg.click('#cstart'); s = await wait_cpu(pg, 1)
     ok(len(s['moves']) == 1 and s['cfg']['side'] == 1, 'computer moves first when you play Black')
     ok(await pg.locator('.chb .sq').first.get_attribute('aria-label') is not None, 'board renders flipped for Black')
     # play a move as black, undo should go back to the computer's first move

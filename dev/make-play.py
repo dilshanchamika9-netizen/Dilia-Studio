@@ -509,7 +509,7 @@ def chess_body():
 <div class="gwrap">
   <div class="gside">
     <div class="gcard"><p class="eyeb">Your record</p><span class="big" id="clvname">Casual</span><span class="small" id="crec">0 won · 0 drawn · 0 lost</span></div>
-    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Tap a piece, then a green mark. Or drag it.</li><li>All rules are in: castling, en passant, promotion, check, stalemate and draws.</li><li>Undo takes back your last move (and the reply). Keys: U undo, F flip board.</li><li>Your game is saved in this browser.</li></ul></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Choose Play White or Play Black, then press Start game (as White you can also just move).</li><li>Tap a piece, then a green mark. Or drag it.</li><li>All rules are in: castling, en passant, promotion, check, stalemate and draws.</li><li>Undo takes back your last move (and the reply). Keys: U undo, F flip board.</li><li>Your game is saved in this browser.</li></ul></div>
   </div>
   <div>
     <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Chess</b></p>
@@ -519,6 +519,7 @@ def chess_body():
       <div class="mlevel" id="cside" role="group" aria-label="Your colour"><button type="button" data-cs="0" aria-pressed="true">Play White</button><button type="button" data-cs="1" aria-pressed="false">Play Black</button></div></div>
     <div class="chbox"><div class="chb" id="chb" role="application" aria-label="Chess board"></div><div class="cpromo" id="promo" hidden></div></div>
     <p class="cturn" id="cturn" aria-live="polite">White to move</p>
+    <div class="gbtns"><button type="button" class="pbtn go" id="cstart" hidden>Start game</button></div>
     <p class="msg" id="msg" role="status" aria-live="polite"></p>
     <div class="gbtns"><button type="button" class="pbtn" id="undo">Undo</button><button type="button" class="pbtn" id="flip">Flip board</button><button type="button" class="pbtn" id="newgame">New game</button></div>
     <div class="done" id="done"><p class="eyeb" id="deyebrow">Game over</p><div class="t" id="dtime"></div><p id="dline"></p>
