@@ -23,6 +23,6 @@ for (const [G, nm] of [[B.CK, 'checkers'], [B.RV, 'reversi'], [B.C4, 'connect4']
   for (const L of [1, 2, 3, 4]) { const s = G.start(); const m = B.think(G, s, L, Math.random); const legal = (G.legal || G.moves).call(G, s); ck(m && legal.some(x => JSON.stringify(x) === JSON.stringify(m)), nm + ' level ' + L + ' legal'); }
   const play = (hi, lo, hiSide) => { let s = G.start(); for (let i = 0; i < 250; i++) { const r = G.result(s); if (r !== null) return r === -1 ? 0.5 : (r === hiSide ? 1 : 0); const m = B.think(G, s, s.side === hiSide ? hi : lo, Math.random); if (!m) break; s = G.apply(s, m); } return 0.5; };
   let sc = 0; for (let g = 0; g < 6; g++) sc += play(3, 1, g & 1); ck(sc >= 4, nm + ' Club beats Beginner ' + sc + '/6');
-  sc = 0; for (let g = 0; g < 4; g++) sc += play(2, 1, g & 1); ck(sc >= 2.5, nm + ' Casual beats Beginner ' + sc + '/4');
+  sc = 0; for (let g = 0; g < 6; g++) sc += play(2, 1, g & 1); ck(sc >= 3.5, nm + ' Casual beats Beginner ' + sc + '/6');
 }
 console.log(bad ? 'BOARD TESTS FAILED' : 'BOARD GAMES OK'); process.exit(bad ? 1 : 0);

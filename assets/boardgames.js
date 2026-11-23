@@ -124,7 +124,7 @@
   }
   const LEVELS = {
     checkers: { 1: { depth: 1, noise: 90, nodes: 5000 }, 2: { depth: 3, noise: 25, nodes: 30000 }, 3: { depth: 7, noise: 0, nodes: 150000 }, 4: { depth: 14, noise: 0, nodes: 600000 } },
-    connect4: { 1: { depth: 2, noise: 6, nodes: 3000 }, 2: { depth: 4, noise: 2, nodes: 20000 }, 3: { depth: 7, noise: 0, nodes: 120000 }, 4: { depth: 12, noise: 0, nodes: 500000 } },
+    connect4: { 1: { depth: 1, noise: 18, nodes: 3000 }, 2: { depth: 4, noise: 4, nodes: 20000 }, 3: { depth: 7, noise: 0, nodes: 120000 }, 4: { depth: 12, noise: 0, nodes: 500000 } },
     reversi: { 1: { depth: 1, noise: 40, nodes: 5000 }, 2: { depth: 2, noise: 12, nodes: 30000 }, 3: { depth: 4, noise: 0, nodes: 40000 }, 4: { depth: 8, noise: 0, nodes: 150000 } }
   };
   function think(G, s, level, rnd) { const L = LEVELS[G.name][level] || LEVELS[G.name][3]; return search(G, s, L.depth, { nodes: L.nodes, noise: L.noise, rnd }); }
