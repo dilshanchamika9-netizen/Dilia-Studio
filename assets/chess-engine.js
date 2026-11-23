@@ -15,7 +15,7 @@
       this.tLo = new Int32Array(TTN); this.tHi = new Int32Array(TTN); this.tMv = new Int32Array(TTN); this.tSc = new Int16Array(TTN); this.tDp = new Int8Array(TTN); this.tFl = new Int8Array(TTN);
       this.moves = []; this.scores = []; for (let i = 0; i < MAXPLY + 4; i++) { this.moves.push(new Int32Array(256)); this.scores.push(new Int32Array(256)); }
       this.killers = new Int32Array((MAXPLY + 4) * 2); this.hist = new Int32Array(2 * 128 * 128); this.pvLen = new Int32Array(MAXPLY + 4); this.pvTab = new Int32Array((MAXPLY + 4) * (MAXPLY + 4));
-      this.nodes = 0; this.stop = false; this.deadline = 0; this.sel = 0;
+      this.nodes = 0; this.maxNodes = Infinity; this.stop = false; this.deadline = 0; this.sel = 0;
     }
     clear() { this.tLo.fill(0); this.tHi.fill(0); this.tMv.fill(0); this.tDp.fill(-1); this.hist.fill(0); this.killers.fill(0); }
     evaluate(pos) {
@@ -88,7 +88,7 @@
       }
     }
     pick(list, sc, n, i) { let bi = i, bs = sc[i]; for (let j = i + 1; j < n; j++) if (sc[j] > bs) { bs = sc[j]; bi = j; } if (bi !== i) { const m = list[i]; list[i] = list[bi]; list[bi] = m; const s = sc[i]; sc[i] = sc[bi]; sc[bi] = s; } return list[i]; }
-    timeUp() { if ((this.nodes & 2047) === 0 && Date.now() >= this.deadline) this.stop = true; return this.stop; }
+    timeUp() { if ((this.nodes & 2047) === 0 && (Date.now() >= this.deadline || this.nodes >= this.maxNodes)) this.stop = true; return this.stop; }
 
     qsearch(pos, alpha, beta, ply, qd) {
       this.nodes++; if (this.timeUp()) return 0;
@@ -172,7 +172,7 @@
     }
     // opts: { ms, depth, noise (centipawns of random error, 0 = none), onInfo }
     go(pos, opts) {
-      opts = opts || {}; const maxD = Math.min(opts.depth || 64, MAXPLY - 4), t0 = Date.now(); this.deadline = t0 + (opts.ms || 1000); this.stop = false; this.nodes = 0; this.killers.fill(0);
+      opts = opts || {}; const maxD = Math.min(opts.depth || 64, MAXPLY - 4), t0 = Date.now(); this.deadline = t0 + (opts.ms || 1000); this.maxNodes = opts.nodes || Infinity; this.stop = false; this.nodes = 0; this.killers.fill(0);
       for (let i = 0; i < this.hist.length; i++) this.hist[i] >>= 1;
       const root = pos.legal(); if (!root.length) return { move: 0, score: 0, depth: 0, nodes: 0 };
       if (root.length === 1 && !opts.noise) return { move: root[0], score: 0, depth: 0, nodes: 0, only: true };
@@ -191,7 +191,7 @@
         const m = this.pvTab[0]; if (m) { best = m; bestScore = s; } prev = s; done = d;
         if (opts.onInfo) opts.onInfo({ depth: d, score: s, nodes: this.nodes, ms: Date.now() - t0, move: best });
         if (Math.abs(s) > MATE - 100 && d >= 6) break;
-        if (Date.now() - t0 > (opts.ms || 1000) * 0.55 && !opts.depth) break;
+        if (!opts.depth && (Date.now() - t0 > (opts.ms || 1000) * 0.55 || this.nodes > this.maxNodes * 0.55)) break;
       }
       return { move: best, score: bestScore, depth: done, nodes: this.nodes };
     }
@@ -208,11 +208,11 @@
     }
   }
   // levels: 1 Beginner, 2 Casual, 3 Club, 4 Expert (strongest)
-  const LEVELS = { 1: { weak: 1, noise: 160, ms: 300 }, 2: { weak: 2, noise: 60, ms: 600 }, 3: { ms: 400, depth: 7 }, 4: { ms: 2000 } };
+  const LEVELS = { 1: { weak: 1, noise: 160, ms: 300 }, 2: { weak: 2, noise: 60, ms: 600 }, 3: { ms: 400, depth: 7 }, 4: { ms: 8000, nodes: +(root.DILIA_CHESS_NODES || 2500000) } };
   function think(eng, pos, level, rnd) {
     const L = LEVELS[level] || LEVELS[3];
     if (L.weak) return eng.goWeak(pos, { depth: L.weak, noise: L.noise, ms: L.ms }, rnd || Math.random);
-    return eng.go(pos, { ms: L.ms, depth: L.depth });
+    return eng.go(pos, { ms: L.ms, depth: L.depth, nodes: L.nodes });
   }
   const API = { Engine, MATE, LEVELS, think };
   root.DiliaChess = Object.assign(root.DiliaChess || {}, API);
