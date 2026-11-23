@@ -38,4 +38,7 @@
   const xr = P.result('mines', KEY);
   $('n-mines').textContent = 'Daily minesweeper #' + no;
   $('s-mines').append(xr ? el('span', 'chip ok', '✓ Cleared in ' + P.fmt(xr.t)) : saved('mines') ? el('span', 'chip on', 'Continue') : el('span', 'chip', 'Play now'));
+  const sr = P.result('solitaire', KEY);
+  $('n-sol').textContent = 'Daily solitaire #' + no;
+  $('s-sol').append(sr ? el('span', 'chip ok', '✓ Won in ' + P.fmt(sr.t)) : saved('solitaire') ? el('span', 'chip on', 'Continue') : el('span', 'chip', 'Play now'));
 }

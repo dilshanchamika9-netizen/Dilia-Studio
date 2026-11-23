@@ -197,3 +197,26 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .mq.f.wrong::before{background:#8e97ad}
 .mq.m::before,.mq.boom::before{content:"";width:46%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8e97ad,#0b1220 70%);box-shadow:0 0 0 2px #0b1220,0 0 10px #ff2d8f88}
 .mq.boom{background:#e5007d}
+
+/* ---- solitaire ---- */
+.sdraw{display:flex;gap:4px;padding:5px;border-radius:999px;background:var(--pc1);border:1px solid var(--pl)}
+.sdraw button{min-height:36px;padding:0 14px;border:0;border-radius:999px;background:none;color:var(--pt);font:650 13.5px/1 var(--font);cursor:pointer}
+.sdraw button[aria-pressed=true]{background:#fff;color:#0b1220}
+.ksol{--cw:80px;--ch:112px;position:relative;width:100%;max-width:760px;min-height:calc(var(--ch) * 3);margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none}
+.ks{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:calc(var(--cw) * .1);border:2px dashed #ffffff22;display:grid;place-items:center;color:#ffffff30;font:800 calc(var(--cw) * .42)/1 var(--font)}
+.ks.stock{border-style:solid;border-color:#ffffff1a;color:transparent;cursor:pointer}
+.ks.stock.empty{color:#a08bff}
+.ks.stock.none{color:#ffffff22;cursor:default}
+.ks.waste{border-color:transparent}
+.kc{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:calc(var(--cw) * .1);background:#fbfbff;color:#0b1220;box-shadow:0 1px 0 #0b122033,0 6px 14px -8px #000c;transition:transform .17s ease;cursor:pointer;will-change:transform}
+.kc.red{color:#e5007d}
+.kc .kr{position:absolute;left:7%;top:5%;font:850 calc(var(--cw) * .26)/1 var(--font);letter-spacing:-.04em;white-space:nowrap}
+.kc .ku{position:absolute;right:8%;bottom:6%;font:400 calc(var(--cw) * .5)/1 system-ui,sans-serif}
+.kc.back{background:linear-gradient(135deg,#e5007d,#7a5cff 55%,#009fe3);color:transparent;cursor:default;box-shadow:inset 0 0 0 3px #ffffff40,0 1px 0 #0b122066}
+.kc.back::after{content:"";position:absolute;inset:14%;border-radius:calc(var(--cw) * .06);border:2px solid #ffffff55;background:repeating-linear-gradient(45deg,#ffffff14 0 4px,transparent 4px 9px)}
+.kc.back .kr,.kc.back .ku{visibility:hidden}
+.kc.drag{transition:none;box-shadow:0 22px 40px -12px #000;cursor:grabbing}
+.kc.no{animation:no .3s}
+@keyframes no{25%{margin-left:-6px}75%{margin-left:6px}}
+.ksol.nomove .kc{transition:none}
+@media (prefers-reduced-motion:reduce){.kc{transition:none}}

@@ -337,7 +337,119 @@
     B.no = dayNo(key); return B;
   }
 
-  const API = { around, mineSolve, makeMines, makeDailyMines, mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
+  // =====================================================================================
+  // SOLITAIRE (Klondike): card c = 0..51, suit = c / 13 | 0 (0 spades, 1 hearts, 2 diamonds, 3 clubs), rank = c % 13 + 1
+  // =====================================================================================
+  const suit = c => (c / 13) | 0, rank = c => (c % 13) + 1, red = c => suit(c) === 1 || suit(c) === 2;
+  function klDeal(seed, draw) {
+    const R = rng(seed), deck = R.shuffle(Array.from({ length: 52 }, (_, i) => i)), tab = [];
+    let k = 0;
+    for (let col = 0; col < 7; col++) { const pile = []; for (let r = 0; r <= col; r++) pile.push({ c: deck[k++], up: r === col }); tab.push(pile); }
+    return { tab, fnd: [0, 0, 0, 0], stock: deck.slice(k).reverse(), waste: [], draw: draw || 1 };
+  }
+  const klCopy = s => ({ tab: s.tab.map(p => p.map(x => ({ c: x.c, up: x.up }))), fnd: s.fnd.slice(), stock: s.stock.slice(), waste: s.waste.slice(), draw: s.draw });
+  const fits = (c, pile) => (pile.length ? (() => { const t = pile[pile.length - 1]; return t.up && red(t.c) !== red(c) && rank(t.c) === rank(c) + 1; })() : rank(c) === 13);
+  const toF = (s, c) => s.fnd[suit(c)] === rank(c) - 1;
+  // is a move allowed? m: {t:'draw'} {t:'wf'} {t:'wt',to} {t:'tf',from} {t:'tt',from,i,to} {t:'ft',s,to}
+  function klLegal(s, m) {
+    const w = s.waste[s.waste.length - 1];
+    switch (m.t) {
+      case 'draw': return s.stock.length > 0 || s.waste.length > 0;
+      case 'wf': return w != null && toF(s, w);
+      case 'wt': return w != null && fits(w, s.tab[m.to]);
+      case 'tf': { const p = s.tab[m.from], t = p[p.length - 1]; return !!t && t.up && toF(s, t.c); }
+      case 'tt': { const p = s.tab[m.from], x = p[m.i]; if (!x || !x.up || m.from === m.to) return false;
+        for (let k = m.i + 1; k < p.length; k++) { const a = p[k - 1].c, b = p[k].c; if (red(a) === red(b) || rank(a) !== rank(b) + 1) return false; }
+        return fits(x.c, s.tab[m.to]); }
+      case 'ft': { const r = s.fnd[m.s]; return r > 0 && fits(m.s * 13 + r - 1, s.tab[m.to]); }
+    }
+    return false;
+  }
+  // apply a legal move; returns the new state and whether a hidden card was turned over
+  function klApply(s0, m) {
+    const s = klCopy(s0); let flip = -1;
+    const turn = col => { const p = s.tab[col], t = p[p.length - 1]; if (t && !t.up) { t.up = true; flip = col; } };
+    if (m.t === 'draw') {
+      if (s.stock.length) { for (let k = 0; k < s.draw && s.stock.length; k++) s.waste.push(s.stock.pop()); }
+      else { s.stock = s.waste.reverse(); s.waste = []; }
+    } else if (m.t === 'wf') { const c = s.waste.pop(); s.fnd[suit(c)]++; }
+    else if (m.t === 'wt') { s.tab[m.to].push({ c: s.waste.pop(), up: true }); }
+    else if (m.t === 'tf') { const c = s.tab[m.from].pop().c; s.fnd[suit(c)]++; turn(m.from); }
+    else if (m.t === 'tt') { const run = s.tab[m.from].splice(m.i); s.tab[m.to].push(...run); turn(m.from); }
+    else if (m.t === 'ft') { const c = m.s * 13 + s.fnd[m.s] - 1; s.fnd[m.s]--; s.tab[m.to].push({ c, up: true }); }
+    return { s, flip };
+  }
+  const klWon = s => s.fnd.every(r => r === 13);
+  // a card can go home without hurting play when both cards of the other colour one rank lower are already home
+  const safeHome = (s, c) => rank(c) <= 2 || (red(c) ? Math.min(s.fnd[0], s.fnd[3]) : Math.min(s.fnd[1], s.fnd[2])) >= rank(c) - 1;
+
+  // Solver for draw-1 deals. With unlimited passes through the stock, every stock card can be reached,
+  // so the stock is treated as an open pool. Piles: [hiddenCount, ...faceUpCards].
+  function klSolve(d, budget) {
+    budget = budget || 60000;
+    const start = { tab: d.tab.map(p => { const up = p.filter(x => x.up).map(x => x.c); return [p.length - up.length, ...up]; }), fnd: d.fnd.slice(), pool: [...d.stock, ...d.waste].sort((a, b) => a - b) };
+    const seen = new Set(); let nodes = 0;
+    const key = st => st.tab.map(p => p.join('.')).sort().join('|') + '/' + st.fnd.join(',') + '/' + st.pool.join('.');
+    const cp = (st, pr, mv) => ({ tab: st.tab.map(p => p.slice()), fnd: st.fnd.slice(), pool: st.pool.slice(), pr: pr || null, mv: mv || null });
+    const path = st => { const out = []; for (let x = st; x && x.mv; x = x.pr) out.push(x.mv); return out.reverse(); };
+    const top = p => (p.length > 1 ? p[p.length - 1] : -1);
+    const fitsP = (c, p) => (p.length > 1 ? red(p[p.length - 1]) !== red(c) && rank(p[p.length - 1]) === rank(c) + 1 : p[0] === 0 && rank(c) === 13);
+    const stack = [start];
+    // hidden cards: we know them from the deal (the solver may look: it only decides whether a deal is winnable)
+    const hidden = d.tab.map(p => p.filter(x => !x.up).map(x => x.c));
+    const turn = (st, f) => { const p = st.tab[f]; if (p.length === 1 && p[0] > 0) { const h = hidden[f][p[0] - 1]; p[0]--; p.push(h); } };
+    while (stack.length) {
+      let st = stack.pop();
+      for (let again = true; again;) { // play safe cards home
+        again = false;
+        for (let f = 0; f < 7 && !again; f++) { const c = top(st.tab[f]); if (c >= 0 && st.fnd[suit(c)] === rank(c) - 1 && safeHome(st, c)) { st = cp(st, st, { t: 'tf', from: f }); st.tab[f].pop(); st.fnd[suit(c)]++; turn(st, f); again = true; } }
+        for (let k = 0; k < st.pool.length && !again; k++) { const c = st.pool[k]; if (st.fnd[suit(c)] === rank(c) - 1 && safeHome(st, c)) { st = cp(st, st, { t: 'pf', c }); st.pool.splice(k, 1); st.fnd[suit(c)]++; again = true; } }
+      }
+      if (st.fnd.every(r => r === 13)) return { won: true, nodes, moves: path(st) };
+      const k = key(st); if (seen.has(k)) continue; seen.add(k);
+      if (++nodes > budget) return { won: false, nodes, cut: true };
+      const next = [];
+      for (let f = 0; f < 7; f++) { const c = top(st.tab[f]); if (c >= 0 && st.fnd[suit(c)] === rank(c) - 1) { const n = cp(st, st, { t: 'tf', from: f }); n.tab[f].pop(); n.fnd[suit(c)]++; turn(n, f); next.push(n); } }
+      for (let f = 0; f < 7; f++) {
+        const p = st.tab[f]; if (p.length < 2) continue;
+        for (let i = 1; i < p.length; i++) for (let t = 0; t < 7; t++) {
+          if (t === f || !fitsP(p[i], st.tab[t])) continue;
+          const whole = i === 1, uncovers = whole && p[0] > 0, empties = whole && p[0] === 0;
+          if (empties && st.tab[t].length === 1) continue;           // king from empty column to empty column
+          if (whole && !uncovers && !empties) continue;
+          if (!whole) { const u = p[i - 1]; if (st.fnd[suit(u)] !== rank(u) - 1) continue; } // split only to send a card home
+          const n = cp(st, st, { t: 'tt', from: f, i: p[0] + i - 1, to: t }); n.tab[t].push(...n.tab[f].splice(i)); turn(n, f); next.push(n);
+        }
+      }
+      for (let j = 0; j < st.pool.length; j++) {
+        const c = st.pool[j];
+        if (st.fnd[suit(c)] === rank(c) - 1) { const n = cp(st, st, { t: 'pf', c }); n.pool.splice(j, 1); n.fnd[suit(c)]++; next.push(n); }
+        for (let t = 0; t < 7; t++) if (fitsP(c, st.tab[t])) { const n = cp(st, st, { t: 'pt', c, to: t }); n.pool.splice(j, 1); n.tab[t].push(c); next.push(n); if (st.tab[t].length === 1) break; }
+      }
+      for (let j = next.length - 1; j >= 0; j--) stack.push(next[j]);
+    }
+    return { won: false, nodes };
+  }
+  // deals that can be won: try seeds in a fixed order until the solver wins one
+  // turn the solver's moves into real moves on the real deal (draw until a stock card is on top of the waste)
+  function klReplay(d, moves) {
+    let s = klCopy(d); const real = [];
+    const doit = m => { if (!klLegal(s, m)) throw new Error('illegal ' + JSON.stringify(m)); s = klApply(s, m).s; real.push(m); };
+    for (const m of moves) {
+      if (m.t === 'pf' || m.t === 'pt') {
+        let g = 0; while (s.waste[s.waste.length - 1] !== m.c) { if (++g > 110) throw new Error('card not in stock'); doit({ t: 'draw' }); }
+        doit(m.t === 'pf' ? { t: 'wf' } : { t: 'wt', to: m.to });
+      } else doit(m);
+    }
+    return { won: klWon(s), real };
+  }
+  function klWinnable(seed, budget) {
+    for (let t = 0; t < 60; t++) { const d = klDeal(seed + (t ? '#' + t : ''), 1); if (klSolve(d, budget).won) { d.tries = t + 1; return d; } }
+    return null;
+  }
+  const klDaily = key => { const d = klWinnable('solitaire:' + key, 6000); d.no = dayNo(key); return d; };
+
+  const API = { klDeal, klLegal, klApply, klWon, klSolve, klReplay, klWinnable, klDaily, klCopy, around, mineSolve, makeMines, makeDailyMines, mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
   root.DiliaPlayGen = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

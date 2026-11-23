@@ -179,6 +179,8 @@ window.DILIA_TOOLS = [
     { id: 'gdmerge', slug: 'daily-merge', name: 'Daily merge', desc: 'One merge game a day, same tiles for everyone.', ready: 1, icon: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM16.5 13v7M13 16.5h7' },
     { id: 'gmines', slug: 'minesweeper', name: 'Minesweeper', desc: 'Beginner to expert, custom sizes, no-guessing mode.', ready: 1, icon: 'M12 5v2M12 17v2M5 12h2M17 12h2M7 7l1.4 1.4M15.6 15.6 17 17M7 17l1.4-1.4M15.6 8.4 17 7M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' },
     { id: 'gdmines', slug: 'daily-minesweeper', name: 'Daily minesweeper', desc: 'One board a day, same for everyone.', ready: 1, icon: 'M4 4h16v16H4zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' },
+    { id: 'gsol', slug: 'solitaire', name: 'Solitaire', desc: 'Klondike, draw 1 or 3, winnable deals, undo.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
+    { id: 'gdsol', slug: 'daily-solitaire', name: 'Daily solitaire', desc: 'One winnable deal a day, same for everyone.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM9 12h4M11 10v4' },
     { id: 'gsudoku', slug: 'daily-sudoku', name: 'Daily sudoku', desc: 'Easy, medium and hard boards. New every day.', ready: 1, icon: 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16' }
   ]]
 ];

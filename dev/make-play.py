@@ -56,6 +56,8 @@ ART_MERGE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-f
 
 ART_MINES = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" font-size="26" text-anchor="middle">' + ''.join(f'<rect x="{18 + c * 39}" y="{18 + r * 39}" width="35" height="35" rx="8" fill="{"#111a2c" if (r, c) in ((0, 0), (0, 1), (1, 0), (1, 1), (2, 0)) else "#3a4466"}"/>' for r in range(3) for c in range(3)) + '<text x="74" y="46" fill="#3fc3ff">1</text><text x="74" y="85" fill="#34d399">2</text><text x="35" y="124" fill="#3fc3ff">1</text><circle cx="113" cy="113" r="9" fill="#0b1220" stroke="#ff2d8f" stroke-width="2"/></g></svg>'
 
+ART_SOL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850"><rect x="26" y="30" width="62" height="86" rx="9" fill="#fbfbff" transform="rotate(-10 57 73)"/><text x="34" y="58" font-size="20" fill="#0b1220" transform="rotate(-10 57 73)">K♠</text><rect x="62" y="26" width="62" height="86" rx="9" fill="#fbfbff" transform="rotate(9 93 69)"/><text x="70" y="54" font-size="20" fill="#e5007d" transform="rotate(9 93 69)">A♥</text></g></svg>'
+
 # ---------------- hub ----------------
 HUB = f'''<section class="phero"><div class="wrap">
   <p class="crumbp"><a href="../">Dilia</a> › <b>Play</b></p>
@@ -71,6 +73,7 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../daily-sudoku/" id="c-sudoku">{ART_SUD}<span class="no" id="n-sudoku">Daily sudoku</span><b>Daily sudoku</b><p>Three boards a day: easy, medium and hard.</p><span class="st" id="s-sudoku"></span></a>
     <a class="daily" href="../daily-merge/" id="c-merge">{ART_MERGE}<span class="no" id="n-merge">Daily merge</span><b>Daily merge</b><p>Slide and join tiles. Same new tiles for everyone today.</p><span class="st" id="s-merge"></span></a>
     <a class="daily" href="../daily-minesweeper/" id="c-mines">{ART_MINES}<span class="no" id="n-mines">Daily minesweeper</span><b>Daily minesweeper</b><p>One 16 × 16 board, solvable by logic, the same for everyone.</p><span class="st" id="s-mines"></span></a>
+    <a class="daily" href="../daily-solitaire/" id="c-sol">{ART_SOL}<span class="no" id="n-sol">Daily solitaire</span><b>Daily solitaire</b><p>One winnable Klondike deal, the same for everyone.</p><span class="st" id="s-sol"></span></a>
   </div>
   <div class="pstrip">
     <div class="gcard"><p class="eyeb">Streak</p><span class="big" id="hstreak">0</span><span class="small" id="hstreak2">Solve any daily to start a streak.</span></div>
@@ -85,15 +88,16 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../path-puzzle/" id="c-levels">{ART_PATH}<span class="no" id="n-levels">Levels</span><b>Path puzzle</b><p>Endless levels, from 5 × 5 up to 8 × 8. Your next level is saved.</p><span class="st" id="s-levels"></span></a>
     <a class="daily" href="../merge/">{ART_MERGE}<span class="no">Free play</span><b>Merge</b><p>Reach 2048 on a 4 × 4, 5 × 5 or 6 × 6 board. Undo any time.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../minesweeper/">{ART_MINES}<span class="no">Free play</span><b>Minesweeper</b><p>Beginner to expert, custom sizes and a no-guessing mode.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../solitaire/">{ART_SOL}<span class="no">Free play</span><b>Solitaire</b><p>Klondike, draw 1 or 3, winnable deals and unlimited undo.</p><span class="st"><span class="chip">Play</span></span></a>
   </div>
 </section>
 
 <section class="wrap psec" aria-labelledby="h-soon">
   <h2 id="h-soon">Coming next</h2>
   <div class="pgrid">
-    <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily solitaire deal</li><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Solitaire, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Spider, FreeCell, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Snake</li><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Typing test</li><li>Reaction time</li><li>Memory games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Wheel spinner</li><li>Dice, coin, team maker</li><li>Secret Santa draw</li></ul></div>
@@ -270,6 +274,48 @@ def mines_body(daily):
 </div>"""
 PAGES['minesweeper'] = ('Minesweeper - Free, No Guessing Mode | Dilia Play', 'Classic minesweeper: beginner, intermediate, expert and custom boards. No guessing mode, flags by long-press. Free, no ads, no sign-up.', mines_body(False), GAME_JS + '<script src="../assets/mines-game.js"></script>', 'free')
 PAGES['daily-minesweeper'] = ('Daily Minesweeper - Same Board for Everyone | Dilia Play', 'One minesweeper board a day, the same for everyone and solvable by logic. Race the clock and share your time. Free, no ads, no sign-up.', mines_body(True), GAME_JS + '<script src="../assets/mines-game.js"></script>', 'daily')
+
+# ---------------- solitaire (free + daily) ----------------
+def sol_body(daily):
+    title = 'Daily solitaire' if daily else 'Solitaire'
+    sub = 'Klondike, draw 1 · a winnable deal, the same for everyone today' if daily else 'Klondike · drag, or tap a card to move it'
+    tools = '' if daily else '<div class="mtools"><div class="sdraw" role="group" aria-label="Draw"><button type="button" data-d="1" aria-pressed="true">Draw 1</button><button type="button" data-d="3" aria-pressed="false">Draw 3</button></div><button type="button" class="pbtn" id="winnable" aria-pressed="true">Winnable deals</button></div>'
+    btns = '<button type="button" class="pbtn" id="undo">Undo</button><button type="button" class="pbtn go" id="finish" hidden>Finish</button>' + ('' if daily else '<button type="button" class="pbtn" id="newgame">New deal</button>')
+    dbtn = ('<a class="pbtn" href="../solitaire/">Free play</a><a class="pbtn" href="../play/">All of Play</a>' if daily else '<button type="button" class="pbtn" id="dagain">New deal</button><a class="pbtn" href="../daily-solitaire/">Daily deal</a>')
+    side1 = ('<div class="gcard"><p class="eyeb">Today</p><span class="big" id="sno">#1</span><span class="small" id="sdate"></span></div><div class="gcard"><p class="eyeb">Streak</p><span class="big" id="streak">0</span><span class="small">Best daily time <b id="sbest">–</b></span></div>'
+             if daily else '<div class="gcard"><p class="eyeb">Best time · draw <span id="sdraw">1</span></p><span class="big" id="sbest">–</span><span class="small">Games won: <b id="swins">0</b></span></div>')
+    howto = ('<li>Build four home piles from Ace to King, one per suit.</li><li>In the columns, put a card on one rank higher of the other colour. Only a King goes on an empty column.</li><li>Tap the deck to turn cards. Tap a card to send it to the best place, or drag it.</li><li>Keys: D turns a card, U or Ctrl+Z undoes.</li>'
+             + ('<li>Today\'s deal is the same for everyone and can be won.</li>' if daily else '<li>Winnable deals (draw 1): every deal can be won.</li>'))
+    about = ('<p>One new Klondike deal every day at midnight where you are, the same for everyone. Every daily deal has been checked by a solver and can be won. Draw one card at a time, with as many passes through the deck as you like.</p>' if daily else
+             '<p>Classic Klondike solitaire with draw 1 or draw 3 and unlimited passes through the deck. With Winnable deals on, every draw-1 deal has been checked by a solver before you see it. Undo as much as you like; when all cards are face up, Finish sends them home.</p>')
+    return f"""<div class="wrap">
+<div class="gwrap one">
+  <div class="gside">
+    {side1}
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small">{howto}</ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>{title}</b></p>
+    <div class="ghead"><div><h1>{title}</h1><p class="sub">{sub}</p></div><div class="meter"><div><small>TIME</small><b id="stime">0:00</b></div><div><small>MOVES</small><b id="smoves">0</b></div></div></div>
+    {tools}
+    <div class="gbox"><div class="ksol" id="sol" role="application" aria-label="Solitaire table"></div></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns">{btns}</div>
+    <div class="done" id="done"><p class="eyeb">Won</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button>{dbtn}</div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../{'solitaire' if daily else 'daily-solitaire'}/">{'Solitaire free play' if daily else 'Daily solitaire'}</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About {title.lower()}</h2>
+  {about}
+  <p>Your game and times stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+PAGES['solitaire'] = ('Solitaire - Free Klondike, Winnable Deals | Dilia Play', 'Free Klondike solitaire: draw 1 or draw 3, winnable deals, unlimited undo, tap or drag. No ads, no sign-up.', sol_body(False), GAME_JS + '<script src="../assets/solitaire-game.js"></script>', 'free')
+PAGES['daily-solitaire'] = ('Daily Solitaire - Same Winnable Deal for Everyone | Dilia Play', 'One Klondike solitaire deal a day, the same for everyone and checked to be winnable. Free, no ads, no sign-up.', sol_body(True), GAME_JS + '<script src="../assets/solitaire-game.js"></script>', 'daily')
 for slug, (t, d, body, js, *mode) in PAGES.items():
     dd = ROOT / slug; dd.mkdir(exist_ok=True)
     (dd / 'index.html').write_text(shell(t, d, body, js, mode=(mode[0] if mode else 'daily' if slug == 'daily-path' else '')))

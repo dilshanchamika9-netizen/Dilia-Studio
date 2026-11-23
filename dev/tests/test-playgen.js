@@ -41,6 +41,14 @@ for (const [w, h, n] of [[9, 9, 10], [16, 16, 40], [30, 16, 99], [16, 30, 99]]) 
   const st = (k * 37) % (w * h), t = Date.now(), M = G.makeMines('t' + k, w, h, n, st, true, 3000); slow = Math.max(slow, Date.now() - t);
   if (!M || !G.mineSolve(w, h, M.mine, st) || M.mine.filter(Boolean).length !== n || M.mine[st]) bad.push('free ' + w + 'x' + h + ' #' + k);
 }
+// solitaire: 120 daily deals are winnable, and the solver's own line wins with the real rules
+for (let i = 0; i < 120; i++) {
+  const key = new Date(d0 + i * 864e5).toISOString().slice(0, 10), t = Date.now(), D = G.klDaily(key); slow = Math.max(slow, Date.now() - t);
+  if (!D) { bad.push(key + ' no winnable deal'); continue; }
+  const r = G.klSolve(D, 6000); if (!r.won) { bad.push(key + ' daily deal not solved again'); continue; }
+  try { if (!G.klReplay(D, r.moves).won) bad.push(key + ' solver line does not win'); } catch (e) { bad.push(key + ' ' + e.message); }
+  if (JSON.stringify(G.klDaily(key)) !== JSON.stringify(D)) bad.push(key + ' daily deal not repeatable');
+}
 if (slow > 1500) bad.push('slowest board took ' + slow + ' ms');
-console.log(DAYS + ' days and 100 levels checked, slowest board ' + slow + ' ms, ' + bad.length + ' problems'); bad.slice(0, 10).forEach(b => console.log('  ' + b));
+console.log(DAYS + ' days, 100 levels, mines and 120 solitaire deals checked, slowest board ' + slow + ' ms, ' + bad.length + ' problems'); bad.slice(0, 10).forEach(b => console.log('  ' + b));
 process.exit(bad.length ? 1 : 0);

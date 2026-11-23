@@ -290,6 +290,81 @@ async def mines_tests(br, w):
     await pg.fill('#cm', '999'); await pg.click('#capply'); ok((await st())['n'] == 24, f'[{w}] custom mines not capped at 30%')
     await ctx.close(); ok(not errs, f'[{w}] mines errors {errs[:3]}')
 
+async def sol_tests(br, w):
+    errs = []; ctx, pg = await page(br, w, datetime.datetime.fromisoformat('2026-11-23T09:00:00'), errs)
+    st = lambda: pg.evaluate('DiliaSol.state()')
+    card = lambda c: pg.locator(f'#sol .kc[data-c="{c}"]')
+    # ---- daily: same deal as Node; tap, drag, undo, resume; the solver's own moves win it ----
+    await pg.goto(B + 'daily-solitaire/'); await pg.wait_for_timeout(400)
+    deal = await pg.evaluate('DiliaSolDeal'); ref = node('G.klDaily("2026-11-23")')
+    ok(deal['tab'] == ref['tab'] and deal['stock'] == ref['stock'], f'[{w}] daily deal differs from Node')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on solitaire')
+    S0 = await st(); await pg.click('.ks.stock', force=True); await pg.wait_for_timeout(250); S1 = await st()
+    ok(len(S1['S']['waste']) == 1 and S1['moves'] == 1, f'[{w}] tap deck did not draw')
+    await pg.click('#undo'); await pg.wait_for_timeout(200); ok((await st())['S'] == S0['S'], f'[{w}] undo after draw')
+    # tap a tableau card that has a legal move -> it moves
+    tapped = await pg.evaluate("""() => { const G = DiliaPlayGen, s = DiliaSol.state().S; for (let f = 0; f < 7; f++) { const p = s.tab[f], i = p.findIndex(q => q.up); if (i === p.length - 1 && G.klLegal(s, { t: 'tf', from: f })) continue; for (let t = 0; t < 7; t++) if (t !== f && G.klLegal(s, { t: 'tt', from: f, i, to: t })) return { c: p[i].c, f, t }; } return null; }""")
+    if tapped:
+        await card(tapped['c']).click(); await pg.wait_for_timeout(250); s = (await st())['S']
+        ok(any(q['c'] == tapped['c'] for q in s['tab'][tapped['t']]), f'[{w}] tap did not move card {tapped}')
+        await pg.click('#undo'); await pg.wait_for_timeout(250)
+        # drag the same card onto its target column
+        a = await card(tapped['c']).bounding_box(); tgt = (await st())['S']['tab'][tapped['t']][-1]['c']; b = await card(tgt).bounding_box()
+        await pg.mouse.move(a['x'] + a['width'] / 2, a['y'] + 8); await pg.mouse.down()
+        await pg.mouse.move(b['x'] + b['width'] / 2, b['y'] + b['height'] * 0.6, steps=8); await pg.mouse.up(); await pg.wait_for_timeout(300)
+        s = (await st())['S']; ok(any(q['c'] == tapped['c'] for q in s['tab'][tapped['t']]), f'[{w}] drag did not move card')
+        await pg.click('#undo'); await pg.wait_for_timeout(250)
+    # an illegal drop puts the card back
+    S2 = await st(); top0 = S2['S']['tab'][0][-1]['c']; a = await card(top0).bounding_box()
+    await pg.mouse.move(a['x'] + a['width'] / 2, a['y'] + 8); await pg.mouse.down(); await pg.mouse.move(a['x'] + a['width'] * 4.5, a['y'] + 60, steps=6); await pg.mouse.up(); await pg.wait_for_timeout(300)
+    S3 = await st(); ok(S3['S'] == S2['S'] or S3['moves'] == S2['moves'] + 1, f'[{w}] illegal drop changed the game')
+    # play the solver's moves (turned into real moves) halfway, reload, then finish
+    real = await pg.evaluate("() => { const G = DiliaPlayGen, d = DiliaSolDeal; const s = G.klSolve(d, 6000); return G.klReplay(d, s.moves).real; }")
+    await pg.evaluate("() => { while (DiliaSol.state().moves) { const u = document.getElementById('undo'); if (u.disabled) break; u.click(); } }")
+    S0b = await st(); ok(S0b['S'] == S0['S'], f'[{w}] could not return to start')
+    half = len(real) // 2
+    await pg.evaluate(f"(ms) => {{ for (const m of ms) DiliaSol.move(m); }}", real[:half]); await pg.wait_for_timeout(200)
+    mid = await st(); await pg.reload(); await pg.wait_for_timeout(400)
+    ok((await st())['S'] == mid['S'] and (await st())['moves'] == mid['moves'], f'[{w}] daily solitaire not resumed')
+    await pg.evaluate(f"(ms) => {{ for (const m of ms) if (!DiliaSol.state().done) DiliaSol.move(m); }}", real[half:]); await pg.wait_for_timeout(1500)
+    ok(await pg.is_visible('#done') and (await st())['done'], f'[{w}] solver line did not win the daily deal')
+    rec = await pg.evaluate("JSON.parse(localStorage.getItem('dilia-play-v1')).days['2026-11-23'].solitaire")
+    ok(rec and rec['mv'] >= 52, f'[{w}] daily solitaire result {rec}')
+    await pg.reload(); await pg.wait_for_timeout(400); ok(await pg.is_visible('#done'), f'[{w}] won daily not shown after reload')
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(300); ok('Won in' in await pg.inner_text('#s-sol'), f'[{w}] hub solitaire status')
+    # ---- free: draw 3, winnable switch, finish button ----
+    await pg.goto(B + 'solitaire/'); await pg.wait_for_timeout(400)
+    await pg.click('.sdraw button[data-d="3"]'); await pg.wait_for_timeout(300)
+    ok(await pg.is_disabled('#winnable') and (await st())['S']['draw'] == 3, f'[{w}] draw 3 setting')
+    await pg.click('.ks.stock', force=True); await pg.wait_for_timeout(250); ok(len((await st())['S']['waste']) == 3, f'[{w}] draw 3 did not turn 3 cards')
+    await pg.click('.sdraw button[data-d="1"]'); await pg.wait_for_timeout(300)
+    ok(not await pg.is_disabled('#winnable') and (await st())['S']['draw'] == 1, f'[{w}] draw 1 setting')
+    ok(await pg.evaluate("(() => { const G = DiliaPlayGen, s = DiliaSol.state().S; return G.klSolve({ tab: s.tab, fnd: s.fnd, stock: s.stock, waste: s.waste }, 60000).won; })()"), f'[{w}] winnable free deal could not be won')
+    # fixed position: K♠ | Q♥ | J♠ -> a tap puts Q♥ on K♠, a drag puts J♠ on Q♥, an illegal drag snaps back
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(200)
+    await pg.evaluate("""() => { const tab = [[{ c: 12, up: true }], [{ c: 24, up: true }], [{ c: 10, up: true }], [], [], [], []], used = new Set([12, 24, 10]);
+      localStorage.setItem('dilia-sol-free', JSON.stringify({ S: { tab, fnd: [0, 0, 0, 0], stock: [...Array(52).keys()].filter(c => !used.has(c)), waste: [], draw: 1 }, moves: 0, t: 0 })); }""")
+    await pg.goto(B + 'solitaire/'); await pg.wait_for_timeout(400)
+    await card(24).click(); await pg.wait_for_timeout(300)
+    ok([q['c'] for q in (await st())['S']['tab'][0]] == [12, 24], f'[{w}] tap did not put Q♥ on K♠')
+    a = await card(10).bounding_box(); b = await card(24).bounding_box()
+    await pg.mouse.move(a['x'] + a['width'] / 2, a['y'] + 8); await pg.mouse.down(); await pg.mouse.move(b['x'] + b['width'] / 2, b['y'] + b['height'] * 0.6, steps=8); await pg.mouse.up(); await pg.wait_for_timeout(300)
+    ok([q['c'] for q in (await st())['S']['tab'][0]] == [12, 24, 10], f'[{w}] drag did not put J♠ on Q♥')
+    a = await card(10).bounding_box(); before = await st()
+    await pg.mouse.move(a['x'] + a['width'] / 2, a['y'] + 8); await pg.mouse.down(); await pg.mouse.move(a['x'] + a['width'] * 5, a['y'] + 20, steps=6); await pg.mouse.up(); await pg.wait_for_timeout(300)
+    ok((await st())['S']['tab'][0] == before['S']['tab'][0] and (await st())['S']['tab'][5] == [], f'[{w}] illegal drag changed the game')
+    await pg.click('#undo'); await pg.wait_for_timeout(150); await pg.click('#undo'); await pg.wait_for_timeout(150)
+    ok([q['c'] for q in (await st())['S']['tab'][0]] == [12] and (await st())['moves'] == 0, f'[{w}] undo of tap and drag')
+    # nearly won position: every card face up -> Finish sends them home
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(200)
+    await pg.evaluate("""() => { const tab = [[], [], [], [], [], [], []]; for (let s = 0; s < 4; s++) for (let r = 13; r >= 10; r--) tab[s].push({ c: s * 13 + r - 1, up: true });
+      localStorage.setItem('dilia-sol-free', JSON.stringify({ S: { tab, fnd: [9, 9, 9, 9], stock: [], waste: [], draw: 1 }, moves: 80, t: 100 })); }""")
+    await pg.goto(B + 'solitaire/'); await pg.wait_for_timeout(400)
+    ok(await pg.is_visible('#finish'), f'[{w}] Finish button not shown')
+    await pg.click('#finish'); await pg.wait_for_timeout(1800)
+    ok((await st())['done'] and await pg.is_visible('#done') and await pg.inner_text('#sbest') != '–', f'[{w}] finish did not win')
+    await ctx.close(); ok(not errs, f'[{w}] solitaire errors {errs[:3]}')
+
 async def sudoku_tests(br, w, when, key):
     errs = []; ctx, pg = await page(br, w, when, errs)
     await pg.goto(B + 'daily-sudoku/'); await pg.wait_for_timeout(300)
@@ -361,6 +436,7 @@ async def main():
         for when in ('2026-11-23T09:00:00', '2026-11-24T09:00:00', '2026-11-26T09:00:00', '2026-11-29T09:00:00'):
             await order_rule(br, datetime.datetime.fromisoformat(when), when[:10])
         await early_end(br)
+        await sol_tests(br, 1280); await sol_tests(br, 390)
         await mines_tests(br, 1280); await mines_tests(br, 390)
         await merge_tests(br, 1280); await merge_tests(br, 390)
         await levels_tests(br, 1280); await levels_tests(br, 390)
