@@ -354,3 +354,14 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .kc.sel{outline:3px solid #ffc83a;outline-offset:1px;box-shadow:0 0 0 6px #ffc83a55,0 6px 14px -8px #000c}
 .kc.lock{filter:brightness(.82)}
 .kc[hidden]{display:none}
+
+/* Mahjong tiles */
+.mj{position:absolute;left:0;top:0;width:var(--tw);height:var(--th);border-radius:calc(var(--tw) * .16);background:#fbfbff;color:#0b1220;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;box-shadow:calc(var(--tw) * .07) calc(var(--tw) * .07) 0 #9aa3c4,0 6px 12px -8px #000c;font-family:var(--font);line-height:1;user-select:none;-webkit-user-select:none}
+.mj b{font:850 calc(var(--tw) * .5)/1 var(--font)}
+.mj i{font:400 calc(var(--tw) * .3)/1 system-ui,sans-serif;font-style:normal}
+.mj.d b,.mj.d i{color:#1d4ed8}.mj.b b,.mj.b i{color:#0f8a4f}.mj.c b,.mj.c i{color:#d6006f}
+.mj.w b{color:#0b1220}.mj.r0 b{color:#d6006f}.mj.r1 b{color:#0f8a4f}.mj.r2 b{color:#1d4ed8}.mj.fl b{color:#d6006f}.mj.se b{color:#1d4ed8}
+.mj.lock{background:#d6daec}
+.mj.sel{outline:3px solid #ffc83a;outline-offset:0}
+.mj.hint{outline:3px solid #3fc3ff;outline-offset:0}
+.mj.no{animation:no .3s}

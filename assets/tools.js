@@ -184,6 +184,8 @@ window.DILIA_TOOLS = [
     { id: 'gfreecell', slug: 'freecell', name: 'FreeCell', desc: 'Classic deal numbers, every deal winnable.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gpyramid', slug: 'pyramid', name: 'Pyramid', desc: 'Remove pairs that add up to 13.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gtripeaks', slug: 'tripeaks', name: 'TriPeaks', desc: 'Clear three peaks, one rank up or down.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
+    { id: 'gspider', slug: 'spider', name: 'Spider', desc: 'Spider solitaire with 1, 2 or 4 suits.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
+    { id: 'gmahjong', slug: 'mahjong', name: 'Mahjong', desc: 'Turtle layout, every deal clearable.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gsnake', slug: 'snake', name: 'Snake', desc: 'Classic and modern snake. Keyboard or swipe.', ready: 1, icon: 'M4 18h6V12h6V6h4M20 6h.01' },
     { id: 'gtyping', slug: 'typing-test', name: 'Typing test', desc: '15, 30 or 60 seconds in 5 languages. Speed and accuracy.', ready: 1, icon: 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8' },
     { id: 'greaction', slug: 'reaction-time', name: 'Reaction time', desc: 'Wait for green, then tap. Your speed in milliseconds.', ready: 1, icon: 'M13 2 4 14h7l-1 8 9-12h-7z' },

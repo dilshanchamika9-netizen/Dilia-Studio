@@ -229,9 +229,105 @@
     return null;
   }
 
+
+  // =====================================================================================
+  // SPIDER. Two packs (104 cards), 10 columns, 1, 2 or 4 suits. Card c = 0..103: rank = c % 13 + 1, pack group g = c / 13 | 0.
+  // Build down in rank on any card; only a run of one suit moves together. A full King-to-Ace run of one suit leaves the table.
+  // state: { tab: 10 piles of { c, up }, stock: [50 cards, last = next], home: [completed runs, 13 cards each], suits }
+  // move: { t:'mv', from, i, to } (move the cards from index i of column from onto column to) or { t:'deal' }
+  // =====================================================================================
+  const spSuit = (S, c) => { const g = (c / 13) | 0; return S.suits === 1 ? 0 : g % S.suits; };
+  const spRank = c => (c % 13) + 1;
+  function spDeal(seed, suits) {
+    const d = rng(seed).shuffle(Array.from({ length: 104 }, (_, i) => i)), tab = []; let k = 0;
+    for (let col = 0; col < 10; col++) { const n = col < 4 ? 6 : 5, p = []; for (let r = 0; r < n; r++) p.push({ c: d[k++], up: r === n - 1 }); tab.push(p); }
+    return { tab, stock: d.slice(k), home: [], suits };
+  }
+  const spCopy = s => ({ tab: s.tab.map(p => p.map(x => ({ c: x.c, up: x.up }))), stock: s.stock.slice(), home: s.home.map(h => h.slice()), suits: s.suits });
+  const spWon = s => s.home.length === 8;
+  const spRunOk = (s, p, i) => { if (i < 0 || i >= p.length || !p[i].up) return false; for (let k = i + 1; k < p.length; k++) if (!p[k].up || spSuit(s, p[k].c) !== spSuit(s, p[k - 1].c) || spRank(p[k].c) !== spRank(p[k - 1].c) - 1) return false; return true; };
+  function spLegal(s, m) {
+    if (m.t === 'deal') return s.stock.length >= 10 && s.tab.every(p => p.length > 0);
+    if (m.t !== 'mv' || m.from === m.to) return false;
+    const p = s.tab[m.from], d = s.tab[m.to]; if (!p || !d || !spRunOk(s, p, m.i)) return false;
+    return !d.length || (d[d.length - 1].up && spRank(d[d.length - 1].c) === spRank(p[m.i].c) + 1);
+  }
+  function spClear(s, col) {
+    const p = s.tab[col]; if (p.length < 13) return false;
+    const n = p.length, su = spSuit(s, p[n - 1].c);
+    for (let k = 0; k < 13; k++) { const x = p[n - 1 - k]; if (!x.up || spRank(x.c) !== k + 1 || spSuit(s, x.c) !== su) return false; }
+    s.home.push(p.splice(n - 13).map(x => x.c)); if (p.length) p[p.length - 1].up = true; return true;
+  }
+  function spApply(s0, m) {
+    const s = spCopy(s0);
+    if (m.t === 'deal') { for (let col = 0; col < 10; col++) s.tab[col].push({ c: s.stock.pop(), up: true }); for (let col = 0; col < 10; col++) spClear(s, col); return s; }
+    const run = s.tab[m.from].splice(m.i); s.tab[m.to].push(...run);
+    const f = s.tab[m.from]; if (f.length) f[f.length - 1].up = true;
+    spClear(s, m.to); return s;
+  }
+  // every legal card move (one per source card, to each target)
+  function spMoves(s) {
+    const out = [];
+    for (let f = 0; f < 10; f++) { const p = s.tab[f]; for (let i = 0; i < p.length; i++) if (spRunOk(s, p, i)) for (let t = 0; t < 10; t++) { const m = { t: 'mv', from: f, i, to: t }; if (spLegal(s, m)) out.push(m); } }
+    return out;
+  }
+
+  // =====================================================================================
+  // MAHJONG SOLITAIRE ("turtle" layout, 144 tiles). Take away two free tiles with the same face. A tile is free when nothing lies
+  // on top of it and its left side or its right side is open. Deals are built backwards, so every deal can be cleared.
+  // Positions are in half-tile units: a tile covers x..x+2 and y..y+2. state: { face: 144 faces (-1 = gone) }
+  // Faces 0-8 dots, 9-17 bamboo, 18-26 characters, 27-30 winds, 31-33 dragons, 34 flowers, 35 seasons (4 of each face).
+  // move: { a, b } two tile numbers
+  // =====================================================================================
+  const MJ = [];
+  const mjRow = (z, y, x0, x1) => { for (let x = x0; x <= x1; x += 2) MJ.push({ x, y, z }); };
+  mjRow(0, 0, 2, 24); mjRow(0, 2, 6, 20); mjRow(0, 4, 4, 22); mjRow(0, 6, 2, 24); MJ.push({ x: 0, y: 7, z: 0 }, { x: 26, y: 7, z: 0 }, { x: 28, y: 7, z: 0 });
+  mjRow(0, 8, 2, 24); mjRow(0, 10, 4, 22); mjRow(0, 12, 6, 20); mjRow(0, 14, 2, 24);
+  for (let y = 2; y <= 12; y += 2) mjRow(1, y, 8, 18);
+  for (let y = 4; y <= 10; y += 2) mjRow(2, y, 10, 16);
+  mjRow(3, 6, 12, 14); mjRow(3, 8, 12, 14); MJ.push({ x: 13, y: 7, z: 4 });
+  const MJ_BLOCK = MJ.map((a, i) => MJ.map((b, j) => ({ b, j })).filter(o => o.b.z > a.z && Math.abs(o.b.x - a.x) < 2 && Math.abs(o.b.y - a.y) < 2).map(o => o.j));
+  const MJ_LEFT = MJ.map((a, i) => MJ.map((b, j) => ({ b, j })).filter(o => o.b.z === a.z && o.b.x === a.x - 2 && Math.abs(o.b.y - a.y) < 2).map(o => o.j));
+  const MJ_RIGHT = MJ.map((a, i) => MJ.map((b, j) => ({ b, j })).filter(o => o.b.z === a.z && o.b.x === a.x + 2 && Math.abs(o.b.y - a.y) < 2).map(o => o.j));
+  const mjCopy = s => ({ face: s.face.slice() });
+  const mjWon = s => s.face.every(f => f < 0);
+  const mjFree = (s, i) => s.face[i] >= 0 && MJ_BLOCK[i].every(j => s.face[j] < 0) && (MJ_LEFT[i].every(j => s.face[j] < 0) || MJ_RIGHT[i].every(j => s.face[j] < 0));
+  const mjLegal = (s, m) => m.a !== m.b && m.a >= 0 && m.b >= 0 && m.a < 144 && m.b < 144 && s.face[m.a] >= 0 && s.face[m.a] === s.face[m.b] && mjFree(s, m.a) && mjFree(s, m.b);
+  function mjApply(s0, m) { const s = mjCopy(s0); s.face[m.a] = -1; s.face[m.b] = -1; return s; }
+  function mjMoves(s) {
+    const fr = []; for (let i = 0; i < 144; i++) if (mjFree(s, i)) fr.push(i);
+    const out = []; for (let x = 0; x < fr.length; x++) for (let y = x + 1; y < fr.length; y++) if (s.face[fr[x]] === s.face[fr[y]]) out.push({ a: fr[x], b: fr[y] });
+    return out;
+  }
+  // put the given pairs of faces on the given positions so that the whole set can be cleared: take two free tiles, give them a pair, repeat
+  function mjFill(positions, pairs, R) {
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const face = Array(144).fill(-1), left = new Set(positions), queue = R.shuffle(pairs.slice()); let okay = true;
+      const free = i => MJ_BLOCK[i].every(j => !left.has(j)) && (MJ_LEFT[i].every(j => !left.has(j)) || MJ_RIGHT[i].every(j => !left.has(j)));
+      while (left.size) {
+        const fr = []; for (const i of left) if (free(i)) fr.push(i);
+        if (fr.length < 2) { okay = false; break; }
+        const a = fr.splice(R.int(fr.length), 1)[0], b = fr[R.int(fr.length)], pr = queue.pop();
+        face[a] = pr; face[b] = pr; left.delete(a); left.delete(b);
+      }
+      if (okay) return { face };
+    }
+    return null;
+  }
+  function mjDeal(seed) {
+    const R = rng(seed), pairs = []; for (let f = 0; f < 36; f++) pairs.push(f, f);
+    return mjFill(Array.from({ length: 144 }, (_, i) => i), pairs, R);
+  }
+  // mix the tiles that are left (when no pair is open): same tiles, new places, still clearable
+  function mjShuffle(s, seed) {
+    const R = rng(seed), pos = [], count = {}; s.face.forEach((f, i) => { if (f >= 0) { pos.push(i); count[f] = (count[f] || 0) + 1; } });
+    const pairs = []; for (const f in count) for (let k = 0; k < count[f] / 2; k++) pairs.push(+f);
+    return mjFill(pos, pairs, R) || mjCopy(s);
+  }
+
   const API = { suit, rank, red, FC_BAD, fcDeal, fcNumber, fcCopy, fcWon, fcFits, fcRun, fcMax, fcLegal, fcApply, fcHomeRun, fcSolve,
     PY_KIDS, PY_WASTE, pyDeal, pyCopy, pyWon, pyFree, pyCard, pyLegal, pyApply, pySolve, pyReplay, pyWinnable,
-    TP_X, TP_ROW, TP_COVER, tpDeal, tpCopy, tpWon, tpFree, tpNear, tpLegal, tpApply, tpStuck, tpSolve, tpReplay, tpWinnable };
+    TP_X, TP_ROW, TP_COVER, spSuit, spRank, spDeal, spCopy, spWon, spRunOk, spLegal, spApply, spMoves, MJ, mjCopy, mjWon, mjFree, mjLegal, mjApply, mjMoves, mjDeal, mjShuffle, tpDeal, tpCopy, tpWon, tpFree, tpNear, tpLegal, tpApply, tpStuck, tpSolve, tpReplay, tpWinnable };
   root.DiliaCards = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

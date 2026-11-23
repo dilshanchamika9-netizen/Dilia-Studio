@@ -8,10 +8,10 @@ window.DiliaCardKit = (() => {
   const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const place = (e, x, y, z) => { e.style.transform = 'translate(' + x + 'px,' + y + 'px)'; e.style.zIndex = z; };
 
-  function cards(board) {
-    const els = [];
-    for (let c = 0; c < 52; c++) {
-      const s = (c / 13) | 0, r = (c % 13) + 1, e = document.createElement('div');
+  function cards(board, n, suitOf) {
+    const els = []; n = n || 52; suitOf = suitOf || (c => (c / 13) | 0);
+    for (let c = 0; c < n; c++) {
+      const s = suitOf(c), r = (c % 13) + 1, e = document.createElement('div');
       e.className = 'kc' + (s === 1 || s === 2 ? ' red' : ''); e.dataset.c = c;
       const a = document.createElement('span'); a.className = 'kr'; a.textContent = RK[r] + SU[s];
       const b = document.createElement('span'); b.className = 'ku'; b.textContent = SU[s];
