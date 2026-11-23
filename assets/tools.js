@@ -184,6 +184,12 @@ window.DILIA_TOOLS = [
     { id: 'gsnake', slug: 'snake', name: 'Snake', desc: 'Classic and modern snake. Keyboard or swipe.', ready: 1, icon: 'M4 18h6V12h6V6h4M20 6h.01' },
     { id: 'gtyping', slug: 'typing-test', name: 'Typing test', desc: '15, 30 or 60 seconds in 5 languages. Speed and accuracy.', ready: 1, icon: 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8' },
     { id: 'greaction', slug: 'reaction-time', name: 'Reaction time', desc: 'Wait for green, then tap. Your speed in milliseconds.', ready: 1, icon: 'M13 2 4 14h7l-1 8 9-12h-7z' },
+    { id: 'gwheel', slug: 'wheel-spinner', name: 'Wheel spinner', desc: 'Type options, spin, get one fair winner. Share by link.', ready: 1, icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4' },
+    { id: 'gteams', slug: 'team-maker', name: 'Team maker', desc: 'Split names into fair random teams.', ready: 1, icon: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M15 14a6 6 0 0 1 6 6' },
+    { id: 'gpicker', slug: 'random-name-picker', name: 'Random name picker', desc: 'Pick one or more names at random, no repeats if you like.', ready: 1, v: 1, icon: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M18 5v6M15 8h6' },
+    { id: 'gdice', slug: 'dice-roller', name: 'Dice roller', desc: 'Roll up to 10 dice with any number of sides.', ready: 1, icon: 'M5 5h14v14H5zM9 9h.01M15 9h.01M9 15h.01M15 15h.01M12 12h.01' },
+    { id: 'gcoin', slug: 'coin-flip', name: 'Coin flip', desc: 'Heads or tails, with a running tally.', ready: 1, v: 1, icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v8M9.5 10.5h5' },
+    { id: 'grandnum', slug: 'random-number-generator', name: 'Random number generator', desc: 'Whole numbers between any two values, no repeats if you like.', ready: 1, v: 1, icon: 'M4 7h6M4 12h6M4 17h6M14 7l3-2v6M14 17h6' },
     { id: 'gsudoku', slug: 'daily-sudoku', name: 'Daily sudoku', desc: 'Easy, medium and hard boards. New every day.', ready: 1, icon: 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16' }
   ]]
 ];

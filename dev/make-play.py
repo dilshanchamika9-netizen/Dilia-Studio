@@ -64,6 +64,10 @@ ART_TYPE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#
 ART_RX = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="54" fill="#0f8a4f"/><circle cx="75" cy="75" r="54" fill="none" stroke="#ffffff40" stroke-width="3"/><path d="M82 30 52 82h20l-6 38 32-54H78z" fill="#fff"/></svg>'
 
 # ---------------- hub ----------------
+ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transform="translate(75 80)">' + ''.join(f'<path d="M0 0L{54*__import__("math").cos(i*1.0472):.1f} {54*__import__("math").sin(i*1.0472):.1f}A54 54 0 0 1 {54*__import__("math").cos((i+1)*1.0472):.1f} {54*__import__("math").sin((i+1)*1.0472):.1f}Z" fill="{c}"/>' for i, c in enumerate(['#e5007d', '#7a5cff', '#0780b8', '#0f8a4f', '#c2410c', '#6d28d9'])) + '<circle r="9" fill="#0b1220" stroke="#fff" stroke-width="3"/></g><path d="M66 12h18l-9 20z" fill="#ffd400"/></svg>'
+ART_TEAMS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fff"><circle cx="45" cy="52" r="14"/><circle cx="105" cy="52" r="14" fill="#c4b5ff"/><circle cx="75" cy="92" r="14" fill="#3fc3ff"/></g><g fill="#ffffff55"><path d="M22 112a23 23 0 0 1 46 0z"/><path d="M82 112a23 23 0 0 1 46 0z"/></g></svg>'
+ART_DICE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="30" y="30" width="90" height="90" rx="18" fill="#fbfbff"/><g fill="#0b1220"><circle cx="58" cy="58" r="8"/><circle cx="92" cy="58" r="8"/><circle cx="58" cy="92" r="8"/><circle cx="92" cy="92" r="8"/></g><circle cx="75" cy="75" r="8" fill="#e5007d"/></svg>'
+
 HUB = f'''<section class="phero"><div class="wrap">
   <p class="crumbp"><a href="../">Dilia</a> › <b>Play</b></p>
   <p class="eyeb" id="hno">Today's dailies</p>
@@ -97,6 +101,9 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
     <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
     <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
+    <a class="daily" href="../wheel-spinner/">{ART_WHEEL}<span class="no">Party</span><b>Wheel spinner</b><p>Type the options, spin, get one fair winner. Share the wheel by link.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../team-maker/">{ART_TEAMS}<span class="no">Party</span><b>Team maker</b><p>Split a list of names into fair random teams. Or pick a name at random.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../dice-roller/">{ART_DICE}<span class="no">Party</span><b>Dice, coin, number</b><p>Roll dice with any sides, flip a coin, draw random numbers.</p><span class="st"><span class="chip">Play</span></span></a>
   </div>
 </section>
 
@@ -108,7 +115,7 @@ HUB = f'''<section class="phero"><div class="wrap">
     <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Spider, FreeCell, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Wheel spinner</li><li>Dice, coin, team maker</li><li>Secret Santa draw</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Bingo, quiz maker</li><li>Scoreboard</li><li>Secret Santa draw</li></ul></div>
   </div>
 </section>'''
 
@@ -421,6 +428,103 @@ def typing_body():
 PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
 PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')
+
+# ---------------- party and decide: wheel, picker, team maker, dice, coin, random number (free play, nothing saved but your own lists) ----------------
+PARTY_LINKS = [('wheel-spinner', 'Wheel spinner'), ('random-name-picker', 'Random name picker'), ('team-maker', 'Team maker'), ('dice-roller', 'Dice roller'), ('coin-flip', 'Coin flip'), ('random-number-generator', 'Random number')]
+def party_body(slug, title, sub, how, tool, about):
+    more = ' · '.join(f'<a href="../{s}/">{n}</a>' for s, n in PARTY_LINKS if s != slug)
+    lis = ''.join(f'<li>{x}</li>' for x in how)
+    return f"""<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small">{lis}</ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>{title}</b></p>
+    <div class="ghead"><div><h1>{title}</h1><p class="sub">{sub}</p></div></div>
+    {tool}
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More party tools</p><span class="small">{more} · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the {title.lower()}</h2>
+  {about}
+</section>
+</div>"""
+
+TOOL_WHEEL = """<div id="party" data-pm="wheel">
+    <div class="gbox"><div class="pt-wheelwrap"><canvas id="wcv" width="640" height="640" role="img" aria-label="Wheel"></canvas><span class="pt-ptr" aria-hidden="true"></span></div></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn go" id="spin">Spin</button><button type="button" class="pbtn" id="wshuffle">Shuffle order</button><button type="button" class="pbtn" id="wlink">Copy link to this wheel</button></div>
+    <div class="done pt-res" id="done"><p class="eyeb">The wheel says</p><div class="t" id="dtime"></div><p id="dline"></p><div class="gbtns"><button type="button" class="pbtn" id="wremove">Remove from wheel</button></div></div>
+    <label class="pt-lbl" for="wents">Entries, one per line <span id="wcount"></span></label>
+    <textarea class="pt-ta" id="wents" rows="6" maxlength="4000" spellcheck="false"></textarea>
+    <label class="pt-chk"><input type="checkbox" id="wrm"> Remove the winner after each spin</label>
+    <div class="gcard" id="wrecentbox" style="margin-top:16px" hidden><p class="eyeb">Recent results</p><ul class="pt-hist" id="wrecent"></ul><div class="gbtns"><button type="button" class="pbtn" id="wclear">Clear recent</button></div></div>
+  </div>"""
+TOOL_PICK = """<div id="party" data-pm="pick">
+    <div class="done pt-res" id="done"><p class="eyeb" id="rtitle"></p><div id="rlist" class="pt-reslist" aria-live="polite"></div></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="pt-row"><label for="pnum">How many to pick<input class="pt-in" id="pnum" type="number" min="1" max="50" value="1" inputmode="numeric"></label></div>
+    <label class="pt-chk"><input type="checkbox" id="pnorep"> Do not pick the same name twice <span id="pleft" class="small"></span></label>
+    <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="go">Pick</button><button type="button" class="pbtn" id="copy">Copy result</button><button type="button" class="pbtn" id="preset">Start over</button><button type="button" class="pbtn" id="pshuffle">Shuffle list</button></div>
+    <label class="pt-lbl" for="pnames">Names, one per line <span id="pcount"></span></label>
+    <textarea class="pt-ta" id="pnames" rows="8" maxlength="8000" spellcheck="false"></textarea>
+  </div>"""
+TOOL_TEAMS = """<div id="party" data-pm="teams">
+    <div class="pt-row"><div role="group" aria-label="How to split" class="mlevel"><label class="pbtn" style="min-height:36px"><input type="radio" name="tmode" value="teams" checked> Teams</label><label class="pbtn" style="min-height:36px"><input type="radio" name="tmode" value="size"> Team size</label></div>
+      <label for="tnum"><span id="tlabel">How many teams</span><input class="pt-in" id="tnum" type="number" min="1" max="100" value="2" inputmode="numeric"></label></div>
+    <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="go">Make teams</button><button type="button" class="pbtn" id="copy">Copy teams</button><button type="button" class="pbtn" id="pshuffle">Shuffle list</button></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="done pt-res" id="done"><p class="eyeb">Your teams</p><div class="pt-teams" id="tteams"></div></div>
+    <label class="pt-lbl" for="pnames">Names, one per line <span id="pcount"></span></label>
+    <textarea class="pt-ta" id="pnames" rows="8" maxlength="8000" spellcheck="false"></textarea>
+  </div>"""
+SIDES = ''.join(f'<button type="button" class="pbtn" data-s="{n}" aria-pressed="{"true" if n == 6 else "false"}">d{n}</button>' for n in (4, 6, 8, 10, 12, 20, 100))
+TOOL_DICE = f"""<div id="party" data-pm="dice">
+    <div class="dicebox" id="dicebox" role="img" aria-label="Your dice"></div>
+    <div class="done pt-res" id="done"><p class="eyeb">Total</p><div class="t" id="dtotal"></div><p id="dline"></p></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="pt-row"><label for="dn">Dice<input class="pt-in" id="dn" type="number" min="1" max="10" value="1" inputmode="numeric"></label><label for="dsides">Sides<input class="pt-in" id="dsides" type="number" min="2" max="1000" value="6" inputmode="numeric"></label></div>
+    <div class="pt-sides" role="group" aria-label="Common dice">{SIDES}</div>
+    <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="roll">Roll</button><button type="button" class="pbtn" id="dcopy">Copy result</button></div>
+    <div class="gcard" id="dhistbox" style="margin-top:16px" hidden><p class="eyeb">Last rolls</p><ul class="pt-hist" id="dhist"></ul></div>
+  </div>"""
+TOOL_COIN = """<div id="party" data-pm="coin">
+    <div class="coinbox"><div class="coin" id="coin" role="img" aria-label="Coin"><div class="ch">HEADS</div><div class="ct">TAILS</div></div></div>
+    <div class="done pt-res" id="done"><p class="eyeb">It landed on</p><div class="t" id="dtotal"></div><p id="dline"></p></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn go" id="flip">Flip the coin</button><button type="button" class="pbtn" id="cclear">Clear tally</button></div>
+    <div class="gcard" style="margin-top:16px"><p class="eyeb">Tally</p><span class="small">Heads <b id="chead">0</b> · Tails <b id="ctail">0</b> · <span id="cpct"></span></span><p class="small" id="chist" style="margin:8px 0 0"></p></div>
+  </div>"""
+TOOL_NUM = """<div id="party" data-pm="number">
+    <div class="done pt-res" id="done"><p class="eyeb">Your numbers</p><div id="nlist" aria-live="polite"></div><p id="dline"></p></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="pt-row"><label for="nmin">Lowest<input class="pt-in" id="nmin" type="number" value="1" inputmode="numeric"></label><label for="nmax">Highest<input class="pt-in" id="nmax" type="number" value="100" inputmode="numeric"></label><label for="ncount">How many<input class="pt-in" id="ncount" type="number" min="1" max="100" value="1" inputmode="numeric"></label></div>
+    <label class="pt-chk"><input type="checkbox" id="nnorep"> No number twice</label>
+    <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="go">Generate</button><button type="button" class="pbtn" id="ncopy">Copy numbers</button></div>
+  </div>"""
+PJS = '<script src="../assets/party-rng.js"></script>\n'
+PAGES['wheel-spinner'] = ('Wheel Spinner - Free Random Wheel, Share by Link | Dilia Play', 'Type your options, spin the wheel and get one fair winner. Share the wheel by link. Free, no ads, no sign-up, nothing leaves your device.',
+    party_body('wheel-spinner', 'Wheel spinner', 'Type the options, spin, get one winner.', ['Type one option per line (up to 50).', 'Press Spin or the space bar.', 'Tick "Remove the winner" to run elimination rounds.', '"Copy link" shares the exact wheel.'], TOOL_WHEEL,
+    '<p>The winner is chosen first by a fair random pick, and then the wheel is turned so it stops on that entry. Every entry has exactly the same chance, whatever the size of its slice looks like.</p><p>Your entries and recent results stay in this browser. The share link holds the entries inside the address itself, so nothing is stored on a server.</p>'), PJS + '<script src="../assets/party-wheel.js"></script>', 'free')
+PAGES['random-name-picker'] = ('Random Name Picker - Pick a Winner Fairly, Free | Dilia Play', 'Paste a list of names and pick one or several at random. Optional no-repeat mode for draws and raffles. Free, no ads, no sign-up.',
+    party_body('random-name-picker', 'Random name picker', 'Paste names, pick one or more at random.', ['Type one name per line (up to 200).', 'Choose how many to pick.', 'Tick "do not pick the same name twice" for a draw with no repeats.', 'Press Start over to put everyone back.'], TOOL_PICK,
+    '<p>Each pick uses the secure random source of your browser, so every name has the same chance. Names are picked without repeating inside one draw. With "do not pick the same name twice" ticked, names already picked stay out until you press Start over.</p><p>Your list stays in this browser and is shared with the team maker. Nothing is sent anywhere.</p>'), PJS + '<script src="../assets/party-pick.js"></script>', 'free')
+PAGES['team-maker'] = ('Team Maker - Random Team Generator, Fair Teams | Dilia Play', 'Paste names and split them into fair random teams, by number of teams or people per team. Copy the result. Free, no ads, no sign-up.',
+    party_body('team-maker', 'Team maker', 'Split a list of names into fair random teams.', ['Type one name per line (up to 200).', 'Choose the number of teams, or the people in each team.', 'Press Make teams again for a new split.', 'Team sizes never differ by more than one.'], TOOL_TEAMS,
+    '<p>Names are shuffled with a fair random method and then dealt out one by one, so team sizes never differ by more than one person. Choose either how many teams you want or how many people each team should have.</p><p>Your list stays in this browser and is shared with the random name picker. Nothing is sent anywhere.</p>'), PJS + '<script src="../assets/party-pick.js"></script>', 'free')
+PAGES['dice-roller'] = ('Dice Roller - Roll d6, d20 and Any Dice Online, Free | Dilia Play', 'Roll 1 to 10 dice with 2 to 1000 sides: d4, d6, d8, d10, d12, d20, d100. Fair random results and a total. Free, no ads, no sign-up.',
+    party_body('dice-roller', 'Dice roller', 'Roll up to 10 dice with any number of sides.', ['Choose how many dice and how many sides.', 'Press Roll. The total is added up for you.', 'The six-sided die turns in 3D; other dice show the number.', 'The last 10 rolls are listed below.'], TOOL_DICE,
+    '<p>Every roll is a fair random pick between 1 and the number of sides, so each face has the same chance. Use d6 for board games, d20 for role-playing games, or any number from 2 to 1000 sides.</p><p>Nothing is sent anywhere. Rolls are not saved when you leave the page.</p>'), PJS + '<script src="../assets/party-dice.js"></script>', 'free')
+PAGES['coin-flip'] = ('Coin Flip - Heads or Tails, Fair and Free | Dilia Play', 'Flip a coin online: heads or tails with a fair random result and a running tally. Free, no ads, no sign-up.',
+    party_body('coin-flip', 'Coin flip', 'Heads or tails, decided fairly.', ['Press Flip the coin.', 'The tally of heads and tails stays in this browser.', 'Clear tally starts the count again.'], TOOL_COIN,
+    '<p>Each flip is a fair random choice between heads and tails, so a long run of the same side can happen and does not change the next flip. The tally is kept in this browser only.</p>'), PJS + '<script src="../assets/party-dice.js"></script>', 'free')
+PAGES['random-number-generator'] = ('Random Number Generator - Any Range, No Repeats | Dilia Play', 'Generate random whole numbers between any two values, one or many, with an option for no repeats. Free, no ads, no sign-up.',
+    party_body('random-number-generator', 'Random number generator', 'Whole numbers between any two values.', ['Set the lowest and highest number.', 'Choose how many numbers you want (up to 100).', 'Tick "No number twice" for a draw without repeats.', 'Copy the numbers with one tap.'], TOOL_NUM,
+    '<p>Each number is a fair random pick, so every whole number from the lowest to the highest value has the same chance. Use it for raffles, games and picking sample numbers. Values can be from -1,000,000,000 to 1,000,000,000.</p><p>Nothing is sent anywhere.</p>'), PJS + '<script src="../assets/party-dice.js"></script>', 'free')
 for slug, (t, d, body, js, *mode) in PAGES.items():
     dd = ROOT / slug; dd.mkdir(exist_ok=True)
     (dd / 'index.html').write_text(shell(t, d, body, js, mode=(mode[0] if mode else 'daily' if slug == 'daily-path' else '')))

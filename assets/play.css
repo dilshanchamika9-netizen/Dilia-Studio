@@ -261,3 +261,47 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .tin{display:block;width:100%;box-sizing:border-box;margin-top:12px;min-height:50px;padding:0 16px;border-radius:14px;border:1px solid #ffffff33;background:#0b1220;color:#fff;font:600 20px/1.2 system-ui,"Segoe UI",sans-serif}
 .tin:focus{outline:3px solid #a08bff;outline-offset:2px}
 .thist{margin:0;padding-left:18px;font-size:14px;color:var(--pt)}
+
+/* Party tools: wheel, picker, team maker, dice, coin, numbers */
+.pt-lbl{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:18px 0 6px;font:650 13.5px/1.3 var(--font);color:var(--pt)}
+.pt-lbl span{color:var(--pmut);font-weight:550}
+.pt-ta,.pt-in{width:100%;box-sizing:border-box;border:1px solid var(--pl);border-radius:14px;background:var(--pc1);color:var(--pt);font:500 15px/1.5 var(--font);padding:11px 14px}
+.pt-ta{resize:vertical;min-height:130px}
+.pt-in{min-height:44px;padding:0 12px}
+.pt-ta:focus-visible,.pt-in:focus-visible{outline:3px solid #ffd400;outline-offset:2px}
+.pt-chk{display:flex;align-items:center;gap:10px;margin:12px 0 0;font-size:14px;color:var(--pt);cursor:pointer}
+.pt-chk input{width:20px;height:20px;accent-color:#7a5cff}
+.pt-row{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-top:14px}
+.pt-row>label{display:grid;gap:6px;font:650 13px/1.2 var(--font);color:var(--pt)}
+.pt-row .pt-in{width:110px}
+.pt-wheelwrap{position:relative;max-width:520px;margin:6px auto 0}
+.pt-wheelwrap canvas{display:block;width:100%;height:auto;aspect-ratio:1;border-radius:50%;filter:drop-shadow(0 18px 30px #00000055)}
+.pt-ptr{position:absolute;left:50%;top:-6px;width:0;height:0;margin-left:-16px;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid #ffd400;filter:drop-shadow(0 3px 3px #00000066)}
+.pt-res .t{font-size:clamp(26px,6vw,44px);overflow-wrap:anywhere}
+.pt-chip{display:inline-block;margin:4px;padding:8px 16px;border-radius:999px;background:#ffffff18;color:var(--pt);font:750 18px/1.2 var(--font);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.pt-chip.big{display:block;margin:4px auto;padding:10px 6px;background:none;font:850 clamp(30px,7vw,52px)/1.1 var(--font);letter-spacing:-.02em}
+.pt-teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;text-align:left;margin-top:12px}
+.pt-team{padding:14px;border-radius:18px;background:var(--pc1);border:1px solid var(--pl)}
+.pt-team b{display:block;font:800 16px/1.2 var(--font)}
+.pt-team span{display:block;margin:2px 0 8px;font-size:12.5px;color:var(--pmut)}
+.pt-team ul{margin:0;padding-left:18px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
+.pt-sides{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pt-sides .pbtn{min-height:38px;padding:0 14px}
+.pt-hist{margin:6px 0 0;padding-left:18px;font-size:14px;color:var(--pt)}
+.dicebox{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;min-height:150px;padding:26px 8px 12px;perspective:700px}
+.die{width:84px;height:84px;position:relative}
+.die .cube{width:84px;height:84px;position:relative;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.die .face{position:absolute;inset:0;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:11px;border-radius:14px;background:#fbfbff;border:1px solid #cfd4e4;backface-visibility:hidden}
+.die .face i{width:15px;height:15px;border-radius:50%;background:#0b1220;place-self:center}
+.die .f1{transform:translateZ(42px)}.die .f6{transform:rotateY(180deg) translateZ(42px)}.die .f2{transform:rotateY(90deg) translateZ(42px)}
+.die .f5{transform:rotateY(-90deg) translateZ(42px)}.die .f3{transform:rotateX(90deg) translateZ(42px)}.die .f4{transform:rotateX(-90deg) translateZ(42px)}
+.die .f1 i{background:#e5007d}
+.die .flat{width:84px;height:84px;display:grid;place-items:center;border-radius:20px;background:linear-gradient(135deg,#e5007d,#7a5cff);color:#fff;font:850 30px/1 var(--font);font-variant-numeric:tabular-nums}
+.dicebox.rolling .flat{animation:ptshake .35s linear infinite}
+@keyframes ptshake{0%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-8px)}100%{transform:rotate(-8deg) translateY(0)}}
+.coinbox{display:grid;place-items:center;min-height:210px;perspective:800px}
+.coin{position:relative;width:150px;height:150px;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.coin div{position:absolute;inset:0;display:grid;place-items:center;border-radius:50%;backface-visibility:hidden;font:850 24px/1 var(--font);letter-spacing:.04em;border:8px solid #b8860b;box-shadow:inset 0 0 0 4px #ffe27a}
+.coin .ch{background:radial-gradient(circle at 35% 30%,#ffe98a,#e0a82e);color:#6b4a00}
+.coin .ct{background:radial-gradient(circle at 35% 30%,#ffe98a,#e0a82e);color:#6b4a00;transform:rotateY(180deg)}
+@media (prefers-reduced-motion:reduce){.die .cube,.coin{transition:none}.dicebox.rolling .flat{animation:none}}

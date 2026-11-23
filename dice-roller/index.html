@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dice Roller - Roll d6, d20 and Any Dice Online, Free | Dilia Play</title>
+<meta name="description" content="Roll 1 to 10 dice with 2 to 1000 sides: d4, d6, d8, d10, d12, d20, d100. Fair random results and a total. Free, no ads, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-play" data-mode="free">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Play home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Play</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Choose how many dice and how many sides.</li><li>Press Roll. The total is added up for you.</li><li>The six-sided die turns in 3D; other dice show the number.</li><li>The last 10 rolls are listed below.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Dice roller</b></p>
+    <div class="ghead"><div><h1>Dice roller</h1><p class="sub">Roll up to 10 dice with any number of sides.</p></div></div>
+    <div id="party" data-pm="dice">
+    <div class="dicebox" id="dicebox" role="img" aria-label="Your dice"></div>
+    <div class="done pt-res" id="done"><p class="eyeb">Total</p><div class="t" id="dtotal"></div><p id="dline"></p></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="pt-row"><label for="dn">Dice<input class="pt-in" id="dn" type="number" min="1" max="10" value="1" inputmode="numeric"></label><label for="dsides">Sides<input class="pt-in" id="dsides" type="number" min="2" max="1000" value="6" inputmode="numeric"></label></div>
+    <div class="pt-sides" role="group" aria-label="Common dice"><button type="button" class="pbtn" data-s="4" aria-pressed="false">d4</button><button type="button" class="pbtn" data-s="6" aria-pressed="true">d6</button><button type="button" class="pbtn" data-s="8" aria-pressed="false">d8</button><button type="button" class="pbtn" data-s="10" aria-pressed="false">d10</button><button type="button" class="pbtn" data-s="12" aria-pressed="false">d12</button><button type="button" class="pbtn" data-s="20" aria-pressed="false">d20</button><button type="button" class="pbtn" data-s="100" aria-pressed="false">d100</button></div>
+    <div class="gbtns" style="margin-top:14px"><button type="button" class="pbtn go" id="roll">Roll</button><button type="button" class="pbtn" id="dcopy">Copy result</button></div>
+    <div class="gcard" id="dhistbox" style="margin-top:16px" hidden><p class="eyeb">Last rolls</p><ul class="pt-hist" id="dhist"></ul></div>
+  </div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More party tools</p><span class="small"><a href="../wheel-spinner/">Wheel spinner</a> · <a href="../random-name-picker/">Random name picker</a> · <a href="../team-maker/">Team maker</a> · <a href="../coin-flip/">Coin flip</a> · <a href="../random-number-generator/">Random number</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the dice roller</h2>
+  <p>Every roll is a fair random pick between 1 and the number of sides, so each face has the same chance. Use d6 for board games, d20 for role-playing games, or any number from 2 to 1000 sides.</p><p>Nothing is sent anywhere. Rolls are not saved when you leave the page.</p>
+</section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/party-rng.js"></script>
+<script src="../assets/party-dice.js"></script>
+</body>
+</html>

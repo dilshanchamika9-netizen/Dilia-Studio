@@ -22,5 +22,7 @@ step "Merge rules" node dev/tests/test-merge.js
 step "Play: hub and daily games played through" python3 dev/tests/test-play.py
 step "Arcade rules: snake, typing score, word lists" node dev/tests/test-arcade.js
 step "Arcade: snake, reaction time, typing test" python3 dev/tests/test-arcade.py
+step "Party tools: fair random picks" node dev/tests/test-party-rng.js
+step "Party tools: wheel, picker, teams, dice, coin, numbers" python3 dev/tests/test-party.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
