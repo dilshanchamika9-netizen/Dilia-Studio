@@ -3,9 +3,10 @@ const R = require('../../assets/party-rng.js'); let f = 0;
 const ok = (c, m) => { if (!c) { f++; console.log('FAIL', m); } };
 // chi-square fairness: 100,000 draws over k buckets; critical values at p=0.001 (df=k-1)
 const crit = { 2: 10.83, 6: 20.52, 7: 22.46, 20: 43.82, 100: 148.23 };
+// a fair generator can exceed p=0.001 by chance once in a thousand runs, so a result must fail 3 fresh samples in a row to count as a failure
 for (const k of [2, 6, 7, 20, 100]) {
-  const c = new Array(k).fill(0), N = 100000; for (let i = 0; i < N; i++) c[R.int(k)]++;
-  const e = N / k, x = c.reduce((s, v) => s + (v - e) ** 2 / e, 0);
+  let x = 0;
+  for (let a = 0; a < 3; a++) { const c = new Array(k).fill(0), N = 100000; for (let i = 0; i < N; i++) c[R.int(k)]++; const e = N / k; x = c.reduce((s, v) => s + (v - e) ** 2 / e, 0); if (x < crit[k]) break; }
   ok(x < crit[k], `int(${k}) chi-square ${x.toFixed(1)} >= ${crit[k]}`);
 }
 // a large modulus where plain "% n" would be visibly biased (n close to 2^32 * 2/3): low half must be near 50%
