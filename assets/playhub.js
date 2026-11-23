@@ -30,4 +30,9 @@
   const top = P.levelTop('path');
   $('n-levels').textContent = 'Level ' + top + ' · ' + G.levelSize(top) + ' × ' + G.levelSize(top);
   $('s-levels').append(el('span', top > 1 ? 'chip on' : 'chip', top > 1 ? 'Continue: level ' + top : 'Start level 1'));
+  const mr = P.result('merge', KEY);
+  $('n-merge').textContent = 'Daily merge #' + no;
+  $('s-merge').append(mr ? el('span', 'chip ok', '✓ ' + mr.s + ' points') : saved('merge') ? el('span', 'chip on', 'Continue') : el('span', 'chip', 'Play now'));
+  let mbest = 0; try { const d = JSON.parse(localStorage.getItem('dilia-play-v1') || '{}').days || {}; for (const k in d) if (d[k].merge && d[k].merge.s > mbest) mbest = d[k].merge.s; } catch (e) {}
+  if (mbest) { bits.push('Merge ' + mbest + ' points'); $('hbest').textContent = bits.join(' · '); }
 }

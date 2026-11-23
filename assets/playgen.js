@@ -212,7 +212,57 @@
     return { grid: g, solution: sol, clues, level };
   }
 
-  const API = { hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
+  // =====================================================================================
+  // MERGE: slide tiles; two equal tiles that meet join into one (each tile joins once per move)
+  // =====================================================================================
+  // grid: array of n*n cells, each null or { id, v }. dir: 0 up, 1 right, 2 down, 3 left.
+  // Returns the new grid (joined tiles have id null, for the page to number), points gained,
+  // whether anything moved, where each old tile went, and which squares got a joined tile.
+  function mergeLines(n, dir) {
+    const L = [];
+    for (let a = 0; a < n; a++) {
+      const l = [];
+      for (let b = 0; b < n; b++) l.push(dir === 3 ? a * n + b : dir === 1 ? a * n + (n - 1 - b) : dir === 0 ? b * n + a : (n - 1 - b) * n + a);
+      L.push(l);
+    }
+    return L;
+  }
+  function mergeMove(grid, n, dir) {
+    const out = new Array(n * n).fill(null), moves = [], joined = []; let gain = 0, moved = false;
+    for (const l of mergeLines(n, dir)) {
+      let k = 0, last = null; // last: the tile just placed in this line that may still join
+      for (const i of l) {
+        const t = grid[i]; if (!t) continue;
+        if (last && last.v === t.v && !last.j) {
+          const to = last.at; out[to] = { id: null, v: t.v * 2 }; gain += t.v * 2;
+          moves.push({ id: t.id, to }); joined.push({ to, v: t.v * 2, ids: [last.id, t.id] });
+          last = { at: to, v: t.v * 2, j: true, id: null }; moved = true;
+        } else {
+          const to = l[k++]; out[to] = t; moves.push({ id: t.id, to }); if (to !== i) moved = true;
+          last = { at: to, v: t.v, j: false, id: t.id };
+        }
+      }
+    }
+    return { grid: out, gain, moved, moves, joined };
+  }
+  function mergeCanMove(grid, n) {
+    for (let i = 0; i < n * n; i++) {
+      if (!grid[i]) return true;
+      const v = grid[i].v;
+      if (i % n < n - 1 && grid[i + 1] && grid[i + 1].v === v) return true;
+      if (i + n < n * n && grid[i + n] && grid[i + n].v === v) return true;
+    }
+    return false;
+  }
+  // new tile: a free square picked by the random stream, 2 nine times in ten, else 4
+  function mergeSpawn(grid, R) {
+    const free = []; for (let i = 0; i < grid.length; i++) if (!grid[i]) free.push(i);
+    if (!free.length) return null;
+    const at = free[R.int(free.length)], v = R() < 0.9 ? 2 : 4;
+    return { at, v };
+  }
+
+  const API = { mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
   root.DiliaPlayGen = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

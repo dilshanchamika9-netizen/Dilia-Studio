@@ -17,6 +17,7 @@ step "Fill forms: My details" python3 dev/tests/test-autofill.py
 step "Reader: Comments panel" python3 dev/tests/test-comments.py
 step "Home page and Life/Play hubs" python3 dev/tests/test-home.py
 step "Daily puzzles: one answer, 400 days" node dev/tests/test-playgen.js
+step "Merge rules" node dev/tests/test-merge.js
 step "Play: hub and daily games played through" python3 dev/tests/test-play.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail

@@ -160,6 +160,67 @@ async def levels_tests(br, w):
     ok(await pg.is_visible('#done'), f'[{w}] 8x8 win')
     await ctx.close(); ok(not errs, f'[{w}] levels errors {errs[:3]}')
 
+SIM = """(key, dirs) => { const R0 = G.rng('merge:' + key); let c = 0; const R = () => { c++; return R0(); }; R.int = k => Math.floor(R() * k);
+  let g = new Array(16).fill(null), id = 1, score = 0, moves = 0;
+  for (let k = 0; k < 2; k++) { const s = G.mergeSpawn(g, R); g[s.at] = { id: id++, v: s.v }; }
+  for (const d of dirs) { const r = G.mergeMove(g, 4, d); if (!r.moved) continue; r.grid.forEach(t => { if (t && t.id === null) t.id = id++; }); g = r.grid; score += r.gain; moves++; const s = G.mergeSpawn(g, R); if (s) g[s.at] = { id: id++, v: s.v }; }
+  return { cells: g.map(t => (t ? t.v : 0)), score, moves, draws: c }; }"""
+
+async def merge_tests(br, w):
+    errs = []; ctx, pg = await page(br, w, datetime.datetime.fromisoformat('2026-11-23T09:00:00'), errs)
+    K = {0: 'ArrowUp', 1: 'ArrowRight', 2: 'ArrowDown', 3: 'ArrowLeft'}
+    async def press(d): await pg.keyboard.press(K[d]); await pg.wait_for_timeout(150)
+    st = lambda: pg.evaluate('DiliaMerge.state()')
+    # ---- daily: the same game as the Node rules, also across a reload ----
+    await pg.goto(B + 'daily-merge/'); await pg.wait_for_timeout(300)
+    dirs = [3, 2, 1, 2, 3, 2, 0, 3, 2, 1, 2, 2, 3, 1, 2, 3, 0, 2, 3, 2]
+    for d in dirs[:10]: await press(d)
+    await pg.reload(); await pg.wait_for_timeout(300)
+    for d in dirs[10:]: await press(d)
+    S = await st(); want = node(f'({SIM})("2026-11-23", {json.dumps(dirs)})')
+    ok(S['cells'] == want['cells'] and S['score'] == want['score'] and S['draws'] == want['draws'], f'[{w}] daily merge differs from Node rules: {S} vs {want}')
+    ok(await pg.is_disabled('#undo'), f'[{w}] daily allows undo')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on merge')
+    # play to the end (rotate through moves until none is left)
+    over = await pg.evaluate("""async () => { for (let i = 0; i < 3000; i++) { const s = DiliaMerge.state(); if (s.over) return true; DiliaMerge.move([3, 2, 1, 2, 0][i % 5]); await new Promise(r => setTimeout(r, 125)); } return false; }""")
+    ok(over and await pg.is_visible('#done'), f'[{w}] daily merge did not end')
+    S = await st(); rec = await pg.evaluate("JSON.parse(localStorage.getItem('dilia-play-v1')).days['2026-11-23'].merge")
+    ok(rec and rec['s'] == S['score'] and rec['m'] == max(S['cells']), f'[{w}] daily merge result {rec} vs {S["score"]}')
+    await pg.reload(); await pg.wait_for_timeout(300)
+    S2 = await st(); ok(await pg.is_visible('#done') and S2['cells'] == S['cells'], f'[{w}] finished daily not shown after reload')
+    await pg.keyboard.press('ArrowLeft'); await pg.wait_for_timeout(200)
+    ok((await st())['cells'] == S['cells'], f'[{w}] finished daily still moves')
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)
+    ok(f"✓ {S['score']} points" in await pg.inner_text('#s-merge'), f'[{w}] hub merge status {await pg.inner_text("#s-merge")!r}')
+    # ---- free play: undo, sizes, resume, swipe, game over ----
+    await pg.goto(B + 'merge/'); await pg.wait_for_timeout(300)
+    s0 = await st(); ok(s0['n'] == 4 and sum(1 for v in s0['cells'] if v) == 2, f'[{w}] free start {s0}')
+    for d in (3, 2, 1, 2): await press(d)
+    s1 = await st(); await press(3); await press(2); await press(1)
+    for _ in range((await st())['moves'] - s1['moves']): await pg.click('#undo'); await pg.wait_for_timeout(100)
+    s2 = await st(); ok(s2['cells'] == s1['cells'] and s2['score'] == s1['score'], f'[{w}] undo: {s2} vs {s1}')
+    await pg.click('.msize button[data-n="5"]'); await pg.wait_for_timeout(200)
+    s5 = await st(); ok(s5['n'] == 5 and len(s5['cells']) == 25 and await pg.locator('#mcells i').count() == 25, f'[{w}] 5x5 switch')
+    await pg.click('.msize button[data-n="4"]'); await pg.wait_for_timeout(200)
+    ok((await st())['cells'] == s2['cells'], f'[{w}] 4x4 game not kept when switching sizes')
+    await pg.reload(); await pg.wait_for_timeout(300)
+    ok((await st())['cells'] == s2['cells'], f'[{w}] free game not kept after reload')
+    # swipe left with the pointer
+    box = await pg.locator('#mboard').bounding_box(); before = (await st())['moves']
+    for d in ((-1, 0), (0, 1), (1, 0), (0, 1)):
+        cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
+        await pg.mouse.move(cx, cy); await pg.mouse.down(); await pg.mouse.move(cx + d[0] * 90, cy + d[1] * 90, steps=4); await pg.mouse.up(); await pg.wait_for_timeout(160)
+    ok((await st())['moves'] > before, f'[{w}] swipe did not move')
+    # stuck board -> one key -> game over; play again starts fresh
+    await pg.goto(B + 'play/'); await pg.wait_for_timeout(200)  # set it from another page: leaving the game page saves the live game
+    await pg.evaluate("localStorage.setItem('dilia-merge-size', '4'); localStorage.setItem('dilia-merge-free-4', JSON.stringify({n:4,cells:[2,4,2,4,4,2,4,2,2,4,2,4,4,2,4,2],score:500,draws:10,seed:'mergefree:1',over:false,won:false,moves:9,t:5}))")
+    await pg.goto(B + 'merge/'); await pg.wait_for_timeout(300); await pg.keyboard.press('ArrowLeft'); await pg.wait_for_timeout(200)
+    ok(await pg.is_visible('#done') and await pg.inner_text('#dtime') == '500', f'[{w}] stuck board not game over')
+    await pg.click('#dagain'); await pg.wait_for_timeout(200)
+    s3 = await st(); ok(not s3['over'] and s3['score'] == 0 and not await pg.is_visible('#done'), f'[{w}] play again')
+    ok(int(await pg.inner_text('#mbest')) >= 500, f'[{w}] best score not kept')
+    await ctx.close(); ok(not errs, f'[{w}] merge errors {errs[:3]}')
+
 async def sudoku_tests(br, w, when, key):
     errs = []; ctx, pg = await page(br, w, when, errs)
     await pg.goto(B + 'daily-sudoku/'); await pg.wait_for_timeout(300)
@@ -231,6 +292,7 @@ async def main():
         for when in ('2026-11-23T09:00:00', '2026-11-24T09:00:00', '2026-11-26T09:00:00', '2026-11-29T09:00:00'):
             await order_rule(br, datetime.datetime.fromisoformat(when), when[:10])
         await early_end(br)
+        await merge_tests(br, 1280); await merge_tests(br, 390)
         await levels_tests(br, 1280); await levels_tests(br, 390)
         # the day number follows the local date (#1 on launch day, #6 on Saturday 28 Nov)
         errs = []; ctx, pg = await page(br, 1280, datetime.datetime.fromisoformat('2026-11-28T12:00:00'), errs)

@@ -52,7 +52,7 @@ def shell(title, desc, body, scripts, robots='', mode=''):
 # small pictures on the daily cards (decoration only)
 ART_PATH = '''<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><defs><linearGradient id="ap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#a08bff"/><stop offset="1" stop-color="#3fc3ff"/></linearGradient></defs><g fill="#ffffff10">''' + ''.join(f'<rect x="{18 + c * 30}" y="{18 + r * 30}" width="26" height="26" rx="7"/>' for r in range(4) for c in range(4)) + '''</g><polyline points="31,31 61,31 61,61 31,61 31,121 61,121 61,91 91,91 91,121 121,121 121,61 91,61 91,31 121,31" fill="none" stroke="url(#ap)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="31" r="11" fill="#fff"/><circle cx="121" cy="31" r="11" fill="#fff"/></svg>'''
 ART_SUD = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><rect x="18" y="18" width="114" height="114" rx="14" fill="#ffffff10" stroke="#ffffff30"/><path d="M56 18v114M94 18v114M18 56h114M18 94h114" stroke="#ffffff30" stroke-width="2"/><g font-family="Archivo,sans-serif" font-weight="800" font-size="24" fill="#fff" text-anchor="middle"><text x="37" y="46">5</text><text x="113" y="46" fill="#c4b5ff">3</text><text x="75" y="84">9</text><text x="37" y="122" fill="#c4b5ff">7</text><text x="113" y="122">1</text></g></svg>'
-ART_MERGE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g><rect x="18" y="18" width="52" height="52" rx="12" fill="#ffffff10"/><rect x="80" y="18" width="52" height="52" rx="12" fill="#ffffff18"/><rect x="18" y="80" width="52" height="52" rx="12" fill="#ffffff18"/><rect x="80" y="80" width="52" height="52" rx="12" fill="#ffffff10"/></g></svg>'
+ART_MERGE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850" text-anchor="middle"><rect x="18" y="18" width="52" height="52" rx="12" fill="#e5007d"/><text x="44" y="53" font-size="24" fill="#fff">8</text><rect x="80" y="18" width="52" height="52" rx="12" fill="#7a5cff"/><text x="106" y="53" font-size="22" fill="#fff">64</text><rect x="18" y="80" width="52" height="52" rx="12" fill="#2c3352"/><text x="44" y="115" font-size="24" fill="#dfe4f2">2</text><rect x="80" y="80" width="52" height="52" rx="12" fill="#ffd400"/><text x="106" y="113" font-size="17" fill="#0b1220">2048</text></g></svg>'
 
 # ---------------- hub ----------------
 HUB = f'''<section class="phero"><div class="wrap">
@@ -67,12 +67,12 @@ HUB = f'''<section class="phero"><div class="wrap">
   <div class="dailies">
     <a class="daily" href="../daily-path/" id="c-path">{ART_PATH}<span class="no" id="n-path">Daily path</span><b>Daily path</b><p>Draw one line through every square. Pass the numbers in order.</p><span class="st" id="s-path"></span></a>
     <a class="daily" href="../daily-sudoku/" id="c-sudoku">{ART_SUD}<span class="no" id="n-sudoku">Daily sudoku</span><b>Daily sudoku</b><p>Three boards a day: easy, medium and hard.</p><span class="st" id="s-sudoku"></span></a>
-    <div class="daily soon">{ART_MERGE}<span class="no">Coming soon</span><b>Daily merge</b><p>Slide and merge tiles. Same tile order for everyone.</p><span class="st"><span class="stag2">Soon</span></span></div>
+    <a class="daily" href="../daily-merge/" id="c-merge">{ART_MERGE}<span class="no" id="n-merge">Daily merge</span><b>Daily merge</b><p>Slide and join tiles. Same new tiles for everyone today.</p><span class="st" id="s-merge"></span></a>
   </div>
   <div class="pstrip">
-    <div class="pcard"><p class="eyeb">Streak</p><span class="big" id="hstreak">0</span><span class="small" id="hstreak2">Solve any daily to start a streak.</span></div>
-    <div class="pcard"><p class="eyeb">This week</p><div class="wk" id="hweek"></div></div>
-    <div class="pcard"><p class="eyeb">Your bests</p><span class="small" id="hbest">Solve a daily to see your best times.</span></div>
+    <div class="gcard"><p class="eyeb">Streak</p><span class="big" id="hstreak">0</span><span class="small" id="hstreak2">Solve any daily to start a streak.</span></div>
+    <div class="gcard"><p class="eyeb">This week</p><div class="wk" id="hweek"></div></div>
+    <div class="gcard"><p class="eyeb">Your bests</p><span class="small" id="hbest">Solve a daily to see your best times.</span></div>
   </div>
 </section>
 
@@ -80,24 +80,25 @@ HUB = f'''<section class="phero"><div class="wrap">
   <h2 id="h-any">Play any time</h2>
   <div class="dailies">
     <a class="daily" href="../path-puzzle/" id="c-levels">{ART_PATH}<span class="no" id="n-levels">Levels</span><b>Path puzzle</b><p>Endless levels, from 5 × 5 up to 8 × 8. Your next level is saved.</p><span class="st" id="s-levels"></span></a>
+    <a class="daily" href="../merge/">{ART_MERGE}<span class="no">Free play</span><b>Merge</b><p>Reach 2048 on a 4 × 4, 5 × 5 or 6 × 6 board. Undo any time.</p><span class="st"><span class="chip">Play</span></span></a>
   </div>
 </section>
 
 <section class="wrap psec" aria-labelledby="h-soon">
   <h2 id="h-soon">Coming next</h2>
   <div class="pgrid">
-    <div class="pcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily solitaire deal</li><li>Daily minesweeper board</li><li>Daily chess puzzle</li></ul></div>
-    <div class="pcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Merge tiles, sudoku, minesweeper</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
-    <div class="pcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Solitaire, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
-    <div class="pcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Snake</li><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
-    <div class="pcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Typing test</li><li>Reaction time</li><li>Memory games</li></ul></div>
-    <div class="pcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Wheel spinner</li><li>Dice, coin, team maker</li><li>Secret Santa draw</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily solitaire deal</li><li>Daily minesweeper board</li><li>Daily chess puzzle</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Minesweeper</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Solitaire, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Snake</li><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Typing test</li><li>Reaction time</li><li>Memory games</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Wheel spinner</li><li>Dice, coin, team maker</li><li>Secret Santa draw</li></ul></div>
   </div>
 </section>'''
 
 # ---------------- daily path ----------------
-STATS_PATH = '''<div class="pcard"><p class="eyeb">Today</p><span class="big" id="pno">#1</span><span class="small" id="pdate"></span></div>
-    <div class="pcard"><p class="eyeb">Streak</p><span class="big"><span id="streak">0</span></span><span class="small">Best time <b id="sbest">–</b> · solved <b id="ssolved">0</b></span></div>'''
+STATS_PATH = '''<div class="gcard"><p class="eyeb">Today</p><span class="big" id="pno">#1</span><span class="small" id="pdate"></span></div>
+    <div class="gcard"><p class="eyeb">Streak</p><span class="big"><span id="streak">0</span></span><span class="small">Best time <b id="sbest">–</b> · solved <b id="ssolved">0</b></span></div>'''
 PATH = f'''<div class="wrap">
 <div class="gwrap">
   <div class="gside">
@@ -114,8 +115,8 @@ PATH = f'''<div class="wrap">
       <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><a class="pbtn" href="../path-puzzle/">More paths</a><a class="pbtn" href="../daily-sudoku/">Daily sudoku</a></div></div>
   </div>
   <div class="gside">
-    <div class="pcard"><p class="eyeb">How to play</p><ul class="small"><li>Start on 1. Drag through the squares, or use the arrow keys.</li><li>Go through every square once.</li><li>Pass the numbers in order and finish on the last one.</li><li>Drag back, or press Undo, to fix a step.</li></ul></div>
-    <div class="pcard"><p class="eyeb">More games</p><span class="small"><a href="../path-puzzle/">Path puzzle levels</a> · <a href="../daily-sudoku/">Daily sudoku</a> · <a href="../play/">All of Play</a></span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Start on 1. Drag through the squares, or use the arrow keys.</li><li>Go through every square once.</li><li>Pass the numbers in order and finish on the last one.</li><li>Drag back, or press Undo, to fix a step.</li></ul></div>
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../path-puzzle/">Path puzzle levels</a> · <a href="../daily-sudoku/">Daily sudoku</a> · <a href="../play/">All of Play</a></span></div>
   </div>
 </div>
 <section class="gtext">
@@ -129,8 +130,8 @@ PATH = f'''<div class="wrap">
 SUD = '''<div class="wrap">
 <div class="gwrap">
   <div class="gside">
-    <div class="pcard"><p class="eyeb">Today</p><span class="big" id="sno">#1</span><span class="small" id="sdate"></span></div>
-    <div class="pcard"><p class="eyeb">Streak</p><span class="big" id="streak">0</span><span class="small">Best: easy <b id="b-easy">–</b> · medium <b id="b-medium">–</b> · hard <b id="b-hard">–</b></span></div>
+    <div class="gcard"><p class="eyeb">Today</p><span class="big" id="sno">#1</span><span class="small" id="sdate"></span></div>
+    <div class="gcard"><p class="eyeb">Streak</p><span class="big" id="streak">0</span><span class="small">Best: easy <b id="b-easy">–</b> · medium <b id="b-medium">–</b> · hard <b id="b-hard">–</b></span></div>
   </div>
   <div>
     <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Daily sudoku</b></p>
@@ -145,8 +146,8 @@ SUD = '''<div class="wrap">
       <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dnext" hidden>Next level</button><a class="pbtn" href="../daily-path/">Daily path</a></div></div>
   </div>
   <div class="gside">
-    <div class="pcard"><p class="eyeb">How to play</p><ul class="small"><li>Fill every row, column and 3 × 3 box with 1 to 9.</li><li>Pick a square, then tap a number or type it.</li><li>Notes: small pencil marks. Press N to switch.</li><li>Numbers that clash turn pink.</li></ul></div>
-    <div class="pcard"><p class="eyeb">More games</p><span class="small"><a href="../daily-path/">Daily path</a> · <a href="../play/">All of Play</a></span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Fill every row, column and 3 × 3 box with 1 to 9.</li><li>Pick a square, then tap a number or type it.</li><li>Notes: small pencil marks. Press N to switch.</li><li>Numbers that clash turn pink.</li></ul></div>
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../daily-path/">Daily path</a> · <a href="../play/">All of Play</a></span></div>
   </div>
 </div>
 <section class="gtext">
@@ -177,6 +178,50 @@ PAGES = {
     'path-puzzle': ('Path Puzzle - Endless Levels, Free | Dilia Play', 'Draw one line through every square and pass the numbers in order. Endless levels from 5x5 to 8x8. Free, no ads, no sign-up.', LEVELS, GAME_JS + '<script src="../assets/daily-path.js"></script>', 'levels'),
     'daily-sudoku': ('Daily Sudoku - Easy, Medium and Hard, Free | Dilia Play', 'Three new sudoku boards every day: easy, medium and hard. Notes, hints and mistake check. Free, no ads, no sign-up.', SUD, GAME_JS + '<script src="../assets/daily-sudoku.js"></script>'),
 }
+
+# ---------------- merge (free play + daily) ----------------
+def merge_body(daily):
+    side1 = '<div class="gcard"><p class="eyeb">Today</p><span class="big" id="mno">#1</span><span class="small" id="mdate"></span></div>' if daily else ''
+    sizes = '' if daily else '<div class="msize" role="group" aria-label="Board size"><button type="button" data-n="4" aria-pressed="true">4 × 4</button><button type="button" data-n="5" aria-pressed="false">5 × 5</button><button type="button" data-n="6" aria-pressed="false">6 × 6</button></div>'
+    best = '<div class="gcard"><p class="eyeb">' + ('Best daily score' if daily else 'Best score on this size') + '</p><span class="big" id="mbest">–</span></div>'
+    title = 'Daily merge' if daily else 'Merge'
+    sub = 'Same tiles for everyone today · one game a day' if daily else 'Slide and join tiles. Reach 2048, then go higher.'
+    btns = ('<a class="pbtn" href="../merge/">Free play</a>' if daily else '<button type="button" class="pbtn" id="newgame">New game</button>')
+    dbtn = ('<a class="pbtn" href="../merge/">Free play</a><a class="pbtn" href="../daily-path/">Daily path</a>' if daily else '<button type="button" class="pbtn" id="dagain">Play again</button><a class="pbtn" href="../daily-merge/">Daily merge</a>')
+    howto = ('<li>Swipe, or use the arrow keys (or W A S D).</li><li>Two equal tiles that touch join into one: 2 + 2 = 4.</li><li>A new tile appears after every move.</li><li>Reach 2048. The game ends when no move is left.</li>'
+             + ('<li>Everyone gets the same new tiles in the same order today. No undo, one game a day.</li>' if daily else '<li>Undo takes back a move.</li>'))
+    about = ('<p>One new game every day at midnight where you are. Everyone gets the same new tiles in the same order, so the best players really are the best. Your score is final when no move is left.</p>' if daily else
+             '<p>Slide the tiles in four directions. Equal tiles join and add up, and the aim is to reach the 2048 tile. Choose a 4 × 4, 5 × 5 or 6 × 6 board; bigger boards give more room and longer games.</p>')
+    return f"""<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    {side1}
+    {best}
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>{title}</b></p>
+    <div class="ghead"><div><h1>{title}</h1><p class="sub">{sub}</p></div>
+      <div class="meter"><div id="mscorebox"><small>SCORE</small><b id="mscore">0</b></div><div><small>MOVES</small><b id="mmoves">0</b></div></div></div>
+    {sizes}
+    <div class="gbox" id="mbox"><div class="mboard" id="mboard" tabindex="0" role="application" aria-label="Board"><div id="mcells"></div><div id="mtiles"></div></div></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="undo">Undo</button>{btns}</div>
+    <div class="done" id="done"><p class="eyeb">Game over · score</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button>{dbtn}</div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small">{howto}</ul></div>
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../{'merge' if daily else 'daily-merge'}/">{'Merge free play' if daily else 'Daily merge'}</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About {title.lower()}</h2>
+  {about}
+  <p>Your game and best score stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+PAGES['merge'] = ('Merge - Free Number Tile Puzzle, Reach 2048 | Dilia Play', 'Slide and join number tiles to reach 2048 and beyond. 4x4, 5x5 and 6x6 boards, undo. Free, no ads, no sign-up.', merge_body(False), GAME_JS + '<script src="../assets/merge-game.js"></script>', 'free')
+PAGES['daily-merge'] = ('Daily Merge - Same Tiles for Everyone | Dilia Play', 'One number-merge game a day with the same tiles for everyone. Reach 2048 and compare scores. Free, no ads, no sign-up.', merge_body(True), GAME_JS + '<script src="../assets/merge-game.js"></script>', 'daily')
 for slug, (t, d, body, js, *mode) in PAGES.items():
     dd = ROOT / slug; dd.mkdir(exist_ok=True)
     (dd / 'index.html').write_text(shell(t, d, body, js, mode=(mode[0] if mode else 'daily' if slug == 'daily-path' else '')))
