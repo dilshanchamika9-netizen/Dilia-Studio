@@ -109,6 +109,22 @@ async def order_rule(br, when, key):
         ok(True, '')
     await ctx.close(); ok(not errs, f'order errors {errs[:3]}')
 
+async def early_end(br):
+    """Owner's case, 23 Nov 2026: the line reaches 7 with 4 squares empty. The page must say so and flash them."""
+    errs = []; ctx, pg = await page(br, 390, datetime.datetime.fromisoformat('2026-11-23T06:43:00'), errs)
+    await pg.goto(B + 'daily-path/'); await pg.wait_for_timeout(300)
+    Bd = await pg.evaluate('DiliaPathBoard'); n = Bd['n']
+    line = [0, 1, 2, 3, 4, 9, 14, 19, 18, 13, 12, 17, 22, 21, 20, 15, 16, 11, 6, 7, 8]
+    ok(n == 5 and Bd['clues'][8] == Bd['last'] == 7, 'owner board changed (expected 7 at row 2 col 4)')
+    await pg.focus('#board'); await pg.keyboard.press('ArrowRight')
+    for a, c in zip(line, line[1:]):
+        await pg.keyboard.press({1: 'ArrowRight', -1: 'ArrowLeft', n: 'ArrowDown', -n: 'ArrowUp'}[c - a])
+    ok(await pg.inner_text('#pfill') == '21 / 25', f'early line length {await pg.inner_text("#pfill")}')
+    ok('4 squares are still empty' in await pg.inner_text('#msg'), f'no early-end message: {await pg.inner_text("#msg")!r}')
+    ok(await pg.locator('#board .pcell.miss').count() == 4, 'empty squares not flashed')
+    ok(not await pg.is_visible('#done'), 'early line counted as solved')
+    await ctx.close(); ok(not errs, f'early errors {errs[:3]}')
+
 async def sudoku_tests(br, w, when, key):
     errs = []; ctx, pg = await page(br, w, when, errs)
     await pg.goto(B + 'daily-sudoku/'); await pg.wait_for_timeout(300)
@@ -179,6 +195,7 @@ async def main():
             await sudoku_tests(br, w, datetime.datetime.fromisoformat(when), key)
         for when in ('2026-11-23T09:00:00', '2026-11-24T09:00:00', '2026-11-26T09:00:00', '2026-11-29T09:00:00'):
             await order_rule(br, datetime.datetime.fromisoformat(when), when[:10])
+        await early_end(br)
         # the day number follows the local date (#1 on launch day, #6 on Saturday 28 Nov)
         errs = []; ctx, pg = await page(br, 1280, datetime.datetime.fromisoformat('2026-11-28T12:00:00'), errs)
         await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)

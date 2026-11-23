@@ -4,7 +4,7 @@
   const KEY = P.today(), GAME = 'path';
   const B = G.makePath(KEY), n = B.n, N = n * n;
   const board = $('board'), msg = $('msg');
-  const say = t => { msg.textContent = t; clearTimeout(say.t); if (t) say.t = setTimeout(() => { msg.textContent = ''; }, 2600); };
+  const say = (t, ms) => { msg.textContent = t; clearTimeout(say.t); if (t) say.t = setTimeout(() => { msg.textContent = ''; }, ms || 2600); };
 
   $('pno').textContent = '#' + B.no; $('psize').textContent = n + ' × ' + n;
   $('pdate').textContent = P.niceDate(KEY);
@@ -113,7 +113,18 @@
   $('undo').addEventListener('click', undo);
   $('reset').addEventListener('click', () => { if (done) return; line = []; draw(); say('Cleared. Start again from 1.'); });
 
+  // reached the last number too early: say how many squares are empty and flash them
+  let warned = 0;
+  function early() {
+    const end = line[line.length - 1];
+    if (!(B.clues[end] === B.last && line.length < N)) { warned = 0; return; }
+    if (warned === line.length) return; warned = line.length;
+    const left = N - line.length, inL = new Set(line);
+    say(left + (left === 1 ? ' square is' : ' squares are') + ' still empty. Go back and cover ' + (left === 1 ? 'it' : 'them') + ' before ' + B.last + '.', 5000);
+    cells.forEach((c, i) => { if (!inL.has(i)) { c.classList.remove('miss'); void c.offsetWidth; c.classList.add('miss'); } });
+  }
   function check() {
+    early();
     if (done || line.length !== N) return;
     if (!G.checkPath(n, B.clues, B.last, line)) return;
     done = true; const t = clock.stop();
