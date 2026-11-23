@@ -111,3 +111,8 @@ h3{font-size:20px;font-weight:700;letter-spacing:-.015em;line-height:1.2}
 
 .adot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:1px;font-style:normal}
 .adot.t{background:#e5007d}.adot.l{background:#009fe3}.adot.p{background:#7a5cff}.adot.r{background:#3a4252}
+
+.relgrp{max-width:1100px;margin:28px auto 0;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.relgrp b{font-size:14px;color:var(--ink,#0b1220);margin-right:4px}
+.relgrp a{min-height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;border:1px solid #0b122022;background:#fff;color:#0b1220;font-size:14px;font-weight:600;text-decoration:none}
+.relgrp a:hover,.relgrp a:focus-visible{border-color:#e5007d;color:#c2006a}

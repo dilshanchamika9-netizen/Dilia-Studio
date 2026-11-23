@@ -22,7 +22,7 @@
 
   let cur = lineOf[slugId[here]] || (DILIA_LINES.find(L => L.href && L.href.replace('/', '') === here) || {}).id || 'pdf', tab = 'pop';
   const btns = {};
-  const card = t => { const a = el('a', 'mcard'); a.href = diliaUrl(t); const i = el('span', 'mi'); i.innerHTML = diliaIcon(t.icon); const w = el('span', 'mt'); w.append(el('b', '', t.name), el('small', '', t.desc)); a.append(i, w); return a; };
+  const card = t => { const a = el('a', 'mcard'); a.href = diliaUrl(t); const i = el('span', 'mi'); i.innerHTML = diliaIcon(t.icon); const w = el('span', 'mt'); w.append(el('b', '', t.gname || t.name), el('small', '', t.gdesc || t.desc)); a.append(i, w); return a; };
 
   function show(id, keepTab) {
     cur = id; if (!keepTab) tab = 'pop'; const L = DILIA_LINES.find(x => x.id === id);
@@ -57,7 +57,7 @@
   function search() {
     const v = q.value.trim().toLowerCase(); cols.hidden = !!v; results.hidden = !v; results.textContent = '';
     if (!v) return;
-    const words = v.split(/\s+/); const hit = all.filter(t => { const s = (t.name + ' ' + t.desc + ' ' + t.slug.replace(/-/g, ' ')).toLowerCase(); return words.every(w => s.includes(w)); })
+    const words = v.split(/\s+/); const hit = all.filter(t => { const s = (t.name + ' ' + t.desc + ' ' + (t.gname || '') + ' ' + (t.gdesc || '') + ' ' + t.slug.replace(/-/g, ' ')).toLowerCase(); return words.every(w => s.includes(w)); })
       .sort((a, b) => (b.name.toLowerCase().startsWith(v) ? 1 : 0) - (a.name.toLowerCase().startsWith(v) ? 1 : 0)).slice(0, 18);
     if (!hit.length) { results.append(el('p', 'mnone', 'Nothing matches "' + q.value.trim() + '". Try a shorter word, like merge, resize or QR.')); return; }
     const g = el('div', 'mgrid'); hit.forEach(t => g.append(card(t))); results.append(g);
@@ -80,4 +80,17 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { set(false); btn.focus(); } });
   document.addEventListener('click', e => { if (!panel.hidden && !e.composedPath().includes(panel) && !e.composedPath().includes(btn)) set(false); });
   addEventListener('hashchange', () => set(false));
+
+  // "Also in this group": on a tool page that belongs to a grouped card, list its group mates.
+  (() => {
+    const id = slugId[here]; if (!id) return;
+    let grp = null; DILIA_LINES.forEach(L => (L.cats || []).forEach(c => { if (c[2] && (c[1].includes(id) || c[2].includes(id))) grp = c; }));
+    if (!grp) return;
+    const mates = grp[1].concat(grp[2]).filter(i => i !== id && byId[i] && byId[i].ready);
+    const mainEl = document.querySelector('main'), foot = document.querySelector('footer'); if (!(mainEl || foot) || !mates.length) return;
+    const sec = el('nav', 'relgrp'); sec.setAttribute('aria-label', 'Related tools');
+    sec.append(el('b', '', grp[0] + ': also'));
+    mates.forEach(i => { const a = el('a', '', byId[i].name); a.href = diliaUrl(byId[i]); sec.append(a); });
+    if (mainEl) mainEl.after(sec); else foot.before(sec);
+  })();
 })();

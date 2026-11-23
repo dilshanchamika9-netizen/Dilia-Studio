@@ -5,7 +5,7 @@
   const only = document.body.dataset.line || '';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const byId = {}; DILIA_TOOLS.forEach(([g, l]) => l.forEach(t => { byId[t.id] = t; }));
-  const tile = t => `<a class="tile ready" href="${diliaUrl(t)}" data-s="${esc((t.name + ' ' + t.desc).toLowerCase())}"><span class="ic">${diliaIcon(t.icon)}</span><b>${esc(t.name)}</b><span>${esc(t.desc)}</span></a>`;
+  const tile = t => `<a class="tile ready" href="${diliaUrl(t)}" data-s="${esc((t.name + ' ' + t.desc + ' ' + (t.gname || '') + ' ' + (t.gdesc || '')).toLowerCase())}"><span class="ic">${diliaIcon(t.icon)}</span><b>${esc(t.gname || t.name)}</b><span>${esc(t.gdesc || t.desc)}</span></a>`;
   const lines = DILIA_LINES.filter(L => !only || L.id === only);
   { const qi = document.getElementById('q'), ex = { pdf: 'sign or compress', image: 'resize or HEIC', qr: 'Wi-Fi or contact', text: 'count or sort' }[only]; if (qi && ex) qi.placeholder = 'Search ' + lines[0].title + ', for example ' + ex; }
   const live = lines.filter(L => !L.soon), soon = lines.filter(L => L.soon);
