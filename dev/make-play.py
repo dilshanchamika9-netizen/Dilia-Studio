@@ -63,6 +63,8 @@ ART_SNAKE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><defs><li
 ART_TYPE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#ffffff14" stroke="#ffffff30">' + ''.join(f'<rect x="{14 + c * 31}" y="{32 + r * 34}" width="27" height="28" rx="7"/>' for r in range(3) for c in range(4)) + '</g><rect x="14" y="108" width="120" height="26" rx="8" fill="#ffffff14" stroke="#ffffff30"/><rect x="45" y="32" width="27" height="28" rx="7" fill="#7a5cff"/><rect x="76" y="66" width="27" height="28" rx="7" fill="#e5007d"/></svg>'
 ART_RX = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="54" fill="#0f8a4f"/><circle cx="75" cy="75" r="54" fill="none" stroke="#ffffff40" stroke-width="3"/><path d="M82 30 52 82h20l-6 38 32-54H78z" fill="#fff"/></svg>'
 
+ART_PYR = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fbfbff">' + ''.join(f'<rect x="{75 - (r + 1) * 11 + k * 22}" y="{22 + r * 26}" width="20" height="26" rx="4"/>' for r in range(4) for k in range(r + 1)) + '</g><g font-family="Archivo,sans-serif" font-weight="850" font-size="12" text-anchor="middle" fill="#0b1220"><text x="75" y="40">13</text></g></svg>'
+ART_PEAKS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fbfbff">' + ''.join(f'<rect x="{x}" y="{y}" width="18" height="24" rx="4"/>' for x, y in [(30,28),(75,28),(120,28),(21,48),(39,48),(66,48),(84,48),(111,48),(129,48),(12,68),(30,68),(48,68),(57,68),(75,68),(93,68),(102,68),(120,68),(138,68)] if x < 132) + '</g><rect x="40" y="108" width="30" height="30" rx="5" fill="#ffffff44"/><rect x="80" y="108" width="30" height="30" rx="5" fill="#fbfbff"/></svg>'
 # ---------------- hub ----------------
 ART_WHEEL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g transform="translate(75 80)">' + ''.join(f'<path d="M0 0L{54*__import__("math").cos(i*1.0472):.1f} {54*__import__("math").sin(i*1.0472):.1f}A54 54 0 0 1 {54*__import__("math").cos((i+1)*1.0472):.1f} {54*__import__("math").sin((i+1)*1.0472):.1f}Z" fill="{c}"/>' for i, c in enumerate(['#e5007d', '#7a5cff', '#0780b8', '#0f8a4f', '#c2410c', '#6d28d9'])) + '<circle r="9" fill="#0b1220" stroke="#fff" stroke-width="3"/></g><path d="M66 12h18l-9 20z" fill="#ffd400"/></svg>'
 ART_TEAMS = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#fff"><circle cx="45" cy="52" r="14"/><circle cx="105" cy="52" r="14" fill="#c4b5ff"/><circle cx="75" cy="92" r="14" fill="#3fc3ff"/></g><g fill="#ffffff55"><path d="M22 112a23 23 0 0 1 46 0z"/><path d="M82 112a23 23 0 0 1 46 0z"/></g></svg>'
@@ -102,6 +104,9 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../merge/">{ART_MERGE}<span class="no">Free play</span><b>Merge</b><p>Reach 2048 on a 4 × 4, 5 × 5 or 6 × 6 board. Undo any time.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../minesweeper/">{ART_MINES}<span class="no">Free play</span><b>Minesweeper</b><p>Beginner to expert, custom sizes and a no-guessing mode.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../solitaire/">{ART_SOL}<span class="no">Free play</span><b>Solitaire</b><p>Klondike, draw 1 or 3, winnable deals and unlimited undo.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../freecell/">{ART_SOL}<span class="no">Free play</span><b>FreeCell</b><p>Classic deal numbers, every deal winnable. Drag or tap, undo any time.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../pyramid/">{ART_PYR}<span class="no">Free play</span><b>Pyramid</b><p>Take away pairs that add up to 13. Winnable deals.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../tripeaks/">{ART_PEAKS}<span class="no">Free play</span><b>TriPeaks</b><p>Clear three peaks, one rank up or down. Winnable deals.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
     <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
     <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
@@ -120,7 +125,7 @@ HUB = f'''<section class="phero"><div class="wrap">
   <div class="pgrid">
     <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Spider, FreeCell, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Spider, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
   </div>
@@ -338,6 +343,55 @@ def sol_body(daily):
 </div>"""
 PAGES['solitaire'] = ('Solitaire - Free Klondike, Winnable Deals | Dilia Play', 'Free Klondike solitaire: draw 1 or draw 3, winnable deals, unlimited undo, tap or drag. No ads, no sign-up.', sol_body(False), GAME_JS + '<script src="../assets/solitaire-game.js"></script>', 'free')
 PAGES['daily-solitaire'] = ('Daily Solitaire - Same Winnable Deal for Everyone | Dilia Play', 'One Klondike solitaire deal a day, the same for everyone and checked to be winnable. Free, no ads, no sign-up.', sol_body(True), GAME_JS + '<script src="../assets/solitaire-game.js"></script>', 'daily')
+# ---------------- card games: FreeCell, Pyramid, TriPeaks (free play) ----------------
+CARD_LINKS = [('solitaire', 'Solitaire'), ('freecell', 'FreeCell'), ('pyramid', 'Pyramid'), ('tripeaks', 'TriPeaks'), ('daily-solitaire', 'Daily solitaire')]
+def card_body(slug, title, sub, boardid, howto, about, extra_side='', winnable=True, finish=False):
+    more = ' · '.join(f'<a href="../{a}/">{b}</a>' for a, b in CARD_LINKS if a != slug)
+    tools = '<div class="mtools"><button type="button" class="pbtn" id="winnable" aria-pressed="true">Winnable deals</button></div>' if winnable else ''
+    fin = '<button type="button" class="pbtn go" id="finish" hidden>Finish</button>' if finish else ''
+    how = ''.join(f'<li>{h}</li>' for h in howto)
+    return f"""<div class="wrap">
+<div class="gwrap one">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Best time</p><span class="big" id="sbest">–</span><span class="small">Games won: <b id="swins">0</b></span></div>
+    {extra_side}
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small">{how}</ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>{title}</b></p>
+    <div class="ghead"><div><h1>{title}</h1><p class="sub">{sub}</p></div><div class="meter"><div><small>TIME</small><b id="stime">0:00</b></div><div><small>MOVES</small><b id="smoves">0</b></div></div></div>
+    {tools}
+    <div class="gbox"><div class="ksol" id="{boardid}" role="application" aria-label="{title} table"></div></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="undo">Undo</button>{fin}<button type="button" class="pbtn" id="newgame">New deal</button></div>
+    <div class="done" id="done"><p class="eyeb">Cleared</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">New deal</button><a class="pbtn" href="../play/">All of Play</a></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More card games</p><span class="small">{more} · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About {title}</h2>
+  {about}
+  <p>Your game and times stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+CARD_JS = GAME_JS + '<script src="../assets/cardgames.js"></script><script src="../assets/cardkit.js"></script>'
+PAGES['freecell'] = ('FreeCell - Free Online, Every Deal Winnable | Dilia Play', 'Free FreeCell with the classic deal numbers. Every deal can be won. Drag or tap, supermoves, undo and a Finish button. No ads, no sign-up.',
+    card_body('freecell', 'FreeCell', 'Eight columns, four free cells · drag, or tap a card to move it', 'fc',
+      ['Move all cards home, Ace to King, one pile per suit.', 'In the columns, put a card on one rank higher of the other colour.', 'Four free cells hold one card each. Tap a card to send it to the best place.', 'Move several cards at once when you have free cells or empty columns. Keys: U or Ctrl+Z undoes.'],
+      '<p>FreeCell uses the classic deal numbers 1 to 32000. Every one of them can be won, and the single deal that cannot (number 11982) is never dealt. The deal number is shown so you can compare with friends. You can move a run of cards together as long as you have enough free cells and empty columns; undo is unlimited, and Finish sends the cards home when the game is won.</p>',
+      extra_side='<div class="gcard"><p class="eyeb">Deal</p><span class="big" id="fcno">#1</span></div>', winnable=False, finish=True), CARD_JS + '<script src="../assets/freecell-game.js"></script>', 'free')
+PAGES['pyramid'] = ('Pyramid Solitaire - Free, Winnable Deals | Dilia Play', 'Free Pyramid solitaire: remove pairs that add up to 13. Winnable deals, unlimited passes through the deck and undo. No ads, no sign-up.',
+    card_body('pyramid', 'Pyramid', 'Take away pairs that add up to 13 · tap two cards', 'pyr',
+      ['Tap two free cards that add up to 13 to take them away. A free King goes on its own.', 'Ace is 1, Jack 11, Queen 12, King 13.', 'A card is free when no card lies on top of it. Use the card on the waste pile as a partner too.', 'Tap the deck for the next card, as many times round as you like. Clear all 28 pyramid cards to win.'],
+      '<p>Clear the pyramid by pairing free cards that add up to 13, or by removing Kings alone. The deck turns one card at a time and you can go through it as many times as you like. With Winnable deals on, every deal has been checked by a solver before you see it. Undo as much as you like.</p>'), CARD_JS + '<script src="../assets/pyramid-game.js"></script>', 'free')
+PAGES['tripeaks'] = ('TriPeaks Solitaire - Free, Winnable Deals | Dilia Play', 'Free TriPeaks solitaire: clear three peaks by playing cards one rank higher or lower. Winnable deals and undo. No ads, no sign-up.',
+    card_body('tripeaks', 'TriPeaks', 'Clear three peaks · tap a card one rank above or below', 'tpk',
+      ['Tap a face-up card that is one rank higher or lower than the open card.', 'King and Ace count as neighbours.', 'Tap the deck when you are stuck. There is no second pass.', 'Clear all 28 cards in the peaks to win. Keys: D draws, U undoes.'],
+      '<p>Clear all 28 cards from the three peaks. Play any uncovered card that is one rank above or below the open card; Aces and Kings wrap around. When there is no play, draw from the deck. The deck is used once. With Winnable deals on, every deal has been checked by a solver, so a clever route always exists.</p>',
+      extra_side='<div class="gcard"><p class="eyeb">Left</p><span class="small">Peak cards: <b id="tpleft">28</b> · Deck: <b id="tpstock">23</b></span></div>'), CARD_JS + '<script src="../assets/tripeaks-game.js"></script>', 'free')
 # ---------------- arcade and skill: snake, reaction time, typing test (free play; best scores stay in the browser) ----------------
 
 def snake_body():

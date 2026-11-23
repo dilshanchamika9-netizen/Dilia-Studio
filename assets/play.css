@@ -348,3 +348,9 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
   body:has(.pt-bcards) .pt-bcards{grid-template-columns:repeat(2,1fr);gap:8mm;margin:0}
   body:has(.pt-bcards) .pt-bcard{border-color:#000}
 }
+
+/* Card games: FreeCell, Pyramid, TriPeaks */
+.ks.cell{border-style:dashed}
+.kc.sel{outline:3px solid #ffc83a;outline-offset:1px;box-shadow:0 0 0 6px #ffc83a55,0 6px 14px -8px #000c}
+.kc.lock{filter:brightness(.82)}
+.kc[hidden]{display:none}
