@@ -65,8 +65,20 @@ async def checkers(br, w):
     await pg.reload(); await pg.wait_for_timeout(500); s2 = await st(pg); ok(len(s2['hist']) == len(s['hist']), f'[{w}] saved game restored')
     ok(not errs, f'[{w}] checkers errors {errs[:3]}'); await ctx.close()
 
+async def connect4(br, w):
+    ctx, pg, errs = await open_(br, 'connect-four', w)
+    s = await st(pg); ok(len(s['hist']) == 0 and await pg.locator('.bgc').count() == 42, f'[{w}] connect four starts')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] no sideways scroll')
+    await cell(pg, 38).click(); s = await wait_h(pg, 2); ok(len(s['hist']) == 2 and s['hist'][0]['at'] == 38, f'[{w}] disc drops to bottom and computer replies: {s["hist"]}')
+    await cell(pg, 3).click(); s2 = await wait_h(pg, 4); ok(s2['hist'][2]['col'] == 3 and s2['hist'][2]['at'] % 7 == 3, f'[{w}] second disc stacks in same column: {s2["hist"][2]}')
+    await pg.click('#undo'); ok(len((await st(pg))['hist']) == 2, f'[{w}] undo takes back disc and reply')
+    await pg.click('#newgame'); await pg.click('[data-cm=two]')
+    for c in (0, 1, 0, 1, 0, 1, 0): await pg.evaluate(f'(()=>{{const m=DiliaBoardGame.legal().find(x=>x.col=={c});DiliaBoardGame.play(m);}})()')
+    s = await st(pg); ok(s['over'], f'[{w}] four in a column wins'); ok('red wins' in (await pg.inner_text('#deyebrow')).lower(), f'[{w}] Red wins shown')
+    ok(not errs, f'[{w}] connect four errors {errs[:3]}'); await ctx.close()
+
 async def shots(br):
-    for slug in ('checkers', 'reversi'):
+    for slug in ('checkers', 'reversi', 'connect-four'):
         for w, th in ((1280, 'dark'), (390, 'light')):
             ctx, pg, errs = await open_(br, slug, w, th); await pg.click('[data-cm=two]')
             for i in range(6): await pg.evaluate('(()=>{const m=DiliaBoardGame.legal();DiliaBoardGame.play(m[Math.min(1,m.length-1)]);})()')
@@ -74,7 +86,7 @@ async def shots(br):
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
-        for w in (1280, 390): await reversi(br, w); await checkers(br, w)
+        for w in (1280, 390): await reversi(br, w); await checkers(br, w); await connect4(br, w)
         if len(sys.argv) > 1: await shots(br)
         await br.close()
     print('FAILS', fails, 'ok', n_ok); sys.exit(1 if fails else 0)

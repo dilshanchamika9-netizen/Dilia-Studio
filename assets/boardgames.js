@@ -74,6 +74,29 @@
     },
     cells(s) { return s.b.map(p => (p ? { side: p - 1 } : null)); }
   };
+  // ---------- connect four ----------
+  // 7 columns x 6 rows, cells index row*7+col with row 0 at the top. Pieces 1 (side 0, first) and 2 (side 1). A move drops a disc into a column.
+  const C4W = []; (function () { const add = (r, c, dr, dc) => { const w = []; for (let k = 0; k < 4; k++) { const rr = r + dr * k, cc = c + dc * k; if (rr < 0 || rr > 5 || cc < 0 || cc > 6) return; w.push(rr * 7 + cc); } C4W.push(w); }; for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) { add(r, c, 0, 1); add(r, c, 1, 0); add(r, c, 1, 1); add(r, c, 1, -1); } })();
+  const C4ORDER = [3, 2, 4, 1, 5, 0, 6];
+  const C4 = {
+    name: 'connect4',
+    start() { return { b: new Array(42).fill(0), side: 0, n: 0, win: null }; },
+    moves(s) { if (s.win !== null) return []; const out = []; for (const c of C4ORDER) for (let r = 5; r >= 0; r--) if (!s.b[r * 7 + c]) { out.push({ col: c, at: r * 7 + c }); break; } return out; },
+    apply(s, m) {
+      const b = s.b.slice(), me = s.side + 1; b[m.at] = me; let win = null;
+      for (const w of C4W) if (w.includes(m.at) && w.every(i => b[i] === me)) { win = s.side; break; }
+      return { b, side: s.side ^ 1, n: s.n + 1, win };
+    },
+    result(s) { if (s.win !== null) return s.win; return s.n >= 42 ? -1 : null; },
+    rate(s) {
+      const me = s.side + 1; let v = 0;
+      for (const w of C4W) { let m = 0, t = 0; for (const i of w) { const x = s.b[i]; if (x === me) m++; else if (x) t++; } if (!t) v += [0, 1, 5, 25, 0][m]; else if (!m) v -= [0, 1, 5, 25, 0][t]; }
+      for (let r = 0; r < 6; r++) { const x = s.b[r * 7 + 3]; if (x === me) v += 4; else if (x) v -= 4; }
+      return v + 8;
+    },
+    cells(s) { return s.b.map(p => (p ? { side: p - 1 } : null)); },
+    count(s) { return [s.b.filter(x => x === 1).length, s.b.filter(x => x === 2).length]; }
+  };
   // ---------- search ----------
   function search(G, s, depth, o) {
     o = o || {}; const cap = o.nodes || 200000, rnd = o.rnd || Math.random; let nodes = 0, stop = false;
@@ -101,9 +124,10 @@
   }
   const LEVELS = {
     checkers: { 1: { depth: 1, noise: 90, nodes: 5000 }, 2: { depth: 3, noise: 25, nodes: 30000 }, 3: { depth: 7, noise: 0, nodes: 150000 }, 4: { depth: 14, noise: 0, nodes: 600000 } },
+    connect4: { 1: { depth: 2, noise: 6, nodes: 3000 }, 2: { depth: 4, noise: 2, nodes: 20000 }, 3: { depth: 7, noise: 0, nodes: 120000 }, 4: { depth: 12, noise: 0, nodes: 500000 } },
     reversi: { 1: { depth: 1, noise: 40, nodes: 5000 }, 2: { depth: 2, noise: 12, nodes: 30000 }, 3: { depth: 4, noise: 0, nodes: 40000 }, 4: { depth: 8, noise: 0, nodes: 150000 } }
   };
   function think(G, s, level, rnd) { const L = LEVELS[G.name][level] || LEVELS[G.name][3]; return search(G, s, L.depth, { nodes: L.nodes, noise: L.noise, rnd }); }
-  const API = { CK, RV, search, think, LEVELS, flips };
+  const API = { CK, RV, C4, search, think, LEVELS, flips };
   root.DiliaBoard = API; if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

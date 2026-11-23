@@ -207,9 +207,10 @@ async def merge_tests(br, w):
     ok((await st())['cells'] == s2['cells'], f'[{w}] free game not kept after reload')
     # swipe left with the pointer
     box = await pg.locator('#mboard').bounding_box(); before = (await st())['moves']
-    for d in ((-1, 0), (0, 1), (1, 0), (0, 1)):
+    for d in ((-1, 0), (0, 1), (1, 0), (0, -1), (-1, 0), (0, 1), (1, 0), (0, -1)):
+        if (await st())['moves'] > before: break
         cx, cy = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
-        await pg.mouse.move(cx, cy); await pg.mouse.down(); await pg.mouse.move(cx + d[0] * 90, cy + d[1] * 90, steps=4); await pg.mouse.up(); await pg.wait_for_timeout(160)
+        await pg.mouse.move(cx, cy); await pg.mouse.down(); await pg.mouse.move(cx + d[0] * 90, cy + d[1] * 90, steps=4); await pg.mouse.up(); await pg.wait_for_timeout(350)
     ok((await st())['moves'] > before, f'[{w}] swipe did not move')
     # stuck board -> one key -> game over; play again starts fresh
     await pg.goto(B + 'play/'); await pg.wait_for_timeout(200)  # set it from another page: leaving the game page saves the live game

@@ -406,3 +406,11 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .bgc.rv .pc.s0{background:radial-gradient(circle at 35% 30%,#666,#050505 70%)}.bgc.rv .pc.s1{background:radial-gradient(circle at 35% 30%,#fff,#d4d4d4 75%)}
 .bgc.rv.dot::after{width:22%;height:22%;background:#ffffff66}
 .cscore{display:flex;gap:18px;justify-content:center;margin:10px 0 0;font:650 14px/1 var(--font);color:var(--pt)}
+.bgb.c4{grid-template-columns:repeat(7,1fr);aspect-ratio:7/6;max-width:560px;background:#1d4ed8;border-radius:14px;padding:6px;gap:0}
+.bgc.c4{background:none;box-shadow:none}
+.bgc.c4::before{content:"";position:absolute;width:84%;height:84%;border-radius:50%;background:#0b1f66;box-shadow:inset 0 3px 6px #000a}
+.bgc.c4 .pc{width:84%;height:84%;border:0;box-shadow:inset 0 -4px 6px #0004,0 1px 2px #0006}
+.bgc.c4 .pc.s0{background:radial-gradient(circle at 35% 30%,#ff8a8a,#d4202a 70%)}.bgc.c4 .pc.s1{background:radial-gradient(circle at 35% 30%,#fff3a0,#f2c200 70%)}
+.bgc.c4.last .pc{outline:3px solid #ffffffcc;outline-offset:-4px}
+.bgc.c4.dot::after{display:none}
+.bgc.c4.dot:hover::before{background:#16308f}
