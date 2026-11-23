@@ -41,4 +41,12 @@
   const sr = P.result('solitaire', KEY);
   $('n-sol').textContent = 'Daily solitaire #' + no;
   $('s-sol').append(sr ? el('span', 'chip ok', '✓ Won in ' + P.fmt(sr.t)) : saved('solitaire') ? el('span', 'chip on', 'Continue') : el('span', 'chip', 'Play now'));
+  // arcade and skill games: best scores from this browser
+  const rdj = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null') || {}; } catch (e) { return {}; } };
+  const sb = rdj('dilia-snake-best'), sbest = Math.max(sb.classic || 0, sb.modern || 0);
+  if (sbest) $('s-snake').textContent = 'Best ' + sbest;
+  const tb = rdj('dilia-typing-v1').best || {}, tw = Math.max(0, ...Object.values(tb).map(b => (b && b.wpm) || 0));
+  if (tw) $('s-typing').textContent = 'Best ' + tw + ' WPM';
+  const ra = (rdj('dilia-reaction-v1').a || []).filter(x => typeof x === 'number');
+  if (ra.length) $('s-rx').textContent = 'Fastest ' + Math.min(...ra) + ' ms';
 }

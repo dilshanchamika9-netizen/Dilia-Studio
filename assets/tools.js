@@ -181,6 +181,9 @@ window.DILIA_TOOLS = [
     { id: 'gdmines', slug: 'daily-minesweeper', name: 'Daily minesweeper', desc: 'One board a day, same for everyone.', ready: 1, icon: 'M4 4h16v16H4zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' },
     { id: 'gsol', slug: 'solitaire', name: 'Solitaire', desc: 'Klondike, draw 1 or 3, winnable deals, undo.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM11 9l2 3-2 3-2-3z' },
     { id: 'gdsol', slug: 'daily-solitaire', name: 'Daily solitaire', desc: 'One winnable deal a day, same for everyone.', ready: 1, icon: 'M7 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM9 12h4M11 10v4' },
+    { id: 'gsnake', slug: 'snake', name: 'Snake', desc: 'Classic and modern snake. Keyboard or swipe.', ready: 1, icon: 'M4 18h6V12h6V6h4M20 6h.01' },
+    { id: 'gtyping', slug: 'typing-test', name: 'Typing test', desc: '15, 30 or 60 seconds in 5 languages. Speed and accuracy.', ready: 1, icon: 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8' },
+    { id: 'greaction', slug: 'reaction-time', name: 'Reaction time', desc: 'Wait for green, then tap. Your speed in milliseconds.', ready: 1, icon: 'M13 2 4 14h7l-1 8 9-12h-7z' },
     { id: 'gsudoku', slug: 'daily-sudoku', name: 'Daily sudoku', desc: 'Easy, medium and hard boards. New every day.', ready: 1, icon: 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16' }
   ]]
 ];

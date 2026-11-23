@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Snake - Free Classic and Modern Snake Game | Dilia Play</title>
+<meta name="description" content="Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+</head>
+<body class="stage area-play" data-mode="free">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Play home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Play</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Best score</p><span class="big" id="kbest">0</span><span class="small" id="kmodeline"></span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Arrow keys or W A S D to steer. On a phone: swipe, or use the buttons.</li><li>Eat the pink apples to grow. Don't touch your own tail.</li><li>Classic: the walls are deadly. Modern: the edges wrap round, and a gold star (+5) shows up after every 5th apple.</li><li>Space or P pauses.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Snake</b></p>
+    <div class="ghead"><div><h1>Snake</h1><p class="sub">Classic and modern modes</p></div>
+      <div class="meter"><div><small>SCORE</small><b id="kscore">0</b></div><div><small>LENGTH</small><b id="klen">3</b></div></div></div>
+    <div class="mtools"><div class="mlevel" role="group" aria-label="Mode"><button type="button" data-m="classic" aria-pressed="true">Classic</button><button type="button" data-m="modern" aria-pressed="false">Modern</button></div></div>
+    <div class="snkbox" id="snkbox"><canvas id="snk" role="img" aria-label="Snake board. Use the arrow keys or swipe to steer."></canvas><div class="snkov" id="snkov"></div></div>
+    <div class="dpad" aria-label="Steer"><button type="button" class="u" data-d="0" aria-label="Up">▲</button><button type="button" class="l" data-d="3" aria-label="Left">◀</button><button type="button" class="d" data-d="2" aria-label="Down">▼</button><button type="button" class="r" data-d="1" aria-label="Right">▶</button></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="pause" disabled>Pause</button><button type="button" class="pbtn" id="newgame">New game</button></div>
+    <div class="done" id="done"><p class="eyeb" id="deyebrow">Game over · score</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">Play again</button></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../typing-test/">Typing test</a> · <a href="../reaction-time/">Reaction time</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About snake</h2>
+  <p>Steer the snake to the apples. Each apple makes it longer and the game a little faster. In Classic mode the walls end the game; in Modern mode the edges wrap round, so you can leave one side and come back on the other, and a gold star worth 5 points appears after every fifth apple for a few seconds.</p>
+  <p>Fill the whole board and you win. Your best score for each mode stays in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/playgen.js"></script>
+<script src="../assets/playkit.js"></script>
+<script src="../assets/snake-game.js"></script>
+</body>
+</html>

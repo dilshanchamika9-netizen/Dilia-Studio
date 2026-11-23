@@ -80,7 +80,7 @@ window.DiliaPlay = (() => {
     g.fillStyle = gr; g.font = F(850, 210); g.fillText(o.big, 74, 560);
     g.fillStyle = '#cdd3e1'; g.font = F(600, 42); o.lines.forEach((l, i) => g.fillText(l, 80, 660 + i * 62));
     g.fillStyle = gr; g.fillRect(80, 900, 920, 6);
-    g.fillStyle = '#8e97ad'; g.font = F(600, 32); g.fillText('Same puzzle for everyone today. No sign-up, no ads.', 80, 970);
+    g.fillStyle = '#8e97ad'; g.font = F(600, 32); g.fillText(o.foot || 'Same puzzle for everyone today. No sign-up, no ads.', 80, 970);
     return new Promise(res => c.toBlob(res, 'image/png'));
   }
   // the image is made right after a win, so a tap on Share can open the share sheet at once (Safari needs that)

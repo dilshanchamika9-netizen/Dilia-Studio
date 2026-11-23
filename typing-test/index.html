@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play</title>
+<meta name="description" content="Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+</head>
+<body class="stage area-play" data-mode="free">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia Play home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Play</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<div class="gwrap one">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Best for this setting</p><span class="big" id="tbest">–</span><span class="small" id="tbest2"></span></div>
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Click the box and type the words. Press the space bar after each word.</li><li>The timer starts at your first key. Esc starts again.</li><li>Speed counts only words typed exactly right (5 letters = 1 word). Accuracy counts every letter.</li><li>Arabic and Hindi need that language on your keyboard.</li></ul></div>
+    <div class="gcard"><p class="eyeb">Recent tests</p><ul class="thist" id="thist"></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Typing test</b></p>
+    <div class="ghead"><div><h1>Typing test</h1><p class="sub">Speed and accuracy · 15, 30 or 60 seconds</p></div>
+      <div class="meter"><div><small>TIME</small><b id="ttime">30</b></div><div><small>WPM</small><b id="twpm">0</b></div></div></div>
+    <div class="mtools"><div class="mlevel tlang" role="group" aria-label="Language"><button type="button" data-l="en" aria-pressed="true">English</button><button type="button" data-l="ar" aria-pressed="false" lang="ar">العربية</button><button type="button" data-l="es" aria-pressed="false" lang="es">Español</button><button type="button" data-l="hi" aria-pressed="false" lang="hi">हिन्दी</button><button type="button" data-l="pt" aria-pressed="false" lang="pt">Português</button></div>
+      <div class="msize" role="group" aria-label="Time" style="margin:0"><button type="button" data-d="15" aria-pressed="false">15 s</button><button type="button" data-d="30" aria-pressed="true">30 s</button><button type="button" data-d="60" aria-pressed="false">60 s</button></div></div>
+    <div class="gbox"><div class="tybox" id="tybox"><div class="tywords" id="tywords" aria-label="Words to type"></div>
+      <input class="tin" id="tin" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type the words here"></div></div>
+    <p class="msg" id="thint" style="color:var(--pmut)"></p><p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="restart">Start again</button></div>
+    <div class="done" id="done"><p class="eyeb">Time's up</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">Try again</button></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../reaction-time/">Reaction time</a> · <a href="../snake/">Snake</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the typing test</h2>
+  <p>Choose English, Arabic, Spanish, Hindi or Portuguese, and 15, 30 or 60 seconds. The words are common everyday words, picked at random each time. Your speed is shown in words per minute (WPM), where five letters count as one word, and only words typed exactly right count. Accuracy is the share of letters you typed correctly.</p>
+  <p>Your best scores and last ten tests stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/playgen.js"></script>
+<script src="../assets/playkit.js"></script>
+<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>
+</body>
+</html>

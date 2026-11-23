@@ -58,6 +58,10 @@ ART_MINES = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-f
 
 ART_SOL = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g font-family="Archivo,sans-serif" font-weight="850"><rect x="26" y="30" width="62" height="86" rx="9" fill="#fbfbff" transform="rotate(-10 57 73)"/><text x="34" y="58" font-size="20" fill="#0b1220" transform="rotate(-10 57 73)">K♠</text><rect x="62" y="26" width="62" height="86" rx="9" fill="#fbfbff" transform="rotate(9 93 69)"/><text x="70" y="54" font-size="20" fill="#e5007d" transform="rotate(9 93 69)">A♥</text></g></svg>'
 
+ART_SNAKE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><defs><linearGradient id="as" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5cff"/><stop offset="1" stop-color="#3fc3ff"/></linearGradient></defs><g fill="#ffffff10">' + ''.join(f'<rect x="{18 + c * 30}" y="{18 + r * 30}" width="26" height="26" rx="7"/>' for r in range(4) for c in range(4)) + '</g><polyline points="31,121 31,91 61,91 61,61 91,61 91,31" fill="none" stroke="url(#as)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><circle cx="121" cy="31" r="12" fill="#ff2d8f"/><circle cx="98" cy="28" r="3" fill="#fff"/></svg>'
+ART_TYPE = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><g fill="#ffffff14" stroke="#ffffff30">' + ''.join(f'<rect x="{14 + c * 31}" y="{32 + r * 34}" width="27" height="28" rx="7"/>' for r in range(3) for c in range(4)) + '</g><rect x="14" y="108" width="120" height="26" rx="8" fill="#ffffff14" stroke="#ffffff30"/><rect x="45" y="32" width="27" height="28" rx="7" fill="#7a5cff"/><rect x="76" y="66" width="27" height="28" rx="7" fill="#e5007d"/></svg>'
+ART_RX = '<svg class="art" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="54" fill="#0f8a4f"/><circle cx="75" cy="75" r="54" fill="none" stroke="#ffffff40" stroke-width="3"/><path d="M82 30 52 82h20l-6 38 32-54H78z" fill="#fff"/></svg>'
+
 # ---------------- hub ----------------
 HUB = f'''<section class="phero"><div class="wrap">
   <p class="crumbp"><a href="../">Dilia</a> › <b>Play</b></p>
@@ -89,6 +93,9 @@ HUB = f'''<section class="phero"><div class="wrap">
     <a class="daily" href="../merge/">{ART_MERGE}<span class="no">Free play</span><b>Merge</b><p>Reach 2048 on a 4 × 4, 5 × 5 or 6 × 6 board. Undo any time.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../minesweeper/">{ART_MINES}<span class="no">Free play</span><b>Minesweeper</b><p>Beginner to expert, custom sizes and a no-guessing mode.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../solitaire/">{ART_SOL}<span class="no">Free play</span><b>Solitaire</b><p>Klondike, draw 1 or 3, winnable deals and unlimited undo.</p><span class="st"><span class="chip">Play</span></span></a>
+    <a class="daily" href="../snake/">{ART_SNAKE}<span class="no">Arcade</span><b>Snake</b><p>Classic with deadly walls, or modern with wrap-around edges and bonus stars.</p><span class="st"><span class="chip" id="s-snake">Play</span></span></a>
+    <a class="daily" href="../typing-test/">{ART_TYPE}<span class="no">Skill</span><b>Typing test</b><p>15, 30 or 60 seconds in English, Arabic, Spanish, Hindi or Portuguese.</p><span class="st"><span class="chip" id="s-typing">Play</span></span></a>
+    <a class="daily" href="../reaction-time/">{ART_RX}<span class="no">Skill</span><b>Reaction time</b><p>Wait for green, then tap. Your speed in milliseconds.</p><span class="st"><span class="chip" id="s-rx">Play</span></span></a>
   </div>
 </section>
 
@@ -98,8 +105,8 @@ HUB = f'''<section class="phero"><div class="wrap">
     <div class="gcard"><span class="stag2">Soon</span><b>Same-deal classics</b><ul><li>Daily word puzzle</li><li>Daily chess puzzle</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Puzzles</b><ul><li>Nonogram</li><li>Nonogram, sliding puzzles</li><li>Word search</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Cards and board</b><ul><li>Spider, FreeCell, mahjong</li><li>Chess, checkers, reversi</li><li>Ludo, connect four</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Snake</li><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
-    <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Typing test</li><li>Reaction time</li><li>Memory games</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Arcade</b><ul><li>Brick breaker, pong</li><li>One-button games</li></ul></div>
+    <div class="gcard"><span class="stag2">Soon</span><b>Brain and skill</b><ul><li>Memory games</li><li>Aim trainer</li><li>Speed reading</li></ul></div>
     <div class="gcard"><span class="stag2">Soon</span><b>Party and decide</b><ul><li>Wheel spinner</li><li>Dice, coin, team maker</li><li>Secret Santa draw</li></ul></div>
   </div>
 </section>'''
@@ -316,6 +323,103 @@ def sol_body(daily):
 </div>"""
 PAGES['solitaire'] = ('Solitaire - Free Klondike, Winnable Deals | Dilia Play', 'Free Klondike solitaire: draw 1 or draw 3, winnable deals, unlimited undo, tap or drag. No ads, no sign-up.', sol_body(False), GAME_JS + '<script src="../assets/solitaire-game.js"></script>', 'free')
 PAGES['daily-solitaire'] = ('Daily Solitaire - Same Winnable Deal for Everyone | Dilia Play', 'One Klondike solitaire deal a day, the same for everyone and checked to be winnable. Free, no ads, no sign-up.', sol_body(True), GAME_JS + '<script src="../assets/solitaire-game.js"></script>', 'daily')
+# ---------------- arcade and skill: snake, reaction time, typing test (free play; best scores stay in the browser) ----------------
+
+def snake_body():
+    return """<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Best score</p><span class="big" id="kbest">0</span><span class="small" id="kmodeline"></span></div>
+    <div class="gcard"><p class="eyeb">How to play</p><ul class="small"><li>Arrow keys or W A S D to steer. On a phone: swipe, or use the buttons.</li><li>Eat the pink apples to grow. Don't touch your own tail.</li><li>Classic: the walls are deadly. Modern: the edges wrap round, and a gold star (+5) shows up after every 5th apple.</li><li>Space or P pauses.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Snake</b></p>
+    <div class="ghead"><div><h1>Snake</h1><p class="sub">Classic and modern modes</p></div>
+      <div class="meter"><div><small>SCORE</small><b id="kscore">0</b></div><div><small>LENGTH</small><b id="klen">3</b></div></div></div>
+    <div class="mtools"><div class="mlevel" role="group" aria-label="Mode"><button type="button" data-m="classic" aria-pressed="true">Classic</button><button type="button" data-m="modern" aria-pressed="false">Modern</button></div></div>
+    <div class="snkbox" id="snkbox"><canvas id="snk" role="img" aria-label="Snake board. Use the arrow keys or swipe to steer."></canvas><div class="snkov" id="snkov"></div></div>
+    <div class="dpad" aria-label="Steer"><button type="button" class="u" data-d="0" aria-label="Up">▲</button><button type="button" class="l" data-d="3" aria-label="Left">◀</button><button type="button" class="d" data-d="2" aria-label="Down">▼</button><button type="button" class="r" data-d="1" aria-label="Right">▶</button></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="pause" disabled>Pause</button><button type="button" class="pbtn" id="newgame">New game</button></div>
+    <div class="done" id="done"><p class="eyeb" id="deyebrow">Game over · score</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">Play again</button></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../typing-test/">Typing test</a> · <a href="../reaction-time/">Reaction time</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About snake</h2>
+  <p>Steer the snake to the apples. Each apple makes it longer and the game a little faster. In Classic mode the walls end the game; in Modern mode the edges wrap round, so you can leave one side and come back on the other, and a gold star worth 5 points appears after every fifth apple for a few seconds.</p>
+  <p>Fill the whole board and you win. Your best score for each mode stays in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+
+def reaction_body():
+    return """<div class="wrap">
+<div class="gwrap">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Fastest ever</p><span class="big" id="rxbest">–</span><span class="small">Average <b id="rxavg">–</b> · <b id="rxcount">0</b> tries</span></div>
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Tap the box to start. It turns red: wait.</li><li>When it turns green, tap as fast as you can.</li><li>Tap too soon and the try does not count.</li><li>Space or Enter works too. 5 tries make a round.</li></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Reaction time</b></p>
+    <div class="ghead"><div><h1>Reaction time</h1><p class="sub">How fast can you tap? In milliseconds.</p></div>
+      <div class="meter"><div><small>TRY</small><b id="rxtry">1/5</b></div><div><small>LAST</small><b id="rxlast">–</b></div></div></div>
+    <div class="rxpad" id="rxpad" role="button" tabindex="0" data-s="idle"><b id="rxbig">Tap to start</b><span id="rxsub"></span></div>
+    <div class="rxdots" id="rxdots" aria-hidden="true"></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="done" id="done"><p class="eyeb">Round done · average</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button></div></div>
+    <div class="gcard" style="margin-top:16px"><p class="eyeb">History</p><svg class="rxchart" id="rxchart" viewBox="0 0 300 110" preserveAspectRatio="none" role="img" aria-label="Your last reaction times"></svg><span class="small" id="rxnote"></span></div>
+    <div class="gbtns"><button type="button" class="pbtn" id="rxclear">Clear history</button></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../typing-test/">Typing test</a> · <a href="../snake/">Snake</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the reaction time test</h2>
+  <p>Wait for the box to turn green, then tap. The time counts from the moment the green is drawn to your tap. It includes the delay of your screen, device and browser, so use it to compare yourself on the same device, not against other people's numbers on other devices.</p>
+  <p>Typical results are in the range of 200 to 300 milliseconds. This is a fun test, not a medical one. Your times stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+
+def typing_body():
+    return """<div class="wrap">
+<div class="gwrap one">
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">Best for this setting</p><span class="big" id="tbest">–</span><span class="small" id="tbest2"></span></div>
+    <div class="gcard"><p class="eyeb">How it works</p><ul class="small"><li>Click the box and type the words. Press the space bar after each word.</li><li>The timer starts at your first key. Esc starts again.</li><li>Speed counts only words typed exactly right (5 letters = 1 word). Accuracy counts every letter.</li><li>Arabic and Hindi need that language on your keyboard.</li></ul></div>
+    <div class="gcard"><p class="eyeb">Recent tests</p><ul class="thist" id="thist"></ul></div>
+  </div>
+  <div>
+    <p class="crumbp"><a href="../">Dilia</a> › <a href="../play/">Play</a> › <b>Typing test</b></p>
+    <div class="ghead"><div><h1>Typing test</h1><p class="sub">Speed and accuracy · 15, 30 or 60 seconds</p></div>
+      <div class="meter"><div><small>TIME</small><b id="ttime">30</b></div><div><small>WPM</small><b id="twpm">0</b></div></div></div>
+    <div class="mtools"><div class="mlevel tlang" role="group" aria-label="Language"><button type="button" data-l="en" aria-pressed="true">English</button><button type="button" data-l="ar" aria-pressed="false" lang="ar">العربية</button><button type="button" data-l="es" aria-pressed="false" lang="es">Español</button><button type="button" data-l="hi" aria-pressed="false" lang="hi">हिन्दी</button><button type="button" data-l="pt" aria-pressed="false" lang="pt">Português</button></div>
+      <div class="msize" role="group" aria-label="Time" style="margin:0"><button type="button" data-d="15" aria-pressed="false">15 s</button><button type="button" data-d="30" aria-pressed="true">30 s</button><button type="button" data-d="60" aria-pressed="false">60 s</button></div></div>
+    <div class="gbox"><div class="tybox" id="tybox"><div class="tywords" id="tywords" aria-label="Words to type"></div>
+      <input class="tin" id="tin" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type the words here"></div></div>
+    <p class="msg" id="thint" style="color:var(--pmut)"></p><p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="gbtns"><button type="button" class="pbtn" id="restart">Start again</button></div>
+    <div class="done" id="done"><p class="eyeb">Time's up</p><div class="t" id="dtime"></div><p id="dline"></p>
+      <div class="gbtns"><button type="button" class="pbtn go" id="share">Share result</button><button type="button" class="pbtn" id="saveimg">Save image</button><button type="button" class="pbtn" id="dagain">Try again</button></div></div>
+  </div>
+  <div class="gside">
+    <div class="gcard"><p class="eyeb">More games</p><span class="small"><a href="../reaction-time/">Reaction time</a> · <a href="../snake/">Snake</a> · <a href="../play/">All of Play</a></span></div>
+  </div>
+</div>
+<section class="gtext">
+  <h2>About the typing test</h2>
+  <p>Choose English, Arabic, Spanish, Hindi or Portuguese, and 15, 30 or 60 seconds. The words are common everyday words, picked at random each time. Your speed is shown in words per minute (WPM), where five letters count as one word, and only words typed exactly right count. Accuracy is the share of letters you typed correctly.</p>
+  <p>Your best scores and last ten tests stay in this browser. Nothing is sent anywhere.</p>
+</section>
+</div>"""
+
+PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
+PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
+PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')
 for slug, (t, d, body, js, *mode) in PAGES.items():
     dd = ROOT / slug; dd.mkdir(exist_ok=True)
     (dd / 'index.html').write_text(shell(t, d, body, js, mode=(mode[0] if mode else 'daily' if slug == 'daily-path' else '')))

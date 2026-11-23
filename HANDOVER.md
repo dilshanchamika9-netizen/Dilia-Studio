@@ -275,3 +275,14 @@ Every tool page now lives at `/<keyword>/` (folder with `index.html`), e.g. `/co
 - Minesweeper: first tap safe; "No guessing" boards checked by a logic solver; daily 16x16/40 opened at a fixed square, a mine restarts the same board (tries counted). Expert turns 16x30 on phones.
 - Solitaire: Klondike; winnable deals (draw 1) proven by a solver that treats the stock as an open pool (exact for draw 1 with unlimited passes); klReplay turns its moves into real moves and the tests replay them to a win. Draw 3 deals are random.
 - Tests: dev/tests/test-playgen.js (Node: 400 days, 100 levels, mines, 120 solitaire deals), dev/tests/test-merge.js, dev/tests/test-play.py (326 browser checks).
+
+## 14. Play step 4: Snake, Typing test, Reaction time (23 Nov 2026, Sonnet)
+- New pages (built by dev/make-play.py): /snake/, /typing-test/, /reaction-time/. Free play only: no daily, not counted in the daily streak. Best scores stay in the browser (keys dilia-snake-best, dilia-snake-mode, dilia-typing-v1, dilia-typing-pref, dilia-reaction-v1).
+- Game files: assets/snake-game.js, assets/typing-game.js (+ assets/typing-words.js word lists), assets/reaction-game.js. Rules in assets/playgen.js: snakeNew/snakeStep (Classic = deadly walls; Modern = wrap-around edges + gold star after every 5th apple, +5, gone after 40 steps) and typingScore.
+- Typing score: WPM counts only words typed exactly right (+1 for the space), 5 chars = 1 word; accuracy = right letters / typed letters (missing and extra letters are mistakes). Arabic and Hindi mark whole words (not single letters) so joined letters keep their shapes. Languages: English, Arabic, Spanish, Hindi, Portuguese (owner decision 2026-11-21).
+- Reaction: timer starts when the green has been drawn (requestAnimationFrame), stops on pointerdown. 5 tries per round, last 200 tries kept, bar chart of the last 30. Tap too soon does not count.
+- playkit share card has an optional `foot` line (free-play games should pass their own; older free-play games still show the daily line "Same puzzle for everyone today").
+- Not built yet from the plan: typing lessons, aim trainer (the plan pairs it with reaction time), snake sizes/obstacles.
+- Word lists for Arabic and Hindi were written by Claude and have NOT been checked by a native speaker.
+- Tests: dev/tests/test-arcade.js (Node: snake rules incl. random play + a bot that fills 4x4 and 6x6, typing score, word lists) and dev/tests/test-arcade.py (browser, both widths). Both in run-gate.sh.
+- Next in the Area 3 build order: step 5 (wheel, dice, teams).

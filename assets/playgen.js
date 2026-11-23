@@ -449,7 +449,51 @@
   }
   const klDaily = key => { const d = klWinnable('solitaire:' + key, 6000); d.no = dayNo(key); return d; };
 
-  const API = { klDeal, klLegal, klApply, klWon, klSolve, klReplay, klWinnable, klDaily, klCopy, around, mineSolve, makeMines, makeDailyMines, mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
+
+  // ---- Snake: pure rules (the page does drawing and timing). Directions: 0 up, 1 right, 2 down, 3 left ----
+  const SN = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  function snakeFree(s) { const occ = new Set(s.body); if (s.food >= 0) occ.add(s.food); if (s.bonus) occ.add(s.bonus.at); const f = []; for (let i = 0; i < s.n * s.n; i++) if (!occ.has(i)) f.push(i); return f; }
+  function snakeNew(n, rnd) {
+    const m = n >> 1, h = m * n + m, s = { n, body: [h, h - 1, h - 2], dir: 1, food: -1, bonus: null, score: 0, eaten: 0, dead: false, won: false };
+    const f = snakeFree(s); s.food = f[rnd(f.length)]; return s;
+  }
+  // one move. dir: wanted direction (a turn back on itself is ignored). wrap: edges join up. bonusOn: gold star every 5th apple.
+  function snakeStep(s, dir, wrap, bonusOn, rnd) {
+    const out = { ate: false, bonus: false, dead: false };
+    if (s.dead || s.won) return out;
+    if (dir != null && dir !== (s.dir + 2) % 4) s.dir = dir;
+    const n = s.n, h = s.body[0]; let x = h % n + SN[s.dir][0], y = ((h / n) | 0) + SN[s.dir][1];
+    if (x < 0 || y < 0 || x >= n || y >= n) { if (!wrap) { s.dead = out.dead = true; return out; } x = (x + n) % n; y = (y + n) % n; }
+    const to = y * n + x, ate = to === s.food, star = !!s.bonus && to === s.bonus.at, grow = ate || star, at = s.body.indexOf(to);
+    if (at >= 0 && !(at === s.body.length - 1 && !grow)) { s.dead = out.dead = true; return out; }
+    s.body.unshift(to); if (!grow) s.body.pop();
+    if (s.bonus) { if (star) s.bonus = null; else if (--s.bonus.left <= 0) s.bonus = null; }
+    if (ate) { s.score++; s.eaten++; out.ate = true; }
+    if (star) { s.score += 5; out.bonus = true; }
+    if (ate || star) {
+      let f = snakeFree(s); if (ate && !f.length && s.bonus) { s.bonus = null; f = snakeFree(s); }
+      if (ate) { if (!f.length) { s.food = -1; s.won = true; return out; } s.food = f[rnd(f.length)]; }
+      if (ate && bonusOn && s.eaten % 5 === 0) { const g = snakeFree(s); if (g.length) s.bonus = { at: g[rnd(g.length)], left: 40 }; }
+    }
+    return out;
+  }
+  // typing score. target: words that were shown; typed: what the person typed for each word (the last one may be unfinished).
+  // wpm counts only words typed exactly right (+1 for the space after each); raw counts every typed character. 5 characters = 1 word.
+  function typingScore(target, typed, seconds, partial) {
+    let good = 0, bad = 0, rightChars = 0, all = 0, right = 0;
+    typed.forEach((t, i) => {
+      const a = Array.from(String(t).normalize('NFC')), w = Array.from(String(target[i]).normalize('NFC')), last = partial && i === typed.length - 1;
+      let hit = 0; a.forEach((c, j) => { if (c === w[j]) hit++; });
+      good += hit; bad += a.length - hit + (last ? 0 : Math.max(0, w.length - a.length));
+      all += a.length + (last ? 0 : 1);
+      const exact = a.length === w.length && hit === w.length;
+      if (exact && !last) { right++; rightChars += w.length + 1; } else if (last && hit === a.length) rightChars += a.length;
+    });
+    const min = Math.max(seconds, 1) / 60;
+    return { wpm: rightChars / 5 / min, raw: all / 5 / min, acc: good + bad ? good / (good + bad) * 100 : 100, good, bad, words: right };
+  }
+
+  const API = { snakeNew, snakeStep, snakeFree, typingScore, klDeal, klLegal, klApply, klWon, klSolve, klReplay, klWinnable, klDaily, klCopy, around, mineSolve, makeMines, makeDailyMines, mergeMove, mergeCanMove, mergeSpawn, hash, rng, dayKey, dayNo, weekday, makePath, makeLevel, levelSize, checkPath, solvePath, makeSudoku, solveSudoku, LEVELS };
   root.DiliaPlayGen = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
