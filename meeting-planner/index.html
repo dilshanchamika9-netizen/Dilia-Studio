@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Meeting Planner Across Time Zones - Skips Weekends and Holidays | Dilia Life</title>
+<meta name="description" content="Free meeting planner: find hours when everyone is at work across cities, skipping each country's weekend and public holidays. Private.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-life" data-mode="life">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Life</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<link rel="stylesheet" href="../assets/lifefx.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<section class="lx" data-lc="meet"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Meeting planner</b></p>
+<h1>Meeting planner</h1><p class="lsub">Find the hours when everyone is at work, skipping each country's weekend and public holidays.</p>
+<div class="lglass lxctl"><div class="cpick" id="cchips"></div><div class="cpick"><select id="cadd" aria-label="Add a city"></select></div>
+  <div class="lrow"><label class="f">Start date<input id="mpd" type="date" min="2024-01-01" max="2035-12-31"></label><label class="f">Days<select id="mpn"><option value="5">5</option><option value="7" selected>7</option><option value="14">14</option></select></label><label class="f">Work day starts<select id="mph0"></select></label><label class="f">Work day ends<select id="mph1"></select></label></div></div>
+<div class="lhero"><div class="k">HOURS IN THE FIRST CITY'S TIME</div><div class="lstats" id="mpsum"></div></div>
+<h2>Every hour, every day</h2><p class="lnote">Green: everyone is free. Blue: some are free, brighter means more. Tap an hour to see each city.</p>
+<div class="lglass lcviz mpwrap"><div class="mpgrid" id="mpgrid"></div></div>
+<div class="lglass ldet" id="mpdet"><p>Tap an hour to see each city.</p></div>
+<h2>Best hours</h2><ol class="mpbest" id="mpbest"></ol>
+<div class="lact"><button type="button" class="go" id="mpcopy">Copy best hours</button><span id="mpcopymsg" role="status"></span><a class="lbtn" href="../world-clock/">World clock</a></div>
+</div></section>
+<div class="wrap"><section class="gtext"><h2>How it works</h2><p>Each hour is checked for every city: it must fall inside the work hours you set, not on that country's weekend, and not on a national public holiday there (data from the open-source Vacanza holidays library, 2024 to 2035). Hours are shown in the first city's local time; daylight saving is included.</p></section></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/calcmath.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/cities.js"></script><script src="../assets/clock-ui.js"></script>
+</body>
+</html>

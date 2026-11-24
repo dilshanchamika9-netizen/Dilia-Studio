@@ -49,7 +49,7 @@ async def hub(br, w, theme):
     ok('Loading' not in await pg.inner_text('#lhhn') and len(await pg.inner_text('#lhcd')) > 0, f'[{t}] next holiday countdown')
     await pg.select_option('#lhc', 'US'); await pg.wait_for_timeout(500); ok('c=US' in await pg.get_attribute('#lhall', 'href'), f'[{t}] country change updates link')
     await pg.reload(); await pg.wait_for_timeout(800); ok(await pg.evaluate("document.getElementById('lhc').value") == 'US', f'[{t}] country remembered')
-    hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 9, f'[{t}] 9 tool portals')
+    hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 12, f'[{t}] 12 tool portals')
     for h in hs: r = await pg.request.get(B + 'life/' + h); ok(r.status == 200, f'[{t}] portal {h} -> {r.status}')
     ok(await pg.locator('.lroad li').count() == 8, f'[{t}] roadmap')
     if len(sys.argv) > 1: await pg.screenshot(path=f'/tmp/lh-{w}.png', full_page=True)
@@ -91,7 +91,46 @@ async def calcs(br, w, theme):
         for s in ['date-difference-calculator', 'add-days-to-date', 'age-calculator', 'day-of-the-week-calculator', 'working-days-calculator', 'time-zone-converter', 'uae-gratuity-calculator']:
             await pg.goto(B + s + '/'); await pg.wait_for_timeout(700); await pg.screenshot(path=f'/tmp/lc-{s}-{w}.png', full_page=True)
     ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
-CASES = [holidays, hub, calcs]
+async def newlife(br, w, theme):
+    ctx, pg, errs = await ctx_page(br, w, theme); t = f'new {w}'
+    # world clock
+    await pg.goto(B + 'world-clock/#c=Dubai|London|Tokyo'); await pg.wait_for_timeout(900)
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{t}] clock no sideways scroll')
+    ok(await pg.locator('#wccards .wcc').count() == 3, f'[{t}] clock cities from address')
+    a = await pg.inner_text('#wctime'); await pg.wait_for_timeout(1100); ok(a != await pg.inner_text('#wctime'), f'[{t}] clock ticks')
+    tk = await pg.inner_text('#wccards .wcc:nth-child(3) .t'); ok(len(tk) == 5 and ':' in tk, f'[{t}] Tokyo time shown {tk}')
+    ok('ahead' in await pg.inner_text('#wccards .wcc:nth-child(3) .dd') or 'behind' in await pg.inner_text('#wccards .wcc:nth-child(3) .dd'), f'[{t}] difference shown')
+    await pg.select_option('#cadd', 'Colombo'); await pg.wait_for_timeout(300); ok(await pg.locator('#wccards .wcc').count() == 4, f'[{t}] add city')
+    await pg.locator('#wccards .wcc .x').first.click(); await pg.wait_for_timeout(300); ok(await pg.locator('#wccards .wcc').count() == 3, f'[{t}] remove city')
+    ok('meeting-planner/#c=' in await pg.get_attribute('#wcmeet', 'href'), f'[{t}] meeting link carries cities')
+    # meeting planner: Dubai + London, a known week with UAE National Day (2 Dec 2026, Wed) and the Fri/Sat... UAE weekend is Sat/Sun
+    await pg.goto(B + 'meeting-planner/#c=Dubai|London'); await pg.wait_for_timeout(600)
+    await pg.evaluate("(()=>{const e=document.getElementById('mpd');e.value='2026-11-30';e.dispatchEvent(new Event('change'))})()"); await pg.wait_for_timeout(600)
+    best = await pg.evaluate('DiliaClock.best()'); days = sorted(set(d for d, h in best))
+    ok('2026-12-02' not in days and '2026-12-03' not in days, f'[{t}] UAE National Day skipped {days}')
+    ok('2026-12-05' not in days and '2026-12-06' not in days, f'[{t}] weekend skipped')
+    ok('2026-11-30' in days and all(13 <= h <= 20 for d, h in best), f'[{t}] Monday has common hours inside both work days {best[:4]}')
+    ok(await pg.locator('#mpgrid .mpr').count() == 7 and await pg.locator('#mpgrid .mpc.all').count() == len(best), f'[{t}] grid matches best hours')
+    await pg.locator('#mpgrid .mpc.all').first.click(); ok('2 of 2' in await pg.inner_text('#mpdet'), f'[{t}] hour detail')
+    await pg.locator('#mpgrid .mpr').nth(2).locator('.mpc').nth(14).click(); ok('holiday' in (await pg.inner_text('#mpdet')).lower(), f'[{t}] holiday reason shown')
+    # festivals
+    await pg.goto(B + 'festival-calendar/'); await pg.wait_for_timeout(900)
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{t}] fest no sideways scroll')
+    s = await pg.evaluate('DiliaFestUI.state()'); names = [f['name'] for f in s['list']]
+    ok(all(n in names for n in ['Eid al-Fitr', 'Diwali', 'Christmas', 'Chinese New Year', 'Easter Sunday', 'Hanukkah begins', 'Vesak']), f'[{t}] main festivals present')
+    ok(len(await pg.inner_text('#fscd')) > 0, f'[{t}] countdown')
+    await pg.select_option('#fsy', '2027'); await pg.wait_for_timeout(400); s = await pg.evaluate('DiliaFestUI.state()'); ok(any(f['id'] == 'easter' and f['date'] == '2027-03-28' for f in s['list']), f'[{t}] Easter 2027')
+    ok(any(f['id'] == 'cny' and f['date'] == '2027-02-06' for f in s['list']), f'[{t}] CNY 2027')
+    await pg.click('[data-tr="Islamic"]'); await pg.wait_for_timeout(300); s = await pg.evaluate('DiliaFestUI.state()'); ok(not any(f['trad'] == 'Islamic' for f in s['list']), f'[{t}] filter off')
+    await pg.reload(); await pg.wait_for_timeout(700); ok('Islamic' not in (await pg.evaluate('DiliaFestUI.state()'))['on'], f'[{t}] filter remembered')
+    await pg.click('[data-all="1"]'); await pg.wait_for_timeout(300)
+    await pg.locator('#fslist .fc').first.click(); ok(len(await pg.inner_text('#fsdet')) > 20, f'[{t}] festival detail')
+    async with pg.expect_download() as d: await pg.click('#fsics')
+    c = open(await (await d.value).path()).read(); ok(c.count('BEGIN:VEVENT') >= 15, f'[{t}] festival ics')
+    if len(sys.argv) > 1:
+        for sl in ['world-clock', 'meeting-planner', 'festival-calendar']: await pg.goto(B + sl + '/'); await pg.wait_for_timeout(900); await pg.screenshot(path=f'/tmp/nl-{sl}-{w}.png', full_page=True)
+    ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
+CASES = [holidays, hub, calcs, newlife]
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
