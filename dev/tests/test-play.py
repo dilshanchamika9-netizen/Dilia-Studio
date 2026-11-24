@@ -88,6 +88,7 @@ async def path_tests(br, w, when, key):
     ok('Solved in' in await pg.inner_text('#s-path'), f'[{w}] hub path status: {await pg.inner_text("#s-path")}')
     ok((await pg.inner_text('#hstreak')).startswith('1 day'), f'[{w}] hub streak')
     ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on hub')
+    ok(await pg.evaluate("(()=>{const s=[...document.querySelectorAll('#hweek span')];if(s.length!==7)return false;const t=s.map(e=>Math.round(e.getBoundingClientRect().top));const x=s.map(e=>e.getBoundingClientRect().left);return Math.max(...t)-Math.min(...t)<=2&&x.every((v,i)=>!i||v>x[i-1])})()"), f'[{w}] hub week strip lies in one row')
     await pg.goto(B); await pg.wait_for_timeout(300)
     ok(await pg.inner_text('#t-pz') == f'Daily path #{Bd["no"]}', f'[{w}] home strip: {await pg.inner_text("#t-pz")}')
     await ctx.close()

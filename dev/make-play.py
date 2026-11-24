@@ -116,7 +116,7 @@ HUB = f'''<section class="phero"><div class="wrap">
   </div>
   <div class="pstrip">
     <div class="gcard"><p class="eyeb">Streak</p><span class="big" id="hstreak">0</span><span class="small" id="hstreak2">Solve any daily to start a streak.</span></div>
-    <div class="gcard"><p class="eyeb">This week</p><div class="wk" id="hweek"></div></div>
+    <div class="gcard"><p class="eyeb">This week</p><div class="wkrow" id="hweek"></div></div>
     <div class="gcard"><p class="eyeb">Your bests</p><span class="small" id="hbest">Solve a daily to see your best times.</span></div>
   </div>
 </section>

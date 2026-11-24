@@ -19,7 +19,7 @@
 :root:not([data-theme=dark]) .chip.ok{color:#047857}
 :root:not([data-theme=dark]) .chip.on{color:#946500}
 :root:not([data-theme=dark]) .big{color:var(--ink)}
-:root:not([data-theme=dark]) .wk i{background:#0b122007}
+:root:not([data-theme=dark]) .wkrow i{background:#0b122007}
 :root:not([data-theme=dark]) .pgrid .gcard b{color:var(--ink)}
 :root:not([data-theme=dark]) .stag2{color:#5a3ee0}
 :root:not([data-theme=dark]) .meter b{color:var(--ink)}
