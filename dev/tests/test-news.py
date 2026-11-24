@@ -55,7 +55,9 @@ async def main():
             for url in ('news/', f'news/{POSTS[0]["slug"]}/'):
                 ctx, pg, errs = await mk(br, 390, th); await pg.goto(B + url); await pg.wait_for_timeout(300)
                 ok(await pg.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), f'[{th} 390 {url}] no sideways scroll'); ok(not errs, f'[{th}] errors {errs[:2]}')
-                if th == 'dark': ok(await pg.evaluate("getComputedStyle(document.querySelector('.ptitle, h1')).color") != 'rgb(11, 18, 32)', f'[dark {url}] text is light')
+                if th == 'dark':
+                    ok((await pg.evaluate("getComputedStyle(document.querySelector('.ptab[aria-pressed=true], .ptab.on')).backgroundImage")).startswith('linear-gradient'), f'[dark {url}] active tab highlighted')
+                    ok(await pg.evaluate("getComputedStyle(document.querySelector('.ptitle, h1')).color") != 'rgb(11, 18, 32)', f'[dark {url}] text is light')
                 await ctx.close()
         await br.close()
 asyncio.run(main()); print('FAILS', fails, 'ok', n_ok); sys.exit(1 if fails else 0)

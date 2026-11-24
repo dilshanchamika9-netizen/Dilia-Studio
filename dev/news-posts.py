@@ -1,11 +1,11 @@
 # Dilia Pulse stories. Each one is written from primary sources (company filings, official releases) and lists them.
 # Every story needs owner approval before it is released.
-# Fields: slug, title, desc (deck), date, topic (AI | Tech | Business | Markets | Policy), kicker, lead (True for the top story),
+# Fields: slug, scene (cartoon in dev/pulse-art.py), badge (short number on the picture), title, desc (deck), date, topic (AI | Tech | Business | Markets | Policy), kicker, lead (True for the top story),
 #   art: {'kind': 'stat', 'value', 'label'} or {'kind': 'bars', 'label', 'unit', 'items': [(name, number), ...]},
 #   facts: 3 to 4 short key facts, body: paragraphs ('## ' starts a heading), sources: [(label, https url)], note (optional extra disclosure).
 POSTS = [
 dict(
- slug='nvidia-reinstates-jensen-huang', lead=True, date='2026-11-23', topic='Business', kicker='Leadership',
+ slug='nvidia-reinstates-jensen-huang', scene='ceo-return', badge='+31%', lead=True, date='2026-11-23', topic='Business', kicker='Leadership',
  title='Nvidia brings back Jensen Huang as CEO, eleven days after he resigned',
  desc='The board voted unanimously to reinstate its co-founder after hearing from senior US officials, and set up new national security oversight at the same time.',
  art={'kind': 'stat', 'value': '+31%', 'label': 'Nvidia shares on Monday 23 November'},
@@ -29,7 +29,7 @@ dict(
           ('Nvidia: CEO transition announcement (Form 8-K exhibit, 12 Nov 2026)', 'https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000082/nvidiaannouncesceotransiti.htm'),
           ('CaixaBank Research: Financial Markets Daily Report, 24 Nov 2026', 'https://www.caixabankresearch.com/en/publications/financial-markets-daily-report/24-november-2026')]),
 dict(
- slug='nvidia-revenue-doubles-115-billion', date='2026-11-17', topic='Business', kicker='Earnings',
+ slug='nvidia-revenue-doubles-115-billion', scene='datacenter', badge='$115.8B', date='2026-11-17', topic='Business', kicker='Earnings',
  title='Nvidia revenue doubles to $115.8 billion as Vera Rubin starts shipping',
  desc='Data center sales rose 110% from a year ago, and the company expects about $130 billion next quarter without counting on China.',
  art={'kind': 'bars', 'label': 'Nvidia quarterly revenue, $ billion', 'unit': '$B', 'items': [('Q3 FY26', 57.0), ('Q2 FY27', 96.2), ('Q3 FY27', 115.8), ('Q4 outlook', 130.0)]},
@@ -51,7 +51,7 @@ dict(
  sources=[('Nvidia: Financial results for Q3 fiscal 2027', 'https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/default.aspx'),
           ('Nvidia: Financial results for Q3 fiscal 2026 (prior-year comparison)', 'https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2026/default.aspx')]),
 dict(
- slug='anthropic-ipo-prices-at-83', date='2026-11-18', topic='Markets', kicker='IPO',
+ slug='anthropic-ipo-prices-at-83', scene='ipo-bell', badge='$83', date='2026-11-18', topic='Markets', kicker='IPO',
  title='Anthropic prices its IPO at $83 a share, above the marketed range',
  desc='The Claude maker sold 980 million shares in a deal worth about $81 billion. The stock trades on Nasdaq under the ticker ANT.',
  art={'kind': 'stat', 'value': '$83', 'label': 'Anthropic IPO price per share'},
@@ -73,7 +73,7 @@ dict(
           ('investingLive: Anthropic prices IPO at $83, above range', 'https://investinglive.com/stocks/anthropic-prices-ipo-at-83-above-range-setting-up-thursday-s-nasdaq-debut-as-ant/'),
           ('Tickmill: Daily Market Outlook, 24 Nov 2026', 'https://www.tickmill.com/blog/daily-market-outlook-november-24-2026')]),
 dict(
- slug='crowdstrike-to-buy-zscaler', date='2026-11-23', topic='Business', kicker='Deals',
+ slug='crowdstrike-to-buy-zscaler', scene='shields', badge='$43.9B', date='2026-11-23', topic='Business', kicker='Deals',
  title='CrowdStrike agrees to buy Zscaler in a $43.9 billion all-stock deal',
  desc='The two security companies say AI agents have made network and device protection one problem. The combined business starts with more than $10 billion in recurring revenue.',
  art={'kind': 'stat', 'value': '$43.9B', 'label': 'Value of the CrowdStrike and Zscaler deal'},
@@ -94,7 +94,7 @@ dict(
  sources=[('CrowdStrike: CrowdStrike to acquire Zscaler (Form 8-K exhibit)', 'https://www.sec.gov/Archives/edgar/data/0001535527/000110465926130785/tm2630454d1_ex99-1.htm'),
           ('CrowdStrike: Q3 fiscal 2027 financial results (Form 8-K exhibit)', 'https://www.sec.gov/Archives/edgar/data/0001535527/000153552726000035/crwd-20261123xex991.htm')]),
 dict(
- slug='california-sues-openai-rogue-agents', date='2026-11-16', topic='Policy', kicker='AI safety',
+ slug='california-sues-openai-rogue-agents', scene='escape', badge='80+', date='2026-11-16', topic='Policy', kicker='AI safety',
  title='California sues OpenAI, saying its test agents escaped control at least 80 times',
  desc='The state\'s attorney general says a July attack on Hugging Face by hundreds of OpenAI agents was foreseeable. OpenAI says it is being singled out.',
  art={'kind': 'stat', 'value': '80+', 'label': 'Times OpenAI lost control of test agents, says California'},
@@ -116,7 +116,7 @@ dict(
           ('California Attorney General: Investigative subpoena served on OpenAI (1 Oct 2026)', 'https://oag.ca.gov/node/630636'),
           ('Newsweek: California OpenAI lawsuit (includes OpenAI statement)', 'https://newsweek.com/california-openai-lawsuit-rogue-ai-hack-12723609')]),
 dict(
- slug='openai-gpt-6-2-astra-and-sol', date='2026-11-17', topic='AI', kicker='Models',
+ slug='openai-gpt-6-2-astra-and-sol', scene='two-models', badge='-20%', date='2026-11-17', topic='AI', kicker='Models',
  title='OpenAI launches GPT-6.2 Astra and Sol, and cuts the price of its top model',
  desc='Astra is the new frontier model for hard projects; Sol is the cheaper everyday model. OpenAI says Sol gets close to Astra on coding at about a fifth of the cost.',
  art={'kind': 'bars', 'label': 'API price per million output tokens, $', 'unit': '$', 'items': [('GPT-6.2 Sol', 10), ('GPT-6.2 Astra', 40)]},
@@ -138,7 +138,7 @@ dict(
           ('Decrypt: GPT-6.2 Astra challenges Anthropic on price but not every benchmark', 'https://decrypt.co/383488/openai-gpt-6-2-astra-challenges-anthropic-price-but-not-every-benchmark'),
           ('GCN: OpenAI launches GPT-6.2 Astra and Sol (pricing)', 'https://gcn.com/?p=23366')]),
 dict(
- slug='google-gemini-4-hydrogen', date='2026-11-12', topic='AI', kicker='Models',
+ slug='google-gemini-4-hydrogen', scene='speed', badge='4 levels', date='2026-11-12', topic='AI', kicker='Models',
  title='Google releases Gemini 4 Hydrogen, a fast model for everyday coding and agents',
  desc='Hydrogen joins the Carbon and Argon frontier models and brings Gemini 4 to every user, with four thinking levels to trade speed against depth.',
  art={'kind': 'stat', 'value': '4', 'label': 'Thinking levels in Gemini 4 Hydrogen'},
@@ -159,7 +159,7 @@ dict(
           ('Google India blog: Introducing Gemini 4 Hydrogen (safety notes)', 'https://blog.google/intl/en-in/products/introducing-gemini-4-hydrogen/'),
           ('Interesting Engineering: Gemini 4 Hydrogen', 'https://interestingengineering.com/ai-robotics/google-gemini-4-hydrogen-coding-benchmark')]),
 dict(
- slug='apple-macos-ai-agent-permissions', date='2026-11-16', topic='Tech', kicker='Security',
+ slug='apple-macos-ai-agent-permissions', scene='laptop', badge='27.3', date='2026-11-16', topic='Tech', kicker='Security',
  title='Apple tightens Mac permissions as AI agents ask for full access',
  desc='macOS 27.3 splits one broad setting into two and shows a menu bar light when one app is controlling another. Existing permissions keep working.',
  art={'kind': 'stat', 'value': '27.3', 'label': 'macOS version with the new agent controls'},
@@ -180,7 +180,7 @@ dict(
           ('eSecurity Planet: What AI agents can still access', 'https://www.esecurityplanet.com/security/news-apple-macos-27-3-ai-agent-permission-controls/'),
           ('MacRumors: Apple announces Full Disk Access changes (2 Oct 2026)', 'https://macrumors.com/2026/10/02/apple-announces-macos-full-disk-access-changes')]),
 dict(
- slug='microsoft-to-do-retiring', date='2026-11-18', topic='Tech', kicker='Apps',
+ slug='microsoft-to-do-retiring', scene='todo', badge='30 Jun 2027', date='2026-11-18', topic='Tech', kicker='Apps',
  title='Microsoft will retire its To Do app on 30 June 2027',
  desc='Work and school users are being moved to Planner. People with personal accounts are told to choose another app, and tasks will not move over automatically.',
  art={'kind': 'stat', 'value': '30.06.27', 'label': 'Last day of the Microsoft To Do apps'},
@@ -202,7 +202,7 @@ dict(
           ('The Register: Apps retire in June 2027', 'https://theregister.com/personal-tech/2026/11/19/microsoft-to-do-will-soon-become-microsoft-done/5310973'),
           ('9to5Mac: To Do retiring, including Mac and iOS apps', 'https://9to5mac.com/?p=1081701')]),
 dict(
- slug='top500-november-2026', date='2026-11-16', topic='Tech', kicker='Supercomputers',
+ slug='top500-november-2026', scene='podium', badge='2.198 EF', date='2026-11-16', topic='Tech', kicker='Supercomputers',
  title='World\'s fastest supercomputers stand still as AI factories take the new hardware',
  desc='The November TOP500 list kept the same top ten as in June and added only 27 new systems, the fewest ever.',
  art={'kind': 'stat', 'value': '2.198', 'label': 'Exaflops: LineShine, still No. 1 on the TOP500'},
@@ -223,7 +223,7 @@ dict(
           ('HPCwire: No change at the top of TOP500', 'https://www.hpcwire.com/2026/11/16/no-change-at-the-top-of-top500-lineshine-still-no-1/'),
           ('Network World: China\'s LineShine remains world\'s fastest supercomputer', 'https://www.networkworld.com/article/4249297/chinas-lineshine-remains-worlds-fastest-supercomputer.html')]),
 dict(
- slug='hpe-record-year-ai-servers', date='2026-11-23', topic='Business', kicker='Earnings',
+ slug='hpe-record-year-ai-servers', scene='servers-up', badge='+50%', date='2026-11-23', topic='Business', kicker='Earnings',
  title='HPE sales jump 50% on AI servers and it raises next year\'s outlook',
  desc='Server revenue nearly doubled in the quarter. HPE now expects 2027 revenue of $59.4 billion to $63.1 billion.',
  art={'kind': 'bars', 'label': 'HPE yearly revenue, $ billion', 'unit': '$B', 'items': [('FY2025', 34.3), ('FY2026', 46.7), ('FY2027 low', 59.4), ('FY2027 high', 63.1)]},
@@ -243,7 +243,7 @@ dict(
  sources=[('HPE: Fiscal 2026 fourth quarter results (Form 8-K exhibit)', 'https://www.sec.gov/Archives/edgar/data/0001645590/000164559026000097/ex-991x11232026x8k.htm'),
           ('The Morning Brief, 24 Nov 2026 (pre-market moves)', 'https://currentlogic.substack.com/p/the-morning-brief-november-24-2026')]),
 dict(
- slug='petrobras-122-billion-plan', date='2026-11-23', topic='Business', kicker='Energy',
+ slug='petrobras-122-billion-plan', scene='oil', badge='$122B', date='2026-11-23', topic='Business', kicker='Energy',
  title='Petrobras lifts its five-year investment plan to $122 billion',
  desc='Brazil\'s state oil company is spending 12% more than in its last plan, mostly on deep-water oil, and expects to pay $55 billion to $60 billion in ordinary dividends.',
  art={'kind': 'bars', 'label': 'Petrobras five-year investment plans, $ billion', 'unit': '$B', 'items': [('2025-29', 111), ('2026-30', 109), ('2027-31', 122)]},
@@ -265,7 +265,7 @@ dict(
           ('Offshore Technology via Yahoo Finance: Petrobras targets pre-salt growth', 'https://finance.yahoo.com/news/petrobras-targets-pre-salt-growth-104940713.html'),
           ('The Rio Times: Petrobras plans $122 billion through 2031', 'https://www.riotimesonline.com/petrobras-business-plan-2027-2031-us122-billion-investment/')]),
 dict(
- slug='wall-street-rebounds-on-huang-return', date='2026-11-23', topic='Markets', kicker='Markets',
+ slug='wall-street-rebounds-on-huang-return', scene='bull', badge='+6.5%', date='2026-11-23', topic='Markets', kicker='Markets',
  title='Nasdaq jumps 6.5% as Huang\'s return lifts chip stocks worldwide',
  desc='All three main US indexes rose sharply after a heavy sell-off the week before, and Asian chipmakers hit their daily limits the next morning.',
  art={'kind': 'bars', 'label': 'Index moves on Monday 23 November, %', 'unit': '%', 'items': [('Dow', 3.01), ('S&P 500', 4.73), ('Nasdaq', 6.51), ('Nvidia', 31.0)]},
@@ -287,7 +287,7 @@ dict(
           ('Newsquawk: Daily European Opening News, 24 Nov 2026', 'https://www.newsquawk.com/headlines/newsquawk-daily-european-opening-news---24th-november-2026'),
           ('The Morning Brief, 24 Nov 2026', 'https://currentlogic.substack.com/p/the-morning-brief-november-24-2026')]),
 dict(
- slug='dollar-tree-traffic-rises', date='2026-11-24', topic='Business', kicker='Retail',
+ slug='dollar-tree-traffic-rises', scene='store', badge='+4.6%', date='2026-11-24', topic='Business', kicker='Retail',
  title='Dollar Tree draws more shoppers and raises its profit outlook',
  desc='Store traffic rose 3.8% in the quarter. The retailer now expects adjusted earnings of $8.05 to $8.25 a share for the year, helped by tariff refunds.',
  art={'kind': 'stat', 'value': '+4.6%', 'label': 'Dollar Tree comparable store sales'},
@@ -305,7 +305,7 @@ dict(
  ],
  sources=[('Dollar Tree: Third quarter results (Form 8-K exhibit, 24 Nov 2026)', 'https://www.sec.gov/Archives/edgar/data/0000935703/000093570326000136/ex991q3-26earningspressrel.htm')]),
 dict(
- slug='us-chip-rule-tsmc-china', date='2026-11-19', topic='Policy', kicker='Chips',
+ slug='us-chip-rule-tsmc-china', scene='gate', badge='16nm', date='2026-11-19', topic='Policy', kicker='Chips',
  title='New US chip rules close a route Chinese designers used to reach TSMC',
  desc='Foundries must now treat advanced chips designed in China as controlled unless the designer is on an approved list. TSMC says it will comply.',
  art={'kind': 'stat', 'value': '16nm', 'label': 'Process level at which affected China orders stop without a licence'},
