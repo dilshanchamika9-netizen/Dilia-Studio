@@ -49,7 +49,7 @@ async def hub(br, w, theme):
     ok('Loading' not in await pg.inner_text('#lhhn') and len(await pg.inner_text('#lhcd')) > 0, f'[{t}] next holiday countdown')
     await pg.select_option('#lhc', 'US'); await pg.wait_for_timeout(500); ok('c=US' in await pg.get_attribute('#lhall', 'href'), f'[{t}] country change updates link')
     await pg.reload(); await pg.wait_for_timeout(800); ok(await pg.evaluate("document.getElementById('lhc').value") == 'US', f'[{t}] country remembered')
-    hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 12, f'[{t}] 12 tool portals')
+    hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 14, f'[{t}] 14 tool portals')
     for h in hs: r = await pg.request.get(B + 'life/' + h); ok(r.status == 200, f'[{t}] portal {h} -> {r.status}')
     ok(await pg.locator('.lroad li').count() == 8, f'[{t}] roadmap')
     if len(sys.argv) > 1: await pg.screenshot(path=f'/tmp/lh-{w}.png', full_page=True)
@@ -130,7 +130,39 @@ async def newlife(br, w, theme):
     if len(sys.argv) > 1:
         for sl in ['world-clock', 'meeting-planner', 'festival-calendar']: await pg.goto(B + sl + '/'); await pg.wait_for_timeout(900); await pg.screenshot(path=f'/tmp/nl-{sl}-{w}.png', full_page=True)
     ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
-CASES = [holidays, hub, calcs, newlife]
+async def travel(br, w, theme):
+    ctx, pg, errs = await ctx_page(br, w, theme); t = f'travel {w}'
+    await pg.goto(B + 'flight-time/'); await pg.wait_for_timeout(500)
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{t}] flight no sideways scroll')
+    await sv(pg, 'flwhen', '2026-11-25T08:30'); await sv(pg, 'flh', '7'); await sv(pg, 'flm', '40'); r = await res(pg)
+    ok('12:10' in r and 'Wed 25 Nov' in r and '7h 40m' in r and '−4h' in r, f'[{t}] Dubai to London {r[:200]}'); ok('Jet-lag plan' in await pg.inner_text('#fljet') and 'back' in await pg.inner_text('#fljet'), f'[{t}] jet lag west')
+    ok(await pg.locator('#lcviz .frow').count() == 2 and await pg.locator('#lcviz .fb').count() == 1, f'[{t}] two clocks, one flight bar')
+    await pg.click('#fllay'); await pg.select_option('#flhub', 'Doha'); await sv(pg, 'flh', '1'); await sv(pg, 'flm', '10'); await sv(pg, 'flnext', '21:30'); await sv(pg, 'flh2', '6'); await sv(pg, 'flm2', '0'); r = await res(pg)
+    ok('00:30' in r and '+1 day' in r and '12h 50m' in r and 'Long layover' in r, f'[{t}] connection {r[:300]}'); ok(await pg.locator('#lcviz .frow').count() == 3 and await pg.locator('#lcviz .fb').count() == 2, f'[{t}] three clocks, two bars')
+    await pg.click('#fllay'); await pg.select_option('#flfrom', 'London'); await pg.select_option('#flto', 'New York'); await sv(pg, 'flwhen', '2026-03-28T10:00'); await sv(pg, 'flh', '8'); await sv(pg, 'flm', '0'); r = await res(pg)
+    ok('14:00' in r, f'[{t}] US daylight saving already on 28 Mar {r[:160]}')
+    await sv(pg, 'flh', '0'); await sv(pg, 'flm', '0'); ok('how long' in (await res(pg)).lower(), f'[{t}] zero length refused')
+    await pg.select_option('#flfrom', 'Dubai'); await pg.select_option('#flto', 'Doha'); await sv(pg, 'flh', '1'); ok('Little or no jet lag' in await pg.inner_text('#fljet'), f'[{t}] short shift no jet lag')
+    # trip planner
+    await pg.goto(B + 'trip-planner/'); await pg.wait_for_timeout(500); ok(not await pg.is_hidden('#trempty'), f'[{t}] empty state')
+    await pg.click('#trstart0'); await pg.wait_for_timeout(200); ok(await pg.locator('.trday').count() == 5, f'[{t}] new trip has 5 days')
+    await sv(pg, 'trname', 'Sri Lanka'); await pg.evaluate("document.getElementById('trname').dispatchEvent(new Event('change'))")
+    await pg.locator('.tradd').first.click(); await pg.fill('#trftitle', 'Flight EK 650'); await pg.fill('#trftime', '09:15'); await pg.fill('#trfref', 'ABC123'); await pg.click('#trfkind [data-k="flight"]'); await pg.click('#trform button[type=submit]'); await pg.wait_for_timeout(200)
+    ok(await pg.locator('.trline li').count() == 1 and 'ABC123' in await pg.inner_text('#trdays'), f'[{t}] stop added')
+    await pg.locator('.tradd').nth(1).click(); await pg.fill('#trftitle', 'Galle Fort'); await pg.click('#trform button[type=submit]'); await pg.wait_for_timeout(200)
+    await pg.locator('[data-ed]').first.click(); await pg.fill('#trftitle', 'Flight EK 652'); await pg.click('#trform button[type=submit]'); await pg.wait_for_timeout(200); ok('EK 652' in await pg.inner_text('#trdays') and 'EK 650' not in await pg.inner_text('#trdays'), f'[{t}] stop edited')
+    await pg.reload(); await pg.wait_for_timeout(500); ok(await pg.locator('.trline li').count() == 2 and 'SRI LANKA' in await pg.inner_text('#trpass'), f'[{t}] trip kept after reload')
+    ics = await pg.evaluate('DiliaTrip.ics()'); ok(ics.count('BEGIN:VEVENT') == 3 and 'T091500' in ics and 'Ref: ABC123' in ics, f'[{t}] trip ics')
+    async with pg.expect_download() as d: await pg.click('#trbackup')
+    bp = await (await d.value).path()
+    await pg.locator('[data-del]').first.click(); await pg.wait_for_timeout(200); ok(await pg.locator('.trline li').count() == 1, f'[{t}] stop deleted')
+    await pg.set_input_files('#trimport', bp); await pg.wait_for_timeout(400); ok(len(await pg.evaluate('DiliaTrip.trips()')) == 2 and 'added' in await pg.inner_text('#trsaved'), f'[{t}] backup restored as a second trip')
+    await pg.click('#trdelete'); await pg.click('#trdelete'); await pg.wait_for_timeout(200); ok(len(await pg.evaluate('DiliaTrip.trips()')) == 1, f'[{t}] delete needs two taps')
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{t}] trip no sideways scroll')
+    if len(sys.argv) > 1:
+        await pg.screenshot(path=f'/tmp/tr-{w}.png', full_page=True); await pg.goto(B + 'flight-time/'); await pg.wait_for_timeout(600); await pg.screenshot(path=f'/tmp/fl-{w}.png', full_page=True)
+    ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
+CASES = [holidays, hub, calcs, newlife, travel]
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])

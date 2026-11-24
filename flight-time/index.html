@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Flight Arrival Time and Jet Lag Planner | Dilia Life</title>
+<meta name="description" content="Free flight time calculator: local arrival time, date change, layover length and a simple jet-lag plan. Daylight saving included. Private.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-life" data-mode="life">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Life</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<link rel="stylesheet" href="../assets/lifefx.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<section class="lx"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Flight time and jet lag</b></p>
+<h1>Flight time and jet lag</h1><p class="lsub">When you land in local time, how the clocks move, your layover, and a simple jet-lag plan.</p>
+<div class="lcgrid" data-fl><div class="lglass lxctl">
+  <div class="lrow"><label class="f">Flying from<select id="flfrom"></select></label><label class="f">To<select id="flto"></select></label></div>
+  <div class="lbtnrow"><button type="button" id="flswap">⇄ Swap</button></div>
+  <label class="f">Departure (local time)<input id="flwhen" type="datetime-local"></label>
+  <div class="lrow"><label class="f">Flight hours<input id="flh" type="text" inputmode="numeric" value="7"></label><label class="f">Minutes<input id="flm" type="text" inputmode="numeric" value="40"></label></div>
+  <label class="lchk"><input type="checkbox" id="fllay"> With a connection</label>
+  <div id="fllegs" hidden class="lxctl" style="padding:0"><div class="lrow"><label class="f">Change planes in<select id="flhub"></select></label><label class="f">Next flight leaves (local)<input id="flnext" type="time" value="21:30"></label></div><div class="lrow"><label class="f">Second flight hours<input id="flh2" type="text" inputmode="numeric" value="6"></label><label class="f">Minutes<input id="flm2" type="text" inputmode="numeric" value="0"></label></div></div>
+</div><div class="lhero lcres" id="lcres" aria-live="polite"><div class="n">Working…</div></div></div>
+<div class="lglass lcviz" id="lcviz"></div>
+<div class="lglass ldet" id="fljet" style="margin-top:16px"></div>
+<div class="lact"><a class="lbtn" href="../trip-planner/">Trip planner</a><a class="lbtn" href="../world-clock/">World clock</a></div>
+</div></section>
+<div class="wrap"><section class="gtext"><h2>How it works</h2><p>Type the departure time shown on your ticket (local time where you leave) and the flight length. Arrival is worked out with the time zone rules built into your browser, including daylight saving on both ends. The connection time is the local time at the airport where you change planes; if it is earlier than your landing, the next day is used.</p><p>The jet-lag tips are general guidance used by travel-health services, not medical advice.</p></section></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/calcmath.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/cities.js"></script><script src="../assets/flight-ui.js"></script>
+</body>
+</html>
