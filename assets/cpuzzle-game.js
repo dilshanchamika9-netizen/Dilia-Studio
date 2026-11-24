@@ -4,7 +4,7 @@
   const GL = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' }, idx = (r, f) => r * 16 + f;
   const key = P.today(), no = G.dayNo(key);
   const sqEls = []; for (let i = 0; i < 64; i++) { const e = document.createElement('div'); e.className = 'sq'; e.append(document.createElement('span')); board.append(e); sqEls.push(e); }
-  let pos, sol, flip = false, sel = null, tries = 0, phase = 'first', over = false, mode = 'daily', pi = 0, hinted = false, st = M.rd('dilia-cpuz-stats', { solved: 0, streak: 0, best: 0, last: '' });
+  let busy = false, pos, sol, flip = false, sel = null, tries = 0, phase = 'first', over = false, mode = 'daily', pi = 0, hinted = false, st = M.rd('dilia-cpuz-stats', { solved: 0, streak: 0, best: 0, last: '' });
   const panel = M.panel('cpuz', 'Daily chess puzzle', () => start('practice'));
   const viewSq = i => { let r = 7 - (i >> 3), f = i & 7; if (flip) { r = 7 - r; f = 7 - f; } return idx(r, f); };
   const mates = p => { for (const m of p.legal()) { p.make(m); const x = p.status() === 'checkmate'; p.unmake(); if (x) return true; } return false; };
@@ -24,19 +24,34 @@
       sp.textContent = p ? GL[p & 7] + '︎' : ''; sp.className = p ? ((p & 8) ? 'pb' : 'pw') : ''; e.dataset.s = s; e.setAttribute('aria-label', C.sqName(s) + (p ? ' ' + ((p & 8) ? 'black' : 'white') + ' piece' : ' empty')); }
     $('cptry').textContent = tries;
   }
+  // slide the moved piece from its old square to the new one so every move is seen
+  function glide(m) {
+    const f = C.mFrom(m), t = C.mTo(m); let a = -1, b = -1; for (let i = 0; i < 64; i++) { const s = viewSq(i); if (s === f) a = i; if (s === t) b = i; }
+    if (a < 0 || b < 0 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const sp = sqEls[b].firstChild, A = sqEls[a].getBoundingClientRect(), B = sqEls[b].getBoundingClientRect();
+    sp.style.transition = 'none'; sp.style.transform = 'translate(' + (A.left - B.left) + 'px,' + (A.top - B.top) + 'px)'; sp.style.zIndex = 5; sp.getBoundingClientRect();
+    sp.style.transition = 'transform .28s ease'; sp.style.transform = 'translate(0,0)'; setTimeout(() => { sp.style.transition = ''; sp.style.transform = ''; sp.style.zIndex = ''; }, 320);
+  }
   function tap(s) {
-    if (over || phase === 'reply') return; const p = pos.b[s];
+    if (over || busy || phase === 'reply') return; const p = pos.b[s];
     if (sel !== null) { const ms = pos.legal().filter(m => C.mFrom(m) === sel && C.mTo(m) === s); if (ms.length) { const q = ms.find(m => C.mPromo && C.mPromo(m) === 5) || ms[0]; return play(q); } }
     sel = p && ((p & 8) ? 1 : 0) === pos.side ? s : null; render();
+  }
+  // a wrong move is shown on the board (red square, small shake), then the board goes back
+  function showWrong(m, msg) {
+    const t = C.mTo(m); pos.make(m); render(); pos.unmake(); glide(m); board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake');
+    for (let i = 0; i < 64; i++) if (viewSq(i) === t) sqEls[i].classList.add('bad');
+    busy = true; M.say(msg, 2600);
+    setTimeout(() => { busy = false; render(); }, 950);
   }
   function play(m) {
     sel = null;
     if (phase === 'first') {
-      if (forcesMate(pos, m)) { pos.make(m); phase = 'reply'; render(); M.say('Right idea. Now the opponent replies…', 1500); setTimeout(() => { const r = pos.legal(); pos.make(r[Math.floor(M.rnd() * r.length)]); phase = 'mate'; render(); M.say('Deliver checkmate.', 0); }, 700); }
-      else { tries++; render(); M.say('That does not force mate. Try another move.', 2200); }
+      if (forcesMate(pos, m)) { pos.make(m); phase = 'reply'; render(); glide(m); M.say('Right idea. Now the opponent replies…', 1500); setTimeout(() => { const r = pos.legal(), rm = r[Math.floor(M.rnd() * r.length)]; pos.make(rm); phase = 'mate'; render(); glide(rm); M.say('Deliver checkmate.', 0); }, 800); }
+      else { tries++; $('cptry').textContent = tries; showWrong(m, 'That does not force mate. Try another move.'); }
     } else {
-      pos.make(m); if (pos.status() === 'checkmate') { render(); return solved(); }
-      pos.unmake(); tries++; render(); M.say('Not mate. Look for the checkmate.', 2000);
+      pos.make(m); if (pos.status() === 'checkmate') { over = true; render(); glide(m); return void setTimeout(solved, 650); }
+      pos.unmake(); tries++; $('cptry').textContent = tries; showWrong(m, 'Not mate. Look for the checkmate.');
     }
   }
   function solved() {

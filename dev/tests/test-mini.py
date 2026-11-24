@@ -117,9 +117,12 @@ async def cpuz(pg, t):
     s = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s['n'] >= 60 and s['phase'] == 'first', f'[{t}] puzzle loaded ({s["n"]} puzzles)')
     ok(await pg.locator('#cpb .sq').count() == 64 and await pg.locator('#cpb .sq span:not(:empty)').count() >= 9, f'[{t}] board drawn')
     w = await ev(pg, 'DiliaChessPuzzle.wrongUci()'); await ev(pg, f'DiliaChessPuzzle.tapUci("{w}")'); s = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s['tries'] == 1 and s['phase'] == 'first', f'[{t}] a wrong move is refused')
+    ok(await pg.locator('#cpb .sq.bad').count() == 1 and await ev(pg, "document.getElementById('cptry').textContent") == '1', f'[{t}] the wrong move is shown on the board in red')
+    await ev(pg, 'DiliaChessPuzzle.tapUci("' + w + '")'); s2 = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s2['tries'] == 1, f'[{t}] taps are ignored while the wrong move is shown')
+    await pg.wait_for_timeout(1100); ok(await pg.locator('#cpb .sq.bad').count() == 0, f'[{t}] the board goes back after the wrong move')
     await pg.click('#cphint'); ok(await pg.locator('#cpb .sq.sel').count() == 1, f'[{t}] hint marks the key piece')
     await ev(pg, f'DiliaChessPuzzle.tapUci("{s["sol"]}")'); await pg.wait_for_timeout(1300); s = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s['phase'] == 'mate', f'[{t}] key move accepted, opponent replied')
-    m = await ev(pg, 'DiliaChessPuzzle.mateUci()'); ok(bool(m), f'[{t}] a mating move exists'); await ev(pg, f'DiliaChessPuzzle.tapUci("{m}")'); await pg.wait_for_timeout(300)
+    m = await ev(pg, 'DiliaChessPuzzle.mateUci()'); ok(bool(m), f'[{t}] a mating move exists'); await ev(pg, f'DiliaChessPuzzle.tapUci("{m}")'); await pg.wait_for_timeout(1000)
     ok(await done(pg), f'[{t}] checkmate solves it and shows the panel')
 CASES = [('daily-chess-puzzle', cpuz), ('daily-chess-puzzle', mega), ('daily-word', dword), ('crossword', cross), ('speed-reading', speed), ('backgammon', backgammon), ('backgammon', mega), ('stack', stack), ('dash', dash), ('hop', hop), ('stack', mega), ('pong', mega), ('merge', mega), ('brick-breaker', brick), ('pong', pong), ('aim-trainer', aim), ('nonogram', nono), ('sliding-puzzle', slide), ('word-search', words), ('memory-game', memory)]
 async def main():

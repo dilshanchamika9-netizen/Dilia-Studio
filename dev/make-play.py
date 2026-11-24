@@ -46,6 +46,7 @@ def shell(title, desc, body, scripts, robots='', mode=''):
 <script src="../assets/palette.js"></script>
 <script src="../assets/menu.js"></script>
 <script src="../assets/common.js"></script>
+{'<script src="../assets/celebrate.js"></script>' if 'id="done"' in body else ''}
 {scripts}
 </body>
 </html>

@@ -92,6 +92,8 @@
 :root:not([data-theme=dark]) .bgc.rv.dot::after{background:#0b122038}
 :root:not([data-theme=dark]) .bgc.c4.last .pc{outline:3px solid #0b12207a}
 :root:not([data-theme=dark]) .ltok{background:radial-gradient(circle at 35% 30%,#0b12204b,#0000 55%),var(--lc)}
+:root:not([data-theme=dark]) .cel-h{color:var(--ink)}
+:root:not([data-theme=dark]) .cel-s{color:var(--ink)}
 :root:not([data-theme=dark]) .stage{--pt:#3a4252;--pmut:#6b7280;--pl:#0b12201f;--pc1:#ffffffcc;color-scheme:light;color:var(--pt);
   background:radial-gradient(900px 520px at 12% -8%,#7a5cff2e,transparent 62%),radial-gradient(800px 520px at 100% 0,#e5007d22,transparent 62%),radial-gradient(700px 480px at 50% 110%,#009fe326,transparent 60%),#f5f6fb;background-repeat:no-repeat;background-color:#f5f6fb}
 :root:not([data-theme=dark]) .stage .nav.solid{background:#ffffffe6;box-shadow:0 1px 0 #0b12201a}

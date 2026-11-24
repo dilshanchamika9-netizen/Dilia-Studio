@@ -42,5 +42,6 @@ step "Festival dates" node dev/tests/test-festivals.js
 step "Life pages" python3 dev/tests/test-life.py
 step "Puzzle rules" node dev/tests/test-puzzles.js
 step "Arcade and puzzle pages" python3 dev/tests/test-mini.py
+step "Win celebration" python3 dev/tests/test-celebrate.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
