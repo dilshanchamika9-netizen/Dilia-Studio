@@ -54,7 +54,44 @@ async def hub(br, w, theme):
     ok(await pg.locator('.lroad li').count() == 8, f'[{t}] roadmap')
     if len(sys.argv) > 1: await pg.screenshot(path=f'/tmp/lh-{w}.png', full_page=True)
     ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
-CASES = [holidays, hub]
+async def sv(pg, i, v):
+    await pg.evaluate("([i,v])=>{const e=document.getElementById(i);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))}", [i, v]); await pg.wait_for_timeout(120)
+async def res(pg): return (await pg.inner_text('#lcres')).replace('\xa0', ' ')
+async def calcs(br, w, theme):
+    ctx, pg, errs = await ctx_page(br, w, theme); t = f'calc {w}'
+    async def go(slug):
+        await pg.goto(B + slug + '/'); await pg.wait_for_timeout(500)
+        ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{t}] {slug} no sideways scroll'); ok('Working' not in await res(pg), f'[{t}] {slug} first result shown')
+    await go('date-difference-calculator'); await sv(pg, 'd1', '2000-01-01'); await sv(pg, 'd2', '2026-11-21'); r = await res(pg)
+    ok('9,821' in r and '26 years, 10 months, 20 days' in r, f'[{t}] datediff {r[:160]}'); ok(await pg.locator('#lcviz .ltick').count() >= 5, f'[{t}] datediff timeline ticks')
+    await sv(pg, 'd1', '2026-11-21'); await sv(pg, 'd2', '2026-11-20'); ok('swapped' in await res(pg) and '1 day' in await res(pg), f'[{t}] datediff swap')
+    await sv(pg, 'd1', ''); ok('Pick a valid date' in await res(pg), f'[{t}] datediff empty')
+    await go('add-days-to-date'); await sv(pg, 'd1', '2026-11-21'); await sv(pg, 'nd', '100'); ok('Monday 1 March 2027' in await res(pg), f'[{t}] add 100 {(await res(pg))[:90]}')
+    await pg.click('[data-op="-"]'); await pg.wait_for_timeout(100); ok('Thursday 13 August 2026' in await res(pg), f'[{t}] sub 100'); await sv(pg, 'nd', '1.5'); ok('whole numbers' in await res(pg), f'[{t}] add frac')
+    await sv(pg, 'd1', '2026-01-31'); await pg.click('[data-op="+"]'); await sv(pg, 'nd', '0'); await sv(pg, 'nm', '1'); ok('28 February 2026' in await res(pg), f'[{t}] add month clamp'); ok(await pg.locator('#lcviz .lmo').count() == 2, f'[{t}] add two calendars')
+    await go('age-calculator'); await sv(pg, 'd1', '1990-05-15'); await sv(pg, 'd2', '2026-11-21'); r = await res(pg); ok('36 years, 6 months, 6 days' in r and '175 days' in r and 'Tuesday' in r, f'[{t}] age {r[:200]}')
+    ok(await pg.locator('#lwc').count() == 1, f'[{t}] life in weeks drawn'); await sv(pg, 'd1', '2030-01-01'); ok('after the date' in await res(pg), f'[{t}] age future')
+    await go('day-of-the-week-calculator'); await sv(pg, 'd1', '2026-11-21'); r = await res(pg); ok('Saturday' in r and 'Day 325 of 365' in r and 'Week 47' in r, f'[{t}] weekday {r[:120]}'); ok(await pg.locator('#lcviz .lmg span.h').count() == 1, f'[{t}] weekday highlighted')
+    await go('working-days-calculator'); await pg.wait_for_timeout(400); await sv(pg, 'd1', '2026-11-16'); await sv(pg, 'd2', '2026-11-22'); r = await res(pg); ok('WORKING DAYS\n5' in r and 'WEEKEND DAYS\n2' in r, f'[{t}] work 5 {r[:160]}')
+    await pg.click('[data-wp="5.6"]'); await pg.wait_for_timeout(150); ok('WORKING DAYS\n5' in await res(pg), f'[{t}] work fri/sat')
+    await pg.click('[data-wp="6.0"]'); await sv(pg, 'd1', '2026-12-01'); await sv(pg, 'd2', '2026-12-04'); await pg.select_option('#lccc', 'AE'); await pg.wait_for_timeout(600); r = await res(pg)
+    ok('WORKING DAYS\n2' in r and 'National Day' in r and 'holidays library' in r, f'[{t}] work AE holidays {r[:240]}'); ok(await pg.locator('#lcviz .lmg span.h').count() == 2, f'[{t}] holidays lit on calendar')
+    await sv(pg, 'd2', '2040-01-01'); await pg.wait_for_timeout(600); ok('does not cover' in await res(pg), f'[{t}] work out of range')
+    await go('time-zone-converter'); await pg.evaluate("DiliaTZ.set(['Asia/Dubai','Asia/Colombo','Europe/London','America/New_York'])"); await sv(pg, 'lcwhen', '2026-11-21T12:00'); r = await res(pg)
+    ok('13:30' in r and '08:00' in r and '03:00' in r and 'UTC+5:30' in r and 'UTC-5' in r, f'[{t}] tz {r[:300]}'); ok(await pg.locator('#lcviz .lstrip').count() == 4, f'[{t}] tz strips')
+    ok(await pg.locator('#lcviz .lstrip span').count() == 96, f'[{t}] 24 hours per strip')
+    await pg.locator('#lstrips').scroll_into_view_if_needed(); box = await pg.locator('#lstrips').bounding_box(); lab = await pg.evaluate("document.querySelector('.lstrip b').getBoundingClientRect().width")
+    await pg.mouse.click(box['x'] + lab + (box['width'] - lab) * 0.75 + 0.3, box['y'] + 10); await pg.wait_for_timeout(200); ok((await pg.evaluate("document.getElementById('lcwhen').value")).endswith('T18:00'), f'[{t}] tapping the strip sets the time')
+    await pg.click('#lcadd'); await pg.wait_for_timeout(150); ok(await pg.locator('#lczones select').count() == 5, f'[{t}] add a city')
+    await pg.evaluate("DiliaTZ.set(['America/New_York','Asia/Dubai'])"); await sv(pg, 'lcwhen', '2026-03-08T02:30'); ok('does not exist' in await res(pg), f'[{t}] tz nonexistent'); await sv(pg, 'lcwhen', '2026-11-01T01:30'); ok('happens twice' in await res(pg), f'[{t}] tz ambiguous')
+    await go('uae-gratuity-calculator'); await sv(pg, 'basic', '10000'); await sv(pg, 'd1', '2019-01-01'); await sv(pg, 'd2', '2025-12-31'); await sv(pg, 'unp', '0'); r = await res(pg); ok('AED 55,054.79' in r and '7 years' in r, f'[{t}] grat {r[:200]}')
+    ok(await pg.locator('#lcviz .lgbar').count() == 2, f'[{t}] grat bars'); await sv(pg, 'd2', '2019-12-30'); ok('Not yet' in await res(pg), f'[{t}] grat <1y')
+    await sv(pg, 'd1', '1985-01-01'); await sv(pg, 'd2', '2025-12-31'); r = await res(pg); ok('Capped' in r and 'AED 240,000.00' in r, f'[{t}] grat cap {r[:200]}'); await sv(pg, 'basic', '-5'); ok('basic salary' in (await res(pg)).lower(), f'[{t}] grat neg')
+    if len(sys.argv) > 1:
+        for s in ['date-difference-calculator', 'add-days-to-date', 'age-calculator', 'day-of-the-week-calculator', 'working-days-calculator', 'time-zone-converter', 'uae-gratuity-calculator']:
+            await pg.goto(B + s + '/'); await pg.wait_for_timeout(700); await pg.screenshot(path=f'/tmp/lc-{s}-{w}.png', full_page=True)
+    ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
+CASES = [holidays, hub, calcs]
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
