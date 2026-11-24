@@ -959,8 +959,8 @@ LINES = {
     'pdf': dict(name='PDF', title='PDF Tools - Free Online | Dilia PDF', h1='Dilia PDF', kick='PDF tools', sub='Organise, edit, sign, convert and protect PDFs. Everything runs in your browser.', cta=('Merge PDFs', 'merge-pdf/')),
     'image': dict(name='Image', title='Image Tools - Free Online | Dilia Image', h1='Dilia Image', kick='Image tools', sub='Make images smaller, resize and crop them, change formats, add watermarks. Everything runs in your browser.', cta=('Compress image', 'compress-image/')),
     'qr': dict(name='QR', title='QR Code Tools - Free Online | Dilia QR', h1='Dilia QR', kick='QR codes', sub='Make QR codes for links, Wi-Fi, contacts and more, or read one. Everything runs in your browser.', cta=('Make a QR code', 'qr-code-generator/')),
-    'calc': dict(name='Calc', title='Calculators - Free Online | Dilia Calc', h1='Dilia Calc', kick='Calculators', sub='Percentages, VAT, loans and savings. Everything is worked out in your browser.', cta=('Loan calculator', 'loan-calculator/')),
-    'text': dict(name='Text', title='Text Tools - Free Online | Dilia Text', h1='Dilia Text', kick='Text tools', sub='Count words, change case, clean up, sort and compare text. Everything runs in your browser.', cta=('Count words', 'word-counter/')),
+    'calc': dict(name='Calc', title='Calculators - Free Online | Dilia Calc', h1='Dilia Calc', kick='Calculators', sub='Percentages, VAT, loans and savings. Everything is worked out in your browser.', cta=('Loan calculator', '../loan-calculator/')),
+    'text': dict(name='Text', title='Text Tools - Free Online | Dilia Text', h1='Dilia Text', kick='Text tools', sub='Count words, change case, clean up, sort and compare text. Everything runs in your browser.', cta=('Count words', '../word-counter/')),
 }
 base = (ROOT / 'tools.html').read_text()
 for lid, c in LINES.items():
@@ -972,6 +972,7 @@ for lid, c in LINES.items():
     h = h.replace('<p class="sub">Every tool runs in your browser. Pick a line, then a tool.</p>', '<p class="sub">' + c['sub'] + '</p>')
     h = h.replace('<a class="btn sm" href="merge-pdf/">Merge PDFs</a>', '<a class="btn sm" href="' + c['cta'][1] + '">' + c['cta'][0] + '</a>')
     h = h.replace('<body>', '<body data-line="' + lid + '">', 1)
+    h = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="' + c['kick'] + ' that run in your browser: ' + c['sub'][0].lower() + c['sub'].split('.')[0][1:] + '. Free, private, nothing is uploaded.">', h, count=1)
     h = up(h)
     d = ROOT / lid; d.mkdir(exist_ok=True); (d / 'index.html').write_text(h)
     print('wrote line page', lid + '/')

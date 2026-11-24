@@ -5,6 +5,7 @@ cd "$(dirname "$0")/../.."
 fail=0; step() { echo; echo "=== $1"; shift; if "$@"; then echo "--- PASS"; else echo "--- FAIL: $*"; fail=1; fi; }
 python3 dev/tests/serve.py & SRV=$!; trap 'kill $SRV 2>/dev/null' EXIT; sleep 1
 step "Static security gate" python3 dev/security-check.py
+step "Whole-site audit (links, anchors, ids, page basics, CSP meta)" python3 dev/audit.py
 fp() { { git status --porcelain --untracked-files=all; git diff; } | sha1sum; }
 before=$(fp)
 step "Generated pages match their sources" bash -c 'python3 dev/make-pages.py >/dev/null && python3 dev/make-blog.py >/dev/null && python3 dev/make-news.py >/dev/null'

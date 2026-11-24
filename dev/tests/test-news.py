@@ -36,7 +36,7 @@ async def main():
         ok(await pg.locator('#pgrid .pcd:visible').count() == n_ai and await pg.locator('.phero').is_hidden(), f'AI tab shows {n_ai} AI stories and hides top band')
         ok((await pg.inner_text('#pgh')).upper() == 'AI' and pg.url.endswith('#ai') and await pg.get_attribute('.ptab[data-sec=ai]', 'aria-pressed') == 'true', 'AI tab state + address')
         await pg.click('.ptab[data-sec=all]'); await pg.wait_for_timeout(200); ok(await pg.locator('.phero').is_visible() and await pg.locator('#pgrid .pcd:visible').count() == N - 4, 'back to top stories')
-        ok(await pg.locator('nav.links a.opt:has-text("Read")').get_attribute('href') == '../news/', 'menu Read points to news'); ok(not errs, f'errors {errs[:3]}'); await ctx.close()
+        ok(await pg.locator('nav.links a.opt:has-text("Pulse")').get_attribute('href') == '../news/', 'menu Pulse points to news'); ok(not errs, f'errors {errs[:3]}'); await ctx.close()
         ctx, pg, errs = await mk(br); await pg.goto(B + 'news/#policy'); await pg.wait_for_timeout(300)
         ok(await pg.locator('#pgrid .pcd:visible').count() == sum(p['topic'] == 'Policy' for p in POSTS), 'opens on #policy'); await ctx.close()
         ctx, pg, errs = await mk(br); await pg.goto(B + 'news/#nonsense<b>'); await pg.wait_for_timeout(300)
@@ -56,7 +56,7 @@ async def main():
                 ctx, pg, errs = await mk(br, 390, th); await pg.goto(B + url); await pg.wait_for_timeout(300)
                 ok(await pg.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), f'[{th} 390 {url}] no sideways scroll'); ok(not errs, f'[{th}] errors {errs[:2]}')
                 if th == 'dark':
-                    ok((await pg.evaluate("getComputedStyle(document.querySelector('.ptab[aria-pressed=true], .ptab.on')).backgroundImage")).startswith('linear-gradient'), f'[dark {url}] active tab highlighted')
+                    ok(await pg.evaluate("[getComputedStyle(document.querySelector('.ptab[aria-pressed=true], .ptab.on')).backgroundColor, getComputedStyle(document.querySelector('.ptab[aria-pressed=true], .ptab.on')).color]") == ['rgb(255, 255, 255)', 'rgb(11, 18, 32)'], f'[dark {url}] active tab readable')
                     ok(await pg.evaluate("getComputedStyle(document.querySelector('.ptitle, h1')).color") != 'rgb(11, 18, 32)', f'[dark {url}] text is light')
                 await ctx.close()
         await br.close()

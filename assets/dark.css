@@ -110,16 +110,10 @@
 :root[data-theme=dark] .bcard{background:#131b30;box-shadow:0 1px 2px #0000000d,0 0 0 1px #0b12200d}
 :root[data-theme=dark] .bcard span{color:var(--muted)}
 :root[data-theme=dark] .bpage .crumb{color:var(--muted)}
-:root[data-theme=dark] .pmast{background:radial-gradient(900px 260px at 8% 0,#7a5cff14,transparent 70%),radial-gradient(700px 240px at 92% 10%,#0ea5d914,transparent 70%),#131b30;color:var(--ink);border-bottom:1px solid #ffffff1f}
-:root[data-theme=dark] .plogo{color:var(--ink)}
-:root[data-theme=dark] .pword{color:var(--ink)}
-:root[data-theme=dark] .ptag{border-left:1px solid #ffffff1f;color:var(--muted)}
-:root[data-theme=dark] .pupd{color:var(--text)}
-:root[data-theme=dark] .ptab{background:#131b30;border:1px solid #ffffff1f;color:var(--text)}
-:root[data-theme=dark] .ptab:hover{border-color:#ffffff1f;color:var(--ink)}
-:root[data-theme=dark] .ptick{background:#0b1120;border-bottom:1px solid #ffffff1f}
-:root[data-theme=dark] .pmove a{color:var(--ink);border-right:1px solid #ffffff1f}
-:root[data-theme=dark] .pmove a:hover{color:#ff66ba}
+:root[data-theme=dark] .plight{background:#00ff9d26}
+:root[data-theme=dark] .ptab:hover{background:#131b3026}
+:root[data-theme=dark] .ptab[aria-pressed=true],:root[data-theme=dark] .ptab.on{background:#131b30;color:var(--ink);box-shadow:0 6px 16px -8px #00000080}
+:root[data-theme=dark] .plive{background:#131b30;color:#ff66ba}
 :root[data-theme=dark] .pkick span{color:var(--muted)}
 :root[data-theme=dark] .pmt{color:var(--muted)}
 :root[data-theme=dark] .psh{color:var(--ink)}

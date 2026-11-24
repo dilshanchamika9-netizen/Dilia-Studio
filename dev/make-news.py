@@ -41,8 +41,8 @@ def mast(up, here):
     return f'''<section class="pmast"><div class="pwrap">
 <div class="pmrow"><a class="plogo" href="{up or './'}" aria-label="Dilia Pulse home">{MARK}<span class="pword">DILIA<b>PULSE</b></span></a>
 <p class="ptag">Tech and business news, written from the source</p><p class="pupd"><i class="plight"></i>Updated {upd}</p></div>
-<nav class="psec" aria-label="Sections">{nav}</nav></div></section>
-<div class="ptick" aria-label="Latest headlines"><span class="plive">LATEST</span><div class="ptrack"><div class="pmove">{ticker(up)}{ticker(up, True)}</div></div></div>'''
+<nav class="psec" aria-label="Sections">{nav}</nav></div>
+<div class="ptick" aria-label="Latest headlines"><span class="plive">LATEST</span><div class="ptrack"><div class="pmove">{ticker(up)}{ticker(up, True)}</div></div></div></section>'''
 def ticker(up, dup=False):
     hide = ' tabindex="-1" aria-hidden="true"' if dup else ''
     return ''.join(f'<a href="{up}{p["slug"]}/"{hide}><i class="pdot s-{SEC(p)}"></i>{E(p["title"])}</a>' for p in POSTS[:10])

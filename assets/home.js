@@ -75,7 +75,7 @@
     tools: { name: 'Tools', href: 'tools.html', c: '#e5007d', t: 'var(--w-tools-t)', line: plus(ready.length) + ' tasks', items: [['Merge PDF', 'merge-pdf/'], ['Compress image', 'compress-image/'], ['QR code generator', 'qr-code-generator/']] },
     life: { name: 'Life', href: 'life/', c: '#009fe3', t: 'var(--w-life-t)', line: 'Time and plans', items: [['Public holidays', 'public-holidays/'], ['Time zone converter', 'time-zone-converter/'], ['Date difference', 'date-difference-calculator/']] },
     play: { name: 'Play', href: 'play/', c: '#7a5cff', t: 'var(--w-play-t)', line: games.length + ' games', items: [['Daily path', 'daily-path/'], ['Daily sudoku', 'daily-sudoku/'], ['Typing test', 'typing-test/']] },
-    read: { name: 'Read', href: 'news/', c: '#f0a800', t: 'var(--w-read-t)', fg: '#0b1220', line: 'Dilia Pulse news and ' + GUIDES.length + ' guides', items: [['Dilia Pulse: tech and business news', 'news/']].concat(GUIDES.slice(0, 2).map(g => [g[1].replace(/^How to /, ''), 'blog/' + g[0] + '/'])) }
+    read: { name: 'Pulse', href: 'news/', c: '#f0a800', t: 'var(--w-read-t)', fg: '#0b1220', line: 'Dilia Pulse news and ' + GUIDES.length + ' guides', items: [['Dilia Pulse: tech and business news', 'news/']].concat(GUIDES.slice(0, 2).map(g => [g[1].replace(/^How to /, ''), 'blog/' + g[0] + '/'])) }
   };
   const spin = $('spin'), pv = $('pv'), planets = {};
   let shown = '';
@@ -108,7 +108,7 @@
   addEventListener('pageshow', e => { if (e.persisted) document.querySelectorAll('.ob-warp').forEach(o => o.remove()); });
 
   /* ---------- journeys ---------- */
-  const CW = { T: ['tools', 'Tools'], L: ['life', 'Life'], P: ['play', 'Play'], R: ['read', 'Read'] };
+  const CW = { T: ['tools', 'Tools'], L: ['life', 'Life'], P: ['play', 'Play'], R: ['read', 'Guides'] };
   const J = [
     { id: 'cv', n: 'Send your CV', sub: 'Make it, sign it, send it', st: [['T', 'Edit your CV PDF', 'edit-pdf/', 10, 62], ['T', 'Sign the cover letter', 'sign-pdf/', 28, 30], ['T', 'Join CV and letter', 'merge-pdf/', 48, 60], ['T', 'Shrink for email', 'compress-pdf/', 68, 28], ['L', 'Count days to deadline', 'date-difference-calculator/', 88, 56]] },
     { id: 'trip', n: 'Trip abroad', sub: 'Plan, sort the papers, go', st: [['L', 'Holidays where you go', 'public-holidays/', 10, 36], ['L', 'Time zone for calls', 'time-zone-converter/', 28, 66], ['T', 'Scan passport to PDF', 'scan-to-pdf/', 48, 30], ['T', 'Photo to a size limit', 'compress-image-to-size/', 68, 62], ['P', 'Puzzles for the flight', 'play/', 88, 32]] },

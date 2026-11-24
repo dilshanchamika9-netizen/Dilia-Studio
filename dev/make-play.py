@@ -37,7 +37,7 @@ def shell(title, desc, body, scripts, robots='', mode=''):
       <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
     </div>
     <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
-    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../news/">Pulse</a></li><li><a href="../blog/">Guides</a></li></ul></div>
     <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
   </div>
 </footer>
@@ -124,7 +124,7 @@ HUB = f'''<section class="phero"><div class="wrap">
 <section class="wrap psec" aria-labelledby="h-any">
   <h2 id="h-any">Play any time</h2>
   <div class="dailies">
-    <a class="daily" href="../path-puzzle/" id="c-levels">{ART_PATH}<span class="no" id="n-levels">Levels</span><b>Path puzzle</b><p>Endless levels, from 5 × 5 up to 8 × 8. Your next level is saved.</p><span class="st" id="s-levels"></span></a>
+    <a class="daily" href="../path-puzzle/" id="c-levels">{ART_PATH.replace('id="ap"', 'id="ap2"').replace('url(#ap)', 'url(#ap2)')}<span class="no" id="n-levels">Levels</span><b>Path puzzle</b><p>Endless levels, from 5 × 5 up to 8 × 8. Your next level is saved.</p><span class="st" id="s-levels"></span></a>
     <a class="daily" href="../merge/">{ART_MERGE}<span class="no">Free play</span><b>Merge</b><p>Reach 2048 on a 4 × 4, 5 × 5 or 6 × 6 board. Undo any time.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../minesweeper/">{ART_MINES}<span class="no">Free play</span><b>Minesweeper</b><p>Beginner to expert, custom sizes and a no-guessing mode.</p><span class="st"><span class="chip">Play</span></span></a>
     <a class="daily" href="../solitaire/">{ART_SOL}<span class="no">Free play</span><b>Solitaire</b><p>Klondike, draw 1 or 3, winnable deals and unlimited undo.</p><span class="st"><span class="chip">Play</span></span></a>

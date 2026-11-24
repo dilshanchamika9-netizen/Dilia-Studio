@@ -13,7 +13,7 @@ def shell(depth):
     h = re.sub(r'<link rel="stylesheet" href="[^"]*(work|viewer|reader)\.css">\n?', '', h)          # template (reader) styles out
     h = re.sub(r'<link rel="(manifest|apple-touch-icon)"[^>]*>\n?', '', h)                          # the app manifest belongs to the reader only
     h = h.replace('</head>', f'<link rel="stylesheet" href="{up}assets/blog.css">\n</head>', 1)
-    assert 'blog.css' in h and 'reader.css' not in h and 'manifest' not in h
+    assert 'blog.css' in h and 'reader.css' not in h and 'rel="manifest"' not in h
     h = re.sub(r'<body class="[^"]*"', '<body class="blog"', h, count=1)
     t = tail.replace('../assets/', up + 'assets/').replace('<script src="' + up + 'assets/viewer.js"></script>', '').replace('<script src="../assets/viewer.js"></script>', '')
     # these pages need no tool scripts: keep search palette, menu and common only

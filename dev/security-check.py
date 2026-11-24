@@ -13,8 +13,10 @@ if '--update' in sys.argv:
 pin = json.load(open('dev/vendor-hashes.json'))
 for p in sorted(set(cur)|set(pin)):
     if cur.get(p) != pin.get(p): bad.append(f'vendor file changed/added/removed without approval: {p}')
-for p in sorted(set(glob.glob('*.html') + glob.glob('*/index.html'))):
+ALL_HTML = sorted(p for p in glob.glob('**/*.html', recursive=True) if p.split('/')[0] not in ('dev', 'desktop', 'node_modules') and '/vendor/' not in p)   # every published page, any depth
+for p in ALL_HTML:
     s = open(p, encoding='utf8').read()
+    if 'http-equiv="Content-Security-Policy"' not in s: bad.append(f'{p}: no CSP meta tag (GitHub Pages ignores _headers)')
     for m in re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>', s, re.S):
         if 'application/ld+json' not in m.group(0)[:80]: bad.append(f'{p}: inline script')
     if re.search(r'<style[\s>]', s): bad.append(f'{p}: inline <style> block (CSP style-src self)')
@@ -30,7 +32,7 @@ for p in glob.glob('assets/*.js'):
     for m in re.finditer(r'getDocument\(\{[^}]*\}', open(p, encoding='utf8').read()):
         if 'isEvalSupported: false' not in m.group(0): bad.append(f'{p}: pdf.js getDocument without isEvalSupported: false')
 # Untrusted PDFs are read in a worker with a time limit first (assets/guard.js); qpdf never runs on the page itself
-for p in sorted(set(glob.glob('*.html') + glob.glob('*/index.html') + glob.glob('blog/**/*.html', recursive=True))):
+for p in ALL_HTML:
     s = open(p, encoding='utf8').read()
     i = s.find('vendor/pdf-lib.min.js"></script>')
     if i >= 0 and 'assets/guard.js"></script>' not in s[i:i + 120]: bad.append(f'{p}: pdf-lib loaded without assets/guard.js right after it')
