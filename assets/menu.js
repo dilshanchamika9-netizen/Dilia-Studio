@@ -22,7 +22,7 @@
 
   let cur = lineOf[slugId[here]] || (DILIA_LINES.find(L => L.href && L.href.replace('/', '') === here) || {}).id || 'pdf', tab = 'pop';
   const btns = {};
-  const card = t => { const a = el('a', 'mcard'); a.href = diliaUrl(t); const i = el('span', 'mi'); i.innerHTML = diliaIcon(t.icon); const w = el('span', 'mt'); w.append(el('b', '', t.gname || t.name), el('small', '', t.gdesc || t.desc)); a.append(i, w); return a; };
+  const card = t => { const a = el('a', 'mcard'); a.href = diliaUrl(t); const i = el('span', 'mi'); i.innerHTML = diliaIcon(t.icon); const w = el('span', 'mtx'); w.append(el('b', '', t.gname || t.name), el('small', '', t.gdesc || t.desc)); a.append(i, w); return a; };
 
   function show(id, keepTab) {
     cur = id; if (!keepTab) tab = 'pop'; const L = DILIA_LINES.find(x => x.id === id);

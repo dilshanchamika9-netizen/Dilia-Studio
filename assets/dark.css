@@ -36,7 +36,7 @@
 :root[data-theme=dark] .mtab[aria-selected=true]{box-shadow:0 8px 20px -10px #000000a6}
 :root[data-theme=dark] .mcard{background:#131b30d1}
 :root[data-theme=dark] .mcard:hover{background:#131b30}
-:root[data-theme=dark] .mt small{color:var(--muted)}
+:root[data-theme=dark] .mtx small{color:var(--muted)}
 :root[data-theme=dark] .mvars b{color:var(--muted)}
 :root[data-theme=dark] .mvars a{background:#131b30b3}
 :root[data-theme=dark] .mvars a:hover{background:#131b30}

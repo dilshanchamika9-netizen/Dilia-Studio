@@ -7,6 +7,10 @@ def ok(c, m):
     global n_ok
     if c: n_ok += 1
     else: fails.append(m); print('FAIL', m)
+async def mega(pg, t):
+    await pg.click('[data-menu]'); await pg.wait_for_timeout(800)
+    r = await pg.evaluate("(()=>{const c=document.querySelector('#mega .mcard'),b=c.querySelector('.mtx b').getBoundingClientRect(),r=c.getBoundingClientRect();return b.width>0&&b.top>=r.top&&b.bottom<=r.bottom&&b.left>=r.left&&b.right<=r.right})()")
+    ok(r, f'[{t}] Tools menu card text sits inside its card')
 async def done(pg): return await pg.evaluate("document.getElementById('done').classList.contains('on')")
 async def ev(pg, js): return await pg.evaluate(js)
 async def page(br, w, slug, theme, fn, shot=None):
@@ -57,7 +61,7 @@ async def memory(pg, t):
         else: first[v] = i; continue
         await ev(pg, f'DiliaMemory.flip({a})'); await ev(pg, f'DiliaMemory.flip({b})'); await pg.wait_for_timeout(120)
     await pg.wait_for_timeout(500); s = await ev(pg, 'DiliaMemory.state()'); ok(s['won'] and s['moves'] == 8 and await done(pg), f'[{t}] perfect game {s["moves"]} moves')
-CASES = [('brick-breaker', brick), ('pong', pong), ('aim-trainer', aim), ('nonogram', nono), ('sliding-puzzle', slide), ('word-search', words), ('memory-game', memory)]
+CASES = [('pong', mega), ('merge', mega), ('brick-breaker', brick), ('pong', pong), ('aim-trainer', aim), ('nonogram', nono), ('sliding-puzzle', slide), ('word-search', words), ('memory-game', memory)]
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
