@@ -145,7 +145,7 @@ async def santa(br, w):
 async def hub(br, w):
     ctx, pg, errs = await page(br, w); await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)
     for h in ('bingo-card-generator/', 'quiz-maker/', 'score-keeper/', 'secret-santa-generator/'): ok(await pg.locator(f'.dailies a[href="../{h}"]').count() == 1, f'[{w}] hub card {h}')
-    ok('Party and decide' not in await pg.inner_text('#h-soon + .pgrid'), f'[{w}] party card still listed as coming'); await noscroll(pg, w, 'hub')
+    ok(not await pg.locator('#h-soon').count(), f'[{w}] no coming-next section left (everything planned is built)'); await noscroll(pg, w, 'hub')
     await pg.keyboard.press('Control+K'); await pg.wait_for_timeout(300); await pg.keyboard.type('bingo'); await pg.wait_for_timeout(300); ok('Bingo cards' in ' '.join(await pg.locator('.pr').all_inner_texts()), f'[{w}] search finds bingo')
     ok(not errs, f'[{w}] hub errors: {errs}'); await ctx.close()
 

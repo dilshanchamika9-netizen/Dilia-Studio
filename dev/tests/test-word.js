@@ -1,0 +1,10 @@
+const fs = require('fs'); eval(fs.readFileSync(__dirname + '/../../assets/playgen.js', 'utf8')); eval(fs.readFileSync(__dirname + '/../../assets/dailyword.js', 'utf8'));
+const W = globalThis.DiliaWord; let bad = 0, n = 0; const t = (c, m) => { n++; if (!c) { bad++; console.log('FAIL', m); } };
+const sc = (g, a) => W.score(g, a).join('');
+t(sc('crane', 'crane') === '22222', 'exact'); t(sc('about', 'zzzzz') === '00000', 'none');
+t(sc('speed', 'abide') === '00101', 'repeated letter in guess: only one e is marked'); t(sc('allee', 'eagle') === '11012', 'double l and double e'); t(sc('geese', 'eerie') === '02102', 'green first then yellow');
+t(W.LIST.length > 900 && new Set(W.LIST).size === W.LIST.length, 'answers unique'); t(W.LIST.every(w => /^[a-z]{5}$/.test(w)), 'all five lowercase letters');
+const o = W.order(); t(o.length === W.LIST.length && new Set(o).size === o.length, 'order is a permutation');
+t(W.answerFor(1) === W.answerFor(1) && W.answerFor(1) !== W.answerFor(2), 'answer fixed per day, different next day');
+const seen = new Set(); for (let d = 1; d <= W.LIST.length; d++) seen.add(W.answerFor(d)); t(seen.size === W.LIST.length, 'no repeats until the list is used up');
+console.log(bad ? 'FAILS ' + bad : 'WORD OK', n); process.exit(bad ? 1 : 0);

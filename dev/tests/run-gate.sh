@@ -33,6 +33,9 @@ step "Checkers and reversi: rules and computer" node dev/tests/test-boards.js
 step "Checkers and reversi: pages" python3 dev/tests/test-boards.py
 step "Ludo: rules and computer" node dev/tests/test-ludo.js
 step "Ludo: page" python3 dev/tests/test-ludo.py
+step "Backgammon: rules and computer" node dev/tests/test-backgammon.js
+step "Word and crossword engines" bash -c "node dev/tests/test-word.js && node dev/tests/test-crossword.js"
+step "Chess puzzles verified" node dev/tests/test-chess-puzzles.js
 step "Puzzle rules" node dev/tests/test-puzzles.js
 step "Arcade and puzzle pages" python3 dev/tests/test-mini.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"

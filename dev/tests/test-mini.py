@@ -61,7 +61,67 @@ async def memory(pg, t):
         else: first[v] = i; continue
         await ev(pg, f'DiliaMemory.flip({a})'); await ev(pg, f'DiliaMemory.flip({b})'); await pg.wait_for_timeout(120)
     await pg.wait_for_timeout(500); s = await ev(pg, 'DiliaMemory.state()'); ok(s['won'] and s['moves'] == 8 and await done(pg), f'[{t}] perfect game {s["moves"]} moves')
-CASES = [('pong', mega), ('merge', mega), ('brick-breaker', brick), ('pong', pong), ('aim-trainer', aim), ('nonogram', nono), ('sliding-puzzle', slide), ('word-search', words), ('memory-game', memory)]
+async def stack(pg, t):
+    await ev(pg, 'DiliaStack.tap()'); await ev(pg, 'DiliaStack.step(10)')
+    for _ in range(3): await ev(pg, 'DiliaStack.align()'); await ev(pg, 'DiliaStack.tap()')
+    s = await ev(pg, 'DiliaStack.state()'); ok(s['score'] == 3 and s['perfect'] == 3 and not s['over'], f'[{t}] three perfect drops {s}')
+    await ev(pg, 'DiliaStack.miss()'); await ev(pg, 'DiliaStack.tap()'); await pg.wait_for_timeout(200)
+    s = await ev(pg, 'DiliaStack.state()'); ok(s['over'] and await done(pg), f'[{t}] a miss ends it {s}')
+async def dash(pg, t):
+    await ev(pg, 'DiliaDash.tap()'); await ev(pg, 'DiliaDash.step(45)'); s = await ev(pg, 'DiliaDash.state()'); ok(s['score'] > 0 and not s['over'], f'[{t}] runs {s}')
+    await ev(pg, 'DiliaDash.tap()'); await ev(pg, 'DiliaDash.step(8)'); s = await ev(pg, 'DiliaDash.state()'); ok(s['y'] < 180, f'[{t}] jump leaves the ground {s}')
+    await ev(pg, 'DiliaDash.step(60)'); await ev(pg, 'DiliaDash.spawn()'); await ev(pg, 'DiliaDash.step(2)'); await pg.wait_for_timeout(200)
+    s = await ev(pg, 'DiliaDash.state()'); ok(s['over'] and await done(pg), f'[{t}] a block ends the run {s}')
+async def hop(pg, t):
+    await ev(pg, 'DiliaHop.tap()'); await ev(pg, 'DiliaHop.step(3)'); s = await ev(pg, 'DiliaHop.state()'); ok(not s['over'], f'[{t}] flying')
+    await ev(pg, 'DiliaHop.step(2)'); await ev(pg, 'DiliaHop.floor()'); await ev(pg, 'DiliaHop.step(1)'); await pg.wait_for_timeout(200)
+    s = await ev(pg, 'DiliaHop.state()'); ok(s['over'] and await done(pg), f'[{t}] ground ends it {s}')
+async def backgammon(pg, t):
+    ok(await pg.locator('#bgs svg .bgck').count() == 30, f'[{t}] 30 checkers drawn')
+    await ev(pg, 'DiliaBGGame.roll([3,1])'); s = await ev(pg, 'DiliaBGGame.state()'); ok(s['phase'] == 'move' and len(s['legal']) > 0, f'[{t}] roll gives legal moves')
+    f, to, d = s['legal'][0]
+    await pg.locator(f'#bgs svg .bgck[data-i="{f}"]').last.click(); s = await ev(pg, 'DiliaBGGame.state()'); ok(s['sel'] == f, f'[{t}] checker selected')
+    await ev(pg, f'DiliaBGGame.tap({to})'); s = await ev(pg, 'DiliaBGGame.state()'); ok(len(s['s']['dice']) == 1, f'[{t}] one die used')
+    l = s['legal'][0]; await ev(pg, f'DiliaBGGame.tap({l[0]})'); await ev(pg, f'DiliaBGGame.tap({l[1]})')
+    for _ in range(60):
+        s = await ev(pg, 'DiliaBGGame.state()')
+        if s['s']['turn'] == 0 and s['phase'] == 'roll' and not s['busy']: break
+        await pg.wait_for_timeout(250)
+    ok(s['s']['turn'] == 0 and s['phase'] == 'roll', f'[{t}] computer plays and it is your turn again')
+    await ev(pg, "DiliaBGGame.set({p:Array(24).fill(0).map((v,i)=>i==0?1:(i==20?-1:0)), bar:[0,0], off:[14,14], turn:0, dice:[], n:3, phase:'roll'})")
+    await ev(pg, 'DiliaBGGame.roll([1])'); await ev(pg, 'DiliaBGGame.tap(0)'); await ev(pg, "DiliaBGGame.tap('off')"); await pg.wait_for_timeout(300)
+    ok(await done(pg), f'[{t}] bearing off the last checker wins and shows panel')
+async def dword(pg, t):
+    s = await ev(pg, 'DiliaWordGame.state()'); ans = s['ans']; ok(len(ans) == 5 and s['mode'] == 'daily', f'[{t}] daily word loaded')
+    await ev(pg, "DiliaWordGame.type('zzzzz')"); await ev(pg, 'DiliaWordGame.enter()'); s = await ev(pg, 'DiliaWordGame.state()'); ok(len(s['guesses']) == 1 and not s['over'], f'[{t}] a guess is accepted')
+    await pg.keyboard.type(ans); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(300); s = await ev(pg, 'DiliaWordGame.state()')
+    ok(s['over'] and s['guesses'][-1] == ans and await done(pg), f'[{t}] typing the answer wins and shows the panel')
+    ok(await pg.locator('.wc.s2').count() >= 5, f'[{t}] green squares shown')
+    await pg.reload(); await pg.wait_for_timeout(400); s = await ev(pg, 'DiliaWordGame.state()'); ok(s['over'] and len(s['guesses']) == 2 and await done(pg), f'[{t}] finished game is restored on reload')
+async def cross(pg, t):
+    await pg.click('[data-cs="6"]'); await pg.wait_for_timeout(200); s = await ev(pg, 'DiliaCrossGame.state()'); ok(len(s['p']['words']) == 6, f'[{t}] six words')
+    ok(await pg.locator('#cwg .cwc').count() == sum(1 for r in s['p']['grid'] for c in r if c), f'[{t}] squares drawn')
+    r, c = s['p']['words'][0]['r'], s['p']['words'][0]['col']; await pg.locator(f'#cwg .cwc[data-r="{r}"][data-c="{c}"]').click(); await pg.keyboard.type(s['p']['words'][0]['w'][0])
+    s = await ev(pg, 'DiliaCrossGame.state()'); ok(s['ent'][r][c] == s['p']['words'][0]['w'][0], f'[{t}] typing fills the square')
+    await pg.click('#cwcheck'); await ev(pg, 'DiliaCrossGame.solve()'); await pg.wait_for_timeout(300); s = await ev(pg, 'DiliaCrossGame.state()'); ok(s['won'] and await done(pg), f'[{t}] solved shows panel')
+async def speed(pg, t):
+    await pg.click('[data-wpm="700"]'); await pg.click('#srstart'); await pg.wait_for_timeout(500); s = await ev(pg, 'DiliaSpeed.state()'); ok(s['state'] == 'run' and s['i'] > 0, f'[{t}] words flash {s}')
+    ok(await pg.locator('#srw b').count() == 1, f'[{t}] focal letter shown')
+    await ev(pg, 'DiliaSpeed.skip()'); await pg.wait_for_timeout(200); ok(await pg.locator('#srq input[type=radio]').count() == 12, f'[{t}] three questions with four options')
+    for k, a in enumerate([1, 1, 2]):
+        pass
+    await ev(pg, 'DiliaSpeed.submit()'); await pg.wait_for_timeout(100); ok(not await done(pg), f'[{t}] must answer all questions')
+    for k in range(3): await ev(pg, f'DiliaSpeed.answer({k}, 1)')
+    await ev(pg, 'DiliaSpeed.submit()'); await pg.wait_for_timeout(200); ok(await done(pg), f'[{t}] result panel')
+async def cpuz(pg, t):
+    s = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s['n'] >= 60 and s['phase'] == 'first', f'[{t}] puzzle loaded ({s["n"]} puzzles)')
+    ok(await pg.locator('#cpb .sq').count() == 64 and await pg.locator('#cpb .sq span:not(:empty)').count() >= 9, f'[{t}] board drawn')
+    w = await ev(pg, 'DiliaChessPuzzle.wrongUci()'); await ev(pg, f'DiliaChessPuzzle.tapUci("{w}")'); s = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s['tries'] == 1 and s['phase'] == 'first', f'[{t}] a wrong move is refused')
+    await pg.click('#cphint'); ok(await pg.locator('#cpb .sq.sel').count() == 1, f'[{t}] hint marks the key piece')
+    await ev(pg, f'DiliaChessPuzzle.tapUci("{s["sol"]}")'); await pg.wait_for_timeout(1300); s = await ev(pg, 'DiliaChessPuzzle.state()'); ok(s['phase'] == 'mate', f'[{t}] key move accepted, opponent replied')
+    m = await ev(pg, 'DiliaChessPuzzle.mateUci()'); ok(bool(m), f'[{t}] a mating move exists'); await ev(pg, f'DiliaChessPuzzle.tapUci("{m}")'); await pg.wait_for_timeout(300)
+    ok(await done(pg), f'[{t}] checkmate solves it and shows the panel')
+CASES = [('daily-chess-puzzle', cpuz), ('daily-chess-puzzle', mega), ('daily-word', dword), ('crossword', cross), ('speed-reading', speed), ('backgammon', backgammon), ('backgammon', mega), ('stack', stack), ('dash', dash), ('hop', hop), ('stack', mega), ('pong', mega), ('merge', mega), ('brick-breaker', brick), ('pong', pong), ('aim-trainer', aim), ('nonogram', nono), ('sliding-puzzle', slide), ('word-search', words), ('memory-game', memory)]
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])

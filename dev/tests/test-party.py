@@ -132,7 +132,7 @@ async def number(br, w):
 async def hub(br, w):
     ctx, pg, errs = await page(br, w); await pg.goto(B + 'play/'); await pg.wait_for_timeout(300)
     for h in ('wheel-spinner/', 'team-maker/', 'dice-roller/'): ok(await pg.locator(f'.dailies a[href="../{h}"]').count() == 1, f'[{w}] hub card {h}')
-    soon = await pg.inner_text('#h-soon + .pgrid'); ok('Wheel spinner' not in soon and 'Dice' not in soon and 'team maker' not in soon.lower(), f'[{w}] built tools still listed as coming: {soon!r}')
+    soon = await pg.inner_text('#h-soon + .pgrid') if await pg.locator('#h-soon + .pgrid').count() else ''; ok('Wheel spinner' not in soon and 'Dice' not in soon and 'team maker' not in soon.lower(), f'[{w}] built tools still listed as coming: {soon!r}')
     await noscroll(pg, w, 'hub'); ok(not errs, f'[{w}] hub errors: {errs}')
     await pg.keyboard.press('Control+K'); await pg.wait_for_timeout(300); await pg.keyboard.type('wheel'); await pg.wait_for_timeout(300)
     ok('Wheel spinner' in ' '.join(await pg.locator('.pr').all_inner_texts()), f'[{w}] search palette finds wheel'); await ctx.close()
