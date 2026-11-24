@@ -46,7 +46,7 @@
     const e = r.date, diff = CM.num_(e) - CM.num_(s), parts = [ny && pl(ny, 'year'), nm && pl(nm, 'month'), nw && pl(nw, 'week'), nd && pl(nd, 'day')].filter(Boolean).join(', ') || '0 days';
     result(sign > 0 ? 'DATE AFTER ADDING' : 'DATE AFTER SUBTRACTING', longDate(e), (sign > 0 ? '+ ' : '− ') + parts + ' from ' + longDate(s), [['DAYS APART', plain(Math.abs(diff)), 'c'], ['WEEK', 'Week ' + CM.isoWeek(e).week], ['DAY OF YEAR', plain(CM.dayOfYear(e))]], 'Months are added first, then weeks and days. Adding a month to 31 January gives the last day of February.');
     const L = sign > 0 ? s : e, Rr = sign > 0 ? e : s;
-    VIZ.innerHTML = `<div class="ljump"><svg viewBox="0 0 600 170" aria-hidden="true"><defs><linearGradient id="lja" x1="0" x2="1"><stop offset="0" stop-color="#2fe08a"/><stop offset="1" stop-color="#29c6ff"/></linearGradient></defs><path d="M70 140 C 200 -10, 400 -10, 530 140" fill="none" stroke="url(#lja)" stroke-width="4" stroke-dasharray="10 8"><animate attributeName="stroke-dashoffset" from="${sign > 0 ? 36 : -36}" to="0" dur="1s" repeatCount="indefinite"/></path><circle cx="70" cy="140" r="12" fill="#2fe08a"/><circle cx="530" cy="140" r="12" fill="#29c6ff"/><text x="300" y="48" text-anchor="middle" fill="#fff" font-size="22" font-weight="800">${sign > 0 ? '+' : '−'}${plain(Math.abs(diff))} days</text></svg>
+    VIZ.innerHTML = `<div class="ljump"><svg viewBox="0 0 600 170" aria-hidden="true"><defs><linearGradient id="lja" x1="0" x2="1"><stop offset="0" stop-color="#2fe08a"/><stop offset="1" stop-color="#29c6ff"/></linearGradient></defs><path d="M70 140 C 200 -10, 400 -10, 530 140" fill="none" stroke="url(#lja)" stroke-width="4" stroke-dasharray="10 8"><animate attributeName="stroke-dashoffset" from="${sign > 0 ? 36 : -36}" to="0" dur="1s" repeatCount="indefinite"/></path><circle cx="70" cy="140" r="12" fill="#2fe08a"/><circle cx="530" cy="140" r="12" fill="#29c6ff"/><text x="300" y="48" text-anchor="middle" style="fill:var(--lt)" font-size="22" font-weight="800">${sign > 0 ? '+' : '−'}${plain(Math.abs(diff))} days</text></svg>
       <div class="ltlab"><div><small>${sign > 0 ? 'START' : 'RESULT'}</small>${esc(longDate(L))}</div><div class="r"><small>${sign > 0 ? 'RESULT' : 'START'}</small>${esc(longDate(Rr))}</div></div></div><div class="lcal2">${monthGrid(s.y, s.m, d => same(d, s) ? 'l' : '', 'START · ' + MON3[s.m - 1] + ' ' + s.y)}${monthGrid(e.y, e.m, d => same(d, e) ? 'h' : '', 'RESULT · ' + MON3[e.m - 1] + ' ' + e.y)}</div>`;
   };
   // ---------- age: life in weeks + birthday countdown ----------
@@ -58,8 +58,8 @@
     result('AGE', ymdText(a), 'Born on a ' + DAYS[a.weekdayBorn] + ', ' + dob.d + ' ' + MONTHS[dob.m - 1] + ' ' + dob.y, [['DAYS OLD', plain(a.totalDays), 'c'], ['WEEKS OLD', plain(weeks)], ['NEXT BIRTHDAY', a.daysToBirthday === 0 ? 'Today' : pl(a.daysToBirthday, 'day'), 'h'], ['TURNING', String(a.daysToBirthday === 0 ? a.years : turning), 'g']], 'Next birthday: ' + esc(longDate(nb)) + '. Someone born on 29 February is counted as having their birthday on 28 February in other years.');
     const Y = 90, cols = 52, cell = 9, gap = 2, W = cols * (cell + gap), H = Y * (cell + gap);
     VIZ.innerHTML = `<div class="lweeks"><div class="lwhead"><b>Your life in weeks</b><span>Each square is one week, each row one year, up to 90. Lit squares are the ${plain(weeks)} weeks behind you.</span></div><canvas id="lwc" width="${W}" height="${H}" role="img" aria-label="${plain(weeks)} of ${Y * 52} weeks lived"></canvas><div class="lcd" id="lagecd"></div></div>`;
-    const c = $('lwc').getContext('2d');
-    for (let r = 0; r < Y; r++) for (let k = 0; k < cols; k++) { const i = r * cols + k; c.fillStyle = i < weeks ? (r % 10 === 9 ? '#ff2d95' : '#29c6ff') : i === weeks ? '#fff' : '#ffffff14'; c.fillRect(k * (cell + gap), r * (cell + gap), cell, cell); }
+    const c = $('lwc').getContext('2d'), cs = getComputedStyle(ROOT), EMPTY = cs.getPropertyValue('--lcell').trim() || '#ffffff14', NOWC = cs.getPropertyValue('--lt').trim() || '#fff';
+    for (let r = 0; r < Y; r++) for (let k = 0; k < cols; k++) { const i = r * cols + k; c.fillStyle = i < weeks ? (r % 10 === 9 ? '#ff2d95' : '#29c6ff') : i === weeks ? NOWC : EMPTY; c.fillRect(k * (cell + gap), r * (cell + gap), cell, cell); }
     if (same(on, today()) && a.daysToBirthday > 0) stopAge = K.countdown($('lagecd'), nb.y, nb.m - 1, nb.d); else $('lagecd').innerHTML = '';
   };
   // ---------- day of the week: glowing month + year ring ----------
@@ -67,7 +67,7 @@
     const d = getDate('d1', 'Date'), w = CM.isoWeek(d), yd = CM.dayOfYear(d), yl = CM.isLeap(d.y) ? 366 : 365;
     result(longDate(d).toUpperCase(), DAYS[CM.weekday(d)], 'Day ' + yd + ' of ' + yl + ' · Week ' + w.week + (w.year !== d.y ? ' of ' + w.year : ''), [['DAY OF YEAR', 'Day ' + yd + ' of ' + yl, 'c'], ['DAYS LEFT', plain(yl - yd)], ['ISO WEEK', 'Week ' + w.week + (w.year !== d.y ? ' (' + w.year + ')' : ''), 'g'], ['LEAP YEAR', CM.isLeap(d.y) ? 'Yes' : 'No']], MONTHS[d.m - 1] + ' ' + d.y + ' has ' + CM.dim(d.y, d.m) + ' days.');
     const pct = yd / yl, R0 = 70, C = 2 * Math.PI * R0;
-    VIZ.innerHTML = `<div class="ldow"><div class="lring"><svg viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="${R0}" fill="none" stroke="#ffffff14" stroke-width="14"/><circle cx="90" cy="90" r="${R0}" fill="none" stroke="url(#lrg)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${(C * pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 90 90)"/><defs><linearGradient id="lrg"><stop offset="0" stop-color="#2fe08a"/><stop offset="1" stop-color="#29c6ff"/></linearGradient></defs><text x="90" y="88" text-anchor="middle" fill="#fff" font-size="30" font-weight="800">${Math.round(pct * 100)}%</text><text x="90" y="110" text-anchor="middle" fill="#93a0c4" font-size="12">of ${d.y} done</text></svg></div>
+    VIZ.innerHTML = `<div class="ldow"><div class="lring"><svg viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="${R0}" fill="none" style="stroke:var(--lcell)" stroke-width="14"/><circle cx="90" cy="90" r="${R0}" fill="none" stroke="url(#lrg)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${(C * pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 90 90)"/><defs><linearGradient id="lrg"><stop offset="0" stop-color="#2fe08a"/><stop offset="1" stop-color="#29c6ff"/></linearGradient></defs><text x="90" y="88" text-anchor="middle" style="fill:var(--lt)" font-size="30" font-weight="800">${Math.round(pct * 100)}%</text><text x="90" y="110" text-anchor="middle" style="fill:var(--lm)" font-size="12">of ${d.y} done</text></svg></div>
       <div class="lbig">${monthGrid(d.y, d.m, x => same(x, d) ? 'h' : CM.weekday(x) === CM.weekday(d) ? 'b' : '', MONTHS[d.m - 1].toUpperCase() + ' ' + d.y)}<p class="lnote">Every ${DAYS[CM.weekday(d)]} of the month is outlined.</p></div></div>`;
   };
   // ---------- working days: month calendars with counted days lit ----------
@@ -88,7 +88,7 @@
     if (months > 24) { VIZ.innerHTML = `<p class="lnote">The calendar picture shows up to 24 months. This range covers ${months} months.</p>`; return; }
     let h = '', y = a.y, m = a.m; const ai = CM.iso(a), bi = CM.iso(b);
     for (let k = 0; k < months; k++) { h += monthGrid(y, m, d => { const i = CM.iso(d); if (i < ai || i > bi) return ''; if (wk.has(CM.weekday(d))) return 'w'; if (hs && hs.has(i)) return 'h'; return 'l'; }); if (++m > 12) { m = 1; y++; } }
-    VIZ.innerHTML = `<div class="lkey"><span><i style="background:#2fe08a"></i>Working day</span><span><i style="background:#2b3560"></i>Weekend</span><span><i style="background:#ff2d95"></i>Public holiday</span></div><div class="lhg flat">${h}</div>`;
+    VIZ.innerHTML = `<div class="lkey"><span><i style="background:#2fe08a"></i>Working day</span><span><i style="background:var(--lw)"></i>Weekend</span><span><i style="background:#ff2d95"></i>Public holiday</span></div><div class="lhg flat">${h}</div>`;
   };
   // ---------- time zones: day/night strips with a draggable time line ----------
   let tzZones = [];
@@ -105,7 +105,7 @@
     tzZones.forEach(z => { let cells = ''; for (let h = 0; h < 24; h++) { const p = CM.parts(z, b0 + h * 3600000), cl = p.h >= 9 && p.h < 18 ? 'wk' : p.h >= 7 && p.h < 22 ? 'dy' : 'nt'; cells += `<span class="${cl}">${p.h}</span>`; } rows += `<div class="lstrip"><b>${esc(nm(z))}</b><div>${cells}</div></div>`; });
     for (let h = 0; h < 24; h++) if (tzZones.every(z => { const p = CM.parts(z, b0 + h * 3600000); return p.h >= 9 && p.h < 18; })) good.push(h);
     const sel = (+m[4] * 60 + +m[5]) / 1440 * 100;
-    VIZ.innerHTML = `<div class="lkey"><span><i style="background:#2fe08a"></i>Work hours 9–18</span><span><i style="background:#29c6ff66"></i>Awake</span><span><i style="background:#141b38"></i>Night</span></div><div class="lstrips" id="lstrips"><div class="lsel" id="lsel" style="--p:${(sel / 100).toFixed(4)}"></div>${rows}</div>
+    VIZ.innerHTML = `<div class="lkey"><span><i style="background:#2fe08a"></i>Work hours 9–18</span><span><i style="background:#29c6ff66"></i>Awake</span><span><i style="background:var(--lk)"></i>Night</span></div><div class="lstrips" id="lstrips"><div class="lsel" id="lsel" style="--p:${(sel / 100).toFixed(4)}"></div>${rows}</div>
       <p class="lcnote">${good.length ? 'Best meeting hours (everyone at work), in ' + esc(nm(src)) + ' time: ' + good.map(h => pad(h) + ':00').join(', ') + '.' : 'No hour is inside work hours (9–18) for everyone on this day.'} Drag along the strips or tap an hour to change the time.</p>`;
     const strips = $('lstrips'), setFrom = e => { const rc = strips.getBoundingClientRect(), lab = strips.querySelector('.lstrip b').getBoundingClientRect().width, x = Math.max(0, Math.min(1, (e.clientX - rc.left - lab) / (rc.width - lab))), mins = Math.min(1425, Math.round(x * 1440 / 15) * 15); $('lcwhen').value = m[1] + '-' + m[2] + '-' + m[3] + 'T' + pad(Math.floor(mins / 60)) + ':' + pad(mins % 60); run(); };
     let drag = false; strips.addEventListener('pointerdown', e => { drag = true; strips.setPointerCapture(e.pointerId); setFrom(e); }); strips.addEventListener('pointermove', e => { if (drag) setFrom(e); }); strips.addEventListener('pointerup', () => { drag = false; });
@@ -155,6 +155,7 @@
     paint();
     window.DiliaTZ = { set: z => { tzZones = z.slice(); paint(); run(); } };
   }
+  new MutationObserver(() => { if (MODE === 'dage') run(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   run();
   window.DiliaLifeCalc = { run, mode: MODE, setWeekend: w => { curWeekend = w; run(); } };
 }

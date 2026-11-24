@@ -35,7 +35,7 @@
     let t = `<h3>${day(i)}</h3>`;
     if (k === 'h') t += `<span class="lpill" style="background:#ff2d95">Public holiday</span>${esc(Y.names[i])}${Y.est[i] ? ' <small>(moon date, may shift)</small>' : ''}`;
     else if (k === 'l') t += '<span class="lpill" style="background:#2fe08a;color:#03140b">Take leave</span>';
-    else if (k === 'w') t += '<span class="lpill" style="background:#2b3560">Weekend</span>';
+    else if (k === 'w') t += '<span class="lpill" style="background:var(--lw)">Weekend</span>';
     else t += '<span class="lpill" style="background:#ffffff22">Work day</span>';
     if (YH && YH.off[i] === 2) t += `<span class="lpill" style="background:#ffc93c;color:#1a1200">Home: ${esc(YH.names[i])}</span>`;
     if (w) t += `<p>Part of a <b>${w.len}-day break</b>, ${day(w.a)} to ${day(w.b)}${w.cost ? `, for ${w.cost} leave ${w.cost === 1 ? 'day' : 'days'}` : ', with no leave'}.</p>`;
@@ -61,7 +61,7 @@
   function river() {
     const lv = new Set(wins.flatMap(w => w.leave)), y = cfg.y, ms = []; let s0 = 0;
     for (let m = 0; m < 12; m++) { ms.push(s0); s0 += H.dim(y, m); }
-    const col = { l: '#2fe08a', h: '#ff2d95', w: '#2b3560', '': '#141b38' }, ht = { l: 80, h: 92, w: 34, '': 14 };
+    const col = { l: '#2fe08a', h: '#ff2d95', w: 'var(--lw)', '': 'var(--lk)' }, ht = { l: 80, h: 92, w: 34, '': 14 };
     let h = '';
     ms.forEach((s, m) => { h += `<div class="ms" style="left:${20 + s * PX}px"></div><div class="ml" style="left:${24 + s * PX}px">${MON[m]}</div>`; });
     for (let i = 0; i < Y.n; i++) { const k = kind(i, lv); h += `<div class="bar" style="left:${20 + i * PX}px;height:${ht[k]}px;background:${col[k]}${k === 'h' || k === 'l' ? ';box-shadow:0 0 9px ' + col[k] : ''}"></div>`; if (YH && YH.off[i] === 2) h += `<div class="bar" style="left:${20 + i * PX}px;bottom:${38 + ht[k] + 4}px;height:6px;background:#ffc93c"></div>`; }

@@ -994,6 +994,7 @@ for old, new, label in (('studio', 'pdf', 'Dilia PDF'), ('pixel', 'image', 'Dili
 ''')
     print('wrote redirect', old + '/')
 
+exec(compile((ROOT / 'dev' / 'make-lifelight.py').read_text(), 'make-lifelight.py', 'exec'), {'__file__': str(ROOT / 'dev' / 'make-lifelight.py'), '__name__': 'lifelight'})
 exec(compile((ROOT / 'dev' / 'make-play.py').read_text(), 'make-play.py', 'exec'), {'__file__': str(ROOT / 'dev' / 'make-play.py')})
 
 import importlib.util as _nu

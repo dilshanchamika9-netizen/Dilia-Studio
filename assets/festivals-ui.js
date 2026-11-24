@@ -22,7 +22,7 @@
     // river
     const n = ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 366 : 365; let r = '', s0 = 0; const dim = [31, n === 366 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     for (let m = 0; m < 12; m++) { r += `<div class="ms" style="left:${20 + s0 * PX}px"></div><div class="ml" style="left:${24 + s0 * PX}px">${MON[m]}</div>`; s0 += dim[m]; }
-    for (let i = 0; i < n; i++) r += `<div class="bar" style="left:${20 + i * PX}px;height:14px;background:#141b38"></div>`;
+    for (let i = 0; i < n; i++) r += `<div class="bar" style="left:${20 + i * PX}px;height:14px;background:var(--lk)"></div>`;
     list.forEach((f, k) => { const i = idxOf(f.date), c = COL[f.trad]; r += `<div class="bar" style="left:${20 + i * PX}px;height:92px;background:${c};box-shadow:0 0 10px ${c}"></div><button type="button" class="cap fcap" data-k="${k}" style="left:${20 + i * PX - 40}px;bottom:${108 + (k % 3) * 40}px;--c:${c}">${esc(f.name.length > 18 ? f.name.slice(0, 17) + '…' : f.name)}</button>`; });
     const ti = y === thisYear ? idxOf(t) : -1; if (ti >= 0) r += `<div class="now" style="left:${20 + ti * PX}px"></div>`;
     const rv = $('fsrv'); rv.style.width = (n * PX + 100) + 'px'; rv.style.height = '250px'; rv.innerHTML = r;

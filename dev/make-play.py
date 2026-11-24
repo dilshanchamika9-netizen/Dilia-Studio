@@ -751,7 +751,7 @@ PAGES['daily-chess-puzzle'] = ('Daily Chess Puzzle - Mate in Two | Dilia Play', 
       '<p>Every puzzle is a mate in two with exactly one winning first move, found and checked by computer search with the same rules code as our chess game. Positions come from random games, so they can look unusual. Your streak is kept in this browser.</p>', '',
       '<h2 class="vh" id="cpt">Daily chess puzzle</h2><div class="chbox"><div class="chb" id="cpb" role="application" aria-label="Chess puzzle board"></div></div><p class="cturn" id="cpwho" aria-live="polite"></p>', '<button type="button" class="pbtn" id="cphint">Hint</button><button type="button" class="pbtn" id="cpshow">Show solution</button>'), MJS + '<script src="../assets/chess-core.js"></script><script src="../assets/chess-puzzles.js"></script><script src="../assets/cpuzzle-game.js"></script>', 'free')
 def wdb(d, t): return f'<button type="button" data-wd="{d}" aria-pressed="false">{t}</button>'
-HOLPLAN = """<link rel="stylesheet" href="../assets/lifefx.css">
+HOLPLAN = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Holiday planner</b></p>
 <h1>Holiday planner</h1><p class="lsub">Turn your leave days into the longest breaks of the year.</p>
@@ -782,7 +782,7 @@ HOLPLAN = """<link rel="stylesheet" href="../assets/lifefx.css">
   <p>Holidays are national only, 2024 to 2035, from the open-source Vacanza holidays library (MIT licence). Regional, school and private-sector holidays can differ. A holiday that falls on a weekend is not moved here; some countries give a day off instead. Weekend defaults by country are a starting point.</p>
   <p>Nothing you type leaves this device. The share link keeps your choices after the # sign, which is never sent to a server.</p>
 </section></div>"""
-PHOL = """<link rel="stylesheet" href="../assets/lifefx.css">
+PHOL = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Public holidays</b></p>
 <h1>Public holidays</h1><p class="lsub">Every country, 2024 to 2035. See what is next, spot the long weekends, compare two countries.</p>
@@ -803,7 +803,7 @@ PHOL = """<link rel="stylesheet" href="../assets/lifefx.css">
   <p>Holidays that follow the moon, such as Eid, are marked "may shift": the official date is announced close to the day. Long weekends count a holiday joined to the weekend into three or more days off in a row, using that country's usual weekend days.</p>
   <p>Nothing you choose leaves this device. Downloads are made in your browser.</p>
 </section></div>"""
-LIFEHUB = """<link rel="stylesheet" href="../assets/lifefx.css">
+LIFEHUB = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx lhub"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <b>Life</b></p>
 <h1>Your days, your year,<br>your plans.</h1><p class="lsub">Holidays, time and dates for every country. Everything runs on your device.</p>
@@ -818,7 +818,7 @@ LIFEHUB = """<link rel="stylesheet" href="../assets/lifefx.css">
 </div></section>"""
 PAGES['life'] = ('Life: holidays, time and trips | Dilia', 'Holiday planner, public holidays for 249 countries with a live countdown, time zones, date and work-day calculators. Trip planner and life goals coming. Free, no sign-up.', LIFEHUB, '<script src="../assets/holidayplan.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/life-hub.js"></script>', 'life')
 def lc_body(mode, slug, title, sub, ctl, about):
-    return f"""<link rel="stylesheet" href="../assets/lifefx.css">
+    return f"""<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx" data-lc="{mode}"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>{title}</b></p>
 <h1>{title}</h1><p class="lsub">{sub}</p>
@@ -842,7 +842,7 @@ LCP = [
 for mode, slug, title, sub, ctl, about, tt, dd in LCP:
     PAGES[slug] = (tt, dd, lc_body(mode, slug, title, sub, ctl, about), LCJS, 'life')
 CLOCKJS = '<script src="../assets/calcmath.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/cities.js"></script><script src="../assets/clock-ui.js"></script>'
-WCLOCK = """<link rel="stylesheet" href="../assets/lifefx.css">
+WCLOCK = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx" data-lc="clock"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>World clock</b></p>
 <h1>World clock</h1><p class="lsub">Live time in your cities, with day and night, weekends and public holidays.</p>
@@ -852,7 +852,7 @@ WCLOCK = """<link rel="stylesheet" href="../assets/lifefx.css">
 <p class="lnote" style="margin-top:14px">The sun moves round each card through the day. Weekends follow each country's usual weekend; holidays are national public holidays.</p>
 </div></section>
 <div class="wrap"><section class="gtext"><h2>How it works</h2><p>Times come from the time zone rules built into your browser, including daylight saving. Your list of cities is kept in this browser and in the page address, so you can bookmark or share it. Work hours are taken as 09:00 to 18:00.</p></section></div>"""
-MEET = """<link rel="stylesheet" href="../assets/lifefx.css">
+MEET = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx" data-lc="meet"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Meeting planner</b></p>
 <h1>Meeting planner</h1><p class="lsub">Find the hours when everyone is at work, skipping each country's weekend and public holidays.</p>
@@ -866,7 +866,7 @@ MEET = """<link rel="stylesheet" href="../assets/lifefx.css">
 <div class="lact"><button type="button" class="go" id="mpcopy">Copy best hours</button><span id="mpcopymsg" role="status"></span><a class="lbtn" href="../world-clock/">World clock</a></div>
 </div></section>
 <div class="wrap"><section class="gtext"><h2>How it works</h2><p>Each hour is checked for every city: it must fall inside the work hours you set, not on that country's weekend, and not on a national public holiday there (data from the open-source Vacanza holidays library, 2024 to 2035). Hours are shown in the first city's local time; daylight saving is included.</p></section></div>"""
-FEST = """<link rel="stylesheet" href="../assets/lifefx.css">
+FEST = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Festival calendar</b></p>
 <h1>Festival calendar</h1><p class="lsub">Ramadan, Eid, Diwali, Chinese New Year, Easter, Christmas, Vesak, Hanukkah and more, with countdowns.</p>
@@ -882,7 +882,7 @@ FEST = """<link rel="stylesheet" href="../assets/lifefx.css">
 PAGES['world-clock'] = ('World Clock - Live Time in Your Cities | Dilia Life', 'Free world clock: live time in your cities with day and night, time difference, weekends and public holidays. Private, no sign-up.', WCLOCK, CLOCKJS, 'life')
 PAGES['meeting-planner'] = ('Meeting Planner Across Time Zones - Skips Weekends and Holidays | Dilia Life', 'Free meeting planner: find hours when everyone is at work across cities, skipping each country\'s weekend and public holidays. Private.', MEET, CLOCKJS, 'life')
 PAGES['festival-calendar'] = ('Festival Calendar 2024 to 2035 - Ramadan, Eid, Diwali, Easter Countdown | Dilia Life', 'Free festival calendar with countdowns: Ramadan, Eid, Diwali, Holi, Chinese New Year, Easter, Christmas, Vesak, Hanukkah and more. Calendar file, private.', FEST, '<script src="../assets/lifekit.js"></script><script src="../assets/festivals.js"></script><script src="../assets/festivals-ui.js"></script>', 'life')
-TRIP = """<link rel="stylesheet" href="../assets/lifefx.css">
+TRIP = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Trip planner</b></p>
 <h1>Trip planner</h1><p class="lsub">Plan every day of a trip: flights, stays, food and sights. Saved in this browser, nothing uploaded.</p>
@@ -904,7 +904,7 @@ TRIP = """<link rel="stylesheet" href="../assets/lifefx.css">
 </div>
 </div></section>
 <div class="wrap"><section class="gtext"><h2>How it works</h2><p>Your trips are kept only in this browser. Clearing the browser's site data deletes them, so download a backup before a big trip; the backup file can be restored on any device. The calendar file uses the times as you typed them (local time at the place), so check times in your calendar app if your phone is set to a different time zone.</p><p>Nothing is uploaded and there is no account. Booking references stay on your device.</p></section></div>"""
-FLIGHT = """<link rel="stylesheet" href="../assets/lifefx.css">
+FLIGHT = """<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
 <section class="lx"><div class="wrap">
 <p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Flight time and jet lag</b></p>
 <h1>Flight time and jet lag</h1><p class="lsub">When you land in local time, how the clocks move, your layover, and a simple jet-lag plan.</p>

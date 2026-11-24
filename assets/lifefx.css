@@ -1,5 +1,5 @@
 /* Dilia Life "future" look: a deep-space band that stays dark in both themes. Not processed by make-dark.py on purpose. */
-.lx{--lb:#05070f;--li:#eaf0ff;--lm:#93a0c4;--lh:#ff2d95;--ll:#2fe08a;--lc:#29c6ff;--lg:#ffc93c;--lw:#2b3560;--lk:#141b38;
+.lx{--lt:#fff;--lcell:#ffffff14;--lb:#05070f;--li:#eaf0ff;--lm:#93a0c4;--lh:#ff2d95;--ll:#2fe08a;--lc:#29c6ff;--lg:#ffc93c;--lw:#2b3560;--lk:#141b38;
   position:relative;color:var(--li);background:radial-gradient(1100px 620px at 85% -10%,#1b1050 0,transparent 60%),radial-gradient(900px 600px at 0 0,#003a5c 0,transparent 55%),radial-gradient(700px 500px at 50% 110%,#3a0a3a 0,transparent 60%),var(--lb);padding:22px 0 46px;overflow:hidden}
 .lx .wrap{position:relative}
 .lx h1,.lx h2,.lx h3,.lx h4{color:#fff!important;background:none;-webkit-text-fill-color:currentColor}.lx .crumbp,.lx .crumbp a{color:var(--lm)!important}.lx .crumbp b{color:var(--li)!important}.lx a{color:#9fdcff!important}.lx .crumbp{color:var(--lm)}.lx .crumbp b{color:var(--li)}

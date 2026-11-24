@@ -31,7 +31,7 @@
     else if (next) { const a = md(next.a); $('phk').textContent = 'NEXT PUBLIC HOLIDAY'; $('phn').textContent = next.names[0]; $('phd').textContent = WD[a.w] + ', ' + a.d + ' ' + MONL[a.m] + ' ' + cfg.y + (next.b > next.a ? ' · ' + (next.b - next.a + 1) + ' days' : '') + (next.long ? ' · ' + next.long + '-day long weekend' : '') + (next.est ? ' · moon date, may shift' : ''); stop = K.countdown($('phcd'), cfg.y, a.m, a.d); }
     else { $('phk').textContent = 'NEXT PUBLIC HOLIDAY'; $('phn').textContent = 'No more holidays this year'; $('phd').textContent = cfg.y < 2035 ? 'Switch to ' + (cfg.y + 1) + ' to see what is next.' : ''; $('phcd').innerHTML = ''; }
     // river
-    const col = { 2: '#ff2d95', 1: '#2b3560', 0: '#141b38' }, ht = { 2: 92, 1: 34, 0: 14 }; let r = '', s0 = 0;
+    const col = { 2: '#ff2d95', 1: 'var(--lw)', 0: 'var(--lk)' }, ht = { 2: 92, 1: 34, 0: 14 }; let r = '', s0 = 0;
     for (let m = 0; m < 12; m++) { r += `<div class="ms" style="left:${20 + s0 * PX}px"></div><div class="ml" style="left:${24 + s0 * PX}px">${MON[m]}</div>`; s0 += H.dim(cfg.y, m); }
     for (let i = 0; i < Y.n; i++) { const k = Y.off[i]; r += `<div class="bar" style="left:${20 + i * PX}px;height:${ht[k]}px;background:${col[k]}${k === 2 ? ';box-shadow:0 0 9px #ff2d95' : ''}"></div>`; if (X && X.off[i] === 2) r += `<div class="bar" style="left:${20 + i * PX}px;bottom:${38 + ht[k] + 4}px;height:6px;background:#ffc93c"></div>`; }
     free.forEach(f => { r += `<button type="button" class="cap f lwk" data-a="${f.a}" style="left:${20 + f.a * PX}px;width:${Math.max(70, f.len * PX)}px">${f.len}-day weekend</button>`; });

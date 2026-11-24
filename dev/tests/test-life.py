@@ -52,6 +52,10 @@ async def hub(br, w, theme):
     hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 14, f'[{t}] 14 tool portals')
     for h in hs: r = await pg.request.get(B + 'life/' + h); ok(r.status == 200, f'[{t}] portal {h} -> {r.status}')
     ok(await pg.locator('.lroad li').count() == 8, f'[{t}] roadmap')
+    lb = (await pg.evaluate("getComputedStyle(document.querySelector('.lx')).getPropertyValue('--lb')")).strip()
+    ok(lb == ('#05070f' if theme == 'dark' else '#f4f6fc'), f'[{t}] Life band follows the {theme} theme ({lb})')
+    await pg.evaluate("document.querySelector('.themebtn').click()"); await pg.wait_for_timeout(200)
+    lb2 = (await pg.evaluate("getComputedStyle(document.querySelector('.lx')).getPropertyValue('--lb')")).strip(); ok(lb2 != lb, f'[{t}] theme switch changes the Life band')
     if len(sys.argv) > 1: await pg.screenshot(path=f'/tmp/lh-{w}.png', full_page=True)
     ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
 async def sv(pg, i, v):
