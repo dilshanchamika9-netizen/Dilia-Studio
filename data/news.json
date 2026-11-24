@@ -1,1 +1,369 @@
-{"updated":"","hn":[],"sec":[],"notes":["not fetched yet"]}
+{
+ "updated": "2026-11-24T19:57:40Z",
+ "hn": [
+  {
+   "id": 50632883,
+   "title": "What Cloudflare Doesn't Tell You",
+   "url": "https://charlie.fish/posts/2026/11/what-cloudflare-doesnt-tell-you/",
+   "domain": "charlie.fish",
+   "score": 58,
+   "comments": 27,
+   "time": 1795547035
+  },
+  {
+   "id": 50630594,
+   "title": "Active Intrusion Campaign Against Check Point Security Management Servers",
+   "url": "https://www.greynoise.io/blog/check-point-security-management-servers-intrusion-campaign",
+   "domain": "greynoise.io",
+   "score": 205,
+   "comments": 71,
+   "time": 1795537937
+  },
+  {
+   "id": 50633159,
+   "title": "Grafana 12.4.16, 13.0.14, 13.1.11, 13.2.7 and 13.3.2 (multiple CVEs)",
+   "url": "https://grafana.com/grafana/download",
+   "domain": "grafana.com",
+   "score": 26,
+   "comments": 5,
+   "time": 1795548224
+  },
+  {
+   "id": 50630462,
+   "title": "Jetty Pro",
+   "url": "http://hypercritical.co/2026/11/23/jetty-pro",
+   "domain": "hypercritical.co",
+   "score": 181,
+   "comments": 68,
+   "time": 1795537382
+  },
+  {
+   "id": 50598555,
+   "title": "Mechanical Pencil: Spray Bottle",
+   "url": "https://mechanical-pencil.com/products/spray-bottle",
+   "domain": "mechanical-pencil.com",
+   "score": 196,
+   "comments": 54,
+   "time": 1795346190
+  },
+  {
+   "id": 50632832,
+   "title": "Canada's median health-care wait time hits 30.7 weeks–longest ever recorded",
+   "url": "https://www.fraserinstitute.org/studies/waiting-your-turn-wait-times-for-health-care-in-canada-2026",
+   "domain": "fraserinstitute.org",
+   "score": 52,
+   "comments": 53,
+   "time": 1795546826
+  },
+  {
+   "id": 50624497,
+   "title": "2035 came early",
+   "url": "https://fzakaria.com/2026/11/23/2035-came-early",
+   "domain": "fzakaria.com",
+   "score": 866,
+   "comments": 322,
+   "time": 1795501833
+  },
+  {
+   "id": 50629231,
+   "title": "A training engine for your local model, using your idle compute",
+   "url": "https://github.com/sous-labs/songe",
+   "domain": "github.com",
+   "score": 105,
+   "comments": 26,
+   "time": 1795532620
+  },
+  {
+   "id": 50629106,
+   "title": "Splitting USB-C: USB 3 and USB 2 on one port",
+   "url": "https://www.frankchiarulli.com/blog/splitting-usb-c/",
+   "domain": "frankchiarulli.com",
+   "score": 75,
+   "comments": 58,
+   "time": 1795532050
+  },
+  {
+   "id": 50632998,
+   "title": "Compiling Web Applications into Verified Operations for AI Agents",
+   "url": "https://protocolis.co/paper/",
+   "domain": "protocolis.co",
+   "score": 11,
+   "comments": 0,
+   "time": 1795547522
+  },
+  {
+   "id": 50630294,
+   "title": "Show HN: Mason – a lightweight Postgres read-replica, built on columnar storage",
+   "url": "https://masondata.ai/",
+   "domain": "masondata.ai",
+   "score": 48,
+   "comments": 5,
+   "time": 1795536712
+  },
+  {
+   "id": 50627340,
+   "title": "LLM agents work for their parent companies, not for you",
+   "url": "https://michaelharley.net/posts/2026/11/01/llm-agents-work-for-their-parent-companies-not-for-you/",
+   "domain": "michaelharley.net",
+   "score": 758,
+   "comments": 319,
+   "time": 1795524015
+  },
+  {
+   "id": 50625384,
+   "title": "Quad9 pulled their DNS service from France",
+   "url": "https://quad9.net/news/blog/quad9-service-deactivation-in-france/",
+   "domain": "quad9.net",
+   "score": 259,
+   "comments": 143,
+   "time": 1795509194
+  },
+  {
+   "id": 50626413,
+   "title": "Worshipping at the altar of Brendan Gregg",
+   "url": "https://fzakaria.com/2026/11/12/worshipping-at-the-altar-of-brendan-gregg",
+   "domain": "fzakaria.com",
+   "score": 197,
+   "comments": 31,
+   "time": 1795517414
+  },
+  {
+   "id": 50627783,
+   "title": "GTA 6 Running on Windows",
+   "url": "https://twitter.com/raul_bs3/status/2125213756238291075",
+   "domain": "twitter.com",
+   "score": 97,
+   "comments": 140,
+   "time": 1795526371
+  },
+  {
+   "id": 50629962,
+   "title": "The KL Divergence Is Never Negative, Except in PyTorch",
+   "url": "https://arxiv.org/abs/2611.30835",
+   "domain": "arxiv.org",
+   "score": 59,
+   "comments": 19,
+   "time": 1795535422
+  },
+  {
+   "id": 50632756,
+   "title": "OpenAI reveals they solved VP ≠ VNP before Anthropic",
+   "url": "https://github.com/openai/math/tree/main/preprints/VP-and-VNP-are-different-November-23-2026",
+   "domain": "github.com",
+   "score": 73,
+   "comments": 65,
+   "time": 1795546512
+  },
+  {
+   "id": 50631157,
+   "title": "Microsoft declares 'Code Red' after historic outage, internal memos show",
+   "url": "https://www.reuters.com/business/microsoft-declares-code-red-after-historic-outage-internal-memos-show-2026-11-24/",
+   "domain": "reuters.com",
+   "score": 100,
+   "comments": 84,
+   "time": 1795540061
+  },
+  {
+   "id": 50599458,
+   "title": "How a Mechanical Watch Keeps Time (Interactive 3D)",
+   "url": "https://martincmartin.github.io/slidev-stem/watches/article/1/",
+   "domain": "martincmartin.github.io",
+   "score": 170,
+   "comments": 44,
+   "time": 1795353685
+  },
+  {
+   "id": 50611613,
+   "title": "Gnomon: Git for Postgres Data",
+   "url": "https://gnomon.bitsinfra.com/",
+   "domain": "gnomon.bitsinfra.com",
+   "score": 33,
+   "comments": 6,
+   "time": 1795442618
+  },
+  {
+   "id": 50627836,
+   "title": "Anthropic breaks below $83 IPO price",
+   "url": "https://www.bloomberg.com/news/articles/2026-11-24/anthropic-breaks-below-83-ipo-price-in-premarket-trading",
+   "domain": "bloomberg.com",
+   "score": 189,
+   "comments": 418,
+   "time": 1795526627
+  },
+  {
+   "id": 50610820,
+   "title": "An Italian Folding Bicycle Design That Fits into a Suitcase",
+   "url": "https://www.core77.com/posts/145766/An-Italian-Folding-Bicycle-Design-that-Fits-Into-a-Suitcase",
+   "domain": "core77.com",
+   "score": 8,
+   "comments": 3,
+   "time": 1795437608
+  },
+  {
+   "id": 50629555,
+   "title": "'Castles' Review",
+   "url": "https://www.wsj.com/arts-culture/books/castles-review-playing-defense-da10d776?st=tR9KT4&reflink=desktopwebshare_permalink",
+   "domain": "wsj.com",
+   "score": 11,
+   "comments": 0,
+   "time": 1795533869
+  },
+  {
+   "id": 50605361,
+   "title": "The new set of problems for engineers to solve",
+   "url": "https://www.katelynlesse.com/blog/new-problems-for-engineers-to-solve",
+   "domain": "katelynlesse.com",
+   "score": 86,
+   "comments": 68,
+   "time": 1795390973
+  },
+  {
+   "id": 50604355,
+   "title": "Cento fine foods has been sued for “tomato fraud”",
+   "url": "https://slate.com/life/2026/11/cento-san-marzano-tomato-sauce-recipes-lawsuit.html",
+   "domain": "slate.com",
+   "score": 39,
+   "comments": 58,
+   "time": 1795384749
+  },
+  {
+   "id": 50620831,
+   "title": "The search for a top dark matter candidate",
+   "url": "https://www.smithsonianmag.com/science-nature/the-search-for-a-top-dark-matter-candidate-was-losing-hope-then-came-a-potential-signal-will-it-be-enough-to-energize-the-struggling-field-180989923/",
+   "domain": "smithsonianmag.com",
+   "score": 58,
+   "comments": 42,
+   "time": 1795475560
+  },
+  {
+   "id": 50608343,
+   "title": "SeaStore: Redesigning Ceph's Storage Back End for CPU-Efficient NVMe Performance",
+   "url": "https://dl.acm.org/doi/10.1145/3828523.3857112",
+   "domain": "dl.acm.org",
+   "score": 52,
+   "comments": 2,
+   "time": 1795416848
+  },
+  {
+   "id": 50622638,
+   "title": "GTA 6 Recomp (Leonida) banned from GitHub while lead dev was in school",
+   "url": "https://github.com/ItsNotRexed/Leonida/issues",
+   "domain": "github.com",
+   "score": 299,
+   "comments": 536,
+   "time": 1795486089
+  },
+  {
+   "id": 50630245,
+   "title": "Ex-Nvidia partner Megaspeed hit with U.S. Commerce Department export ban",
+   "url": "https://www.upi.com/Top_News/US/2026/11/24/NVIDIA-partner-Megaspeed/1701795520063/",
+   "domain": "upi.com",
+   "score": 97,
+   "comments": 56,
+   "time": 1795536509
+  },
+  {
+   "id": 50625953,
+   "title": "Just a Few Bugs",
+   "url": "https://www.justafewbugs.xyz/",
+   "domain": "justafewbugs.xyz",
+   "score": 130,
+   "comments": 43,
+   "time": 1795513679
+  },
+  {
+   "id": 50630423,
+   "title": "Camillo Sitte made the blueprint for beautiful cities",
+   "url": "https://www.worksinprogress.news/p/how-to-make-a-lovable-city",
+   "domain": "worksinprogress.news",
+   "score": 90,
+   "comments": 64,
+   "time": 1795537195
+  },
+  {
+   "id": 50611576,
+   "title": "Nvidia Reinstates Jensen Huang as CEO",
+   "url": "https://www.cnbc.com/2026/11/23/nvidia-jensen-huang-ceo.html",
+   "domain": "cnbc.com",
+   "score": 2775,
+   "comments": 3641,
+   "time": 1795442418
+  },
+  {
+   "id": 50632704,
+   "title": "AI Ban Hammer",
+   "url": "https://yunzi.co.uk/ai-ban-hammer/",
+   "domain": "yunzi.co.uk",
+   "score": 4,
+   "comments": 0,
+   "time": 1795546320
+  },
+  {
+   "id": 50598094,
+   "title": "An anti-slavery sugar bowl (2024)",
+   "url": "https://www.vam.ac.uk/blog/museum-life/an-anti-slavery-sugar-bowl",
+   "domain": "vam.ac.uk",
+   "score": 106,
+   "comments": 74,
+   "time": 1795342342
+  },
+  {
+   "id": 50624061,
+   "title": "AMD EPYC Zen 6 vs. Zen 1 Performance: 12.1x Geo Mean in Less Than 10 Years",
+   "url": "https://www.phoronix.com/review/amd-epyc-9006-7601",
+   "domain": "phoronix.com",
+   "score": 211,
+   "comments": 113,
+   "time": 1795497322
+  },
+  {
+   "id": 50614249,
+   "title": "Ladybird is now in alpha",
+   "url": "https://ladybird.org/posts/alpha/",
+   "domain": "ladybird.org",
+   "score": 2361,
+   "comments": 584,
+   "time": 1795450392
+  },
+  {
+   "id": 50632082,
+   "title": "Find your city's climate twin",
+   "url": "https://www.wxtravel.io/?view=climate-zones",
+   "domain": "wxtravel.io",
+   "score": 5,
+   "comments": 0,
+   "time": 1795543968
+  },
+  {
+   "id": 50623515,
+   "title": "Drone Maps of Salvage Yards",
+   "url": "https://salvageyarddrone.wordpress.com/",
+   "domain": "salvageyarddrone.wordpress.com",
+   "score": 164,
+   "comments": 64,
+   "time": 1795492828
+  },
+  {
+   "id": 50598679,
+   "title": "Del Casher–guitarist who was driving force behind the wah-wah pedal–dies at 88",
+   "url": "https://www.nytimes.com/2026/11/17/obituaries/del-casher-dead.html",
+   "domain": "nytimes.com",
+   "score": 64,
+   "comments": 21,
+   "time": 1795347303
+  },
+  {
+   "id": 50622774,
+   "title": "New York Bans Subscription and Post-Purchase Fees on Cars",
+   "url": "https://www.governor.ny.gov/news/money-your-pockets-governor-hochul-signs-bill-restricting-exploitative-vehicle-subscription",
+   "domain": "governor.ny.gov",
+   "score": 736,
+   "comments": 383,
+   "time": 1795487222
+  }
+ ],
+ "sec": [],
+ "notes": [
+  "sec skipped: no contact set"
+ ]
+}
