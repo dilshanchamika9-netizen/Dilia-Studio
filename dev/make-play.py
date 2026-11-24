@@ -4,6 +4,7 @@ import pathlib, re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 src = (ROOT / 'life' / 'index.html').read_text()
 SPRITE = re.search(r'<svg class="sprite".*?</svg>\n', src, re.S).group(0)
+HEADER_LIFE = re.search(r'<header class="nav">.*?</header>\n', src, re.S).group(0)
 HEADER = re.search(r'<header class="nav">.*?</header>\n', src, re.S).group(0).replace('<span class="l">Life</span>', '<span class="l">Play</span>').replace('aria-label="Dilia home"', 'aria-label="Dilia Play home"', 1)
 
 def shell(title, desc, body, scripts, robots='', mode=''):
@@ -22,9 +23,9 @@ def shell(title, desc, body, scripts, robots='', mode=''):
 <link rel="stylesheet" href="../assets/play.css">
 <link rel="stylesheet" href="../assets/play-light.css">
 </head>
-<body class="stage area-play"{(' data-mode="' + mode + '"') if mode else ''}>
+<body class="stage {'area-life' if mode == 'life' else 'area-play'}"{(' data-mode="' + mode + '"') if mode else ''}>
 {SPRITE}
-{HEADER}
+{HEADER_LIFE if mode == 'life' else HEADER}
 <main>
 {body}
 </main>
@@ -749,6 +750,39 @@ PAGES['daily-chess-puzzle'] = ('Daily Chess Puzzle - Mate in Two | Dilia Play', 
       ['Tap a piece, then tap where it goes.', 'Find your move that forces checkmate on the next move, whatever the opponent replies.', 'The opponent then replies, and you play checkmate.', 'Use Hint to see which piece makes the key move. A new puzzle arrives every day.'],
       '<p>Every puzzle is a mate in two with exactly one winning first move, found and checked by computer search with the same rules code as our chess game. Positions come from random games, so they can look unusual. Your streak is kept in this browser.</p>', '',
       '<h2 class="vh" id="cpt">Daily chess puzzle</h2><div class="chbox"><div class="chb" id="cpb" role="application" aria-label="Chess puzzle board"></div></div><p class="cturn" id="cpwho" aria-live="polite"></p>', '<button type="button" class="pbtn" id="cphint">Hint</button><button type="button" class="pbtn" id="cpshow">Show solution</button>'), MJS + '<script src="../assets/chess-core.js"></script><script src="../assets/chess-puzzles.js"></script><script src="../assets/cpuzzle-game.js"></script>', 'free')
+def wdb(d, t): return f'<button type="button" data-wd="{d}" aria-pressed="false">{t}</button>'
+HOLPLAN = """<link rel="stylesheet" href="../assets/lifefx.css">
+<section class="lx"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Holiday planner</b></p>
+<h1>Holiday planner</h1><p class="lsub">Turn your leave days into the longest breaks of the year.</p>
+<div class="lglass lxctl">
+  <div class="lrow"><label class="f">Country<select id="hpc"></select></label><label class="f">Year<select id="hpy"></select></label><label class="f">Home country (optional)<select id="hph"></select></label></div>
+  <div><label class="f" for="hpl">Leave days you can take</label><div class="lslide"><input type="range" id="hpl" min="0" max="40" value="10" aria-label="Leave days"><b id="hplv">10</b></div></div>
+  <div class="lseg" role="group" aria-label="Weekend days"><span class="t">Weekend</span>""" + ''.join(wdb(d, t) for d, t in [(1,'Mon'),(2,'Tue'),(3,'Wed'),(4,'Thu'),(5,'Fri'),(6,'Sat'),(0,'Sun')]) + """<button type="button" class="p" data-wp="6.0">Sat + Sun</button><button type="button" class="p" data-wp="5.6">Fri + Sat</button><button type="button" class="p" data-wp="5">Fri only</button></div>
+  <div class="lseg" role="group" aria-label="Plan style"><span class="t">Plan style</span><button type="button" data-hs="1" aria-pressed="false">One long break</button><button type="button" data-hs="2" aria-pressed="true">A few breaks</button><button type="button" data-hs="3" aria-pressed="false">Many short breaks</button></div>
+</div>
+<p class="lglass ldet" id="hpwarn" role="status" hidden style="border-color:#ffc93c;color:#ffe7a6"></p>
+<div class="lhero" aria-live="polite"><div class="k" id="hxk">NEXT DAY OFF</div><div class="n" id="hxn">Loading holidays…</div><div class="d" id="hxd"></div><div class="lcd" id="hxcd"></div><div class="lstats" id="hpsum"></div></div>
+<h2 id="hptitle">Your year</h2><p class="lnote">Swipe sideways through the year. Tap a capsule to see the dates.</p>
+<div class="lkey"><span><i style="background:#ff2d95"></i>Public holiday</span><span><i style="background:#2fe08a"></i>Take leave</span><span><i style="background:#2b3560"></i>Weekend</span><span><i style="background:linear-gradient(90deg,#2fe08a,#29c6ff)"></i>Your break</span><span><i style="background:#ff7ac2"></i>Long weekend, no leave</span><span><i style="background:#ffc93c"></i>Home holiday</span></div>
+<div class="lriver" id="hpriver" tabindex="0" aria-label="Year timeline"><div class="lrv" id="hprv"></div></div>
+<div class="lglass ldet" id="hpdet"><p>Tap a capsule above, a ticket or a day below.</p></div>
+<h2>Your boarding passes</h2><p class="lnote">The best plan for your leave days. Each ticket is one break.</p>
+<div class="ltix" id="hpplan"></div>
+<h2>Best value breaks</h2><p class="lnote">Single breaks ranked by days off for each leave day.</p>
+<div class="lbest" id="hpbest"></div>
+<h2>The whole year</h2>
+<div class="lholo"><div class="lhg" id="hpcal"></div></div>
+<p class="lnote" id="hpnote" hidden>Days marked "may shift" follow the moon (such as Eid) and are confirmed late. Check the official announcement.</p>
+<div class="lact"><button type="button" class="go" id="hpics">Add to calendar (.ics)</button><button type="button" id="hpprint">Print the year</button><button type="button" id="hpcopy">Copy share link</button><span id="hpcopymsg" role="status"></span></div>
+</div></section>
+<div class="wrap"><section class="gtext">
+  <h2>How the planner works</h2>
+  <p>It finds the work days to take as leave so that, together with weekends and public holidays, they make the longest breaks. "One long break" puts your leave into the biggest single trip; "many short breaks" spreads it into long weekends. Pick your own weekend days: many countries in the Gulf use Friday and Saturday, and some use only Friday.</p>
+  <p>Holidays are national only, 2024 to 2035, from the open-source Vacanza holidays library (MIT licence). Regional, school and private-sector holidays can differ. A holiday that falls on a weekend is not moved here; some countries give a day off instead. Weekend defaults by country are a starting point.</p>
+  <p>Nothing you type leaves this device. The share link keeps your choices after the # sign, which is never sent to a server.</p>
+</section></div>"""
+PAGES['holiday-planner'] = ('Holiday Planner - Make the Most of Your Leave Days | Dilia Life', 'Free holiday planner: pick your country, year and leave days and get the best breaks, long weekends, a countdown, a year calendar and a calendar file. No sign-up.', HOLPLAN, '<script src="../assets/holidayplan.js"></script><script src="../assets/holidayplan-ui.js"></script>', 'life')
 PAGES['snake'] = ('Snake - Free Classic and Modern Snake Game | Dilia Play', 'Play Snake free: classic mode with deadly walls, or modern mode with wrap-around edges and bonus stars. Keyboard or swipe. No ads, no sign-up.', snake_body(), GAME_JS + '<script src="../assets/snake-game.js"></script>', 'free')
 PAGES['reaction-time'] = ('Reaction Time Test - How Fast Are You? Free | Dilia Play', 'Test your reaction time in milliseconds: wait for green, then tap. Five tries per round and a history chart. Free, no ads, no sign-up.', reaction_body(), GAME_JS + '<script src="../assets/reaction-game.js"></script>', 'free')
 PAGES['typing-test'] = ('Typing Test - Speed and Accuracy in 5 Languages, Free | Dilia Play', 'Free typing test with 15, 30 and 60 second rounds in English, Arabic, Spanish, Hindi and Portuguese. Shows WPM and accuracy. No ads, no sign-up.', typing_body(), GAME_JS + '<script src="../assets/typing-words.js"></script><script src="../assets/typing-game.js"></script>', 'free')

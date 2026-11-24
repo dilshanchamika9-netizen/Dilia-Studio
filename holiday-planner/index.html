@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Holiday Planner - Make the Most of Your Leave Days | Dilia Life</title>
+<meta name="description" content="Free holiday planner: pick your country, year and leave days and get the best breaks, long weekends, a countdown, a year calendar and a calendar file. No sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-life" data-mode="life">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Life</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<link rel="stylesheet" href="../assets/lifefx.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<section class="lx"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Holiday planner</b></p>
+<h1>Holiday planner</h1><p class="lsub">Turn your leave days into the longest breaks of the year.</p>
+<div class="lglass lxctl">
+  <div class="lrow"><label class="f">Country<select id="hpc"></select></label><label class="f">Year<select id="hpy"></select></label><label class="f">Home country (optional)<select id="hph"></select></label></div>
+  <div><label class="f" for="hpl">Leave days you can take</label><div class="lslide"><input type="range" id="hpl" min="0" max="40" value="10" aria-label="Leave days"><b id="hplv">10</b></div></div>
+  <div class="lseg" role="group" aria-label="Weekend days"><span class="t">Weekend</span><button type="button" data-wd="1" aria-pressed="false">Mon</button><button type="button" data-wd="2" aria-pressed="false">Tue</button><button type="button" data-wd="3" aria-pressed="false">Wed</button><button type="button" data-wd="4" aria-pressed="false">Thu</button><button type="button" data-wd="5" aria-pressed="false">Fri</button><button type="button" data-wd="6" aria-pressed="false">Sat</button><button type="button" data-wd="0" aria-pressed="false">Sun</button><button type="button" class="p" data-wp="6.0">Sat + Sun</button><button type="button" class="p" data-wp="5.6">Fri + Sat</button><button type="button" class="p" data-wp="5">Fri only</button></div>
+  <div class="lseg" role="group" aria-label="Plan style"><span class="t">Plan style</span><button type="button" data-hs="1" aria-pressed="false">One long break</button><button type="button" data-hs="2" aria-pressed="true">A few breaks</button><button type="button" data-hs="3" aria-pressed="false">Many short breaks</button></div>
+</div>
+<p class="lglass ldet" id="hpwarn" role="status" hidden style="border-color:#ffc93c;color:#ffe7a6"></p>
+<div class="lhero" aria-live="polite"><div class="k" id="hxk">NEXT DAY OFF</div><div class="n" id="hxn">Loading holidays…</div><div class="d" id="hxd"></div><div class="lcd" id="hxcd"></div><div class="lstats" id="hpsum"></div></div>
+<h2 id="hptitle">Your year</h2><p class="lnote">Swipe sideways through the year. Tap a capsule to see the dates.</p>
+<div class="lkey"><span><i style="background:#ff2d95"></i>Public holiday</span><span><i style="background:#2fe08a"></i>Take leave</span><span><i style="background:#2b3560"></i>Weekend</span><span><i style="background:linear-gradient(90deg,#2fe08a,#29c6ff)"></i>Your break</span><span><i style="background:#ff7ac2"></i>Long weekend, no leave</span><span><i style="background:#ffc93c"></i>Home holiday</span></div>
+<div class="lriver" id="hpriver" tabindex="0" aria-label="Year timeline"><div class="lrv" id="hprv"></div></div>
+<div class="lglass ldet" id="hpdet"><p>Tap a capsule above, a ticket or a day below.</p></div>
+<h2>Your boarding passes</h2><p class="lnote">The best plan for your leave days. Each ticket is one break.</p>
+<div class="ltix" id="hpplan"></div>
+<h2>Best value breaks</h2><p class="lnote">Single breaks ranked by days off for each leave day.</p>
+<div class="lbest" id="hpbest"></div>
+<h2>The whole year</h2>
+<div class="lholo"><div class="lhg" id="hpcal"></div></div>
+<p class="lnote" id="hpnote" hidden>Days marked "may shift" follow the moon (such as Eid) and are confirmed late. Check the official announcement.</p>
+<div class="lact"><button type="button" class="go" id="hpics">Add to calendar (.ics)</button><button type="button" id="hpprint">Print the year</button><button type="button" id="hpcopy">Copy share link</button><span id="hpcopymsg" role="status"></span></div>
+</div></section>
+<div class="wrap"><section class="gtext">
+  <h2>How the planner works</h2>
+  <p>It finds the work days to take as leave so that, together with weekends and public holidays, they make the longest breaks. "One long break" puts your leave into the biggest single trip; "many short breaks" spreads it into long weekends. Pick your own weekend days: many countries in the Gulf use Friday and Saturday, and some use only Friday.</p>
+  <p>Holidays are national only, 2024 to 2035, from the open-source Vacanza holidays library (MIT licence). Regional, school and private-sector holidays can differ. A holiday that falls on a weekend is not moved here; some countries give a day off instead. Weekend defaults by country are a starting point.</p>
+  <p>Nothing you type leaves this device. The share link keeps your choices after the # sign, which is never sent to a server.</p>
+</section></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+<script src="../assets/holidayplan.js"></script><script src="../assets/holidayplan-ui.js"></script>
+</body>
+</html>
