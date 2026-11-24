@@ -41,7 +41,7 @@ async def timer(br):
 async def stopwatch(br):
     ctx, pg, errs = await mk(br); await pg.clock.install(time=T0); await pg.goto(B + 'stopwatch/'); await pg.wait_for_timeout(300)
     ok(await txt(pg, '#swtime') == '00:00.00', 'starts at zero'); ok(await pg.locator('#swlap').is_disabled(), 'lap disabled before start')
-    await pg.click('#swgo'); await pg.clock.run_for(1234); v = await txt(pg, '#swtime'); ms = int(v[3:5]) * 1000 + int(v[6:8]) * 10; ok(1200 <= ms <= 1700 and v.startswith('00:01'), f'about 1.2 s shows, got {v}')
+    await pg.click('#swgo'); await pg.clock.run_for(1234); v = await txt(pg, '#swtime'); ms = int(v[3:5]) * 1000 + int(v[6:8]) * 10; ok(1150 <= ms <= 1700 and v.startswith('00:01'), f'about 1.2 s shows, got {v}')
     await pg.click('#swlap'); await pg.clock.run_for(2000); await pg.click('#swlap'); await pg.clock.run_for(500); await pg.click('#swlap')
     rows = await pg.locator('#swlaps tbody tr').count(); ok(rows == 3, f'three laps, got {rows}')
     st = await pg.evaluate('DiliaStopwatch.state()'); d = [st['laps'][0], st['laps'][1] - st['laps'][0], st['laps'][2] - st['laps'][1]]

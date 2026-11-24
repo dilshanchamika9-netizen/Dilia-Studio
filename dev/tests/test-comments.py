@@ -8,7 +8,8 @@ def ck(n,c,e=''):
 async def main():
   async with async_playwright() as p:
     b=await p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
-    pg=await b.new_page(viewport={'width':1300,'height':800}); pg.on('pageerror',lambda e:errs.append(str(e))); pg.on('console',lambda m: errs.append(m.text) if m.type=='error' else None)
+    ctx=await b.new_context(viewport={'width':1300,'height':800},bypass_csp=True); pg=await ctx.new_page();  # reader logic test; CSP itself is checked by test-sweep
+    pg.on('pageerror',lambda e:errs.append(str(e))); pg.on('console',lambda m: errs.append(m.text) if m.type=='error' else None)
     await pg.goto('http://localhost:8765/pdf-reader/')
     await pg.set_input_files('#rpick',FIX+'/ann.pdf'); await pg.wait_for_function("window.__reader&&__reader.tabs.length>0"); await pg.wait_for_timeout(800)
     ck('Comments tab exists', bool(await pg.query_selector('.rsn[data-p=comments]')))
