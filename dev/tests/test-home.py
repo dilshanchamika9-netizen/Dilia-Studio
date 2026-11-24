@@ -47,7 +47,7 @@ async def main():
                     ok(not await pg.is_visible('#plist'), 'search list shows before the box is used')
                     # Orbit: 4 planets link to the 4 worlds; hover changes the preview
                     ph = await pg.evaluate("[...document.querySelectorAll('.planet')].map(a=>a.getAttribute('href'))")
-                    ok(ph == ['tools.html', 'life/', 'play/', 'blog/'], f'planets {ph}')
+                    ok(ph == ['tools.html', 'life/', 'play/', 'news/'], f'planets {ph}')
                     await pg.dispatch_event('.planet.p-life', 'mouseenter'); await pg.wait_for_timeout(150)
                     ok('Life' in await pg.inner_text('#pv') and 'Public holidays' in await pg.inner_text('#pv'), 'planet hover preview')
                     ok(await pg.get_attribute('#pv .go', 'href') == 'life/', 'preview enter link')

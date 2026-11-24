@@ -10,7 +10,7 @@ def nav(p):
       '      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools' + CHEV + '</button>\n'
       f'      <a class="opt" href="{p}life/"><i class="adot l"></i>Life</a>\n'
       f'      <a class="opt" href="{p}play/"><i class="adot p"></i>Play</a>\n'
-      f'      <a class="opt" href="{p}blog/"><i class="adot r"></i>Read</a>\n'
+      f'      <a class="opt" href="{p}news/"><i class="adot r"></i>Read</a>\n'
       '    </nav>')
 
 def run():

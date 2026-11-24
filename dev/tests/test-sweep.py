@@ -7,6 +7,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]; B = 'http://127.0.0.1:8766/'
 SKIP = {'blog', 'assets', 'dev', 'desktop', 'node_modules'}
 pages = [''] + sorted({p.parent.relative_to(ROOT).as_posix() + '/' for p in ROOT.glob('*/index.html') if p.parent.name not in SKIP})
 pages += sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob('blog/**/index.html'))
+pages += sorted(p.relative_to(ROOT).as_posix() for p in ROOT.glob('news/*/index.html'))
 pages = [p.replace('index.html', '') for p in pages]
 async def main():
     bad = {}

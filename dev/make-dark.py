@@ -3,7 +3,7 @@ Light styles are never edited: for every rule that uses a light surface, a grey 
 under  :root[data-theme=dark]  . Paper-like things (page previews, QR code card) stay white (KEEP list)."""
 import re, pathlib, colorsys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = ['site', 'palette', 'work', 'text', 'calc', 'qr', 'blog', 'library', 'editor', 'reader', 'area', 'home']
+SRC = ['site', 'palette', 'work', 'text', 'calc', 'qr', 'blog', 'news', 'library', 'editor', 'reader', 'area', 'home']
 KEEP = re.compile(r'(dz-page|\.pv\b|\.thumb|\.pgw|\.sheet|\.qrbox|\.qr-out|\.qrcard|\.paper|\.pagebox|\.pdfpage|\.pageimg|\.pgcanvas|\.dline|\.sig)')
 SURF, MIST, BG = '#131b30', '#0b1120', '#060914'
 

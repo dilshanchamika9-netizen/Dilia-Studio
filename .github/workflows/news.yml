@@ -1,0 +1,25 @@
+# Refreshes data/news.json (headlines for the Read area) every 6 hours from Hacker News and SEC EDGAR, then commits only that one file to main.
+# Safe by design: standard-library script, no secrets, the script validates its own output, and only data/news.json can be committed.
+name: news
+on:
+  schedule: [{ cron: '23 1,7,13,19 * * *' }]
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: news, cancel-in-progress: false }
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { ref: main, fetch-depth: 1 }
+      - name: Fetch headlines (Hacker News) and filings (SEC)
+        env: { SEC_UA: '${{ vars.SEC_CONTACT }}' }
+        run: python3 dev/news-fetch.py
+      - name: Commit data/news.json only
+        run: |
+          git add data/news.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          if [ "$(git diff --cached --name-only)" != "data/news.json" ]; then echo "::error::unexpected files changed"; exit 1; fi
+          git -c user.name="dilia-news" -c user.email="dilia-news@users.noreply.github.com" commit -q -m "News: refresh headlines [skip ci]"
+          git push -q origin HEAD:main

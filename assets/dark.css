@@ -110,6 +110,16 @@
 :root[data-theme=dark] .bcard{background:#131b30;box-shadow:0 1px 2px #0000000d,0 0 0 1px #0b12200d}
 :root[data-theme=dark] .bcard span{color:var(--muted)}
 :root[data-theme=dark] .bpage .crumb{color:var(--muted)}
+:root[data-theme=dark] .news .nstamp{color:var(--muted)}
+:root[data-theme=dark] .news .nnote{color:var(--muted)}
+:root[data-theme=dark] .news .nlist li{background:#131b30;box-shadow:0 1px 2px #0000000d,0 0 0 1px #0b12200d}
+:root[data-theme=dark] .news .nm{color:var(--muted)}
+:root[data-theme=dark] .news .nm a{color:var(--muted)}
+:root[data-theme=dark] .news .nsrc{color:var(--muted)}
+:root[data-theme=dark] .news .ntag{color:var(--ink)}
+:root[data-theme=dark] .news .ntag.tech{background:#00a5ff26}
+:root[data-theme=dark] .news .ntag.business{background:#ffb80026}
+:root[data-theme=dark] .news .ntagrow{color:var(--muted)}
 :root[data-theme=dark] .lib-hero .veil{background:linear-gradient(180deg,#131b3000 0%,#131b30 92%),linear-gradient(90deg,#131b30f0 0%,#131b30b3 45%,#131b3026 100%)}
 :root[data-theme=dark] .search{background:#131b30}
 :root[data-theme=dark] .chips a:hover{background:#ff008626}

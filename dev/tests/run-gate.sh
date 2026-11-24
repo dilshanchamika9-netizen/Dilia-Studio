@@ -7,8 +7,8 @@ python3 dev/tests/serve.py & SRV=$!; trap 'kill $SRV 2>/dev/null' EXIT; sleep 1
 step "Static security gate" python3 dev/security-check.py
 fp() { { git status --porcelain --untracked-files=all; git diff; } | sha1sum; }
 before=$(fp)
-step "Generated pages match their sources" bash -c 'python3 dev/make-pages.py >/dev/null && python3 dev/make-blog.py >/dev/null'
-if [ "$(fp)" != "$before" ]; then echo "--- FAIL: rebuilding pages changed files (run make-pages.py and make-blog.py, then commit):"; git status --short | head -20; fail=1; fi
+step "Generated pages match their sources" bash -c 'python3 dev/make-pages.py >/dev/null && python3 dev/make-blog.py >/dev/null && python3 dev/make-news.py >/dev/null'
+if [ "$(fp)" != "$before" ]; then echo "--- FAIL: rebuilding pages changed files (run make-pages.py, make-blog.py and make-news.py, then commit):"; git status --short | head -20; fail=1; fi
 step "Calculator maths" node dev/tests/test-calcmath.js
 step "All pages: security policy, errors, no outside requests" python3 dev/tests/test-sweep.py
 step "Calculator pages" python3 dev/tests/test-calc.py
@@ -49,5 +49,7 @@ step "Team leave page" python3 dev/tests/test-team.py
 step "Year planner page" python3 dev/tests/test-yearplan.py
 step "Pack engine" node dev/tests/test-pack.js
 step "Booklet, packing, documents" python3 dev/tests/test-packdocs.py
+step "News fetch script" python3 dev/tests/test-news-fetch.py
+step "News page" python3 dev/tests/test-news.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
