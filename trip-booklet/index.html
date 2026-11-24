@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trip Booklet - Printable Travel Itinerary PDF | Dilia Life</title>
+<meta name="description" content="Turn your trip plan into a printable booklet: cover, day-by-day itinerary, booking references, contacts and packing list. A4 or Letter. Private, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-life" data-mode="life">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Life</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<section class="lx" data-lc="booklet"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Trip booklet</b></p>
+<h1>Trip booklet</h1><p class="lsub">Turn a trip from your Trip planner into a printable file for the journey. Print it or save it as a PDF.</p>
+<p class="lglass ldet" id="bkempty" hidden>No trips found in this browser yet. Build one in the <a href="../trip-planner/">Trip planner</a>, then come back here. Trips are saved per browser, so open this page on the same device.</p>
+<div class="lglass lxctl" id="bkctl"><div class="lrow"><label class="f">Trip<select id="bkt"></select></label><label class="f">Paper<select id="bksz"><option value="a4">A4</option><option value="letter">US Letter</option></select></label><label class="f">Packing list (optional)<select id="bkpk"></select></label></div>
+<div class="lrow"><label class="f ck"><input id="bkcov" type="checkbox"> Cover page</label><label class="f ck"><input id="bkbook" type="checkbox"> Bookings table</label><label class="f ck"><input id="bknotes" type="checkbox"> Notes page</label></div>
+<label class="f">Contacts and important numbers (optional, printed in the booklet)<textarea id="bkcon" rows="4" maxlength="2000" placeholder="Hotel front desk, embassy, insurance claim line, a friend at home"></textarea></label>
+<div class="lact" style="margin:0"><button type="button" class="go" id="bkprint">Print or save as PDF</button><span id="bkmsg" role="status"></span></div></div>
+<div class="bk a4" id="bkout" aria-live="polite"></div>
+<div class="lact"><a class="lbtn" href="../trip-planner/">Trip planner</a><a class="lbtn" href="../packing-list/">Packing list</a></div>
+</div></section>
+<div class="wrap"><section class="gtext"><h2>How it works</h2><p>The booklet is built from the trips saved in this browser by the Trip planner, so nothing is uploaded. It lists every day with times, places, notes and booking references, then a table of all references. Contacts you type here are saved in this browser only. Print it and keep a paper copy in case your phone fails.</p></section></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+
+<script src="../assets/calcmath.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/booklet-ui.js"></script>
+</body>
+</html>

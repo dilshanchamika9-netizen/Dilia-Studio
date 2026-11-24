@@ -63,7 +63,7 @@ async def memory(pg, t):
     await pg.wait_for_timeout(500); s = await ev(pg, 'DiliaMemory.state()'); ok(s['won'] and s['moves'] == 8 and await done(pg), f'[{t}] perfect game {s["moves"]} moves')
 async def stack(pg, t):
     await ev(pg, 'DiliaStack.tap()'); await ev(pg, 'DiliaStack.step(10)')
-    for _ in range(3): await ev(pg, 'DiliaStack.align()'); await ev(pg, 'DiliaStack.tap()')
+    for _ in range(3): await ev(pg, '(DiliaStack.align(), DiliaStack.tap())')
     s = await ev(pg, 'DiliaStack.state()'); ok(s['score'] == 3 and s['perfect'] == 3 and not s['over'], f'[{t}] three perfect drops {s}')
     await ev(pg, 'DiliaStack.miss()'); await ev(pg, 'DiliaStack.tap()'); await pg.wait_for_timeout(200)
     s = await ev(pg, 'DiliaStack.state()'); ok(s['over'] and await done(pg), f'[{t}] a miss ends it {s}')

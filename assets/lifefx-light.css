@@ -137,3 +137,5 @@
 :root:not([data-theme=dark]) .tmc{background:linear-gradient(160deg,#ffffffeb,#ffffffb3)}
 :root:not([data-theme=dark]) .swlaps tr.fast td{color:#0f9d57}
 :root:not([data-theme=dark]) #swgo.stop{color:#0b1220}
+:root:not([data-theme=dark]) .tlok{color:#0f9d57}
+:root:not([data-theme=dark]) .lstats .good{color:#0f9d57}

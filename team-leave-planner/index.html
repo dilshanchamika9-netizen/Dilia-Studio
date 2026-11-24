@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Team Leave Planner - See Who Is Off and When | Dilia Life</title>
+<meta name="description" content="Free team leave planner: add people and leave dates, see who is off each day, get warnings when too few people are in. Public holidays for 249 countries. Private, no sign-up.">
+<meta name="theme-color" content="#0b1220">
+<link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/palette.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
+<script src="../assets/theme.js"></script>
+</head>
+<body class="stage area-life" data-mode="life">
+<svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span><span class="l">Life</span></span></a>
+    <nav class="links" aria-label="Main">
+      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="opt" href="../life/"><i class="adot l"></i>Life</a>
+      <a class="opt" href="../play/"><i class="adot p"></i>Play</a>
+      <a class="opt" href="../blog/"><i class="adot r"></i>Read</a>
+    </nav>
+    <button type="button" class="sbtn" data-palette aria-label="Search tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="sl">Search tools</span><span class="k" data-mod>Ctrl</span><span class="k">K</span></button>
+  </div>
+</header>
+
+<main>
+<link rel="stylesheet" href="../assets/lifefx.css"><link rel="stylesheet" href="../assets/lifefx-light.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<section class="lx" data-lc="team"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <a href="../life/">Life</a> › <b>Team leave planner</b></p>
+<h1>Team leave planner</h1><p class="lsub">Add your team and their leave. See at a glance when too few people are in.</p>
+<div class="lglass lxctl"><div class="lrow"><label class="f">Country (weekend and public holidays)<select id="tlc"></select></label><label class="f">Year<select id="tly"></select></label><label class="f">Minimum people who must be in<input id="tlmin" type="number" min="0" max="60" value="1" inputmode="numeric"></label></div>
+<div class="lrow"><label class="f">Add a person<input id="tlpn" type="text" maxlength="40" placeholder="Name"></label><div class="lact" style="margin:0;align-self:end"><button type="button" class="go" id="tladd">Add person</button><span id="tlmsg" role="status"></span></div></div></div>
+<div class="lstats" id="tlsum"></div>
+<h2>Shortages</h2><div class="lglass lcviz" id="tlconf" aria-live="polite"></div>
+<h2>Year at a glance</h2><div class="lglass lcviz"><div class="tlgrid" id="tlgrid" role="img" aria-label="Year grid"></div>
+<div class="tlkey"><span><i class="n0"></i>everyone in</span><span><i class="n1"></i>1 off</span><span><i class="n2"></i>2 off</span><span><i class="n4"></i>4+ off</span><span><i class="s"></i>too few in</span><span><i class="w"></i>weekend</span><span><i class="h"></i>public holiday</span></div></div>
+<h2>People and leave</h2><div class="tlpeople" id="tlpeople"></div>
+<div class="lact"><button type="button" id="tlcsv" disabled>Download CSV</button><button type="button" id="tlprint" disabled>Print</button><button type="button" id="tlclear" disabled>Clear everything</button><a class="lbtn" href="../holiday-planner/">Holiday planner</a></div>
+</div></section>
+<div class="wrap"><section class="gtext"><h2>How it works</h2><p>Leave counts only on working days. A weekend or public holiday inside a leave period costs no leave day and never causes a shortage. Weekends and holidays follow the country you pick and apply to the whole team. Days that follow the moon, such as Eid, can shift by a day, so check the official announcement.</p><p>A shortage is a work day when fewer people are in than your minimum. Everything is saved in this browser only. Nothing is sent anywhere, so use Download CSV to keep a copy or share it.</p></section></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
+    </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
+    <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
+  </div>
+</footer>
+
+<script src="../assets/tools.js"></script>
+<script src="../assets/palette.js"></script>
+<script src="../assets/menu.js"></script>
+<script src="../assets/common.js"></script>
+
+<script src="../assets/calcmath.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/holidayplan.js"></script><script src="../assets/teamleave.js"></script><script src="../assets/teamleave-ui.js"></script>
+</body>
+</html>

@@ -43,5 +43,11 @@ step "Life pages" python3 dev/tests/test-life.py
 step "Puzzle rules" node dev/tests/test-puzzles.js
 step "Arcade and puzzle pages" python3 dev/tests/test-mini.py
 step "Win celebration" python3 dev/tests/test-celebrate.py
+step "Life time pages" python3 dev/tests/test-time.py
+step "Team leave engine" node dev/tests/test-team.js
+step "Team leave page" python3 dev/tests/test-team.py
+step "Year planner page" python3 dev/tests/test-yearplan.py
+step "Pack engine" node dev/tests/test-pack.js
+step "Booklet, packing, documents" python3 dev/tests/test-packdocs.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail
