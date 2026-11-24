@@ -1,4 +1,4 @@
-# Refreshes data/news.json (headlines for the Read area) every 6 hours from Hacker News and SEC EDGAR, then commits only that one file to main.
+# Refreshes data/news.json every 6 hours: a queue of fresh official facts (SEC filings) used when writing Dilia Pulse stories. It is not shown on the site. Commits only that one file to main.
 # Safe by design: standard-library script, no secrets, the script validates its own output, and only data/news.json can be committed.
 name: news
 on:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { ref: main, fetch-depth: 1 }
-      - name: Fetch headlines (Hacker News) and filings (SEC)
+      - name: Fetch filings (SEC) into the story queue
         env: { SEC_UA: '${{ vars.SEC_CONTACT }}' }
         run: python3 dev/news-fetch.py
       - name: Commit data/news.json only

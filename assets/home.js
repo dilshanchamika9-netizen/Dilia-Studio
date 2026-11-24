@@ -75,7 +75,7 @@
     tools: { name: 'Tools', href: 'tools.html', c: '#e5007d', t: 'var(--w-tools-t)', line: plus(ready.length) + ' tasks', items: [['Merge PDF', 'merge-pdf/'], ['Compress image', 'compress-image/'], ['QR code generator', 'qr-code-generator/']] },
     life: { name: 'Life', href: 'life/', c: '#009fe3', t: 'var(--w-life-t)', line: 'Time and plans', items: [['Public holidays', 'public-holidays/'], ['Time zone converter', 'time-zone-converter/'], ['Date difference', 'date-difference-calculator/']] },
     play: { name: 'Play', href: 'play/', c: '#7a5cff', t: 'var(--w-play-t)', line: games.length + ' games', items: [['Daily path', 'daily-path/'], ['Daily sudoku', 'daily-sudoku/'], ['Typing test', 'typing-test/']] },
-    read: { name: 'Read', href: 'news/', c: '#f0a800', t: 'var(--w-read-t)', fg: '#0b1220', line: 'News and ' + GUIDES.length + ' guides', items: [['Tech and business news', 'news/']].concat(GUIDES.slice(0, 2).map(g => [g[1].replace(/^How to /, ''), 'blog/' + g[0] + '/'])) }
+    read: { name: 'Read', href: 'news/', c: '#f0a800', t: 'var(--w-read-t)', fg: '#0b1220', line: 'Dilia Pulse news and ' + GUIDES.length + ' guides', items: [['Dilia Pulse: tech and business news', 'news/']].concat(GUIDES.slice(0, 2).map(g => [g[1].replace(/^How to /, ''), 'blog/' + g[0] + '/'])) }
   };
   const spin = $('spin'), pv = $('pv'), planets = {};
   let shown = '';

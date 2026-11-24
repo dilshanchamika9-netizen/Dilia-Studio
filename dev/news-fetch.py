@@ -68,10 +68,11 @@ def sec_items(get, today):
     out.sort(key=lambda x: (x['date'], x['company']), reverse=True)
     return out, notes
 
-def build(get_hn, get_sec, old, now=None, sec_ok=True):
-    now = now or int(time.time()); res = {'updated': dt.datetime.fromtimestamp(now, dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'hn': old.get('hn', []), 'sec': old.get('sec', []), 'notes': []}
-    try: res['hn'] = hn_items(get_hn, now)
-    except Exception as e: res['notes'].append('hn kept old: ' + clean(e, 100))
+def build(get_hn, get_sec, old, now=None, sec_ok=True, use_hn=True):
+    now = now or int(time.time()); res = {'updated': dt.datetime.fromtimestamp(now, dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'hn': old.get('hn', []) if use_hn else [], 'sec': old.get('sec', []), 'notes': []}
+    if use_hn:
+        try: res['hn'] = hn_items(get_hn, now)
+        except Exception as e: res['notes'].append('hn kept old: ' + clean(e, 100))
     if sec_ok:
         try:
             s, notes = sec_items(get_sec, dt.datetime.fromtimestamp(now, dt.timezone.utc).date()); res['notes'] += notes
@@ -95,7 +96,7 @@ def main():
     try: old = json.loads(OUT.read_text())
     except Exception: pass
     sec_ua = os.environ.get('SEC_UA', '').strip()
-    res = build(lambda u: http_json(u, 'Dilia news reader (https://dilshanchamika9-netizen.github.io/Dilia-Studio/)'), lambda u: http_json(u, sec_ua), old, sec_ok=bool(sec_ua))
+    res = build(lambda u: http_json(u, 'Dilia news reader (https://dilshanchamika9-netizen.github.io/Dilia-Studio/)'), lambda u: http_json(u, sec_ua), old, sec_ok=bool(sec_ua), use_hn=False)  # owner decision 25 Nov 2026: no Hacker News; the file is now a fact queue for writing own stories
     if not valid(res): print('refusing to write: failed the safety check'); return 1
     OUT.parent.mkdir(exist_ok=True); OUT.write_text(json.dumps(res, ensure_ascii=False, indent=1) + '\n')
     print('hn', len(res['hn']), 'sec', len(res['sec']), 'notes', res['notes']); return 0

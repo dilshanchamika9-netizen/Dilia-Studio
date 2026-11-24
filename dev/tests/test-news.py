@@ -1,49 +1,61 @@
-"""News hub page with fake data/news.json (port 8766). No outside requests are allowed."""
-import asyncio, sys, json, time
+"""Dilia Pulse (news) front page and story pages (port 8766). No outside requests are allowed."""
+import asyncio, sys, re, pathlib, html
 from playwright.async_api import async_playwright
-B = 'http://127.0.0.1:8766/'
+ROOT = pathlib.Path(__file__).resolve().parents[2]; B = 'http://127.0.0.1:8766/'
+ns = {}; exec((ROOT / 'dev' / 'news-posts.py').read_text(), ns); POSTS = ns['POSTS']; N = len(POSTS)
 fails = []; n_ok = 0
 def ok(c, m):
     global n_ok
     if c: n_ok += 1
     else: fails.append(m); print('FAIL', m)
-async def mk(br, w=1100, theme='light'):
+async def mk(br, w=1366, theme='light'):
     ctx = await br.new_context(viewport={'width': w, 'height': 900})
-    await ctx.add_init_script(f"try{{if(!localStorage.getItem('dilia-theme'))localStorage.setItem('dilia-theme','{theme}')}}catch(e){{}}")
+    await ctx.add_init_script(f"try{{localStorage.setItem('dilia-theme','{theme}')}}catch(e){{}}")
     pg = await ctx.new_page(); errs = []
     pg.on('pageerror', lambda e: errs.append(str(e))); pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' or 'Content Security' in m.text else None)
     pg.on('request', lambda r: errs.append('OUTSIDE ' + r.url) if not r.url.startswith((B, 'data:', 'blob:')) else None)
+    pg.on('request', lambda r: errs.append('OLD DATA ' + r.url) if 'news.json' in r.url else None)
     return ctx, pg, errs
-NOW = int(time.time())
-DATA = {'updated': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(NOW - 7200)), 'notes': [],
-  'hn': [{'id': 100 + i, 'title': f'Story {i} <img src=x onerror=alert(1)>' if i == 0 else f'Story {i}', 'url': f'https://site{i}.example.org/p', 'domain': f'site{i}.example.org', 'score': 100 + i, 'comments': i, 'time': NOW - 600 * (i + 1)} for i in range(40)],
-  'sec': [{'company': 'Nvidia', 'form': '10-Q', 'kind': 'Quarterly report', 'date': '2026-11-20', 'about': [], 'url': 'https://www.sec.gov/Archives/edgar/data/1045810/000104581026000001/nvda.htm'},
-          {'company': 'Apple', 'form': '8-K', 'kind': 'Current report', 'date': '2026-11-19', 'about': ['financial results', 'director or executive change'], 'url': 'https://www.sec.gov/Archives/edgar/data/320193/000032019326000003/a.htm'},
-          {'company': 'Evil', 'form': '8-K', 'kind': 'Current report', 'date': '2026-11-18', 'about': [], 'url': 'javascript:alert(1)'}]}
-async def serve(pg, body, status=200):
-    await pg.route('**/data/news.json', lambda r: r.fulfill(status=status, content_type='application/json', body=body))
 async def main():
-    async with async_playwright() as p:
-        br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
-        ctx, pg, errs = await mk(br); await serve(pg, json.dumps(DATA)); await pg.goto(B + 'news/'); await pg.wait_for_selector('#nhn li a')
-        ok(await pg.locator('#nhn > li').count() == 40, '40 headlines'); ok('Updated 2 h ago' in await pg.inner_text('#nstamp'), 'stamp: ' + await pg.inner_text('#nstamp'))
-        t0 = await pg.inner_text('#nhn li:first-child a.nt'); ok(t0.startswith('Story 0 <img'), 'title kept as plain text'); ok(await pg.locator('#nhn img').count() == 0, 'no injected elements')
-        a = pg.locator('#nhn li:first-child a.nt'); ok(await a.get_attribute('href') == 'https://site0.example.org/p' and await a.get_attribute('target') == '_blank' and 'noopener' in await a.get_attribute('rel') and 'nofollow' in await a.get_attribute('rel'), 'headline link opens safely in new tab')
-        ok('news.ycombinator.com/item?id=100' in await pg.locator('#nhn li:first-child .nm a').get_attribute('href'), 'discussion link'); m = await pg.inner_text('#nhn li:first-child .nm'); ok('site0.example.org' in m and '100 points' in m and '10 min ago' in m, 'meta line: ' + m)
-        ok(await pg.locator('#nsec > li').count() == 3, '3 filings'); s0 = await pg.inner_text('#nsec li:first-child'); ok('Nvidia' in s0 and 'Quarterly report' in s0 and '20 Nov 2026' in s0 and 'Form 10-Q' in s0, 'filing row: ' + s0.replace('\n', ' | '))
-        ok('financial results, director or executive change' in await pg.inner_text('#nsec li:nth-child(2)'), 'about words')
-        ok(await pg.locator('#nsec li:nth-child(3) a[href]').count() == 0, 'javascript: link is not made clickable'); ok((await pg.get_attribute('#nsec li:first-child a', 'href')).startswith('https://www.sec.gov/'), 'filing link to sec.gov')
-        ok('Our stories' in await pg.inner_text('main') and 'coming here' in await pg.inner_text('main'), 'stories placeholder'); ok(await pg.locator('a[href="../blog/"]').count() >= 1, 'link to guides kept')
+    # source checks: generated HTML never carries raw story text that could become markup
+    for p in POSTS:
+        h = (ROOT / 'news' / p['slug'] / 'index.html').read_text()
+        ok(html.escape(p['title'], quote=False) in h, f'{p["slug"]}: title escaped in page')
+        ok(len(re.findall(r'<script\b', h)) == len(re.findall(r'<script src="[^"]+"( defer)?></script>', h)), f'{p["slug"]}: only external scripts')
+        ok(all(u.startswith('https://') for _, u in p['sources']) and len(p['sources']) >= 1, f'{p["slug"]}: https sources')
+    async with async_playwright() as pw:
+        br = await pw.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
+        ctx, pg, errs = await mk(br); await pg.goto(B + 'news/'); await pg.wait_for_timeout(300)
+        ok(await pg.locator('.phero .pcd').count() == 4, 'hero: lead + 3 side stories')
+        tops = await pg.locator('.phero .pcd').evaluate_all('a => a.map(x => x.dataset.sec)'); ok(len(set(tops)) == min(4, len({p['topic'] for p in POSTS})), f'hero sections differ {tops}')
+        ok(await pg.locator('#pgrid .pcd').count() == N, f'grid has all {N} stories'); ok(await pg.locator('#pgrid .pcd:visible').count() == N - 4, 'top stories not repeated in Latest')
+        ok(await pg.locator('.pnm').count() == 4, 'four numbers'); ok(await pg.locator('.pbrief li').count() == 6, 'briefing list')
+        ok(await pg.locator('.pmove a[aria-hidden=true]').count() == await pg.locator('.pmove a:not([aria-hidden])').count(), 'ticker copy hidden from screen readers')
+        await pg.click('.ptab[data-sec=ai]'); await pg.wait_for_timeout(200)
+        n_ai = sum(p['topic'] == 'AI' for p in POSTS)
+        ok(await pg.locator('#pgrid .pcd:visible').count() == n_ai and await pg.locator('.phero').is_hidden(), f'AI tab shows {n_ai} AI stories and hides top band')
+        ok((await pg.inner_text('#pgh')).upper() == 'AI' and pg.url.endswith('#ai') and await pg.get_attribute('.ptab[data-sec=ai]', 'aria-pressed') == 'true', 'AI tab state + address')
+        await pg.click('.ptab[data-sec=all]'); await pg.wait_for_timeout(200); ok(await pg.locator('.phero').is_visible() and await pg.locator('#pgrid .pcd:visible').count() == N - 4, 'back to top stories')
         ok(await pg.locator('nav.links a.opt:has-text("Read")').get_attribute('href') == '../news/', 'menu Read points to news'); ok(not errs, f'errors {errs[:3]}'); await ctx.close()
-        # empty first-run data
-        ctx, pg, errs = await mk(br); await serve(pg, json.dumps({'updated': '', 'hn': [], 'sec': [], 'notes': []})); await pg.goto(B + 'news/'); await pg.wait_for_timeout(500)
-        ok('first headlines will appear' in await pg.inner_text('#nstamp') and 'No headlines' in await pg.inner_text('#nhn') and 'No recent filings' in await pg.inner_text('#nsec'), 'empty data message'); ok(not errs, f'empty errors {errs[:3]}'); await ctx.close()
-        # failure / garbage
-        for body, st in [('nope', 200), ('{}', 404), ('{"hn":"x","sec":5}', 200)]:
-            ctx, pg, errs = await mk(br); await serve(pg, body, st); await pg.goto(B + 'news/'); await pg.wait_for_timeout(500)
-            t = await pg.inner_text('#nstamp'); ok(t != 'Loading the latest headlines…', f'handles bad data {body[:12]} {st}: {t}'); ok(not any('Uncaught' in e or 'TypeError' in e for e in errs), f'no script errors {body[:12]} {errs[:2]}'); await ctx.close()
+        ctx, pg, errs = await mk(br); await pg.goto(B + 'news/#policy'); await pg.wait_for_timeout(300)
+        ok(await pg.locator('#pgrid .pcd:visible').count() == sum(p['topic'] == 'Policy' for p in POSTS), 'opens on #policy'); await ctx.close()
+        ctx, pg, errs = await mk(br); await pg.goto(B + 'news/#nonsense<b>'); await pg.wait_for_timeout(300)
+        ok(await pg.locator('.phero').is_visible() and (await pg.inner_text('#pgh')).lower() == 'latest', 'unknown hash falls back to top stories'); ok(not errs, f'hash errors {errs[:2]}'); await ctx.close()
+        # story page
+        p = POSTS[1]; ctx, pg, errs = await mk(br); await pg.goto(B + f'news/{p["slug"]}/'); await pg.wait_for_timeout(300)
+        ok(await pg.inner_text('h1') == p['title'], 'story title'); ok(await pg.locator('.pfacts li').count() == len(p['facts']), 'key facts')
+        ok(await pg.locator('.psrcs a').count() == len(p['sources']), 'sources listed'); a = pg.locator('.psrcs a').first
+        ok(await a.get_attribute('target') == '_blank' and 'noopener' in await a.get_attribute('rel'), 'source links open safely')
+        ok('not investment advice' in await pg.inner_text('.pdisc'), 'disclosure'); ok(await pg.locator('.pmore .pcd').count() == 3, 'more stories')
+        ok(await pg.locator('.pfig svg[role=img][aria-label]').count() == 1, 'graphic has a text label')
+        ok(await pg.get_attribute('.ptab.on', 'href') == '../#' + p['topic'].lower(), 'section tab on story page')
+        await pg.click('.pcrumb a:has-text("Pulse")'); await pg.wait_for_timeout(200); ok(pg.url.endswith('/news/'), 'crumb back to front page'); ok(not errs, f'story errors {errs[:3]}'); await ctx.close()
+        an = next(q for q in POSTS if q.get('note')); ctx, pg, errs = await mk(br); await pg.goto(B + f'news/{an["slug"]}/'); ok(await pg.locator('.pnt').count() == 1, 'extra note shown'); await ctx.close()
         for th in ('dark', 'light'):
-            ctx, pg, errs = await mk(br, 390, th); await serve(pg, json.dumps(DATA)); await pg.goto(B + 'news/'); await pg.wait_for_selector('#nhn li a')
-            ok(await pg.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), f'[{th} 390] no sideways scroll'); ok(not errs, f'[{th}] errors {errs[:2]}'); await pg.screenshot(path=f'/tmp/news-{th}.png', full_page=False); await ctx.close()
+            for url in ('news/', f'news/{POSTS[0]["slug"]}/'):
+                ctx, pg, errs = await mk(br, 390, th); await pg.goto(B + url); await pg.wait_for_timeout(300)
+                ok(await pg.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), f'[{th} 390 {url}] no sideways scroll'); ok(not errs, f'[{th}] errors {errs[:2]}')
+                if th == 'dark': ok(await pg.evaluate("getComputedStyle(document.querySelector('.ptitle, h1')).color") != 'rgb(11, 18, 32)', f'[dark {url}] text is light')
+                await ctx.close()
         await br.close()
 asyncio.run(main()); print('FAILS', fails, 'ok', n_ok); sys.exit(1 if fails else 0)
