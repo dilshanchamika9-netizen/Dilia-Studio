@@ -49,7 +49,7 @@ async def hub(br, w, theme):
     ok('Loading' not in await pg.inner_text('#lhhn') and len(await pg.inner_text('#lhcd')) > 0, f'[{t}] next holiday countdown')
     await pg.select_option('#lhc', 'US'); await pg.wait_for_timeout(500); ok('c=US' in await pg.get_attribute('#lhall', 'href'), f'[{t}] country change updates link')
     await pg.reload(); await pg.wait_for_timeout(800); ok(await pg.evaluate("document.getElementById('lhc').value") == 'US', f'[{t}] country remembered')
-    hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 14, f'[{t}] 14 tool portals')
+    hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 15, f'[{t}] 15 tool portals')
     for h in hs: r = await pg.request.get(B + 'life/' + h); ok(r.status == 200, f'[{t}] portal {h} -> {r.status}')
     ok(await pg.locator('.lroad li').count() == 8, f'[{t}] roadmap')
     lb = (await pg.evaluate("getComputedStyle(document.querySelector('.lx')).getPropertyValue('--lb')")).strip()
@@ -166,7 +166,21 @@ async def travel(br, w, theme):
     if len(sys.argv) > 1:
         await pg.screenshot(path=f'/tmp/tr-{w}.png', full_page=True); await pg.goto(B + 'flight-time/'); await pg.wait_for_timeout(600); await pg.screenshot(path=f'/tmp/fl-{w}.png', full_page=True)
     ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
-CASES = [holidays, hub, calcs, newlife, travel]
+async def ccard(br, w, theme):
+    ctx, pg, errs = await ctx_page(br, w, theme); t = f'card {w}'
+    await pg.goto(B + 'country-card/#c=LK&h=AE'); await pg.wait_for_timeout(900)
+    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{t}] no sideways scroll')
+    f = await pg.inner_text('#ccfields'); ok('LKR' in f and '+94' in f and 'Saturday and Sunday' in f and 'Sinhala' in f, f'[{t}] Sri Lanka facts {f[:200]}')
+    ok('ahead of you' in await pg.inner_text('#ccdiff') or 'behind' in await pg.inner_text('#ccdiff') or 'same' in await pg.inner_text('#ccdiff'), f'[{t}] time difference')
+    c = await pg.inner_text('#cccmp'); ok('AED' in c and '+971' in c and 'LKR' in c, f'[{t}] compare table')
+    ok(len(await pg.inner_text('#cchn')) > 2 and 'Loading' not in await pg.inner_text('#cchn'), f'[{t}] next holiday')
+    await pg.select_option('#ccc', 'SA'); await pg.wait_for_timeout(500); f = await pg.inner_text('#ccfields'); ok('SAR' in f and '+966' in f and 'Friday and Saturday' in f, f'[{t}] Saudi facts {f[:160]}')
+    ok('Different weekends' in await pg.inner_text('#cccmp'), f'[{t}] weekend difference noted')
+    await pg.select_option('#ccc', 'BG'); await pg.wait_for_timeout(500); ok('Not shown' in await pg.inner_text('#ccfields'), f'[{t}] disputed currency not guessed')
+    ok('c=BG' in await pg.evaluate('location.hash'), f'[{t}] hash follows')
+    if len(sys.argv) > 1: await pg.goto(B + 'country-card/#c=LK&h=AE'); await pg.wait_for_timeout(900); await pg.screenshot(path=f'/tmp/cc-{w}.png', full_page=True)
+    ok(not errs, f'[{t}] errors {errs[:3]}'); await ctx.close()
+CASES = [holidays, hub, calcs, newlife, travel, ccard]
 async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])

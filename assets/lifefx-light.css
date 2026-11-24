@@ -129,3 +129,8 @@
 :root:not([data-theme=dark]) .fjp{color:#3a4252}
 :root:not([data-theme=dark]) .fjp b{color:#00639e}
 :root:not([data-theme=dark]) .lchk{color:#0b1220}
+:root:not([data-theme=dark]) .ccf{border:1px dashed #0b12201f;background:linear-gradient(160deg,#ffffffeb,#ffffffb3)}
+:root:not([data-theme=dark]) .ccf.c b{color:#0088c7}
+:root:not([data-theme=dark]) .ccf.g b{color:#0f9d57}
+:root:not([data-theme=dark]) .cct th,:root:not([data-theme=dark]) .cct td{border-bottom:1px solid #0b12201f}
+:root:not([data-theme=dark]) .cct tr.same td{color:#0f9d57}
