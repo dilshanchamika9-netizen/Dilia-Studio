@@ -4,18 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Life: holidays, time and trips | Dilia</title>
-<meta name="description" content="Public holidays for 249 countries, time zones, date and work-day calculators. Holiday planner, trip planner and life goals coming soon. Free, no sign-up.">
-<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Holiday planner, public holidays for 249 countries with a live countdown, time zones, date and work-day calculators. Trip planner and life goals coming. Free, no sign-up.">
+<meta name="theme-color" content="#0b1220">
 <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="../assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/palette.css">
-<link rel="stylesheet" href="../assets/home.css">
-<link rel="stylesheet" href="../assets/area.css">
-<link rel="stylesheet" href="../assets/dark.css">
+<link rel="stylesheet" href="../assets/play.css">
+<link rel="stylesheet" href="../assets/play-light.css">
 <script src="../assets/theme.js"></script>
 </head>
-<body class="area-life">
+<body class="stage area-life" data-mode="life">
 <svg class="sprite" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5007d"/><stop offset=".55" stop-color="#7a5cff"/><stop offset="1" stop-color="#009fe3"/></linearGradient><symbol id="mark" viewBox="0 0 48 48"><path fill-rule="evenodd" d="M8 6h19l13 13v5A18 18 0 0 1 22 42H8zM16 14v20h6a10 10 0 0 0 10-10v-3l-7-7z" fill="url(#dg)"/><path d="M27 6v13h13z" fill="var(--fold,#0b1220)"/></symbol></defs></svg>
 
 <header class="nav">
@@ -32,26 +31,31 @@
 </header>
 
 <main>
-<section class="ahero">
-  <div class="wrap">
-    <p class="crumb"><a href="../">Dilia</a> › <b>Life</b></p>
-    <p class="eyebrow">Time · holidays · travel · goals</p>
-    <h1>Plan your days,<br><span class="grad">trips and life.</span></h1>
-    <p class="lead">Holidays, time, dates and work rules today. Holiday planner is live. Trip planner and life goals are being built.</p>
-  </div>
-</section>
-<section class="wrap asec"><div class="sec-head"><h2>Available now</h2></div><div class="agrid"><a class="acard" href="../holiday-planner/"><b>Holiday planner</b><span>Best breaks for your leave days, long weekends, two countries</span></a><a class="acard" href="../public-holidays/"><b>Public holidays</b><span>249 countries, every year</span></a><a class="acard" href="../working-days-calculator/"><b>Working days</b><span>Business days between two dates</span></a><a class="acard" href="../time-zone-converter/"><b>Time zone converter</b><span>Any city, any time</span></a><a class="acard" href="../date-difference-calculator/"><b>Date difference</b><span>Days, weeks and months between dates</span></a><a class="acard" href="../age-calculator/"><b>Age calculator</b><span>Exact age in years, months, days</span></a><a class="acard" href="../add-days-to-date/"><b>Add days to a date</b><span>Deadlines and due dates</span></a><a class="acard" href="../day-of-the-week-calculator/"><b>Day of the week</b><span>Which day any date falls on</span></a><a class="acard" href="../uae-gratuity-calculator/"><b>UAE gratuity</b><span>End-of-service pay, with the law article</span></a></div></section>
-<section class="wrap asec"><div class="sec-head"><h2>Coming soon</h2><span class="soon-note">Being built now. Each part goes live as soon as it is tested.</span></div><div class="sgrid"><div class="scard"><span class="stag">Soon</span><b>Today & clocks</b><ul><li>Today in 12+ calendars</li><li>Live day/night world</li><li>World clock and meeting planner</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Holidays & long weekends</b><ul><li>Festival calendar with countdowns</li><li>Team leave planner</li><li>Printable year planner</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Trip planner</b><ul><li>Day-by-day trip builder</li><li>Country card: plugs, currency, tipping</li><li>Flight arrival and jet-lag plan</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Money for trips</b><ul><li>Trip budget</li><li>Multi-currency wallet</li><li>Group expense split</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Packing & documents</b><ul><li>Smart packing list</li><li>Document expiry wallet</li><li>Before-you-leave list</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Memories & maps</b><ul><li>Scratch world map</li><li>Photo trip map</li><li>3D flight globe</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Life goals</b><ul><li>Life in weeks</li><li>Goal planner</li><li>Habit tracker</li></ul></div><div class="scard"><span class="stag">Soon</span><b>Life events</b><ul><li>Wedding planner</li><li>Moving abroad</li><li>Birthdays and anniversaries</li></ul></div></div></section>
+<link rel="stylesheet" href="../assets/lifefx.css">
+<link rel="stylesheet" href="../assets/dark.css">
+<section class="lx lhub"><div class="wrap">
+<p class="crumbp"><a href="../">Dilia</a> › <b>Life</b></p>
+<h1>Your days, your year,<br>your plans.</h1><p class="lsub">Holidays, time and dates for every country. Everything runs on your device.</p>
+<div class="lhgrid">
+  <div class="lglass lhclock"><div class="k">RIGHT NOW</div><div class="tm" id="lhtime">--:--:--</div><div class="dt" id="lhdate"></div><div class="lnote" id="lhmeta"></div><div class="yb"><i id="lhbar"></i></div><div class="lnote" id="lhpct"></div></div>
+  <div class="lhero lhnext"><div class="k">NEXT PUBLIC HOLIDAY IN <select id="lhc" aria-label="Country"></select></div><div class="n" id="lhhn">Loading…</div><div class="d" id="lhhd"></div><div class="lcd" id="lhcd"></div><a class="lbtn" id="lhall" href="../public-holidays/">See every holiday →</a></div>
+</div>
+<h2>Open a tool</h2>
+<div class="lhportals"><a class="lhp wide" href="../holiday-planner/" style="--a:#29c6ff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v13H4zM4 10h16M9 3v4M15 3v4M8 14h3v3H8z"/></svg></span><b>Holiday planner</b><span>Turn leave days into the longest breaks</span><i>Open →</i></a><a class="lhp wide" href="../public-holidays/" style="--a:#ff2d95"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></span><b>Public holidays</b><span>Every country, next-holiday countdown</span><i>Open →</i></a><a class="lhp" href="../time-zone-converter/" style="--a:#7a5cff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2"/></svg></span><b>Time zone converter</b><span>Any city, any time</span><i>Open →</i></a><a class="lhp" href="../working-days-calculator/" style="--a:#2fe08a"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v12H4zM9 7V5h6v2M4 12h16"/></svg></span><b>Working days</b><span>Business days between two dates</span><i>Open →</i></a><a class="lhp" href="../date-difference-calculator/" style="--a:#ffc93c"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/></svg></span><b>Date difference</b><span>Days, weeks and months between dates</span><i>Open →</i></a><a class="lhp" href="../age-calculator/" style="--a:#ff7ac2"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M7 9h10v10H7zM7 13h10"/></svg></span><b>Age calculator</b><span>Exact age in years, months, days</span><i>Open →</i></a><a class="lhp" href="../add-days-to-date/" style="--a:#29c6ff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v13H4zM12 10v6M9 13h6"/></svg></span><b>Add days to a date</b><span>Deadlines and due dates</span><i>Open →</i></a><a class="lhp" href="../day-of-the-week-calculator/" style="--a:#9fdcff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v13H4zM8 11h2M12 11h2M16 11h0M8 15h2"/></svg></span><b>Day of the week</b><span>Which day any date falls on</span><i>Open →</i></a><a class="lhp" href="../uae-gratuity-calculator/" style="--a:#2fe08a"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10H4zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg></span><b>UAE gratuity</b><span>End-of-service pay, with the law article</span><i>Open →</i></a></div>
+<h2>Being built</h2><p class="lnote">Each part goes live as soon as it is tested.</p>
+<ol class="lroad"><li><b>Today & clocks</b><span>Today in 12+ calendars · Live day/night world · World clock and meeting planner</span></li><li><b>Holidays & long weekends</b><span>Festival calendar with countdowns · Team leave planner · Printable year planner</span></li><li><b>Trip planner</b><span>Day-by-day trip builder · Country card: plugs, currency, tipping · Flight arrival and jet-lag plan</span></li><li><b>Money for trips</b><span>Trip budget · Multi-currency wallet · Group expense split</span></li><li><b>Packing & documents</b><span>Smart packing list · Document expiry wallet · Before-you-leave list</span></li><li><b>Memories & maps</b><span>Scratch world map · Photo trip map · 3D flight globe</span></li><li><b>Life goals</b><span>Life in weeks · Goal planner · Habit tracker</span></li><li><b>Life events</b><span>Wedding planner · Moving abroad · Birthdays and anniversaries</span></li></ol>
+</div></section>
 </main>
 
 <footer class="foot">
   <div class="wrap">
     <div>
       <a class="brand" href="../" aria-label="Dilia home"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>
-      <p>Free online tools that run on your own device. Your files are never uploaded.</p>
+      <p>Free tools and games that run on your own device. No sign-up, no ads.</p>
     </div>
+    <div><h4>Play</h4><ul><li><a href="../daily-path/">Daily path</a></li><li><a href="../daily-sudoku/">Daily sudoku</a></li><li><a href="../path-puzzle/">Path puzzle levels</a></li><li><a href="../play/">All games</a></li></ul></div>
     <div><h4>Dilia</h4><ul><li><a href="../tools.html">Tools</a></li><li><a href="../life/">Life</a></li><li><a href="../play/">Play</a></li><li><a href="../blog/">Read</a></li></ul></div>
-    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Everything runs in your browser.</span></div>
+    <div class="legal"><span>&copy; <span data-year></span> Dilia</span><span>Scores and streaks stay in this browser.</span></div>
   </div>
 </footer>
 
@@ -59,5 +63,6 @@
 <script src="../assets/palette.js"></script>
 <script src="../assets/menu.js"></script>
 <script src="../assets/common.js"></script>
+<script src="../assets/holidayplan.js"></script><script src="../assets/lifekit.js"></script><script src="../assets/life-hub.js"></script>
 </body>
 </html>
