@@ -88,6 +88,7 @@ async def path_tests(br, w, when, key):
     ok('Solved in' in await pg.inner_text('#s-path'), f'[{w}] hub path status: {await pg.inner_text("#s-path")}')
     ok((await pg.inner_text('#hstreak')).startswith('1 day'), f'[{w}] hub streak')
     ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, f'[{w}] sideways scroll on hub')
+    ok(await pg.evaluate("(()=>{let bad=[];document.querySelectorAll('.daily').forEach(c=>{const a=c.querySelector('.art'),p=c.querySelector('p');if(!a||!p)return;const ar=a.getBoundingClientRect(),pr=p.getBoundingClientRect(),br=(c.querySelector('b')||p).getBoundingClientRect();if(pr.bottom>ar.top+1||br.bottom>ar.top+1)bad.push(c.querySelector('b').textContent)});return bad.length?bad.join(','):''})()") == '', f'[{w}] hub card pictures do not overlap text')
     ok(await pg.evaluate("(()=>{const s=[...document.querySelectorAll('#hweek span')];if(s.length!==7)return false;const t=s.map(e=>Math.round(e.getBoundingClientRect().top));const x=s.map(e=>e.getBoundingClientRect().left);return Math.max(...t)-Math.min(...t)<=2&&x.every((v,i)=>!i||v>x[i-1])})()"), f'[{w}] hub week strip lies in one row')
     await pg.goto(B); await pg.wait_for_timeout(300)
     ok(await pg.inner_text('#t-pz') == f'Daily path #{Bd["no"]}', f'[{w}] home strip: {await pg.inner_text("#t-pz")}')

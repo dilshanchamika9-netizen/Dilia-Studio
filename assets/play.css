@@ -41,7 +41,7 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .daily .no{font:750 12px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--pmut)}
 .daily b{font:850 28px/1.05 var(--font);font-variation-settings:"wdth" 112;letter-spacing:-.03em;color:#fff;max-width:70%}
 .daily p{margin:0;font-size:14.5px;color:var(--pt);max-width:100%}
-.daily .st{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.daily .st{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;min-height:96px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:#ffffff12;color:#fff;font:650 13px/1 var(--font)}
 .chip.ok{background:#10b98126;color:#6ee7b7}
 .chip.on{background:#ffd40022;color:#ffe46b}

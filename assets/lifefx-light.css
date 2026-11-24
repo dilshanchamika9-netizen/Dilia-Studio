@@ -134,3 +134,6 @@
 :root:not([data-theme=dark]) .ccf.g b{color:#0f9d57}
 :root:not([data-theme=dark]) .cct th,:root:not([data-theme=dark]) .cct td{border-bottom:1px solid #0b12201f}
 :root:not([data-theme=dark]) .cct tr.same td{color:#0f9d57}
+:root:not([data-theme=dark]) .tmc{background:linear-gradient(160deg,#ffffffeb,#ffffffb3)}
+:root:not([data-theme=dark]) .swlaps tr.fast td{color:#0f9d57}
+:root:not([data-theme=dark]) #swgo.stop{color:#0b1220}
