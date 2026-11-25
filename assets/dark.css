@@ -199,6 +199,15 @@
 :root[data-theme=dark] .rtoolh{background:#131b30}
 :root[data-theme=dark] .rtoolf{background:#0b1120}
 :root[data-theme=dark] .rtbtn{background:#131b30}
+:root[data-theme=dark] .rpset select,:root[data-theme=dark] .rpset input[type=number]{background:#131b30}
+:root[data-theme=dark] .rperr{color:#f37272}
+:root[data-theme=dark] .rpbox{background:#0b1120}
+:root[data-theme=dark] .rpbox canvas{box-shadow:0 2px 12px -2px #00000055;background:#131b30}
+:root[data-theme=dark] .rcmenu{background:#131b30;box-shadow:0 12px 40px -10px #00000066,0 0 0 1px #0b12201a}
+:root[data-theme=dark] .rswb[data-c=yellow]{background:#ffdc0026}
+:root[data-theme=dark] .rqbar{box-shadow:0 10px 30px -10px #00000088}
+:root[data-theme=dark] .rqb:hover,:root[data-theme=dark] .rqb:focus-visible{background:#131b3026}
+:root[data-theme=dark] .rnotext{background:#ff8e0026;color:#f39372;box-shadow:0 10px 30px -12px #00000066}
 :root[data-theme=dark] .ahero{background:linear-gradient(180deg,color-mix(in srgb,var(--acol) 14%,#131b30),#131b30)}
 :root[data-theme=dark] .acard{background:#131b30;box-shadow:0 1px 2px #0000000d,0 6px 18px -8px #00000026}
 :root[data-theme=dark] .acard:hover{box-shadow:0 1px 2px #0000000d,0 18px 40px -16px #00000040}

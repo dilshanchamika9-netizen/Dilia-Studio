@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('diliaDesktop', {
   saveAs: (name, bytes) => ipcRenderer.invoke('dilia-save-as', String(name || 'document.pdf'), buf(bytes)),
   reopen: id => ipcRenderer.invoke('dilia-reopen', String(id)),
   forget: id => ipcRenderer.invoke('dilia-forget', id == null ? null : String(id)),
+  printers: () => ipcRenderer.invoke('dilia-printers'),          // names of installed printers, for the print dialog
+  print: o => ipcRenderer.invoke('dilia-print', o && typeof o === 'object' ? { printer: String(o.printer || ''), system: !!o.system, copies: +o.copies || 1, collate: o.collate !== false,
+    color: o.color !== false, duplex: String(o.duplex || 'simplex'), landscape: !!o.landscape, w: +o.w || 0, h: +o.h || 0 } : null),   // prints this window's print view
   dropped(file) {                    // a file dragged in from File Explorer: register its real path so Ctrl+S can save over it
     let p = '';
     try { p = webUtils.getPathForFile(file); } catch (e) { p = ''; }

@@ -126,6 +126,20 @@ ipcMain.handle('dilia-forget', (e, id) => {
   if (id == null) known.clear(); else known.delete(id);
   saveKnown(); return true;
 });
+/* ---------- printing (owner issues APP-02..04): the page draws every sheet itself; Windows only gets the finished sheets ---------- */
+ipcMain.handle('dilia-printers', async e => {
+  if (!win || e.sender !== win.webContents) return [];
+  try { return (await e.sender.getPrintersAsync()).map(p => ({ name: String(p.name), label: String(p.displayName || p.name), def: !!p.isDefault })); } catch (err) { return []; }
+});
+ipcMain.handle('dilia-print', (e, o) => new Promise(res => {
+  if (!win || e.sender !== win.webContents || !o || typeof o !== 'object') return res({ ok: false, why: 'refused' });
+  const int = (v, lo, hi, d) => { v = Math.round(+v); return Number.isFinite(v) && v >= lo && v <= hi ? v : d; };
+  const opt = { silent: !o.system, printBackground: true, copies: int(o.copies, 1, 999, 1), collate: o.collate !== false, color: o.color !== false,
+    landscape: !!o.landscape, margins: { marginType: 'none' }, pageSize: { width: int(o.w, 50000, 1300000, 210000), height: int(o.h, 50000, 1300000, 297000) },
+    duplexMode: ['simplex', 'longEdge', 'shortEdge'].includes(o.duplex) ? o.duplex : 'simplex' };
+  if (!o.system && typeof o.printer === 'string' && o.printer) opt.deviceName = o.printer.slice(0, 300);
+  try { e.sender.print(opt, (ok, why) => res({ ok: !!ok, why: ok ? '' : String(why || 'failed') })); } catch (err) { res({ ok: false, why: String(err && err.message || err) }); }
+}));
 ipcMain.handle('dilia-dropped', async (e, p) => {
   if (!fromApp(e) || !isPdfPath(p)) return null;
   try { if (!(await fsp.stat(p)).isFile()) return null; } catch (x) { return null; }

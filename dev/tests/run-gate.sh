@@ -18,6 +18,7 @@ step "Calculator pages" python3 dev/tests/test-calc.py
 step "Hostile PDF guard" python3 dev/tests/test-guard.py
 step "Fill forms: My details" python3 dev/tests/test-autofill.py
 step "Reader: Comments panel" python3 dev/tests/test-comments.py
+step "Reader: zoom, print dialog, copy, highlight, OCR prompt, Edit button (APP-01..08)" python3 dev/tests/test-reader-app.py
 step "Home page and Life/Play hubs" python3 dev/tests/test-home.py
 step "Light/dark switch on every page family" python3 dev/tests/test-theme.py
 step "Daily puzzles: one answer, 400 days" node dev/tests/test-playgen.js

@@ -147,7 +147,7 @@ function rows(t) {
   else ps.forEach(p => out.push([p]));
   return out;
 }
-function relayout(t, keepPos) {
+function relayout(t, keepPos, lazy) {
   const anchor = keepPos ? anchorOf(t) : null;
   t.scale = scaleFor(t);
   if (t.builtLayout !== t.layout) {                  // regroup pages into rows
@@ -164,7 +164,8 @@ function relayout(t, keepPos) {
   zoomSel.value = ['width', 'page'].includes(t.zoom) ? t.zoom : (zoomSel.querySelector(`option[value="${t.zoom}"]`) ? String(t.zoom) : 'custom');
   zoomSel.querySelector('option[value=custom]').textContent = Math.round(t.scale / PX * 100) + '%';
   if (anchor) restore(t, anchor);
-  observe(t); refreshVisible(t);
+  if (lazy) { t.zooming = true; clearTimeout(t.zt); t.zt = setTimeout(() => { t.zooming = false; if (T === t) { observe(t); refreshVisible(t); } }, 200); return; }
+  t.zooming = false; observe(t); refreshVisible(t);
 }
 function anchorOf(t) { const p = t.pages[t.cur - 1]; if (!p || t.layout === 'single') return { i: t.cur - 1, f: 0 }; const r = p.el.getBoundingClientRect(), v = view.getBoundingClientRect(); return { i: p.i, f: (v.top - r.top) / Math.max(1, r.height) }; }
 function restore(t, a) { if (t.layout === 'single') return; const p = t.pages[a.i]; view.scrollTop = offsetTop(p.el) + a.f * p.el.offsetHeight; }
@@ -179,7 +180,29 @@ laySel.addEventListener('change', () => { if (!T) return; const k = T.cur; T.lay
 $('#rZin').addEventListener('click', () => stepZoom(1)); $('#rZout').addEventListener('click', () => stepZoom(-1));
 function rotate(d) { if (!T) return; const k = T.cur; T.rot = (T.rot + d + 360) % 360; T.pages.forEach(p => { if (p.page) dims(T, p, p.page); else dims(T, p, T.pages[0].page); release(p); }); clearMeasDraw(T); relayout(T, false); goTo(T, k); }
 $('#rRotL').addEventListener('click', () => rotate(-90)); $('#rRotR').addEventListener('click', () => rotate(90));
-view.addEventListener('wheel', e => { if (!T || !(e.ctrlKey || e.metaKey)) return; e.preventDefault(); stepZoom(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+/* Ctrl+wheel and touchpad pinch (APP-01): zoom follows the size of each movement, not one full step per event, and keeps
+   the point under the pointer still. Touchpads send many small events, a mouse wheel few large ones. */
+const wz = { f: 1, x: 0, y: 0, raf: 0 };
+function zoomAt(t, z, cx, cy, lazy) {
+  const vr = view.getBoundingClientRect(), mx = cx - vr.left, my = cy - vr.top;
+  const p = t.pages.find(q => { const r = q.el.getBoundingClientRect(); return !q.el.closest('[hidden]') && cy >= r.top - GAP && cy <= r.bottom + GAP; }) || t.pages[t.cur - 1];
+  const r0 = p.el.getBoundingClientRect(), fx = (cx - r0.left) / Math.max(1, r0.width), fy = (cy - r0.top) / Math.max(1, r0.height);
+  t.zoom = z; relayout(t, false, lazy);
+  const r1 = p.el.getBoundingClientRect();
+  view.scrollLeft += (r1.left + fx * r1.width) - (vr.left + mx);
+  view.scrollTop += (r1.top + fy * r1.height) - (vr.top + my);
+}
+view.addEventListener('wheel', e => {
+  if (!T || !(e.ctrlKey || e.metaKey)) return; e.preventDefault();
+  const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+  wz.f *= Math.exp(-Math.max(-150, Math.min(150, dy)) * .002); wz.x = e.clientX; wz.y = e.clientY;
+  if (wz.raf) return;
+  wz.raf = requestAnimationFrame(() => {
+    wz.raf = 0; const t = T, f = wz.f; wz.f = 1; if (!t || Math.abs(f - 1) < .001) return;
+    const z = Math.max(.1, Math.min(6, t.scale * f / PX));
+    if (Math.abs(z * PX - t.scale) > .0005) zoomAt(t, Math.round(z * 1000) / 1000, wz.x, wz.y, true);
+  });
+}, { passive: false });
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (T && (T.zoom === 'width' || T.zoom === 'page')) relayout(T, true); }, 150); });
 
 /* ---------- navigation ---------- */
@@ -219,7 +242,7 @@ function observe(t) {
   t.pages.forEach(p => io.observe(p.el));
 }
 function refreshVisible(t) { t.pages.forEach(p => { if (p.vis && (p.state === 0 || p.rs !== t.scale)) want(t, p); }); pump(t); }
-function want(t, p) { if (p.state === 2 && p.rs === t.scale) return; queue.add(p); }
+function want(t, p) { if (t.zooming || (p.state === 2 && p.rs === t.scale)) return; queue.add(p); }
 function pump(t) {
   while (busy < 2 && queue.size) {
     const list = [...queue].filter(p => p.vis); queue.clear(); list.forEach(p => queue.add(p));
@@ -572,41 +595,7 @@ async function fontList(t) {
 $('#rInfo').addEventListener('click', properties);
 
 /* ---------- print ---------- */
-function parseRange(s, n) { const out = []; for (const part of s.split(',')) { const m = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(part); if (!m) return null; let a = +m[1], b = m[2] ? +m[2] : a; if (a > b) [a, b] = [b, a]; if (a < 1 || b > n) return null; for (let i = a; i <= b; i++) out.push(i); } return out.length ? out : null; }
-async function printDoc() {
-  const t = T; if (!t) return;
-  if (t.perms === undefined) { try { t.perms = await t.doc.getPermissions(); } catch (e) { t.perms = null; } }
-  if (pdfjsLib.PermissionFlag && !can(t, pdfjsLib.PermissionFlag.PRINT)) { toast('The maker of this PDF does not allow printing.', true); return; }
-  const mk = (name, val, label, checked) => { const l = el('label', 'rchk'); const r = el('input'); r.type = 'radio'; r.name = name; r.value = val; r.checked = !!checked; l.append(r, ' ' + label); return l; };
-  const range = el('input'); range.type = 'text'; range.placeholder = 'e.g. 1-3, 5'; range.setAttribute('aria-label', 'Pages to print'); range.className = 'rrange';
-  const gray = el('label', 'rchk'); const g = el('input'); g.type = 'checkbox'; gray.append(g, ' Black and white');
-  const hq = el('label', 'rchk'); const h = el('input'); h.type = 'checkbox'; hq.append(h, ' High quality (slower)');
-  const fs = el('fieldset', 'rfs'); fs.append(el('legend', '', 'Pages'), mk('rpr', 'all', `All ${t.n} pages`, true), mk('rpr', 'cur', `This page (${t.cur})`), mk('rpr', 'some', 'Some pages:'), range);
-  range.addEventListener('focus', () => { fs.querySelector('input[value=some]').checked = true; });
-  const r = await ask('Print', [fs, gray, hq], [{ label: 'Cancel', value: 'no' }, { label: 'Print', value: 'ok', primary: true }]);
-  if (r !== 'ok') return;
-  const which = fs.querySelector('input[name=rpr]:checked').value;
-  const list = which === 'all' ? Array.from({ length: t.n }, (_, i) => i + 1) : which === 'cur' ? [t.cur] : parseRange(range.value, t.n);
-  if (!list) { toast(`Type pages between 1 and ${t.n}, like 1-3, 5.`, true); return; }
-  const out = $('#rprint'); out.textContent = ''; const urls = []; const dpi = h.checked ? 300 : 150;
-  try {
-    for (let k = 0; k < list.length; k++) {
-      if (k % 5 === 0) toast(`Preparing page ${k + 1} of ${list.length}...`);
-      const p = t.pages[list[k] - 1]; await ensure(t, p);
-      const vp = p.page.getViewport({ scale: dpi / 72, rotation: p.page.rotate || 0 });
-      const cv = el('canvas'); cv.width = Math.floor(vp.width); cv.height = Math.floor(vp.height);
-      const x = cv.getContext('2d', { alpha: false }); x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height);
-      await p.page.render({ canvasContext: x, viewport: vp, optionalContentConfigPromise: t.oc ? Promise.resolve(t.oc) : null }).promise;   // screen intent: layers print as shown (pdf.js rejects a display layer config with the print intent)
-      if (g.checked) { const c2 = el('canvas'); c2.width = cv.width; c2.height = cv.height; const y = c2.getContext('2d'); y.filter = 'grayscale(1)'; y.drawImage(cv, 0, 0); cv.width = 0; urls.push(await blobUrl(c2)); c2.width = 0; }
-      else { urls.push(await blobUrl(cv)); cv.width = 0; }
-      const img = el('img'); img.alt = ''; img.src = urls[urls.length - 1]; await img.decode().catch(() => {}); out.append(img);
-    }
-  } catch (e) { toast('Printing could not be prepared. Try fewer pages.', true); out.textContent = ''; urls.forEach(u => URL.revokeObjectURL(u)); return; }
-  document.body.classList.add('rprinting');
-  const done = () => { document.body.classList.remove('rprinting'); out.textContent = ''; urls.forEach(u => URL.revokeObjectURL(u)); removeEventListener('afterprint', done); };
-  addEventListener('afterprint', done); window.print(); setTimeout(() => { if (document.body.classList.contains('rprinting') && !matchMedia('print').matches) done(); }, 60000);
-}
-const blobUrl = cv => new Promise((ok, no) => cv.toBlob(b => b ? ok(URL.createObjectURL(b)) : no(new Error('blob')), 'image/png'));
+function printDoc() { if (T) window.DiliaPrint.open(API); }
 $('#rPrint').addEventListener('click', printDoc);
 
 /* ---------- read aloud (device voices only: network voices would send the text away) ---------- */
@@ -787,6 +776,7 @@ addEventListener('message', async e => {
   }
 });
 $('#rTools').addEventListener('click', toolsMenu);
+$('#rEdit').addEventListener('click', () => { if (T) openTool('edit'); });
 
 /* ---------- save: over the original file when the browser allows it, otherwise a download ---------- */
 function mark(t) { t.tabEl.firstChild.textContent = (t.dirty ? '• ' : '') + t.name.replace(/\.pdf$/i, ''); t.tabEl.title = t.name + (t.dirty ? ' (not saved)' : ''); if (t === T) document.title = (t.dirty ? '• ' : '') + t.name + ' - Dilia PDF'; }
@@ -921,6 +911,16 @@ addEventListener('keydown', e => {
   else if (k === 'ArrowLeft' || (single && (k === 'PageUp' || k === 'ArrowUp') && T.layout === 'single' && view.scrollTop <= 0)) { e.preventDefault(); step(-1); }
   else if (k === 'n' || k === 'N') step(1); else if (k === 'p' || k === 'P') step(-1);
 });
+
+/* ---------- shared with reader-print.js and reader-mark.js ---------- */
+const API = {
+  get T() { return T; }, get tabs() { return tabs; }, view, app, dlg, DESK, PX, el, icon, toast, ask, ensure, textOf, rotOf, can, openOne, openTool, relayout,
+  pageOf: node => { const e = node && (node.nodeType === 1 ? node : node.parentElement); const pe = e && e.closest('.rp'); return pe && T ? T.pages[+pe.dataset.n - 1] || null : null; },
+  scrollTo(top) { view.scrollTop = top; },
+  find(term) { if (!T) return; openFind(); q.value = term; runFind(); },
+  print: () => printDoc()
+};
+if (window.DiliaMark) window.DiliaMark.init(API);
 
 /* ---------- start ---------- */
 night(prefs.night); toggleSide(prefs.side); showRecent(); updPage();

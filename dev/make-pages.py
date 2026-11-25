@@ -855,7 +855,7 @@ RI = {  # toolbar icons (24px, stroke)
  'print': 'M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z', 'info': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v6M12 7.5v.5',
  'full': 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5', 'read': 'M3 5h7a3 3 0 0 1 2 1 3 3 0 0 1 2-1h7v14h-7a2 2 0 0 0-2 1 2 2 0 0 0-2-1H3z',
  'save': 'M12 4v11m0 0-4-4m4 4 4-4M5 20h14', 'install': 'M12 3v12m0 0-4-4m4 4 4-4M4 21h16', 'close': 'M6 6l12 12M18 6 6 18',
- 'tools': 'M14 7l3-3 3 3-3 3M4 20l9-9M15 13l5 5-2 2-5-5',
+ 'tools': 'M14 7l3-3 3 3-3 3M4 20l9-9M15 13l5 5-2 2-5-5', 'edit': 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
 }
 def rb(id_, label, ico, key='', extra=''):
     tip = label + (f' ({key})' if key else '')
@@ -868,7 +868,7 @@ def reader_page():
     head = head.replace('<title>PDF reader - Free Online | Dilia PDF</title>', '<title>PDF Reader - Free Online | Dilia PDF</title>')
     head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="Free PDF reader in your browser, installable as a Windows app. Tabs, bookmarks, search, layers, attachments, print, measure and read aloud. Nothing is uploaded.">', head)
     head = head.replace('<body class="work"', '<body class="work rapp"')
-    tail = tail.replace('<script src="assets/viewer.js"></script>', '<script src="assets/reader.js"></script>')
+    tail = tail.replace('<script src="assets/viewer.js"></script>', '<script src="assets/reader-print.js"></script>\n<script src="assets/reader-mark.js"></script>\n<script src="assets/reader.js"></script>')
     assert 'assets/reader.js' in tail
     for v in ('pdf-lib.min.js', 'Sortable.min.js'): tail = tail.replace('<script src="assets/vendor/' + v + '"></script>\n', '')
     zoom = ''.join(f'<option value="{v}">{t}</option>' for v, t in (('width', 'Fit width'), ('page', 'Fit page'), ('1', 'Actual size'), ('0.5', '50%'), ('0.75', '75%'), ('1.25', '125%'), ('1.5', '150%'), ('2', '200%'), ('3', '300%'), ('4', '400%')))
@@ -879,6 +879,7 @@ def reader_page():
         + rb('rZout', 'Zoom out', 'zout', 'Ctrl+-') + f'<select id="rZoom" class="rsel" aria-label="Zoom"><option value="custom" hidden>100%</option>{zoom}</select>' + rb('rZin', 'Zoom in', 'zin', 'Ctrl++') + sp
         + f'<select id="rLayout" class="rsel" aria-label="Page layout">{lay}</select>' + rb('rRotL', 'Rotate view left', 'rotl', 'Ctrl+Shift+-') + rb('rRotR', 'Rotate view right', 'rotr', 'Ctrl+Shift++')
         + '<span class="rgrow"></span>'
+        + '<button type="button" class="rbtn rbtxt" id="rEdit" aria-label="Edit text and images" title="Edit text and images"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + RI['edit'] + '"/></svg><span>Edit</span></button>' + sp
         + rb('rFind', 'Search the text', 'find', 'Ctrl+F') + rb('rMeasure', 'Measure', 'measure', '', ' aria-pressed="false"') + rb('rSpeak', 'Read aloud', 'speak', 'Ctrl+Shift+Y', ' aria-pressed="false"')
         + rb('rNight', 'Night reading', 'night', '', ' aria-pressed="false"') + rb('rPrint', 'Print', 'print', 'Ctrl+P') + rb("rSave", "Save (Shift for Save as)", "save", "Ctrl+S")
         + rb('rInfo', 'Document properties', 'info', 'Ctrl+D') + rb('rReadMode', 'Read mode', 'read', 'Ctrl+H') + rb('rFull', 'Full screen', 'full', 'Ctrl+L')
@@ -927,7 +928,7 @@ def reader_page():
 def reader_files(html):
     """Offline list for the service worker: every same-site file the reader page loads, plus the pdf.js data folders."""
     refs = re.findall(r'(?:href|src)="(\.\./assets/[^"#?]+)"', html)
-    extra = ['../assets/vendor/pdfjs/pdf.worker.min.mjs', '../assets/app/icon-192.png', '../assets/app/icon-512.png']
+    extra = ['../assets/vendor/pdfjs/pdf.worker.min.mjs', '../assets/app/icon-192.png', '../assets/app/icon-512.png', '../assets/vendor/pdf-lib.min.js', '../assets/guard.js', '../assets/guard-worker.js']   # pdf-lib + guard: loaded on demand for highlights and form-only printing
     for sub in ('wasm', 'cmaps', 'standard_fonts', 'iccs'):
         for f in sorted((ROOT / 'assets/vendor/pdfjs' / sub).iterdir()):
             if f.is_file() and not f.name.startswith('LICENSE'): extra.append(f'../assets/vendor/pdfjs/{sub}/{f.name}')
