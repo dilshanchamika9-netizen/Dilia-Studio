@@ -1,0 +1,21 @@
+# Draft check for Pulse stories. Drafts are pushed to the "drafts" branch (never "staging"), so nothing here can reach the live site.
+# Runs the offline story rules and the online number check (every figure must appear in a cited source). The owner approves in chat.
+name: draft-check
+on:
+  push: { branches: [drafts] }
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build news pages
+        run: python3 dev/make-news.py
+      - name: Story rules (must pass)
+        run: python3 dev/check-posts.py
+      - name: Number check against the cited sources (report)
+        env:
+          SEC_CONTACT: ${{ vars.SEC_CONTACT }}
+        run: python3 dev/verify-numbers.py | tee /tmp/numbers.txt; { echo '### Number check'; echo '```'; cat /tmp/numbers.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

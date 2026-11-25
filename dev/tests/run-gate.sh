@@ -10,6 +10,8 @@ fp() { { git status --porcelain --untracked-files=all; git diff; } | sha1sum; }
 before=$(fp)
 step "Generated pages match their sources" bash -c 'python3 dev/make-pages.py >/dev/null && python3 dev/make-blog.py >/dev/null && python3 dev/make-news.py >/dev/null'
 if [ "$(fp)" != "$before" ]; then echo "--- FAIL: rebuilding pages changed files (run make-pages.py, make-blog.py and make-news.py, then commit):"; git status --short | head -20; fail=1; fi
+step "Pulse story rules (quotes, sources, allegation wording, disclosure)" python3 dev/check-posts.py
+step "Pulse rule checks catch bad stories" python3 dev/tests/test-checks.py
 step "Calculator maths" node dev/tests/test-calcmath.js
 step "All pages: security policy, errors, no outside requests" python3 dev/tests/test-sweep.py
 step "Calculator pages" python3 dev/tests/test-calc.py
