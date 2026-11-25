@@ -3,16 +3,16 @@
 # Needs the test server (dev/tests/serve.py) on :8766.
 import asyncio, os, sys, tempfile, re
 from playwright.async_api import async_playwright
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, letter, landscape
 B = 'http://localhost:8766/pdf-reader/'
-D = tempfile.mkdtemp(); EDGE = os.path.join(D, 'edge.pdf')
+EDGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'edge.pdf')   # made by fixture() below (needs reportlab); committed so CI does not need it
 fails, errs = [], []
 def ck(name, cond, info=''):
     print(('PASS ' if cond else 'FAIL ') + name + ('' if cond else f'  [{info}]'))
     if not cond: fails.append(name)
 
 def fixture():
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A4, letter, landscape
     c = canvas.Canvas(EDGE, pagesize=landscape(letter))             # like OMEF-0340_PL: landscape Letter, TOTAL row at the very bottom
     c.setFont('Helvetica', 12)
     for k in range(12): c.drawString(40, 560 - k * 40, f'Item {k + 1} copper cable 2.5 mm quantity {k * 10 + 5}')
@@ -39,7 +39,7 @@ async def until(pg, js, timeout=15000):
     raise TimeoutError('timed out: ' + js[:80])
 
 async def main():
-    fixture()
+    if not os.path.exists(EDGE): fixture()
     async with async_playwright() as p:
         br = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
         ctx = await br.new_context(viewport={'width': 1400, 'height': 900}, accept_downloads=True)
