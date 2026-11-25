@@ -98,6 +98,9 @@ def main():
     sec_ua = os.environ.get('SEC_UA', '').strip()
     res = build(lambda u: http_json(u, 'Dilia news reader (https://dilshanchamika9-netizen.github.io/Dilia-Studio/)'), lambda u: http_json(u, sec_ua), old, sec_ok=bool(sec_ua), use_hn=False)  # owner decision 25 Nov 2026: no Hacker News; the file is now a fact queue for writing own stories
     if not valid(res): print('refusing to write: failed the safety check'); return 1
+    same = {k: v for k, v in old.items() if k != 'updated'} == {k: v for k, v in res.items() if k != 'updated'}
+    if same and old.get('updated'):  # nothing new: keep the file as is so the job makes no commit and cannot block a release
+        print('no change in hn/sec/notes; file left as is'); return 0
     OUT.parent.mkdir(exist_ok=True); OUT.write_text(json.dumps(res, ensure_ascii=False, indent=1) + '\n')
     print('hn', len(res['hn']), 'sec', len(res['sec']), 'notes', res['notes']); return 0
 
