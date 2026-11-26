@@ -63,6 +63,7 @@ Start-Sleep -Seconds 5
 Check 'uninstalls cleanly' (-not (Test-Path $exe.FullName))
 for ($i = 0; $i -lt 40 -and $dataDir -ne '' -and (Test-Path $dataDir); $i++) { Start-Sleep -Milliseconds 500 }   # the uninstaller finishes in the background
 $left = if ($dataDir -ne '' -and (Test-Path $dataDir)) { (Get-ChildItem $dataDir -Recurse -Force -ErrorAction SilentlyContinue | Select-Object -First 8 | ForEach-Object { $_.FullName.Substring($dataDir.Length) }) -join ' | ' } else { '' }
+$ul = "$env:TEMP\dilia-uninstall.log"; if (Test-Path $ul) { Add-Content $env:REPORT ('uninstaller log: ' + ((Get-Content $ul) -join ' ; ')) } else { Add-Content $env:REPORT 'uninstaller log: none (custom step did not run)' }
 Check 'uninstall also removes the app data folder (recent-files list)' ($dataDir -ne '' -and -not (Test-Path $dataDir)) ($dataDir + ' left: ' + $left + ' | processes: ' + ((Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Measure-Object).Count))
 Add-Content -Path $env:REPORT -Value "SHA256 $((Get-FileHash $setup.FullName).Hash)  $($setup.Name)  $([math]::Round($setup.Length / 1MB, 1)) MB"
 if ($fails) { exit 1 }
