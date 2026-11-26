@@ -55,6 +55,30 @@ jobs:
             "WACK overall: " + $r.REPORT.OVERALL_RESULT | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
             foreach ($t in $r.REPORT.REQUIREMENTS.REQUIREMENT) { ($t.NUMBER + ' ' + $t.TITLE + ' : ' + $t.TEST.RESULT) | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt }
           } else { "WACK: ran but wrote no report" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt }
+      - name: Install the package, start it, remove it (unsigned install needs Windows 11 24H2 or newer)
+        continue-on-error: true
+        working-directory: desktop
+        run: |
+          $R = "$env:RUNNER_TEMP\store-report.txt"
+          $pkg = Get-ChildItem dist/*.appx | Select-Object -First 1
+          try { Add-AppxPackage -Path $pkg.FullName -AllowUnsigned -ErrorAction Stop; "INSTALL: ok" | Tee-Object -Append -FilePath $R }
+          catch { "INSTALL: failed: $($_.Exception.Message)" | Tee-Object -Append -FilePath $R; exit 0 }
+          $p = Get-AppxPackage -Name Dilia.DiliaPDF
+          "INSTALLED: $($p.PackageFamilyName) $($p.Version) at $($p.InstallLocation)" | Tee-Object -Append -FilePath $R
+          Copy-Item test/fixtures/ten.pdf "$env:RUNNER_TEMP\Store test.pdf"
+          Start-Process explorer.exe "shell:AppsFolder\$($p.PackageFamilyName)!DiliaPDF"
+          $t = ''
+          for ($i = 0; $i -lt 40 -and $t -eq ''; $i++) { Start-Sleep -Milliseconds 500; $t = (Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle) }
+          "LAUNCH: window title = '$t'" | Tee-Object -Append -FilePath $R
+          $exe = Join-Path $p.InstallLocation 'app\DiliaPDF.exe'
+          Start-Process $exe -ArgumentList "`"$env:RUNNER_TEMP\Store test.pdf`""
+          $t2 = ''
+          for ($i = 0; $i -lt 40 -and $t2 -notmatch 'Store test'; $i++) { Start-Sleep -Milliseconds 500; $t2 = (Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle) }
+          "OPEN PDF: window title = '$t2'" | Tee-Object -Append -FilePath $R
+          Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 2
+          Remove-AppxPackage -Package $p.PackageFullName
+          "REMOVED: still installed = $([bool](Get-AppxPackage -Name Dilia.DiliaPDF))" | Tee-Object -Append -FilePath $R
       - name: Publish package and report (pre-release store-v<version>)
         if: always()
         env: { GH_TOKEN: '${{ github.token }}' }
