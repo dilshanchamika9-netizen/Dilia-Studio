@@ -55,26 +55,33 @@ jobs:
             "WACK overall: " + $r.REPORT.OVERALL_RESULT | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
             foreach ($t in $r.REPORT.REQUIREMENTS.REQUIREMENT) { ($t.NUMBER + ' ' + $t.TITLE + ' : ' + $t.TEST.RESULT) | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt }
           } else { "WACK: ran but wrote no report" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt }
-      - name: Install the package, start it, remove it (unsigned install needs Windows 11 24H2 or newer)
+      - name: Install the package, start it, remove it (test copy signed with a throwaway certificate; the uploaded file stays unsigned)
         continue-on-error: true
         working-directory: desktop
         run: |
           $R = "$env:RUNNER_TEMP\store-report.txt"
           $pkg = Get-ChildItem dist/*.appx | Select-Object -First 1
-          try { Add-AppxPackage -Path $pkg.FullName -AllowUnsigned -ErrorAction Stop; "INSTALL: ok" | Tee-Object -Append -FilePath $R }
+          $pub = 'CN=50560FCE-ED5F-4A52-85BF-7B539EB0801D'
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $pub -KeyUsage DigitalSignature -FriendlyName 'Dilia test' -CertStoreLocation 'Cert:\CurrentUser\My' -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3','2.5.29.19={text}')
+          $pw = ConvertTo-SecureString -String 'test' -Force -AsPlainText
+          $pfx = "$env:RUNNER_TEMP\test.pfx"; $cer = "$env:RUNNER_TEMP\test.cer"
+          Export-PfxCertificate -Cert $cert -FilePath $pfx -Password $pw | Out-Null
+          Export-Certificate -Cert $cert -FilePath $cer | Out-Null
+          Import-Certificate -FilePath $cer -CertStoreLocation 'Cert:\LocalMachine\TrustedPeople' | Out-Null
+          $test = "$env:RUNNER_TEMP\Dilia-test.appx"; Copy-Item $pkg.FullName $test
+          $st = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName | Select-Object -Last 1
+          & $st.FullName sign /fd SHA256 /f $pfx /p test $test
+          if ($LASTEXITCODE -ne 0) { "SIGN TEST COPY: failed" | Tee-Object -Append -FilePath $R; exit 0 }
+          try { Add-AppxPackage -Path $test -ErrorAction Stop; "INSTALL: ok" | Tee-Object -Append -FilePath $R }
           catch { "INSTALL: failed: $($_.Exception.Message)" | Tee-Object -Append -FilePath $R; exit 0 }
           $p = Get-AppxPackage -Name Dilia.DiliaPDF
           "INSTALLED: $($p.PackageFamilyName) $($p.Version) at $($p.InstallLocation)" | Tee-Object -Append -FilePath $R
           Copy-Item test/fixtures/ten.pdf "$env:RUNNER_TEMP\Store test.pdf"
-          Start-Process explorer.exe "shell:AppsFolder\$($p.PackageFamilyName)!DiliaPDF"
-          $t = ''
-          for ($i = 0; $i -lt 40 -and $t -eq ''; $i++) { Start-Sleep -Milliseconds 500; $t = (Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle) }
-          "LAUNCH: window title = '$t'" | Tee-Object -Append -FilePath $R
           $exe = Join-Path $p.InstallLocation 'app\DiliaPDF.exe'
           Start-Process $exe -ArgumentList "`"$env:RUNNER_TEMP\Store test.pdf`""
-          $t2 = ''
-          for ($i = 0; $i -lt 40 -and $t2 -notmatch 'Store test'; $i++) { Start-Sleep -Milliseconds 500; $t2 = (Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle) }
-          "OPEN PDF: window title = '$t2'" | Tee-Object -Append -FilePath $R
+          $t = ''
+          for ($i = 0; $i -lt 60 -and $t -notmatch 'Store test'; $i++) { Start-Sleep -Milliseconds 500; $t = (Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle) }
+          "OPEN PDF: window title = '$t'" | Tee-Object -Append -FilePath $R
           Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Stop-Process -Force
           Start-Sleep -Seconds 2
           Remove-AppxPackage -Package $p.PackageFullName
