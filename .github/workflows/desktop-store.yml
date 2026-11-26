@@ -1,0 +1,67 @@
+name: desktop-store
+# Builds the Microsoft Store package (.appx) of Dilia PDF on a real Windows machine, runs Microsoft's Windows App
+# Certification Kit on it when the machine has it, and attaches both to a GitHub pre-release (store-v<version>).
+# Trigger: push to branch desktop-store. The package is unsigned on purpose: the Store signs it.
+on:
+  push:
+    branches: [desktop-store]
+permissions: { contents: write }
+concurrency: { group: desktop-store, cancel-in-progress: false }
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults: { run: { shell: pwsh } }
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install build tools (exact versions, package-lock)
+        working-directory: desktop
+        run: npm ci --no-fund
+      - name: Build the Store package
+        working-directory: desktop
+        run: |
+          node copy-site.js
+          npx electron-builder --win appx --x64 --publish never
+          Get-ChildItem dist | Out-Host
+      - name: Check the package (manifest, identity, files)
+        working-directory: desktop
+        run: |
+          $pkg = Get-ChildItem dist/*.appx | Select-Object -First 1
+          "package: $($pkg.Name) $([math]::Round($pkg.Length/1MB,1)) MB" | Tee-Object -FilePath $env:RUNNER_TEMP\store-report.txt
+          $kit = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter makeappx.exe -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match 'x64' } | Sort-Object FullName -Descending | Select-Object -First 1
+          $out = Join-Path $env:RUNNER_TEMP 'unpacked'
+          & $kit.FullName unpack /p $pkg.FullName /d $out /o 2>&1 | Select-Object -Last 3 | Out-Host
+          [xml]$m = Get-Content "$out\AppxManifest.xml"
+          $id = $m.Package.Identity
+          "Identity Name=$($id.Name) Publisher=$($id.Publisher) Version=$($id.Version) Arch=$($id.ProcessorArchitecture)" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
+          "PublisherDisplayName=$($m.Package.Properties.PublisherDisplayName) DisplayName=$($m.Package.Properties.DisplayName)" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
+          "Capabilities: " + (($m.Package.Capabilities.ChildNodes | ForEach-Object { $_.Name + ':' + $_.OuterXml.Substring(0, [math]::Min(80, $_.OuterXml.Length)) }) -join ' | ') | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
+          "Extensions: " + $m.Package.Applications.Application.Extensions.OuterXml | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
+          "Executable: " + $m.Package.Applications.Application.Executable | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
+          if (-not (Test-Path "$out\assets\Square150x150Logo.png")) { "MISSING logo assets" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt; exit 1 }
+      - name: Windows App Certification Kit (if this machine has it)
+        continue-on-error: true
+        working-directory: desktop
+        run: |
+          $appcert = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\App Certification Kit" -Filter appcert.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $appcert) { "WACK: not installed on this machine" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt; exit 0 }
+          $pkg = Get-ChildItem dist/*.appx | Select-Object -First 1
+          $xml = Join-Path $env:RUNNER_TEMP 'wack.xml'
+          & $appcert.FullName reset 2>&1 | Out-Null
+          & $appcert.FullName test -appxpackagepath $pkg.FullName -reportoutputpath $xml 2>&1 | Select-Object -Last 15 | Out-Host
+          if (Test-Path $xml) {
+            [xml]$r = Get-Content $xml
+            "WACK overall: " + $r.REPORT.OVERALL_RESULT | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt
+            foreach ($t in $r.REPORT.REQUIREMENTS.REQUIREMENT) { ($t.NUMBER + ' ' + $t.TITLE + ' : ' + $t.TEST.RESULT) | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt }
+          } else { "WACK: ran but wrote no report" | Tee-Object -Append -FilePath $env:RUNNER_TEMP\store-report.txt }
+      - name: Publish package and report (pre-release store-v<version>)
+        if: always()
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          $ver = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
+          $files = @("$env:RUNNER_TEMP\store-report.txt")
+          $w = Join-Path $env:RUNNER_TEMP 'wack.xml'; if (Test-Path $w) { $files += $w }
+          $p = Get-ChildItem desktop/dist/*.appx -ErrorAction SilentlyContinue | Select-Object -First 1; if ($p) { $files += $p.FullName }
+          gh release delete "store-v$ver" --cleanup-tag --yes 2>$null
+          gh release create "store-v$ver" @files --target $env:GITHUB_SHA --prerelease --title "Dilia PDF Microsoft Store package $ver" --notes "Unsigned .appx for upload to Partner Center (the Store signs it). Not for installing on your PC."

@@ -12,7 +12,8 @@
     "start": "node copy-site.js && electron .",
     "dist:win": "node copy-site.js && electron-builder --win nsis --x64",
     "dist:linux": "node copy-site.js && electron-builder --linux dir",
-    "test": "node copy-site.js && node test/app-test.js"
+    "test": "node copy-site.js && node test/app-test.js",
+    "dist:store": "node copy-site.js && electron-builder --win appx --x64"
   },
   "devDependencies": {
     "electron": "45.4.1",
@@ -86,6 +87,21 @@
       "onlyLoadAppFromAsar": true,
       "loadBrowserProcessSpecificV8Snapshot": false,
       "grantFileProtocolExtraPrivileges": false
+    },
+    "appx": {
+      "applicationId": "DiliaPDF",
+      "identityName": "Dilia.DiliaPDF",
+      "publisher": "CN=50560FCE-ED5F-4A52-85BF-7B539EB0801D",
+      "publisherDisplayName": "Dilia",
+      "displayName": "Dilia PDF",
+      "backgroundColor": "#ffffff",
+      "languages": [
+        "en-US"
+      ],
+      "capabilities": [
+        "webcam"
+      ],
+      "showNameOnTiles": false
     }
   },
   "repository": {
