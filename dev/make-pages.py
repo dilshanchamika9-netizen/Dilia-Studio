@@ -978,6 +978,53 @@ for lid, c in LINES.items():
     d = ROOT / lid; d.mkdir(exist_ok=True); (d / 'index.html').write_text(h)
     print('wrote line page', lid + '/')
 
+PRIVACY_MAIN = """<main class="lib wrap legal-doc" id="lib">
+<h2>The short version</h2>
+<ul>
+<li>Your files are opened and changed on your own device. Dilia does not receive them.</li>
+<li>There are no accounts, no ads and no analytics in the Dilia PDF app.</li>
+<li>The Dilia PDF app for Windows has no network access. It cannot send anything anywhere.</li>
+</ul>
+<h2>Dilia PDF for Windows</h2>
+<p><b>What the app reads.</b> Only the PDF files you open, drop on the window, or choose in the Open box. They are read into the app's memory.</p>
+<p><b>What the app writes.</b> A file is changed only when you press Ctrl+S (it saves over the file you opened) or use Save as (a new file you name). Results from tools, such as images, are saved only where you choose.</p>
+<p><b>What the app keeps on your device.</b></p>
+<ul>
+<li>A list of recent files: file location, name and size, up to 200 entries. Press "Forget all" on the start page to clear it.</li>
+<li>Your view and print choices, such as zoom, page layout and the print options you used last.</li>
+</ul>
+<p><b>Camera.</b> Used only by Scan to PDF, only while you use that tool. Pictures are not stored or sent.</p>
+<p><b>Clipboard.</b> The app writes the text you copy. It does not read your clipboard.</p>
+<p><b>Printers.</b> The app asks Windows for the names of your printers to show them in the print box. Names are not stored.</p>
+<p><b>Text recognition (OCR).</b> It runs inside the app, using files that come with it. The text is not sent anywhere.</p>
+<p><b>Links.</b> If a PDF contains a web link and you click it, the link opens in your normal browser. Dilia PDF does not load it.</p>
+<p><b>Uninstalling.</b> Removing Dilia PDF from Windows Settings removes the app and the data listed above. Your PDF files are never deleted.</p>
+<h2>The Dilia website</h2>
+<p>The tools on the website also run in your browser tab, so your files are not uploaded. The site has no accounts, no ads and no analytics scripts. It is hosted on GitHub Pages, and GitHub may keep ordinary server logs (such as your IP address) under its own privacy statement. Preferences are kept in your browser's own storage and can be cleared in your browser settings.</p>
+<h2>Children, health and money</h2>
+<p>Dilia does not collect personal information from anyone, including children. It does not ask for health or financial details. If a PDF you open contains such details, they stay on your device.</p>
+<h2>Sharing</h2>
+<p>Dilia does not sell, share or send your data to anyone. It has no data to share, because it does not receive any.</p>
+<h2>Security</h2>
+<p>The app runs in a locked-down window, serves only its own files, and blocks all network requests. Found a security problem? Please report it privately at <a href="https://github.com/dilshanchamika9-netizen/Dilia-Studio/security/advisories/new">github.com/dilshanchamika9-netizen/Dilia-Studio/security</a>.</p>
+<h2>Changes and contact</h2>
+<p>If this policy changes, the date at the top changes. Questions: open an issue at <a href="https://github.com/dilshanchamika9-netizen/Dilia-Studio/issues">github.com/dilshanchamika9-netizen/Dilia-Studio/issues</a>. Dilia is published by Dilshan Chamika.</p>
+</main>"""
+
+# ---------------- privacy policy page (Microsoft Store policy 10.5.1 needs a real page for the Windows app) ----------------
+_pv = base
+_pv = _pv.replace('<title>All Tools - Free Online | Dilia</title>', '<title>Privacy policy | Dilia</title>')
+_pv = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="What Dilia and the Dilia PDF Windows app do with your files and data. Short answer: your files stay on your device.">', _pv, count=1)
+_pv = _pv.replace('<p class="kicker">All Dilia tools</p>', '<p class="kicker">Privacy policy</p>').replace('<h1>Pick a tool.</h1>', '<h1>Your files stay on your device.</h1>')
+_pv = _pv.replace('<p class="sub">Every tool runs in your browser. Tap what you want to do, or search.</p>', '<p class="sub">Last updated 26 November 2026. This page covers the Dilia website and the Dilia PDF app for Windows.</p>')
+_pv = re.sub(r'\s*<label class="search".*?</label>', '', _pv, flags=re.S)
+_pv = _pv.replace('<section class="goals wrap" id="goals" aria-labelledby="gh"></section>\n', '')
+_pv = _pv.replace('<main class="lib wrap" id="lib"></main>', PRIVACY_MAIN)
+_pv = _pv.replace('<script src="assets/tools-page.js"></script>', '')
+_pv = up(_pv)
+_d = ROOT / 'privacy'; _d.mkdir(exist_ok=True); (_d / 'index.html').write_text(_pv)
+print('wrote privacy/')
+
 # ---------------- old line addresses: /studio/ -> /pdf/, /pixel/ -> /image/ (old links keep working) ----------------
 for old, new, label in (('studio', 'pdf', 'Dilia PDF'), ('pixel', 'image', 'Dilia Image')):
     d = ROOT / old; d.mkdir(exist_ok=True)

@@ -235,7 +235,7 @@ async function open(A) {
   const left = el('div', 'rpset');
   if (DESK) {
     const ps = printers.length ? sel('printer', printers.map(p => [p.name, p.label + (p.def ? ' (default)' : '')]), 'Printer') : el('span', 'rpnote', 'No printer found. Use the Windows print window below.');
-    left.append(fs('Printer', ps, row(lab('Copies', num('copies', 1, 999, 'Copies')), chk('collate', 'Collate'))));
+    left.append(fs('Printer', ps, row(lab('Copies', num('copies', 1, 99, 'Copies')), chk('collate', 'Collate'))));
   } else left.append(el('p', 'rpnote', 'Your browser asks for the printer, copies and two-sided printing in the next window.'));
   left.append(row(chk('grey', 'Print in greyscale (black and white)'), chk('toner', 'Save ink/toner')));
   const range = el('input'); range.type = 'text'; range.className = 'rrange'; range.name = 'range'; range.placeholder = 'e.g. 1, 6-18, 33'; range.setAttribute('aria-label', 'Pages to print'); range.value = S.range;

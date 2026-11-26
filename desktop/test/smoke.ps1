@@ -25,6 +25,13 @@ Check 'open command points at DiliaPDF.exe "%1"' ($cmdKey -match 'DiliaPDF\.exe.
 $uninst = Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' | ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Object { $_.DisplayName -eq 'Dilia PDF' } | Select-Object -First 1
 Check 'listed in Settings > Apps (uninstall entry)' ($null -ne $uninst) $(if ($uninst) { $uninst.DisplayVersion } else { '' })
 
+# 1.0.4: the installed program itself (the app test runs the unpacked app, so the packaged protections are checked here)
+$fz = (node "$PSScriptRoot\..\node_modules\@electron\fuses\dist\bin.js" read --app $exe.FullName 2>&1) -join "`n"
+foreach ($f in @(@('RunAsNode', 'Disabled'), @('EnableNodeOptionsEnvironmentVariable', 'Disabled'), @('EnableNodeCliInspectArguments', 'Disabled'), @('EnableEmbeddedAsarIntegrityValidation', 'Enabled'), @('OnlyLoadAppFromAsar', 'Enabled'), @('GrantFileProtocolExtraPrivileges', 'Disabled'), @('EnableCookieEncryption', 'Enabled'))) {
+  Check ('installed program: ' + $f[0] + ' is ' + $f[1]) ($fz -match ($f[0] + ' is ' + $f[1])) ''
+}
+Check 'installed program: app files are packed in app.asar (no loose source)' ((Test-Path "$($exe.DirectoryName)\resources\app.asar") -and -not (Test-Path "$($exe.DirectoryName)\resources\app")) ''
+
 # open a PDF the way a double-click does
 $pdf = Join-Path $env:RUNNER_TEMP 'Quarterly report.pdf'
 Copy-Item "$PSScriptRoot\fixtures\ten.pdf" $pdf
@@ -47,9 +54,13 @@ Check 'second PDF opens in the same window (one app window)' ($n -eq 1) "windows
 Check 'opened file unchanged (nothing written without Ctrl+S)' ((Get-FileHash $pdf).Hash -eq (Get-FileHash "$PSScriptRoot\fixtures\ten.pdf").Hash)
 Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 2
+$rf = Get-ChildItem $env:APPDATA -Recurse -Filter 'recent-files.json' -ErrorAction SilentlyContinue | Select-Object -First 1
+Check 'app wrote its own data folder (recent-files list), so the uninstall check below means something' ($null -ne $rf) $(if ($rf) { $rf.DirectoryName } else { 'not found' })
+$dataDir = if ($rf) { $rf.DirectoryName } else { '' }
 $un = Get-ChildItem $exe.DirectoryName -Filter 'Uninstall*.exe' | Select-Object -First 1
 Start-Process $un.FullName -ArgumentList '/S' -Wait
 Start-Sleep -Seconds 5
 Check 'uninstalls cleanly' (-not (Test-Path $exe.FullName))
+Check 'uninstall also removes the app data folder (recent-files list)' ($dataDir -ne '' -and -not (Test-Path $dataDir)) $dataDir
 Add-Content -Path $env:REPORT -Value "SHA256 $((Get-FileHash $setup.FullName).Hash)  $($setup.Name)  $([math]::Round($setup.Length / 1MB, 1)) MB"
 if ($fails) { exit 1 }

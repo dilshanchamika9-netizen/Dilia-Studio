@@ -1,7 +1,7 @@
 {
   "name": "dilia-pdf",
   "productName": "Dilia PDF",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Dilia PDF: read, edit, sign and convert PDFs. Files stay on your computer.",
   "author": "Dilshan Chamika",
   "license": "UNLICENSED",
@@ -66,7 +66,7 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Dilia PDF",
       "artifactName": "Dilia-PDF-Setup-${version}.exe",
-      "deleteAppDataOnUninstall": false,
+      "deleteAppDataOnUninstall": true,
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "uninstallDisplayName": "Dilia PDF"

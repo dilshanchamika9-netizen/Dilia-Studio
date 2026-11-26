@@ -62,6 +62,20 @@ function createWindow() {
   wc.session.on('will-download', (_e, item) => {              // images, zip and text results from the tools: ask where to save
     item.setSaveDialogOptions({ title: 'Save', defaultPath: path.join(app.getPath('downloads'), item.getFilename()) });
   });
+  let asking = false;                                        // the window crashed or froze: say so and offer a reload, instead of leaving a blank window
+  wc.on('render-process-gone', async (_e, d) => {
+    if (!win || asking || d.reason === 'clean-exit') return; asking = true;
+    const r = await dialog.showMessageBox(win, { type: 'error', buttons: ['Reload', 'Close'], defaultId: 0, cancelId: 1, noLink: true, title: 'Dilia PDF',
+      message: 'The window stopped working.', detail: 'Changes you had not saved are lost. Files you saved are not affected. (' + d.reason + ')' });
+    asking = false; if (!win) return;
+    if (r.response === 0) { ready = false; wc.reload(); } else win.destroy();
+  });
+  wc.on('unresponsive', async () => {
+    if (!win || asking) return; asking = true;
+    const r = await dialog.showMessageBox(win, { type: 'warning', buttons: ['Wait', 'Reload'], defaultId: 0, cancelId: 0, noLink: true, title: 'Dilia PDF',
+      message: 'Dilia PDF is not responding.', detail: 'Wait if a big file is still loading. Reload loses changes you had not saved.' });
+    asking = false; if (win && r.response === 1) { ready = false; wc.reload(); }
+  });
   win.loadURL(START);
 }
 function openOutside(url) {
@@ -128,13 +142,13 @@ ipcMain.handle('dilia-forget', (e, id) => {
 });
 /* ---------- printing (owner issues APP-02..04): the page draws every sheet itself; Windows only gets the finished sheets ---------- */
 ipcMain.handle('dilia-printers', async e => {
-  if (!win || e.sender !== win.webContents) return [];
+  if (!fromApp(e)) return [];
   try { return (await e.sender.getPrintersAsync()).map(p => ({ name: String(p.name), label: String(p.displayName || p.name), def: !!p.isDefault })); } catch (err) { return []; }
 });
 ipcMain.handle('dilia-print', (e, o) => new Promise(res => {
-  if (!win || e.sender !== win.webContents || !o || typeof o !== 'object') return res({ ok: false, why: 'refused' });
+  if (!fromApp(e) || !o || typeof o !== 'object') return res({ ok: false, why: 'refused' });
   const int = (v, lo, hi, d) => { v = Math.round(+v); return Number.isFinite(v) && v >= lo && v <= hi ? v : d; };
-  const opt = { silent: !o.system, printBackground: true, copies: int(o.copies, 1, 999, 1), collate: o.collate !== false, color: o.color !== false,
+  const opt = { silent: !o.system, printBackground: true, copies: Math.min(99, int(o.copies, 1, 100000, 1)), collate: o.collate !== false, color: o.color !== false,
     landscape: !!o.landscape, margins: { marginType: 'none' }, pageSize: { width: int(o.w, 50000, 1300000, 210000), height: int(o.h, 50000, 1300000, 297000) },
     duplexMode: ['simplex', 'longEdge', 'shortEdge'].includes(o.duplex) ? o.duplex : 'simplex' };
   if (!o.system && typeof o.printer === 'string' && o.printer) opt.deviceName = o.printer.slice(0, 300);

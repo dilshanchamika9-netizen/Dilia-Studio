@@ -38,6 +38,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   ck('Print sends A4, 2 copies, two-sided', po && Math.abs(po.pageSize.width - 210000) < 200 && Math.abs(po.pageSize.height - 297000) < 200 && po.copies === 2 && po.duplexMode === 'longEdge', po);
   ck('Print sends one finished sheet per page (10)', pn === 10, pn);
   ck('print view cleared afterwards', await w.evaluate(() => document.querySelectorAll('#rprint img').length === 0 && !document.body.classList.contains('rprinting')));
+  // 1.0.4: print limits (a page cannot ask for hundreds of silent copies)
+  await ea.evaluate(() => { globalThis.__po = null; });
+  await w.evaluate(() => diliaDesktop.print({ printer: '', system: false, copies: 500, collate: true, color: true, duplex: 'simplex', landscape: false, w: 210000, h: 297000 }));
+  const po2 = await ea.evaluate(() => globalThis.__po);
+  ck('print: copies are capped at 99', po2 && po2.copies === 99, po2 && po2.copies);
   await w.evaluate(() => { const sp = [...document.querySelectorAll('.rp[data-n="1"] .textLayer span')].find(s => s.textContent.trim().length > 2); const r = document.createRange(); r.selectNodeContents(sp); getSelection().removeAllRanges(); getSelection().addRange(r); document.querySelector('#rview').focus(); window.__sel = sp.textContent.trim(); });
   await ea.evaluate(({ clipboard }) => clipboard.writeText('before'));
   await w.keyboard.press('Control+c'); await sleep(500);
@@ -94,6 +99,13 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await ea.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close()); await sleep(1200);
   ck('unsaved changes: asks, Cancel keeps the window', await ea.evaluate(() => globalThis.__asked) >= 1 && await ea.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length) === 1);
   const real = errs.filter(e => !/example\.com|status of 404/.test(e)); ck('no console or CSP errors (except the deliberate blocked tests)', !real.length, real.slice(0, 5));
+  // 1.0.4: crash recovery. The window is crashed on purpose; the app must say so and reload instead of staying blank.
+  await ea.evaluate(({ dialog, BrowserWindow }) => { globalThis.__crash = 0; dialog.showMessageBox = async () => { globalThis.__crash++; return { response: 0 }; }; BrowserWindow.getAllWindows()[0].webContents.forcefullyCrashRenderer(); });
+  let back = false;
+  for (let i = 0; i < 60 && !back; i++) { await sleep(500); back = await ea.evaluate(({ BrowserWindow }) => { const wc = BrowserWindow.getAllWindows()[0].webContents; return globalThis.__crash >= 1 && !wc.isCrashed() && !wc.isLoading() && wc.getURL().startsWith('dilia://app/pdf-reader/'); }).catch(() => false); }
+  ck('crash: the app says so and reloads the window', back);
+  await ea.evaluate(({ BrowserWindow }) => { globalThis.__unr = 0; const wc = BrowserWindow.getAllWindows()[0].webContents; wc.emit('unresponsive'); });
+  await sleep(500); ck('freeze: asks Wait or Reload (stays open on Wait)', await ea.evaluate(({ BrowserWindow }) => globalThis.__crash >= 2 && BrowserWindow.getAllWindows().length === 1));
   await ea.evaluate(({ dialog }) => { dialog.showMessageBoxSync = () => 0; });
   await Promise.race([ea.close().catch(() => {}), sleep(5000)]);
   try { ea.process().kill('SIGKILL'); } catch (e) {}

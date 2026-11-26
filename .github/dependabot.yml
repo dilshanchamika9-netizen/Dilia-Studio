@@ -1,5 +1,12 @@
+# Weekly pull requests for out-of-date build tools and pinned GitHub Actions. Vendored website libraries are checked
+# separately by dev/vendor-audit.py (vulnerability database) in the release gate and the weekly security run.
 version: 2
 updates:
+  - package-ecosystem: npm
+    directory: /desktop
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    open-pull-requests-limit: 5
