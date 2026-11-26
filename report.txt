@@ -1,0 +1,71 @@
+Dilia PDF Windows build desktop-release ca18f1c3bc0e07ef566f9c04a346272bd2919b20 2026-11-26T21:02:15.7876482+00:00 Microsoft Windows Server 2025 Datacenter
+found 0 vulnerabilities
+site copied: 927 files
+headers: { "Content-Security-Policy": "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-s
+PASS opens at dilia://app/pdf-reader/
+PASS file from File Explorer opens as a tab
+PASS 10 pages
+PASS pages render (pdf.js worker on dilia://)
+PASS Edit button on the top bar
+PASS printer list comes from Windows (array)
+PASS Print goes straight to the chosen Windows printer (no browser dialog)
+PASS Print sends A4, 2 copies, two-sided
+PASS Print sends one finished sheet per page (10)
+PASS print view cleared afterwards
+PASS print: copies are capped at 99
+PASS Ctrl+C copies selected text to the Windows clipboard
+PASS desktop look: website header hidden
+PASS no Node in page
+PASS bridge has fixed functions only
+PASS strict CSP header served
+PASS network blocked
+PASS path traversal refused
+PASS navigation to websites blocked
+PASS pop-ups blocked
+PASS write refused: unknown file
+PASS write refused: not PDF content
+PASS original untouched so far
+PASS tool page (protect) loads inside the app
+PASS tool page received the open document
+PASS guard active in tool page
+PASS button says Apply to document
+PASS protected result asks for its password when reopened
+PASS qpdf in worker applied protection, tab unsaved
+PASS Ctrl+S saved over the original file
+PASS saved file is the protected PDF
+PASS no temp file left behind
+PASS Save As writes a new PDF and adds .pdf
+PASS tab now named after the new file
+PASS second double-click opens in the same window
+PASS recent file reopens by id
+PASS reopen refused for unknown id
+PASS Open button uses the Windows dialog
+PASS unsaved changes: asks, Cancel keeps the window
+PASS no console or CSP errors (except the deliberate blocked tests)
+PASS crash: the app says so and reloads the window
+PASS freeze: asks Wait or Reload (stays open on Wait)
+PASS no network requests from the app (net log)
+FAILS []
+PASS installer built : Dilia-PDF-Setup-1.0.4.exe
+PASS installer signature status recorded (unsigned expected until the Store) : NotSigned
+PASS installed for this user (no admin needed) : C:\Users\runneradmin\AppData\Local\Programs\DiliaPDF\DiliaPDF.exe
+PASS Start menu shortcut
+PASS Desktop shortcut
+PASS .pdf registered with the app (Open with) : .pdf, PDF Document
+PASS open command points at DiliaPDF.exe "%1" : C:\Users\runneradmin\AppData\Local\Programs\DiliaPDF\DiliaPDF.exe "%1"
+PASS listed in Settings > Apps (uninstall entry) : 1.0.4
+PASS installed program: RunAsNode is Disabled
+PASS installed program: EnableNodeOptionsEnvironmentVariable is Disabled
+PASS installed program: EnableNodeCliInspectArguments is Disabled
+PASS installed program: EnableEmbeddedAsarIntegrityValidation is Enabled
+PASS installed program: OnlyLoadAppFromAsar is Enabled
+PASS installed program: GrantFileProtocolExtraPrivileges is Disabled
+PASS installed program: EnableCookieEncryption is Enabled
+PASS installed program: app files are packed in app.asar (no loose source)
+PASS double-click a PDF: app opens it (window title) : Quarterly report.pdf - Dilia PDF
+PASS second PDF opens in the same window (one app window) : windows=1
+PASS opened file unchanged (nothing written without Ctrl+S)
+PASS app wrote its own data folder (recent-files list), so the uninstall check below means something : C:\Users\runneradmin\AppData\Roaming\Dilia PDF
+PASS uninstalls cleanly
+PASS uninstall also removes the app data folder (recent-files list) : C:\Users\runneradmin\AppData\Roaming\Dilia PDF left:  | processes: 0
+SHA256 F6E7E3C8E3825BF51709403A7A238304C93BBE2A64969B9E5F3D62F0F2429A05  Dilia-PDF-Setup-1.0.4.exe  123.7 MB
