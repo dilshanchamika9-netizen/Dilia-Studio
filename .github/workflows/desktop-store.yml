@@ -78,10 +78,20 @@ jobs:
           "INSTALLED: $($p.PackageFamilyName) $($p.Version) at $($p.InstallLocation)" | Tee-Object -Append -FilePath $R
           Copy-Item test/fixtures/ten.pdf "$env:RUNNER_TEMP\Store test.pdf"
           $exe = Join-Path $p.InstallLocation 'app\DiliaPDF.exe'
-          Start-Process $exe -ArgumentList "`"$env:RUNNER_TEMP\Store test.pdf`""
+          "EXE exists: $(Test-Path $exe)" | Tee-Object -Append -FilePath $R
+          # 1) activation the way Windows does it for a double-clicked PDF / Start menu tile
+          Start-Process explorer.exe "shell:AppsFolder\$($p.PackageFamilyName)!DiliaPDF"
+          Start-Sleep -Seconds 15
+          $procs = @(Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue)
+          "ACTIVATE (start menu): processes=$($procs.Count) windows=$(@($procs | Where-Object { $_.MainWindowHandle -ne 0 }).Count) title='$(($procs | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle))'" | Tee-Object -Append -FilePath $R
+          Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 2
+          # 2) open a PDF
+          try { $pr = Start-Process $exe -ArgumentList "`"$env:RUNNER_TEMP\Store test.pdf`"" -PassThru -ErrorAction Stop; "START exe: pid=$($pr.Id)" | Tee-Object -Append -FilePath $R } catch { "START exe failed: $($_.Exception.Message)" | Tee-Object -Append -FilePath $R }
           $t = ''
           for ($i = 0; $i -lt 60 -and $t -notmatch 'Store test'; $i++) { Start-Sleep -Milliseconds 500; $t = (Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle } | Select-Object -First 1 -ExpandProperty MainWindowTitle) }
-          "OPEN PDF: window title = '$t'" | Tee-Object -Append -FilePath $R
+          $procs = @(Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue)
+          "OPEN PDF: window title = '$t' processes=$($procs.Count) exited=$($pr.HasExited)" | Tee-Object -Append -FilePath $R
           Get-Process -Name DiliaPDF -ErrorAction SilentlyContinue | Stop-Process -Force
           Start-Sleep -Seconds 2
           Remove-AppxPackage -Package $p.PackageFullName
