@@ -68,7 +68,8 @@
       "artifactName": "Dilia-PDF-Setup-${version}.exe",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "uninstallDisplayName": "Dilia PDF"
+      "uninstallDisplayName": "Dilia PDF",
+      "deleteAppDataOnUninstall": true
     },
     "linux": {
       "target": [
