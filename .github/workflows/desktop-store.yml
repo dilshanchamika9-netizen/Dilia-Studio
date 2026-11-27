@@ -113,6 +113,7 @@ jobs:
           "display modes seen: $i; chosen index $bi = ${bw}x${bh}"
           if ($bi -ge 0) { [void][Res]::EnumDisplaySettings($null, $bi, [ref]$dm); $dm.f = 0x180000; "ChangeDisplaySettings: $([Res]::ChangeDisplaySettings([ref]$dm, 0))" }
           Start-Sleep -Seconds 3
+          node node_modules/electron/install.js
           node test/store-shots.js (Resolve-Path node_modules/electron/dist/electron.exe).Path "$env:RUNNER_TEMP\shots" . 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\shots-log.txt"
       - name: Publish package and report (pre-release store-v<version>)
         if: always()
