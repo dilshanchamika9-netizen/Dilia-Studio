@@ -1,21 +1,25 @@
-// Store screenshots of the REAL packaged app on Windows: launches the built exe, loads sample PDFs, and captures the screen
-// area of the app window (title bar included) with PowerShell. Usage: node test/store-shots.js <exe> <outDir>
-const { _electron } = require('playwright-core'); const path = require('path'); const fs = require('fs'); const { spawnSync } = require('child_process');
-const exe = path.resolve(process.argv[2]), out = path.resolve(process.argv[3]), appDir = process.argv[4] ? path.resolve(process.argv[4]) : null, S = path.join(__dirname, 'store-shots'); fs.mkdirSync(out, { recursive: true });
+// Store screenshots of the real app window on Windows: starts the app with a debug port, drives it, and captures the screen area of the
+// window (title bar included) with PowerShell. Usage: node test/store-shots.js <electron.exe> <outDir> <appDir>
+const { chromium } = require('playwright-core'); const path = require('path'); const fs = require('fs'); const { spawn, spawnSync } = require('child_process');
+const exe = path.resolve(process.argv[2]), out = path.resolve(process.argv[3]), appDir = path.resolve(process.argv[4]), S = path.join(__dirname, 'store-shots'); fs.mkdirSync(out, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const grab = (b, file) => {
-  const ps = `Add-Type -AssemblyName System.Drawing; $bmp = New-Object System.Drawing.Bitmap ${b.width},${b.height}; $g = [System.Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen(${b.x},${b.y},0,0,$bmp.Size); $bmp.Save('${file}', [System.Drawing.Imaging.ImageFormat]::Png)`;
-  const r = spawnSync('powershell', ['-NoProfile', '-Command', ps], { encoding: 'utf8' }); if (r.status) console.log('grab failed', r.stderr);
-};
+const ps = c => spawnSync('powershell', ['-NoProfile', '-Command', c], { encoding: 'utf8' });
+const grab = (b, file) => { const r = ps(`Add-Type -AssemblyName System.Drawing; $bmp = New-Object System.Drawing.Bitmap ${b.width},${b.height}; $g = [System.Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen(${b.left},${b.top},0,0,$bmp.Size); $bmp.Save('${file}', [System.Drawing.Imaging.ImageFormat]::Png)`); if (r.status) console.log('grab failed', r.stderr); };
 (async () => {
-  const app = await _electron.launch({ executablePath: exe, args: appDir ? [appDir] : [], timeout: 90000 });
-  const scr = await app.evaluate(({ screen }) => screen.getPrimaryDisplay().bounds); console.log('screen', JSON.stringify(scr));
-  const W = Math.min(1920, scr.width), H = Math.min(1080, scr.height - 40);
-  await app.evaluate(({ BrowserWindow }, [W, H]) => { const w = BrowserWindow.getAllWindows()[0]; w.unmaximize(); w.setBounds({ x: 0, y: 0, width: W, height: H }); w.focus(); }, [W, H]);
-  const win = await app.firstWindow(); await sleep(2500);
-  const go = async (p, files, wait = 3500) => { await win.evaluate(u => { location.href = u; }, 'dilia://app/' + p + '/'); await win.waitForLoadState('load').catch(() => {}); await sleep(1500);
-    if (files) { const i = await win.$('input[type=file]'); if (i) await i.setInputFiles(files.map(f => path.join(S, f))); await sleep(wait); } };
-  const shot = async name => { await sleep(500); const b = await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds()); grab(b, path.join(out, name + '.png')); console.log(name, JSON.stringify(b)); };
+  const sc = ps('Add-Type -AssemblyName System.Windows.Forms; $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds; "$($b.Width)x$($b.Height)"').stdout.trim(); console.log('screen', sc);
+  const [SW, SH] = sc.split('x').map(Number);
+  const child = spawn(exe, [appDir, '--remote-debugging-port=9333'], { stdio: 'ignore' });
+  let br; for (let i = 0; i < 40 && !br; i++) { await sleep(1000); try { br = await chromium.connectOverCDP('http://127.0.0.1:9333'); } catch (e) {} }
+  if (!br) throw new Error('could not connect');
+  const page = br.contexts()[0].pages()[0]; const cdp = await br.contexts()[0].newCDPSession(page);
+  const { windowId } = await cdp.send('Browser.getWindowForTarget');
+  const W = Math.min(1920, SW), H = Math.min(1080, SH - 48);
+  await cdp.send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'normal' } }); await sleep(500);
+  await cdp.send('Browser.setWindowBounds', { windowId, bounds: { left: 0, top: 0, width: W, height: H } }); await sleep(1500);
+  await page.bringToFront();
+  const go = async (p, files) => { await page.evaluate(u => { location.href = u; }, 'dilia://app/' + p + '/'); await page.waitForLoadState('load').catch(() => {}); await sleep(1500);
+    const i = await page.$('input[type=file]'); if (i) await i.setInputFiles(files.map(f => path.join(S, f))); await sleep(3500); };
+  const shot = async name => { await sleep(500); const { bounds } = await cdp.send('Browser.getWindowBounds', { windowId }); grab(bounds, path.join(out, name + '.png')); console.log(name, JSON.stringify(bounds)); };
   const R = 'Annual Report 2026.pdf', I = 'Invoice 2026-0418.pdf', B = 'Summer Brochure.pdf';
   await go('pdf-reader', [R]); await shot('1-read');
   await go('edit-pdf', [R]); await shot('2-edit');
@@ -23,5 +27,5 @@ const grab = (b, file) => {
   await go('reorder-pdf-pages', [R]); await shot('4-reorder');
   await go('pdf-to-jpg', [B]); await shot('5-images');
   await go('watermark-pdf', [I]); await shot('6-watermark');
-  await app.close();
+  child.kill(); process.exit(0);
 })().catch(e => { console.log('ERR', e.message); process.exit(1); });
