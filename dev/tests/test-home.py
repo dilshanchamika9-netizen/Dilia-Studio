@@ -35,9 +35,8 @@ async def main():
                 if path == '' and w == 1440:
                     import zoneinfo; now = datetime.datetime.now(zoneinfo.ZoneInfo('Asia/Dubai')).date()
                     ok(now.strftime('%A') in await pg.inner_text('#t-date'), 'today strip: weekday wrong')
-                    doy = now.timetuple().tm_yday
-                    ok(f'Day {doy}' in await pg.inner_text('#t-date'), 'today strip: day of year wrong')
-                    cnt = int(await pg.get_attribute('#corecount', 'data-n'))
+                    ok(now.strftime('%B') in await pg.inner_text('#t-date'), 'today strip: month wrong')
+                    cnt = int(await pg.evaluate("document.body.dataset.tools"))
                     ready = await pg.evaluate("DiliaSearch.all().filter(t=>t.ready && t.group!=='Play').length")
                     ok(cnt == ready and cnt > 100, f'tool count {cnt} vs {ready}')
                     items = await pg.evaluate("[...document.querySelectorAll('#door-tools li')].map(l=>+l.textContent.split('· ')[1])")
@@ -45,16 +44,12 @@ async def main():
                     tl = await pg.get_attribute('#t-tool', 'href')
                     ok(tl and tl.endswith('/') and (await pg.inner_text('#t-tn')).strip(), 'tool of the day missing')
                     ok(not await pg.is_visible('#plist'), 'search list shows before the box is used')
-                    # Orbit: 4 planets link to the 4 worlds; hover changes the preview
-                    ph = await pg.evaluate("[...document.querySelectorAll('.planet')].map(a=>a.getAttribute('href'))")
-                    ok(ph == ['tools.html', 'life/', 'play/', 'news/'], f'planets {ph}')
-                    await pg.dispatch_event('.planet.p-life', 'mouseenter'); await pg.wait_for_timeout(150)
-                    ok('Life' in await pg.inner_text('#pv') and 'Public holidays' in await pg.inner_text('#pv'), 'planet hover preview')
-                    ok(await pg.get_attribute('#pv .go', 'href') == 'life/', 'preview enter link')
+                    # Planets are gone (DR-02 D3); the live demo shows instead
+                    ok(await pg.locator('.planet').count() == 0 and await pg.locator('.ob-demo').is_visible(), 'demo / planets')
                     # Today: life card shows a holiday (UAE time zone in this test), read card is a real guide
                     ok(await pg.get_attribute('#t-read', 'href') != 'blog/', 'guide of the day missing')
                     lt = await pg.inner_text('#t-lt'); ok(any(x in lt for x in (' in ', ' today', ' tomorrow')) and 'United Arab Emirates' in await pg.inner_text('#t-sub'), f'next holiday card: {lt}')
-                    gs = await pg.evaluate("[...new Set([...document.querySelectorAll('#jstars a, #t-read, #tries a, #pv a')].map(a=>a.href))]")
+                    gs = await pg.evaluate("[...new Set([...document.querySelectorAll('#jstars a, #t-read, #tries a')].map(a=>a.href))]")
                     for h in gs:
                         try: code = urllib.request.urlopen(h).status
                         except Exception as e: code = str(e)

@@ -902,7 +902,7 @@ go.addEventListener('click', async () => {
     await new Promise(r => setTimeout(r, 0));
     const r = await build_();
     prog.style.width = '100%';
-    const blob = new Blob([r.bytes], { type: 'application/pdf' }), name = cleanName(outName.value, 'Dilia-edited', 'pdf');
+    const blob = new Blob([r.bytes], { type: 'application/pdf' }), name = cleanName(outName.value, 'edited', 'pdf');
     if (lastUrl) URL.revokeObjectURL(lastUrl);
     lastUrl = URL.createObjectURL(blob); save(lastUrl, name);
     $('#doneName').textContent = name; $('#doneInfo').textContent = `${plural(doc.count, 'page')}, ${kb(blob.size)}`;

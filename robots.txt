@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /dev/
+
+Sitemap: https://dilshanchamika9-netizen.github.io/Dilia-Studio/sitemap.xml

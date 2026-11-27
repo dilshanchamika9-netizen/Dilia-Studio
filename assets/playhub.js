@@ -22,7 +22,7 @@
   const wk = $('hweek');
   P.week().forEach((d, i, a) => {
     const [y, m, dd] = d.key.split('-').map(Number), s = el('span');
-    const dot = el('i', (d.done ? 'd' : '') + (i === a.length - 1 ? ' t' : '')); dot.setAttribute('aria-label', d.key + (d.done ? ' solved' : ''));
+    const dot = el('i', (d.done ? 'd' : '') + (i === a.length - 1 ? ' t' : '')); dot.setAttribute('role', 'img'); dot.setAttribute('aria-label', d.key + (d.done ? ' solved' : ''));
     s.append(dot, document.createTextNode(new Date(y, m - 1, dd).toLocaleDateString('en-GB', { weekday: 'narrow' }))); wk.append(s);
   });
   const bits = [['Path', 'path'], ['Easy', 'sudoku-easy'], ['Medium', 'sudoku-medium'], ['Hard', 'sudoku-hard']].map(([k, g]) => { const st = P.stats(g); return st.best ? k + ' ' + P.fmt(st.best) : ''; }).filter(Boolean);

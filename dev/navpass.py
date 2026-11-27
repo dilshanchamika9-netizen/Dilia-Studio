@@ -31,6 +31,17 @@ def csp_all():
         if t != s: f.write_text(t); n += 1
     return n
 
+# Accessible names must contain the visible text (WCAG 2.5.3, axe label-content-name-mismatch): the brand link and the header
+# search button take their name from what they show; the shortcut keys are hidden from screen readers and named once.
+BRAND_LABEL = re.compile(r'(<a class="brand"[^>]*?) aria-label="Dilia[^"]*"')
+SBTN = re.compile(r'<button type="button" class="sbtn" data-palette aria-label="[^"]*">')
+def a11y_names(t):
+    t = BRAND_LABEL.sub(r'\1', t)
+    t = t.replace('<span class="w">Dilia</span><span class="l">', '<span class="w">Dilia</span> <span class="l">')
+    t = SBTN.sub('<button type="button" class="sbtn" data-palette aria-keyshortcuts="Control+K">', t)
+    t = t.replace('<span class="k" data-mod>Ctrl</span><span class="k">K</span>', '<span class="k" data-mod aria-hidden="true">Ctrl</span><span class="k" aria-hidden="true">K</span>')
+    return t
+
 def run():
     n = 0
     for f in sorted(ROOT.rglob('*.html')):
@@ -42,11 +53,15 @@ def run():
         t = NAV.sub(lambda m: nav(p), s, count=1)
         t = t.replace(f'<li><a href="{p}blog/">Read</a></li>', f'<li><a href="{p}news/">Pulse</a></li><li><a href="{p}blog/">Guides</a></li>')   # footer: Read was renamed Pulse (owner, 25 Nov 2026)
         t = t.replace(f'<li><a href="{p}news/">Read</a></li>', f'<li><a href="{p}news/">Pulse</a></li>')
+        t = a11y_names(t)
         if 'assets/dark.css' not in t:
             t = re.sub(r'(<link rel="stylesheet" href="[^"]*assets/[a-z\-]+\.css">)(?![\s\S]*<link rel="stylesheet")', lambda m: m.group(1) + f'\n<link rel="stylesheet" href="{p}assets/dark.css">', t, count=1)
         if 'assets/theme.js' not in t:
             t = t.replace('</head>', f'<script src="{p}assets/theme.js"></script>\n</head>', 1)
         if t != s: f.write_text(t); n += 1
-    return n + csp_all()
+    n += csp_all()
+    import importlib.util as _u                      # SEO base layer last, so it sees the final page (DR-02 §11.1)
+    _s = _u.spec_from_file_location('seopass', str(ROOT / 'dev' / 'seopass.py')); _m = _u.module_from_spec(_s); _s.loader.exec_module(_m)
+    return n + _m.run()
 
 if __name__ == '__main__': print('menu updated on', run(), 'pages')

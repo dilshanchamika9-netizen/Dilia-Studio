@@ -59,7 +59,7 @@
     $('check').setAttribute('aria-pressed', showBad ? 'true' : 'false');
     ['undo', 'erase', 'hint', 'notes'].forEach(id => { $(id).disabled = done; });
     $('sleft').textContent = val.filter(v => !v).length;
-    levelBtns.forEach(b => { const ok = !!P.result('sudoku-' + b.dataset.lv, KEY); let i = b.querySelector('i'); if (ok && !i) { i = document.createElement('i'); i.setAttribute('aria-label', 'solved'); b.append(i); } });
+    levelBtns.forEach(b => { const ok = !!P.result('sudoku-' + b.dataset.lv, KEY); let i = b.querySelector('i'); if (ok && !i) { i = document.createElement('i'); i.setAttribute('role', 'img'); i.setAttribute('aria-label', 'solved'); b.append(i); } });
     keep();
   }
 

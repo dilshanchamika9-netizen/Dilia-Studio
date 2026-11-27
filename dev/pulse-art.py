@@ -206,3 +206,16 @@ def picture(topic, scene, uid, badge=None, label=''):
         w = 70 + sum(16 if ch in ' .,:' else 33 for ch in badge)
         o += [f'<rect x="34" y="34" width="{w}" height="92" rx="22" fill="{INK}" fill-opacity=".14" transform="translate(4 6)"/>', box(34, 34, w, 92, WHITE, 22), box(34, 34, 12, 92, a, 6), txt(34 + 12 + (w - 12) / 2, 99, badge, 52, d)]
     o.append('</svg>'); return ''.join(o)
+
+def typographic(topic, uid, badge=None, kicker='', label=''):
+    """D13 (DR-02): neutral typographic card for a story whose scene is already used by a newer story. Same frame as picture()."""
+    a, d, l, sky = PAL[topic]; W, H = 1200, 675
+    big = badge or topic
+    size = 210 if len(big) <= 6 else max(96, int(210 * 6 / len(big)))
+    return ''.join([f'<svg class="pgfx" viewBox="0 0 {W} {H}" role="img" aria-label="{E(label)}" xmlns="http://www.w3.org/2000/svg">',
+        f'<defs><linearGradient id="{uid}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{sky}"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>',
+        f'<rect width="{W}" height="{H}" fill="url(#{uid}s)"/><circle cx="1000" cy="120" r="230" fill="{l}" fill-opacity=".55"/><circle cx="140" cy="560" r="180" fill="{l}" fill-opacity=".4"/>',
+        box(80, 300, 1040, 6, a, 3),
+        txt(600, 260, big, size, d, 900),
+        txt(600, 400, (kicker or topic).upper(), 40, INK2, 800, extra=' letter-spacing="6"'),
+        '</svg>'])

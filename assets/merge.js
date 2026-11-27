@@ -132,7 +132,7 @@ function summary() {
   const live = files.filter(f => pages.some(p => p.fid === f.id));
   $('#sFiles').textContent = live.length;
   $('#sPages').textContent = pages.length;
-  $('#sSize').textContent = kb(live.reduce((a, f) => a + f.size, 0));
+  $('#sSize').textContent = live.length ? kb(live.reduce((a, f) => a + f.size, 0)) : '\u2014';   // D8: no fake size before a file is added
   go.disabled = busy || !pages.length;
   note.textContent = !files.length ? 'Add at least one PDF to start.'
     : !pages.length ? 'Every page has been removed. Add files or start over.'
@@ -191,7 +191,7 @@ $('#sortAz').addEventListener('click', () => {
 const prog = $('#prog');
 function cleanName() {
   const v = $('#outName').value.trim().replace(/\.pdf$/i, '').replace(/[\\/:*?"<>|]+/g, '-');
-  return (v || 'Dilia-merged') + '.pdf';
+  return (v || (files[0] ? files[0].name.replace(/\.pdf$/i, '') : 'document')) + '.pdf';   // file-name rule: the uploaded name, never a brand default
 }
 go.addEventListener('click', async () => {
   if (busy || !pages.length) return;

@@ -53,16 +53,16 @@
 :root:not([data-theme=dark]) .lmo h4{color:#00639e}
 :root:not([data-theme=dark]) .lmg em{color:#0b122066}
 :root:not([data-theme=dark]) .lmg span{color:#0b122080;background:#0b122008}
-:root:not([data-theme=dark]) .lmg .w{background:#c3c9e0}
+:root:not([data-theme=dark]) .lmg .w{background:#5d6573}
 :root:not([data-theme=dark]) .lmg .h{color:#0b1220}
 :root:not([data-theme=dark]) .lact button{border:1px solid #0b12201f;background:#0b122010;color:#0b1220}
 :root:not([data-theme=dark]) .phm h3{color:#00639e!important}
 :root:not([data-theme=dark]) .phc{border:1px solid #0b12201f;background:linear-gradient(160deg,#ffffffeb,#ffffffb3)}
-:root:not([data-theme=dark]) .phc.past .pht{background:#c3c9e0}
+:root:not([data-theme=dark]) .phc.past .pht{background:#5d6573}
 :root:not([data-theme=dark]) .phi>b{color:#0b1220}
 :root:not([data-theme=dark]) .phb i{background:#0b122014;color:#3a4252}
 :root:not([data-theme=dark]) .phb .lw{color:#b0005f}
-:root:not([data-theme=dark]) .phb .wk{background:#c3c9e0}
+:root:not([data-theme=dark]) .phb .wk{background:#5d6573}
 :root:not([data-theme=dark]) .phb .mn{background:#0b122010;color:#3a4252;border:1px dashed #0b12201f}
 :root:not([data-theme=dark]) .phb .bo{color:#7a5200}
 :root:not([data-theme=dark]) .lhclock .k,:root:not([data-theme=dark]) .lhnext .k{color:#00639e}

@@ -4,12 +4,12 @@ const { $, kb, plural, esc, toast, save, cleanName } = Kit;
 
 const MODE = document.body.dataset.tool;
 const CFG = {
-  protect:  { fallback: 'Dilia-protected', verb: 'Protect and download' },
-  unlock:   { fallback: 'Dilia-unlocked',  verb: 'Remove password and download' },
-  compress: { fallback: 'Dilia-compressed', verb: 'Compress and download' },
-  ocr:      { fallback: 'Dilia-searchable', verb: 'Recognise text and download' },
-  repair:   { fallback: 'Dilia-repaired', verb: 'Repair and download' },
-  linearize: { fallback: 'Dilia-web', verb: 'Optimise and download' }
+  protect:  { fallback: 'protected', verb: 'Protect and download' },
+  unlock:   { fallback: 'unlocked',  verb: 'Remove password and download' },
+  compress: { fallback: 'compressed', verb: 'Compress and download' },
+  ocr:      { fallback: 'searchable', verb: 'Recognise text and download' },
+  repair:   { fallback: 'repaired', verb: 'Repair and download' },
+  linearize: { fallback: 'web', verb: 'Optimise and download' }
 }[MODE];
 const ws = $('#ws'), pick = $('#pick'), go = $('#go'), note = $('#note'), prog = $('#prog'), outName = $('#outName'), errBox = $('#err');
 let doc = null, busy = false, lastUrl = null, thumbUrl = null;     // doc: {name,size,bytes,lib?,js?,count?,status?}

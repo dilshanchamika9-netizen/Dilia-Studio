@@ -18,7 +18,7 @@
     const e = document.createElement('div'); e.className = 'kc' + (red(c) ? ' red' : ''); e.dataset.c = c;
     const a = document.createElement('span'); a.className = 'kr'; a.textContent = RK[rank(c)] + SU[suit(c)];
     const b = document.createElement('span'); b.className = 'ku'; b.textContent = SU[suit(c)];
-    e.append(a, b); e.setAttribute('aria-label', RK[rank(c)] + ' of ' + ['spades', 'hearts', 'diamonds', 'clubs'][suit(c)]);
+    e.append(a, b); e.setAttribute('role', 'img'); e.setAttribute('aria-label', RK[rank(c)] + ' of ' + ['spades', 'hearts', 'diamonds', 'clubs'][suit(c)]);
     board.append(e); els.push(e);
   }
   const slots = {};

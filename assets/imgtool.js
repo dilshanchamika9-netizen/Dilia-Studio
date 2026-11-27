@@ -439,7 +439,7 @@ function summary() {
   $('#s1').textContent = items.length; $('#s3').textContent = kb(total);
   $('#s2').textContent = TOOL === 'compress' && done.length ? `-${Math.max(0, Math.round((1 - done.reduce((a, i) => a + i.res.blob.size, 0) / done.reduce((a, i) => a + i.size, 0)) * 100))}%` : items.length > 1 ? 'ZIP' : (items.length ? 'Image' : '0');
   const multi = items.length > 1 && TOOL !== 'gif' && TOOL !== 'meme';
-  if (!nameTouched && items.length) $('#outName').value = multi ? 'Dilia-images' : baseOf(items[0].name);
+  if (!nameTouched && items.length) $('#outName').value = baseOf(items[0].name);   // file-name rule: first file's name, also for a ZIP
   const ext = $('#ext'); if (ext) ext.textContent = multi ? '.zip' : (TOOL === 'gif' ? '.gif' : '');
   const lab = document.querySelector('label.field[for=outName]'); if (lab && lab.firstChild) lab.firstChild.textContent = multi ? 'ZIP name' : (TOOL === 'gif' ? 'File name' : 'File name (kept from your image)');
   $('#outName').disabled = !multi && TOOL !== 'gif';
@@ -569,7 +569,7 @@ go.addEventListener('click', async () => {
   busy = true; go.disabled = true; ws.classList.add('working'); prog.style.width = '4%';
   try {
     if (TOOL === 'gif') {
-      const r = await makeGif(), name = cleanName($('#outName').value, 'Dilia-animation', 'gif');
+      const r = await makeGif(), name = cleanName($('#outName').value, 'animation', 'gif');
       finish([{ name, blob: r.blob }], name, `${plural(items.length, 'frame')}, ${r.w} × ${r.h}, ${kb(r.blob.size)}`);
     } else {
       const ok = await runAll(); render(); const failed = items.length - ok.length;
@@ -579,7 +579,7 @@ go.addEventListener('click', async () => {
         if (ok.length === 1) { name = ok[0].res.name; blob = ok[0].res.blob; }
         else {
           const files = []; for (const it of ok) files.push({ name: it.res.name, data: new Uint8Array(await it.res.blob.arrayBuffer()) });
-          blob = Kit.zip(files); name = cleanName($('#outName').value, 'Dilia-images', 'zip');
+          blob = Kit.zip(files); name = cleanName($('#outName').value, 'images', 'zip');
         }
         finish([{ name, blob }], name, `${plural(ok.length, 'image')}, ${kb(blob.size)}${failed ? `, ${failed} failed` : ''}`);
       }

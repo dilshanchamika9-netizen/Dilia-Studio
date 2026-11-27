@@ -51,7 +51,7 @@ async def hub(br, w, theme):
     await pg.reload(); await pg.wait_for_timeout(800); ok(await pg.evaluate("document.getElementById('lhc').value") == 'US', f'[{t}] country remembered')
     hs = await pg.eval_on_selector_all('.lhportals a', 'a => a.map(x => x.getAttribute("href"))'); ok(len(hs) == 24, f'[{t}] 24 tool portals')
     for h in hs: r = await pg.request.get(B + 'life/' + h); ok(r.status == 200, f'[{t}] portal {h} -> {r.status}')
-    ok(await pg.locator('.lroad li').count() == 5, f'[{t}] roadmap')
+    ok(await pg.locator('.lroad li').count() == 0, f'[{t}] no public roadmap (DR-02 D14)')
     lb = (await pg.evaluate("getComputedStyle(document.querySelector('.lx')).getPropertyValue('--lb')")).strip()
     ok(lb == ('#05070f' if theme == 'dark' else '#f4f6fc'), f'[{t}] Life band follows the {theme} theme ({lb})')
     await pg.evaluate("document.querySelector('.themebtn').click()"); await pg.wait_for_timeout(200)

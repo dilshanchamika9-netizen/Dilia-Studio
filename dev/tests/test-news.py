@@ -21,7 +21,7 @@ async def main():
     for p in POSTS:
         h = (ROOT / 'news' / p['slug'] / 'index.html').read_text()
         ok(html.escape(p['title'], quote=False) in h, f'{p["slug"]}: title escaped in page')
-        ok(len(re.findall(r'<script\b', h)) == len(re.findall(r'<script src="[^"]+"( defer)?></script>', h)), f'{p["slug"]}: only external scripts')
+        ok(len(re.findall(r'<script\b(?! type="application/ld\+json")', h)) == len(re.findall(r'<script src="[^"]+"( defer)?></script>', h)), f'{p["slug"]}: only external scripts')
         ok(all(u.startswith('https://') for _, u in p['sources']) and len(p['sources']) >= 1, f'{p["slug"]}: https sources')
     async with async_playwright() as pw:
         br = await pw.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])

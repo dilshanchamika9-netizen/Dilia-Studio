@@ -26,8 +26,12 @@ import importlib.util as _iu
 _sp = _iu.spec_from_file_location('pulseart', str(ROOT / 'dev' / 'pulse-art.py')); PA = _iu.module_from_spec(_sp); _sp.loader.exec_module(PA)
 assert PA_SCENES == set(PA.SCENES)
 _N = [0]
+# D13: each scene drawing belongs to one story only (the newest that uses it); older stories with the same scene get a typographic card
+_FIRST = {}
+for _p in POSTS: _FIRST.setdefault(_p['scene'], _p['slug'])
 def art(p, big=False):
     _N[0] += 1; uid = 'g' + hashlib.sha1(p['slug'].encode()).hexdigest()[:6] + str(_N[0])
+    if _FIRST[p['scene']] != p['slug']: return PA.typographic(p['topic'], uid, p.get('badge'), p['kicker'], p['title'] + '. ' + p['art']['label'])
     return PA.picture(p['topic'], p['scene'], uid, p.get('badge'), p['title'] + '. ' + p['art']['label'])
 
 # ---------- page parts ----------
@@ -39,7 +43,7 @@ def mast(up, here):
     else: nav = ''.join(f'<a class="ptab{" on" if k == here else ""}" href="{up}{"" if k == "all" else "#" + k}">{E(v)}</a>' for k, v in tabs)
     upd = FDL(POSTS[0]['date']) if POSTS else ''
     return f'''<section class="pmast"><div class="pwrap">
-<div class="pmrow"><a class="plogo" href="{up or './'}" aria-label="Dilia Pulse home">{MARK}<span class="pword">DILIA<b>PULSE</b></span></a>
+<div class="pmrow">{'<h1 class="ph1">' if here == 'hub' else ''}<a class="plogo" href="{up or './'}" >{MARK}<span class="pword">DILIA <b>PULSE</b></span></a>{'</h1>' if here == 'hub' else ''}
 <p class="ptag">Tech and business news, written from the source</p><p class="pupd"><i class="plight"></i>Updated {upd}</p></div>
 <nav class="psec" aria-label="Sections">{nav}</nav></div>
 <div class="ptick" aria-label="Latest headlines"><span class="plive">LATEST</span><div class="ptrack"><div class="pmove">{ticker(up)}{ticker(up, True)}</div></div></div></section>'''
@@ -59,6 +63,7 @@ def shell(depth, title, desc):
     up = '../' * depth
     h = h.replace('blog.css', 'news.css').replace('</head>', f'<script src="{up}assets/news-ui.js" defer></script>\n</head>', 1)
     h = re.sub(r'<body class="[^"]*"', '<body class="pulse-page"', h, count=1)
+    h = h.replace('<span class="l">Guides</span>', '<span class="l">Pulse</span>', 1)   # D6: lockup names this line
     t = re.sub(r'<div class="toasts".*?</div>\s*<div class="dropveil".*?</div></div>', '', t, flags=re.S)
     h = re.sub(r'<title>.*?</title>', f'<title>{EA(title)}</title>', h); h = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{EA(desc)}">', h)
     return h, t

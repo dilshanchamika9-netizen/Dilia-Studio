@@ -143,7 +143,7 @@ async function buildCompare() {
   for (const im of imgs) { const img = await out.embedPng(new Uint8Array(await im.blob.arrayBuffer())), p2 = out.addPage([im.w, im.h]); p2.drawImage(img, { x: 0, y: 0, width: im.w, height: im.h }); }
   out.setProducer('Dilia');
   const blob = new Blob([await out.save()], { type: 'application/pdf' });
-  return { blob, name: cleanName($('#outName').value, 'Dilia-compared', 'pdf'), info: `${changed.length} of ${plural(N, 'page')} differ` };
+  return { blob, name: cleanName($('#outName').value, 'compared', 'pdf'), info: `${changed.length} of ${plural(N, 'page')} differ` };
 }
 
 /* ---------- rename by text ---------- */
@@ -189,7 +189,7 @@ async function buildRename() {
     out.push({ name: q + '.pdf', data: f.bytes });
   }
   if (!hit) throw new Error('no text matched, so no file was renamed. Check the page number and the label. Scanned pages have no text: run OCR first');
-  return { blob: zip(out), name: cleanName($('#outName').value, 'Dilia-renamed', 'zip'), info: `${hit} of ${plural(files.length, 'file')} renamed${hit < files.length ? ', the rest keep their name' : ''}` };
+  return { blob: zip(out), name: cleanName($('#outName').value, 'renamed', 'zip'), info: `${hit} of ${plural(files.length, 'file')} renamed${hit < files.length ? ', the rest keep their name' : ''}` };
 }
 
 /* ---------- batch ---------- */
@@ -235,7 +235,7 @@ async function buildBatch() {
   if (!out.length) throw new Error('none of the files could be processed');
   if (bad.length) toast(`${plural(bad.length, 'file')} could not be processed and ${bad.length === 1 ? 'was' : 'were'} left out: ${bad.slice(0, 3).join(', ')}.`, true);
   if (out.length === 1) return { blob: new Blob([out[0].data], { type: 'application/pdf' }), name: out[0].name, info: '1 file processed' };
-  return { blob: zip(out), name: cleanName($('#outName').value, 'Dilia-batch', 'zip'), info: plural(out.length, 'file') + ' processed' };
+  return { blob: zip(out), name: cleanName($('#outName').value, 'batch', 'zip'), info: plural(out.length, 'file') + ' processed' };
 }
 const WF_IDS = [...BOPS, 'bAng', 'bPre', 'bSuf', 'bStart', 'bDig', 'bText'];
 function syncBatchUi() { if (!BATCH) return; document.querySelectorAll('[data-op]').forEach(e => { e.hidden = !$('#' + e.dataset.op).checked; }); }
@@ -301,7 +301,7 @@ go.addEventListener('click', async () => {
         if (over) { at(pg, ea[i], va, va.vw, va.vh); at(pg, eb[j], vb, va.vw, va.vh); } else { at(pg, eb[j], vb, va.vw, va.vh); at(pg, ea[i], va, va.vw, va.vh); }
       });
       out.setProducer('Dilia'); out.setCreator('Dilia');
-      const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, 'Dilia-letterhead', 'pdf');
+      const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, 'letterhead', 'pdf');
       prog.style.width = '100%'; if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(blob); save(lastUrl, name);
       $('#doneName').textContent = name; $('#doneInfo').textContent = `${p.info}, ${kb(blob.size)}`; $('#again').href = lastUrl; $('#again').download = name; $('#done').hidden = false;
       busy = false; ws.classList.remove('working'); setTimeout(() => { prog.style.width = '0'; }, 600); summary(); return;
@@ -315,7 +315,7 @@ go.addEventListener('click', async () => {
       if (k % 20 === 19) { prog.style.width = Math.round(8 + 84 * (k + 1) / p.list.length) + '%'; await tick(); }
     }
     out.setProducer('Dilia'); out.setCreator('Dilia');
-    const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, INSERT ? 'Dilia-inserted' : 'Dilia-mixed', 'pdf');
+    const blob = new Blob([await out.save()], { type: 'application/pdf' }), name = cleanName($('#outName').value, INSERT ? 'inserted' : 'mixed', 'pdf');
     prog.style.width = '100%';
     if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = URL.createObjectURL(blob); save(lastUrl, name);
     $('#doneName').textContent = name; $('#doneInfo').textContent = `${p.info}, ${kb(blob.size)}`;

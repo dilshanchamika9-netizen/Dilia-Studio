@@ -180,7 +180,7 @@ go.addEventListener('click', async () => {
     prog.style.width = '100%';
     if (lastUrl) URL.revokeObjectURL(lastUrl);
     lastUrl = URL.createObjectURL(blob);
-    const name = cleanName($('#outName').value, 'Dilia-images', 'pdf');
+    const name = cleanName($('#outName').value, 'images', 'pdf');
     save(lastUrl, name);
     $('#doneName').textContent = name;
     $('#doneInfo').textContent = `${plural(items.length, 'page')}, ${kb(blob.size)}`;

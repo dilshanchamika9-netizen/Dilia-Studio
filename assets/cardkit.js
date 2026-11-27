@@ -15,7 +15,7 @@ window.DiliaCardKit = (() => {
       e.className = 'kc' + (s === 1 || s === 2 ? ' red' : ''); e.dataset.c = c;
       const a = document.createElement('span'); a.className = 'kr'; a.textContent = RK[r] + SU[s];
       const b = document.createElement('span'); b.className = 'ku'; b.textContent = SU[s];
-      e.append(a, b); e.setAttribute('aria-label', RK[r] + ' of ' + SN[s]);
+      e.append(a, b); e.setAttribute('role', 'img'); e.setAttribute('aria-label', RK[r] + ' of ' + SN[s]);
       board.append(e); els.push(e);
     }
     return els;

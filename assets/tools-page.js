@@ -46,4 +46,6 @@
     lib.querySelectorAll('.line').forEach(l => { l.hidden = !!v && !l.querySelector('.grp:not([hidden])'); });
     document.getElementById('none').style.display = any || !v ? 'none' : 'block';
   });
+  // tools.html?q=merge opens with that search (the site search target named in the WebSite schema)
+  try { const pre = new URLSearchParams(location.search).get('q'); if (pre) { q.value = pre.slice(0, 80); q.dispatchEvent(new Event('input')); } } catch (e) { /* no query */ }
 }

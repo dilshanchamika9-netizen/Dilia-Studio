@@ -154,149 +154,149 @@ DUMMY = dict(id='html2pdf', name='x', crumb='x', kind='file', engine='viewer', l
 TOOLS = [
  dict(id='split', name='Split PDF', crumb='Split', kind='pdf', engine='ptool',
       lead='Cut one PDF into several. Split every page, every few pages, or by ranges you type. Colours show which file each page lands in.',
-      drop='Drop a PDF here', acts=[], opt=OPT_SPLIT, ext='zip', defname='Dilia-split',
+      drop='Drop a PDF here', acts=[], opt=OPT_SPLIT, ext='zip', defname='split',
       s1='Pages in', l2='Files out', l3='Size in', go='Split and download', field='File name'),
  dict(id='delete', name='Delete pages', crumb='Delete pages', kind='pdf', engine='ptool',
       lead='Click the pages you do not need, or type their numbers. The new PDF contains only what is left, and deleted content is not kept inside the file.',
       drop='Drop a PDF here', acts=[btn('odd', 'Odd pages'), btn('even', 'Even pages'), btn('none', 'Clear')],
-      opt=rng('Pages to delete', '1-3, 7, 10-'), ext='pdf', defname='Dilia-edited', field='File name'),
+      opt=rng('Pages to delete', '1-3, 7, 10-'), ext='pdf', defname='edited', field='File name'),
  dict(id='extract', name='Extract pages', crumb='Extract pages', kind='pdf', engine='ptool',
       lead='Choose the pages to keep and save them as a new PDF. Click pages or type numbers like 2-5, 9.',
       drop='Drop a PDF here', acts=[btn('all', 'All'), btn('odd', 'Odd'), btn('even', 'Even'), btn('none', 'None')],
-      opt=rng('Pages to extract', '2-5, 9'), ext='pdf', defname='Dilia-extract', field='File name'),
+      opt=rng('Pages to extract', '2-5, 9'), ext='pdf', defname='extract', field='File name'),
  dict(id='rotate', name='Rotate PDF pages', crumb='Rotate', kind='pdf', engine='ptool',
       lead='Turn single pages, or the whole file, left or right. Hover a page for its arrows.',
       drop='Drop a PDF here', acts=[btn('left', 'All left'), btn('right', 'All right'), btn('reset', 'Reset')],
-      opt='', ext='pdf', defname='Dilia-rotated', field='File name'),
+      opt='', ext='pdf', defname='rotated', field='File name'),
  dict(id='reorder', name='Reorder pages', crumb='Reorder pages', kind='pdf', engine='ptool',
       lead='Drag pages into the order you want, then save. Pages that moved are marked.',
       drop='Drop a PDF here', acts=[btn('reverse', 'Reverse order'), btn('reset', 'Reset')],
-      opt='', ext='pdf', defname='Dilia-reordered', field='File name'),
+      opt='', ext='pdf', defname='reordered', field='File name'),
  dict(id='pdf2img', name='PDF to images', crumb='PDF to images', kind='pdf', engine='ptool',
       lead='Save pages as PNG or JPG pictures. One page gives one image, several pages come in one ZIP.',
       drop='Drop a PDF here', acts=[btn('all', 'All'), btn('odd', 'Odd'), btn('even', 'Even'), btn('none', 'None')],
-      opt=OPT_IMGOUT, ext='zip', defname='Dilia-images', field='File name', s1='Pages in', l2='Selected', l3='Images out', go='Save as images'),
+      opt=OPT_IMGOUT, ext='zip', defname='images', field='File name', s1='Pages in', l2='Selected', l3='Images out', go='Save as images'),
 
  dict(id='watermark', name='Watermark', crumb='Watermark', kind='pdf', engine='ptool',
       lead='Stamp text across every page. The preview on each page shows the result before you save.',
-      drop='Drop a PDF here', acts=[], opt=OPT_WM, ext='pdf', defname='Dilia-watermark', field='File name', go='Add watermark and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_WM, ext='pdf', defname='watermark', field='File name', go='Add watermark and download'),
  dict(id='number', name='Page numbers', crumb='Page numbers', kind='pdf', engine='ptool',
       lead='Add page numbers in the position and format you choose.',
-      drop='Drop a PDF here', acts=[], opt=OPT_NUM, ext='pdf', defname='Dilia-numbered', field='File name', go='Add numbers and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_NUM, ext='pdf', defname='numbered', field='File name', go='Add numbers and download'),
  dict(id='bates', name='Bates numbering', crumb='Bates numbering', kind='pdf', engine='ptool',
       lead='Stamp a running reference number such as ABC-000001 on every page, for legal and records work.',
-      drop='Drop a PDF here', acts=[], opt=OPT_BATES, ext='pdf', defname='Dilia-bates', field='File name', go='Add Bates numbers and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_BATES, ext='pdf', defname='bates', field='File name', go='Add Bates numbers and download'),
  dict(id='headfoot', name='Header and footer', crumb='Header and footer', kind='pdf', engine='ptool',
       lead='Add text to the top and bottom of every page. Page number, page count, date and file name can be inserted.',
-      drop='Drop a PDF here', acts=[], opt=OPT_HF, ext='pdf', defname='Dilia-header-footer', field='File name', go='Add header and footer and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_HF, ext='pdf', defname='header-footer', field='File name', go='Add header and footer and download'),
  dict(id='flip', name='Flip pages', crumb='Flip pages', kind='pdf', engine='ptool',
       lead='Mirror pages left to right or top to bottom. Useful for scans that came in backwards.',
-      drop='Drop a PDF here', acts=[], opt=OPT_FLIP, ext='pdf', defname='Dilia-flipped', field='File name', go='Flip and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_FLIP, ext='pdf', defname='flipped', field='File name', go='Flip and download'),
  dict(id='nup', name='Several pages per sheet', crumb='N-up', kind='pdf', engine='ptool',
       lead='Print 2, 4, 6, 8, 9 or 16 pages on each sheet to save paper.',
-      drop='Drop a PDF here', acts=[], opt=OPT_NUP, ext='pdf', defname='Dilia-n-up', field='File name', go='Make sheets and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_NUP, ext='pdf', defname='n-up', field='File name', go='Make sheets and download'),
  dict(id='meta', name='Edit PDF properties', crumb='Properties', kind='pdf', engine='ptool',
       lead='Change the title, author, subject and keywords stored inside a PDF, or remove them.',
-      drop='Drop a PDF here', acts=[], opt=OPT_META, ext='pdf', defname='Dilia-properties', field='File name', go='Save properties and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_META, ext='pdf', defname='properties', field='File name', go='Save properties and download'),
  dict(id='flatten', name='Flatten PDF', crumb='Flatten', kind='pdf', engine='ptool',
       lead='Make filled-in forms and added marks permanent so nobody can change them.',
-      drop='Drop a PDF here', acts=[], opt=OPT_FLAT, ext='pdf', defname='Dilia-flattened', field='File name', go='Flatten and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_FLAT, ext='pdf', defname='flattened', field='File name', go='Flatten and download'),
  dict(id='extractimg', name='Extract images from PDF', crumb='Extract images', kind='pdf', engine='ptool',
       lead='Save the pictures stored inside a PDF at their original quality.',
-      drop='Drop a PDF here', acts=[], opt=OPT_EXIMG, ext='zip', defname='Dilia-embedded-images', field='File name', go='Extract images'),
+      drop='Drop a PDF here', acts=[], opt=OPT_EXIMG, ext='zip', defname='embedded-images', field='File name', go='Extract images'),
  dict(id='bookmarks', name='Add bookmarks to PDF', crumb='Bookmarks', kind='pdf', engine='ptool',
       lead='Add a clickable outline to a PDF so readers can jump to chapters.',
-      drop='Drop a PDF here', acts=[], opt=OPT_BM, ext='pdf', defname='Dilia-bookmarked', field='File name', go='Add bookmarks and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_BM, ext='pdf', defname='bookmarked', field='File name', go='Add bookmarks and download'),
  dict(id='mix', name='Alternate and mix PDFs', crumb='Alternate and mix', kind='multi', engine='mixer', tip='Add two or more PDFs. Drag to set the order.', sort='sortAz', sortl='Sort A to Z',
       lead='Interleave pages from two or more PDFs: page 1 of each file, then page 2 of each. Also joins front and back scans of a double-sided document.',
-      drop='Drop PDF files here', acts=[], opt=OPT_MIX, ext='pdf', defname='Dilia-mixed', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Mix and download'),
+      drop='Drop PDF files here', acts=[], opt=OPT_MIX, ext='pdf', defname='mixed', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Mix and download'),
  dict(id='insert', name='Insert or replace pages', crumb='Insert or replace', kind='multi', engine='mixer', tip='The first file is the main PDF. The second gives the pages.', sort='swap', sortl='Swap order',
       lead='Put pages from one PDF into another at the spot you choose, or swap some pages of a PDF for pages from a second file.',
-      drop='Drop two PDF files here', acts=[], opt=OPT_INS, ext='pdf', defname='Dilia-inserted', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Save new PDF'),
+      drop='Drop two PDF files here', acts=[], opt=OPT_INS, ext='pdf', defname='inserted', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Save new PDF'),
  dict(id='resize', name='Resize PDF pages', crumb='Resize pages', kind='pdf', engine='ptool',
       lead='Change every page to A4, Letter, A3, A5 or Legal. Content is scaled to fit.',
-      drop='Drop a PDF here', acts=[], opt=OPT_RESIZE, ext='pdf', defname='Dilia-resized', field='File name', go='Resize and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_RESIZE, ext='pdf', defname='resized', field='File name', go='Resize and download'),
  dict(id='noannot', name='Remove annotations', crumb='Remove annotations', kind='pdf', engine='ptool',
       lead='Delete comments, highlights, stamps and drawn notes from a PDF.',
-      drop='Drop a PDF here', acts=[], opt=OPT_NOANN, ext='pdf', defname='Dilia-clean', field='File name', go='Remove and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_NOANN, ext='pdf', defname='clean', field='File name', go='Remove and download'),
  dict(id='booklet', name='Make a booklet', crumb='Booklet', kind='pdf', engine='ptool',
       lead='Reorder pages so that, printed double-sided and folded, they read as a booklet.',
-      drop='Drop a PDF here', acts=[], opt=OPT_BOOK, ext='pdf', defname='Dilia-booklet', field='File name', go='Make booklet and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_BOOK, ext='pdf', defname='booklet', field='File name', go='Make booklet and download'),
  dict(id='poster', name='Print a poster', crumb='Poster', kind='pdf', engine='ptool',
       lead='Enlarge a page across several sheets of paper. Print them and glue the sheets together.',
-      drop='Drop a PDF here', acts=[], opt=OPT_POSTER, ext='pdf', defname='Dilia-poster', field='File name', go='Make poster and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_POSTER, ext='pdf', defname='poster', field='File name', go='Make poster and download'),
  dict(id='overlay', name='Add a letterhead or overlay', crumb='Letterhead', kind='multi', engine='mixer', tip='First file: your document. Second file: the letterhead.', sort='swap', sortl='Swap order',
       lead='Put a letterhead, stamp or background PDF behind or on top of every page of a document.',
-      drop='Drop two PDF files here', acts=[], opt=OPT_OVER, ext='pdf', defname='Dilia-letterhead', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Apply and download'),
+      drop='Drop two PDF files here', acts=[], opt=OPT_OVER, ext='pdf', defname='letterhead', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Apply and download'),
  dict(id='rename', name='Rename PDFs by their text', crumb='Rename by text', kind='multi', engine='mixer', tip='Add many PDFs. New names appear on each card.', sort='sortAz', sortl='Sort A to Z',
       lead='Name each PDF after text found on its pages, such as an invoice number. All files come back in one ZIP.',
-      drop='Drop PDF files here', acts=[], opt=OPT_REN, ext='zip', defname='Dilia-renamed', field='ZIP name', s1='Files', l2='Files out', l3='Size in', go='Rename and download ZIP'),
+      drop='Drop PDF files here', acts=[], opt=OPT_REN, ext='zip', defname='renamed', field='ZIP name', s1='Files', l2='Files out', l3='Size in', go='Rename and download ZIP'),
  dict(id='batch', name='Batch and workflows', crumb='Batch', kind='multi', engine='mixer', tip='Add many PDFs. One action is applied to all of them.', sort='sortAz', sortl='Sort A to Z',
       lead='Chain several actions and run them on many PDFs at once: remove marks, flatten, rotate, watermark, number and more. Save your recipe to reuse it.',
-      drop='Drop PDF files here', acts=[], opt=OPT_BATCH, ext='zip', defname='Dilia-batch', field='ZIP name', s1='Files', l2='Files out', l3='Size in', go='Process and download'),
+      drop='Drop PDF files here', acts=[], opt=OPT_BATCH, ext='zip', defname='batch', field='ZIP name', s1='Files', l2='Files out', l3='Size in', go='Process and download'),
  dict(id='scan', name='Scan documents to PDF', crumb='Scan to PDF', kind='img', engine='img2pdf', camera=1,
       lead='Photograph pages with your phone camera, or pick photos, and turn them into one clean PDF.',
-      drop='Drop photos of your pages here', acts=[], opt=OPT_SCAN, ext='pdf', defname='Dilia-scan', field='File name',
+      drop='Drop photos of your pages here', acts=[], opt=OPT_SCAN, ext='pdf', defname='scan', field='File name',
       s1='Pages', l2='Pages', l3='Size in', go='Create PDF', extra=['assets/vendor/pako_inflate.min.js', 'assets/vendor/UTIF.js']),
  dict(id='cleaner', name='PDF cleaner', crumb='Cleaner', kind='pdf', engine='ptool',
       lead='Strip scripts, attachments, hidden data and thumbnails from a PDF before you share it.',
-      drop='Drop a PDF here', acts=[], opt=OPT_CLEAN, ext='pdf', defname='Dilia-cleaned', field='File name', go='Clean and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_CLEAN, ext='pdf', defname='cleaned', field='File name', go='Clean and download'),
  dict(id='grayscale', name='PDF to grayscale', crumb='Grayscale', kind='pdf', engine='ptool',
       lead='Turn a colour PDF into black, white and grey to save ink.',
-      drop='Drop a PDF here', acts=[], opt=OPT_GRAY, ext='pdf', defname='Dilia-grayscale', field='File name', go='Make grayscale and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_GRAY, ext='pdf', defname='grayscale', field='File name', go='Make grayscale and download'),
  dict(id='deskew', name='Straighten scanned pages', crumb='Straighten', kind='pdf', engine='ptool',
       lead='Fix scans that were fed in crooked. Each page is measured and turned the right way up.',
-      drop='Drop a scanned PDF here', acts=[], opt=OPT_DESKEW, ext='pdf', defname='Dilia-straight', field='File name', go='Straighten and download'),
+      drop='Drop a scanned PDF here', acts=[], opt=OPT_DESKEW, ext='pdf', defname='straight', field='File name', go='Straighten and download'),
  dict(id='repair', name='Repair PDF', crumb='Repair', kind='file', engine='filetool', qpdf=1,
       lead='Try to rebuild a PDF that will not open or shows errors. Best effort: badly damaged files may lose pages.',
-      drop='Drop a damaged PDF here', acts=[], opt='', ext='pdf', defname='Dilia-repaired', field='File name',
+      drop='Drop a damaged PDF here', acts=[], opt='', ext='pdf', defname='repaired', field='File name',
       s1='Size in', l2='Status', l3='Size out', go='Repair and download'),
  dict(id='linearize', name='Optimise PDF for the web', crumb='Fast web view', kind='file', engine='filetool', qpdf=1,
       lead='Rewrite a PDF so the first page appears quickly when it is opened from a website.',
-      drop='Drop a PDF here', acts=[], opt='', ext='pdf', defname='Dilia-web', field='File name',
+      drop='Drop a PDF here', acts=[], opt='', ext='pdf', defname='web', field='File name',
       s1='Size in', l2='Mode', l3='Size out', go='Optimise and download'),
  dict(id='compare', name='Compare two PDFs', crumb='Compare', kind='multi', engine='mixer', tip='First file: original. Second file: changed version.', sort='swap', sortl='Swap order',
       lead='See what changed between two versions of a PDF: changed words and a marked-up copy of every page.',
-      drop='Drop two PDF files here', acts=[], opt=OPT_CMP, ext='pdf', defname='Dilia-compared', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Compare and download'),
+      drop='Drop two PDF files here', acts=[], opt=OPT_CMP, ext='pdf', defname='compared', field='File name', s1='Files', l2='Pages out', l3='Size in', go='Compare and download'),
  dict(id='makeform', name='Create a fillable form', crumb='Create form', kind='pdf', engine='ptool',
       lead='Turn a PDF into a form people can fill in: click where each field should go.',
-      drop='Drop a PDF here', acts=[], opt=OPT_FORM, ext='pdf', defname='Dilia-form', field='File name', go='Create form and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_FORM, ext='pdf', defname='form', field='File name', go='Create form and download'),
  dict(id='crop', name='Crop PDF', crumb='Crop', kind='pdf', engine='ptool',
       lead='Trim the edges of every page. The area you keep is shown on each page. Cut-off content is hidden, not erased.',
-      drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='Dilia-cropped', field='File name', go='Crop and download'),
+      drop='Drop a PDF here', acts=[], opt=OPT_CROP, ext='pdf', defname='cropped', field='File name', go='Crop and download'),
  dict(id='text', name='PDF to text', crumb='PDF to text', kind='pdf', engine='ptool',
       lead='Copy out all the text as a plain .txt file. Scanned pages have no text to copy until OCR arrives.',
       drop='Drop a PDF here', acts=[btn('all', 'All'), btn('odd', 'Odd'), btn('even', 'Even'), btn('none', 'None')],
-      opt=OPT_TEXT, ext='txt', defname='Dilia-text', field='File name', s1='Pages in', l2='Selected', l3='Pages out', go='Save as text'),
+      opt=OPT_TEXT, ext='txt', defname='text', field='File name', s1='Pages in', l2='Selected', l3='Pages out', go='Save as text'),
 
  dict(id='table', name='PDF to Excel', crumb='PDF to Excel', kind='pdf', engine='ptool',
       lead='Pull tables out of a PDF into an Excel or CSV file. This is best effort: it rebuilds columns from where the text sits, so check the result.',
       drop='Drop a PDF here', acts=[btn('all', 'All'), btn('odd', 'Odd'), btn('even', 'Even'), btn('none', 'None')],
-      opt=OPT_TABLE, ext='xlsx', defname='Dilia-tables', field='File name', s1='Pages in', l2='Selected', l3='Format', go='Save tables'),
+      opt=OPT_TABLE, ext='xlsx', defname='tables', field='File name', s1='Pages in', l2='Selected', l3='Format', go='Save tables'),
 
  dict(id='html2pdf', name='HTML to PDF', crumb='HTML to PDF', kind='file', engine='html2pdf', accept='text/html,.html,.htm,.xhtml',
       lead='Turn a saved web page into a PDF. Low fidelity: you get the text, headings, lists and tables, but not the pictures, colours or page design.',
-      drop='Drop an HTML file here', acts=[], opt=OPT_HTML, ext='pdf', defname='Dilia-html', field='File name', s1='File size', l2='Page size', l3='-', go='Create PDF'),
+      drop='Drop an HTML file here', acts=[], opt=OPT_HTML, ext='pdf', defname='html', field='File name', s1='File size', l2='Page size', l3='-', go='Create PDF'),
 
  dict(id='protect', name='Password protect', crumb='Password protect', kind='file', engine='filetool', qpdf=1,
       lead='Lock a PDF with a password. It is encrypted on this device with AES-256.',
-      drop='Drop a PDF here', acts=[], opt=OPT_PROTECT, ext='pdf', defname='Dilia-protected', field='File name',
+      drop='Drop a PDF here', acts=[], opt=OPT_PROTECT, ext='pdf', defname='protected', field='File name',
       s1='Pages', l2='Encryption', l3='Size in', go='Protect and download'),
  dict(id='unlock', name='Remove password', crumb='Remove password', kind='file', engine='filetool', qpdf=1,
       lead='Open a PDF you know the password for and save a copy that needs none.',
-      drop='Drop a locked PDF here', acts=[], opt=OPT_UNLOCK, ext='pdf', defname='Dilia-unlocked', field='File name',
+      drop='Drop a locked PDF here', acts=[], opt=OPT_UNLOCK, ext='pdf', defname='unlocked', field='File name',
       s1='Size in', l2='Status', l3='Pages', go='Remove password and download'),
  dict(id='compress', name='Compress PDF', crumb='Compress', kind='file', engine='filetool',
       lead='Make a PDF smaller for email by shrinking the photos inside it.',
-      drop='Drop a PDF here', acts=[], opt=OPT_COMPRESS, ext='pdf', defname='Dilia-compressed', field='File name',
+      drop='Drop a PDF here', acts=[], opt=OPT_COMPRESS, ext='pdf', defname='compressed', field='File name',
       s1='Size in', l2='Size out', l3='Saved', go='Compress and download'),
  dict(id='ocr', name='Recognise text (OCR)', crumb='Recognise text', kind='file', engine='filetool', extra=['assets/vendor/ocr/tesseract.min.js'],
       lead='Make a scanned PDF searchable. Your pages stay exactly as they are, with the text added invisibly.',
-      drop='Drop a scanned PDF here', acts=[], opt=OPT_OCR, ext='pdf', defname='Dilia-searchable', field='File name',
+      drop='Drop a scanned PDF here', acts=[], opt=OPT_OCR, ext='pdf', defname='searchable', field='File name',
       s1='Pages', l2='Language', l3='Size in', go='Recognise text and download'),
  dict(id='img2pdf', name='Images to PDF', crumb='Images to PDF', kind='img', engine='img2pdf',
       lead='Turn photos and scans into one PDF. Drag to order, turn any image, pick a page size.',
-      drop='Drop images here', acts=[], opt=OPT_IMG, ext='pdf', defname='Dilia-images', field='File name',
+      drop='Drop images here', acts=[], opt=OPT_IMG, ext='pdf', defname='images', field='File name',
       s1='Images', l2='Pages', l3='Size in', go='Create PDF', extra=['assets/vendor/pako_inflate.min.js', 'assets/vendor/UTIF.js']),
 ]
 
@@ -328,7 +328,7 @@ PX_BLUR = dd('bMode', 'Cover with', [('blur', 'Blur'), ('pixel', 'Pixels'), ('bl
 PX_GIF = numf('gDelay', 'Time per frame', 500, 20, 10000, 10, 'ms') + numf('gW', 'Width', 480, 16, 2000, 1, 'px') + '<div class="optfield">' + chk('gLoop', 'Repeat forever', True) + '</div>'
 PX_META = '<p class="tip wide">Removes camera details, date and GPS location from JPG and PNG without re-compressing the picture. Cards show what is inside each photo first.</p>'
 PX_ACCEPT = 'image/*,.jpg,.jpeg,.jfif,.png,.webp,.gif,.bmp,.avif,.svg,.tif,.tiff,.heic,.heif,.ico'
-def pxdict(id, name, crumb, tool, opt, lead, ext='', defname='Dilia-images', go='Save images', out='', accept=None, drop='Drop images here', **kw):
+def pxdict(id, name, crumb, tool, opt, lead, ext='', defname='images', go='Save images', out='', accept=None, drop='Drop images here', **kw):
     d = dict(id=id, name=name, crumb=crumb, kind='pix', engine='imgtool', tool=tool, out=out, lead=lead, drop=drop, acts=[], opt=opt, ext=ext, defname=defname, field='File name',
              s1='Images', l2='Result', l3='Size in', go=go, extra=['assets/vendor/Sortable.min.js'] if False else [])
     if accept: d['accept'] = accept
@@ -361,7 +361,7 @@ PIX = [
  pxdict('pxwm', 'Watermark image', 'Watermark image', 'watermark', PX_WM, 'Stamp text or your logo on one photo or a whole batch.', go='Add watermark and download'),
  pxdict('pxmeme', 'Meme generator', 'Meme generator', 'meme', PX_MEME, 'Put top and bottom text on any picture.', go='Make meme and download'),
  pxdict('pxblur', 'Blur or pixelate part of an image', 'Blur image areas', 'blur', PX_BLUR, 'Hide faces, plates and private text in a picture.', go='Hide areas and download'),
- pxdict('pxgifmake', 'Make animated GIF', 'Make animated GIF', 'gif', PX_GIF, 'Turn several pictures into one animated GIF. Drag to set the order.', ext='gif', defname='Dilia-animation', go='Make GIF', s1='Frames', l2='Result', l3='Size in'),
+ pxdict('pxgifmake', 'Make animated GIF', 'Make animated GIF', 'gif', PX_GIF, 'Turn several pictures into one animated GIF. Drag to set the order.', ext='gif', defname='animation', go='Make GIF', s1='Frames', l2='Result', l3='Size in'),
  pxdict('pxmeta', 'Remove image metadata', 'Image metadata', 'meta', PX_META, 'See and remove camera model, date and GPS from photos.', go='Remove metadata and download'),
 ]
 TOOLS += PIX
@@ -463,7 +463,7 @@ def page(t):
           <div><dt id="l3">{t.get('l3','Size in')}</dt><dd id="s3">0</dd></div>
         </dl>
         <label class="field" for="outName">{t['field']}
-          <span class="name"><input id="outName" type="text" value="{t['defname']}" spellcheck="false" autocomplete="off"><em id="ext">.{t['ext']}</em></span>
+          <span class="name"><input id="outName" type="text" value="" placeholder="Same as your file" spellcheck="false" autocomplete="off"><em id="ext">.{t['ext']}</em></span>
         </label>
         <button class="btn go" type="button" id="go" disabled>
           <span class="go-l">{go_label}</span>
@@ -555,14 +555,14 @@ def qr_page(t):
     tail = tail.replace('<script src="assets/qrtool.js"></script>', '<script src="assets/qrtool.js"></script>')
     head = head.replace('<body class="work"', '<body class="work" data-mode="' + t['mode'] + '" data-qr="' + t['qr'] + '"')
     return head + qr_main(t) + tail
-def qd(id, name, crumb, qr, lead, desc, mode='make', defname='Dilia-qr-code', lock=0):
+def qd(id, name, crumb, qr, lead, desc, mode='make', defname='qr-code', lock=0):
     return dict(id=id, name=name, crumb=crumb, kind='qr', qr=qr, mode=mode, lead=lead, desc=desc, defname=defname, lock=lock)
 QRS = [
  qd('qrmain', 'QR code generator', 'QR code generator', 'url', 'Make a QR code for a link, text, Wi-Fi, contact, email and more. Free, no sign-up, no limit.', 'Free QR code generator for links, Wi-Fi, contacts, email, SMS and more. Colours, logo, SVG and PDF. Made in your browser.'),
  qd('qrurl', 'URL to QR code', 'URL to QR code', 'url', 'Turn any web link into a QR code you can print or share.', 'Turn a web link into a QR code. Free, static, never expires.', lock=1),
  qd('qrtext', 'Text to QR code', 'Text to QR code', 'text', 'Turn any text into a QR code.', 'Turn text into a QR code. Free and private.', lock=1),
- qd('qrwifi', 'Wi-Fi QR code generator', 'Wi-Fi QR code', 'wifi', 'Guests scan the code and join your Wi-Fi. The password stays in your browser.', 'Make a Wi-Fi QR code. Your password never leaves your device.', lock=1, defname='Dilia-wifi-qr'),
- qd('qrvcard', 'vCard QR code generator', 'Contact card QR', 'vcard', 'Share your contact details. One scan saves them to the phone.', 'Make a contact card (vCard) QR code for business cards.', lock=1, defname='Dilia-contact-qr'),
+ qd('qrwifi', 'Wi-Fi QR code generator', 'Wi-Fi QR code', 'wifi', 'Guests scan the code and join your Wi-Fi. The password stays in your browser.', 'Make a Wi-Fi QR code. Your password never leaves your device.', lock=1, defname='wifi-qr'),
+ qd('qrvcard', 'vCard QR code generator', 'Contact card QR', 'vcard', 'Share your contact details. One scan saves them to the phone.', 'Make a contact card (vCard) QR code for business cards.', lock=1, defname='contact-qr'),
  qd('qremail', 'Email QR code generator', 'Email QR code', 'email', 'A scan opens a new email with address, subject and message filled in.', 'Make an email QR code with subject and message.', lock=1),
  qd('qrsms', 'SMS QR code generator', 'SMS QR code', 'sms', 'A scan opens a text message with the number and message ready.', 'Make an SMS QR code.', lock=1),
  qd('qrphone', 'Phone number QR code', 'Phone QR code', 'phone', 'A scan starts a call to your number.', 'Make a phone number QR code.', lock=1),
@@ -574,7 +574,7 @@ QRS = [
  qd('qryoutube', 'YouTube QR code generator', 'YouTube QR code', 'youtube', 'A scan opens your video or channel.', 'Make a YouTube QR code.', lock=1),
  qd('qrreview', 'Google review QR code', 'Google review QR', 'review', 'Customers scan and land on your Google review box. Needs your Place ID.', 'Make a Google review QR code from a Place ID.', lock=1),
  qd('qrapp', 'App store QR code', 'App store QR code', 'appstore', 'A scan opens your app page. Paste the App Store or Google Play link.', 'Make an App Store or Google Play QR code.', lock=1),
- qd('qrbulk', 'Bulk QR code generator', 'Bulk QR codes', 'url', 'Paste a list or load a CSV. Get one ZIP with a code for every line. Free.', 'Make many QR codes at once from a list. Free, one ZIP.', mode='bulk', defname='Dilia-qr-codes'),
+ qd('qrbulk', 'Bulk QR code generator', 'Bulk QR codes', 'url', 'Paste a list or load a CSV. Get one ZIP with a code for every line. Free.', 'Make many QR codes at once from a list. Free, one ZIP.', mode='bulk', defname='qr-codes'),
  qd('qrread', 'QR code reader', 'QR code reader', 'url', 'Read a QR code from a picture or with your camera. Nothing is uploaded.', 'Read a QR code from an image or your camera, in your browser.', mode='read'),
 ]
 
@@ -582,7 +582,7 @@ QRS = [
 # ---------------- Dilia Text ----------------
 import importlib.util as _iu
 _sp = _iu.spec_from_file_location('txdata', str(ROOT / 'dev' / 'txdata.py')); _m = _iu.module_from_spec(_sp); _sp.loader.exec_module(_m)
-TXTS = [dict(id=i, name=n, crumb=n, kind='txt', mode=mode, preset=pre, lead=lead, desc=seo, defname='Dilia-text') for i, s, n, d, main, mode, pre, lead, seo in _m.TX]
+TXTS = [dict(id=i, name=n, crumb=n, kind='txt', mode=mode, preset=pre, lead=lead, desc=seo, defname='text') for i, s, n, d, main, mode, pre, lead, seo in _m.TX]
 def txt_main(t):
     mode = t['mode']
     head = '<div class="ws-head wrap"><div><p class="crumb"><a href="tools.html">Tools</a><span>/</span>' + t['crumb'] + '</p><h1>' + t['name'] + '</h1><p class="lead">' + t['lead'] + '</p></div></div>'
@@ -754,7 +754,7 @@ def editor_page(t):
         <small>The file is read by your browser and never uploaded.</small>
       </label>
       <input id="pick" class="vh" type="file" accept="application/pdf,.pdf">
-      <input id="imgPick" class="vh" type="file" accept="image/*">
+      <input id="imgPick" class="vh" type="file" accept="image/*" aria-label="Choose a picture to place">
 
       <div class="ebar" id="ebar">
         <div class="etools" role="toolbar" aria-label="Tools">{tools}</div>
@@ -779,7 +779,7 @@ def editor_page(t):
           <div><dt>Fields</dt><dd id="s3">0</dd></div>
         </dl>
         <label class="field" for="outName">File name
-          <span class="name"><input id="outName" type="text" value="" spellcheck="false" autocomplete="off"><em>.pdf</em></span>
+          <span class="name"><input id="outName" type="text" value="" placeholder="Same as your file" spellcheck="false" autocomplete="off"><em>.pdf</em></span>
         </label>
         <button class="btn go" type="button" id="go" disabled>
           <span class="go-l">{t.get('go','Save and download')}</span>

@@ -22,7 +22,7 @@
 .pbtn:active{transform:scale(.97)}
 .pbtn.go{background:linear-gradient(135deg,#e5007d,#7a5cff);box-shadow:0 12px 30px -12px #7a5cffaa}
 .pbtn.go:hover{filter:brightness(1.1)}
-.pbtn[aria-pressed=true]{background:#7a5cff;box-shadow:0 0 0 2px #a08bff inset}
+.pbtn[aria-pressed=true]{background:#6a4cf0;box-shadow:0 0 0 2px #a08bff inset}
 .pbtn:disabled{opacity:.4;cursor:default}
 .pbtn:focus-visible,.pcell:focus-visible,.board:focus-visible{outline:3px solid #ffd400;outline-offset:2px}
 .burst{position:absolute;inset:0;pointer-events:none;z-index:5}
@@ -36,7 +36,11 @@
 .dailies{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
 .daily{position:relative;display:flex;flex-direction:column;gap:10px;min-height:230px;padding:24px;border-radius:26px;background:linear-gradient(160deg,#ffffff12,#ffffff06);border:1px solid var(--pl);text-decoration:none;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s}
 a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30px 60px -30px #7a5cffaa}
-.daily .art{position:absolute;right:18px;bottom:18px;width:96px;height:96px;opacity:.85;pointer-events:none}
+.daily .art{position:absolute;right:18px;bottom:18px;width:96px;height:96px;padding:6px;box-sizing:border-box;border-radius:22px;background:#16113a;pointer-events:none}   /* D12: one frame for every game picture, so light-drawn art always shows */
+/* D11: Today is one horizontal rail; a fifth card never sits alone on a new row */
+.dailies.rail{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:max(280px,calc((100% - 48px) / 3.4));overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px;margin:-4px -2px 0;scrollbar-width:thin}
+.dailies.rail>.daily{scroll-snap-align:start}
+#s-sudoku{gap:6px}#s-sudoku .chip{padding:6px 9px;font-size:12px}
 .daily .st{max-width:calc(100% - 112px)}
 .daily .no{font:750 12px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--pmut)}
 .daily b{font:850 28px/1.05 var(--font);font-variation-settings:"wdth" 112;letter-spacing:-.03em;color:#fff;max-width:70%}
@@ -130,6 +134,7 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
   .gwrap{grid-template-columns:minmax(0,1fr);max-width:600px;margin:0 auto}
   .gwrap .gside:first-child{order:2}.gwrap .gside:last-child{order:3}
   .dailies{grid-template-columns:minmax(0,1fr)}
+  .dailies.rail{grid-template-columns:none;grid-auto-columns:84%}
   .pstrip{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:520px){
@@ -209,7 +214,7 @@ a.daily:hover{transform:translateY(-4px);border-color:#a08bff88;box-shadow:0 30p
 .ks.stock.none{color:#ffffff22;cursor:default}
 .ks.waste{border-color:transparent}
 .kc{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:calc(var(--cw) * .1);background:#fbfbff;color:#0b1220;box-shadow:0 1px 0 #0b122033,0 6px 14px -8px #000c;transition:transform .17s ease;cursor:pointer;will-change:transform}
-.kc.red{color:#e5007d}
+.kc.red{color:#c8006c}
 .kc .kr{position:absolute;left:7%;top:5%;font:850 calc(var(--cw) * .26)/1 var(--font);letter-spacing:-.04em;white-space:nowrap}
 .kc .ku{position:absolute;right:8%;bottom:6%;font:400 calc(var(--cw) * .5)/1 system-ui,sans-serif}
 .kc.back{background:linear-gradient(135deg,#e5007d,#7a5cff 55%,#009fe3);color:transparent;cursor:default;box-shadow:inset 0 0 0 3px #ffffff40,0 1px 0 #0b122066}

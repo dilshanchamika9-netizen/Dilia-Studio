@@ -61,7 +61,7 @@
 :root:not([data-theme=dark]) .mq.n5{color:#946500}
 :root:not([data-theme=dark]) .mq.n6{color:#0f766e}
 :root:not([data-theme=dark]) .mq.n7{color:var(--ink)}
-:root:not([data-theme=dark]) .mq.n8{color:#6b7280}
+:root:not([data-theme=dark]) .mq.n8{color:#5d6573}
 :root:not([data-theme=dark]) .mq.f::after{background:#0b1220}
 :root:not([data-theme=dark]) .mq.f.wrong{background:#ffd9ea}
 :root:not([data-theme=dark]) .mq.m::before,:root:not([data-theme=dark]) .mq.boom::before{background:radial-gradient(circle at 35% 35%,#8e97ad,#ffffff 70%)}
@@ -79,7 +79,7 @@
 :root:not([data-theme=dark]) .rxdots span.on{color:var(--ink)}
 :root:not([data-theme=dark]) .rxchart rect.bb{fill:#047857}
 :root:not([data-theme=dark]) .tlang button[aria-pressed=true]{background:#0b1220;color:#ffffff}
-:root:not([data-theme=dark]) .tywords{color:#6b7280}
+:root:not([data-theme=dark]) .tywords{color:#5d6573}
 :root:not([data-theme=dark]) .tw.cur{background:#0b12200b;color:var(--ink)}
 :root:not([data-theme=dark]) .tw i.ok{color:var(--ink)}
 :root:not([data-theme=dark]) .tw i.bad{color:#c2006a}
@@ -94,7 +94,7 @@
 :root:not([data-theme=dark]) .ltok{background:radial-gradient(circle at 35% 30%,#0b12204b,#0000 55%),var(--lc)}
 :root:not([data-theme=dark]) .cel-h{color:var(--ink)}
 :root:not([data-theme=dark]) .cel-s{color:var(--ink)}
-:root:not([data-theme=dark]) .stage{--pt:#3a4252;--pmut:#6b7280;--pl:#0b12201f;--pc1:#ffffffcc;color-scheme:light;color:var(--pt);
+:root:not([data-theme=dark]) .stage{--pt:#3a4252;--pmut:#5d6573;--pl:#0b12201f;--pc1:#ffffffcc;color-scheme:light;color:var(--pt);
   background:radial-gradient(900px 520px at 12% -8%,#7a5cff2e,transparent 62%),radial-gradient(800px 520px at 100% 0,#e5007d22,transparent 62%),radial-gradient(700px 480px at 50% 110%,#009fe326,transparent 60%),#f5f6fb;background-repeat:no-repeat;background-color:#f5f6fb}
 :root:not([data-theme=dark]) .stage .nav.solid{background:#ffffffe6;box-shadow:0 1px 0 #0b12201a}
 :root:not([data-theme=dark]) .stage .wm .w,:root:not([data-theme=dark]) .stage .links a,:root:not([data-theme=dark]) .stage .mbtn{color:var(--ink)}
@@ -105,7 +105,7 @@
 :root:not([data-theme=dark]) .stage .pbtn:hover{background:#0b122019}
 :root:not([data-theme=dark]) .stage .pbtn.go,:root:not([data-theme=dark]) .stage .pbtn[aria-pressed=true]{color:#fff}
 :root:not([data-theme=dark]) .stage .pbtn.go{background:linear-gradient(135deg,#e5007d,#7a5cff)}
-:root:not([data-theme=dark]) .stage .pbtn[aria-pressed=true]{background:#7a5cff}
+:root:not([data-theme=dark]) .stage .pbtn[aria-pressed=true]{background:#6a4cf0}
 :root:not([data-theme=dark]) .stage .foot{background:#eef0f8;border-color:#0b12201a}
 :root:not([data-theme=dark]) .stage .foot h4,:root:not([data-theme=dark]) .stage .foot li a:hover{color:var(--ink)}
 :root:not([data-theme=dark]) .board,:root:not([data-theme=dark]) .mboard,:root:not([data-theme=dark]) .mines{background:#ffffffd9;box-shadow:0 40px 90px -40px #7a5cff77}
@@ -131,7 +131,7 @@
 :root:not([data-theme=dark]) .ks.stock.none{color:#0b122022}
 :root:not([data-theme=dark]) .rxpad[data-s=idle]{background:linear-gradient(135deg,#7a5cff,#5a3ee0)}
 :root:not([data-theme=dark]) .tin{background:#fff;color:var(--ink);border-color:#0b122033}
-:root:not([data-theme=dark]) .tywords{color:#6b7280}
+:root:not([data-theme=dark]) .tywords{color:#5d6573}
 :root:not([data-theme=dark]) .tw.cur{background:#7a5cff22;color:var(--ink)}
 :root:not([data-theme=dark]) .tw i.ok{color:var(--ink)}
 :root:not([data-theme=dark]) .snkbox{box-shadow:0 40px 90px -40px #7a5cff77}

@@ -42,8 +42,13 @@ window.Kit = (() => {
     }
     download(url, name);
   }
+  // File-name rule (owner): a download keeps the uploaded file's name. An emptied name box falls back to the last file
+  // the visitor picked or dropped on this page, and only then to a plain word (never a brand prefix).
+  let lastBase = '';
+  const baseOfFile = n => String(n || '').replace(/\.[^.]+$/, '');
+  document.addEventListener('change', e => { const t = e.target; if (t && t.type === 'file' && t.files && t.files[0]) lastBase = baseOfFile(t.files[0].name); }, true);
   const cleanName = (v, fallback, ext) =>
-    ((v || '').trim().replace(new RegExp('\\.' + ext + '$', 'i'), '').replace(/[\\/:*?"<>|]+/g, '-') || fallback) + '.' + ext;
+    ((v || '').trim().replace(new RegExp('\\.' + ext + '$', 'i'), '').replace(/[\\/:*?"<>|]+/g, '-') || lastBase.replace(/[\\/:*?"<>|]+/g, '-') || fallback) + '.' + ext;
 
   /* ---- page ranges: "1-3, 7, 10-" ---- */
   function parseRanges(str, max) {
@@ -110,6 +115,7 @@ window.Kit = (() => {
     addEventListener('dragleave', e => { if (!has(e)) return; depth = Math.max(0, depth - 1); if (!depth) document.body.classList.remove('dropping'); });
     addEventListener('drop', e => {
       if (!has(e)) return; e.preventDefault(); depth = 0; document.body.classList.remove('dropping');
+      if (e.dataTransfer.files[0]) lastBase = baseOfFile(e.dataTransfer.files[0].name);
       const dt = e.dataTransfer, ents = [...(dt.items || [])].map(i => (i.kind === 'file' && i.webkitGetAsEntry) ? i.webkitGetAsEntry() : null);
       if (!ents.some(x => x && x.isDirectory)) { cb(dt.files); return; }
       const out = [];                                    // folders: walk them and pass every file inside

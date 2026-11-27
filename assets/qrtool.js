@@ -117,7 +117,7 @@ async function pdfOf(res) {
   pg.drawImage(im, { x: 28.35, y: 28.35, width: pw, height: ph }); doc.setProducer('Dilia QR'); doc.setCreator('Dilia QR');
   return new Blob([await doc.save()], { type: 'application/pdf' });
 }
-const baseName = () => cleanName(($('#outName') && $('#outName').value) || '', 'Dilia-qr-code', '').replace(/\.$/, '');
+const baseName = () => cleanName(($('#outName') && $('#outName').value) || '', 'qr-code', '').replace(/\.$/, '');
 let cur = null, lastUrl = null, timer = 0, testTimer = 0, seqT = 0;
 function schedule() { clearTimeout(timer); timer = setTimeout(refresh, 120); }
 async function refresh() {
@@ -171,7 +171,7 @@ async function bulk() {
   }
   go.disabled = false; setTimeout(() => { prog.style.width = '0'; }, 600);
   if (!files.length) return toast('None of the lines could be turned into a code.', true);
-  const z = Kit.zip(files), u = URL.createObjectURL(z); save(u, cleanName($('#outName').value, 'Dilia-qr-codes', 'zip')); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  const z = Kit.zip(files), u = URL.createObjectURL(z); save(u, cleanName($('#outName').value, 'qr-codes', 'zip')); setTimeout(() => URL.revokeObjectURL(u), 4000);
   toast(`${plural(files.length, 'code')} saved in one ZIP.${bad ? ` ${bad} line${bad > 1 ? 's' : ''} skipped.` : ''}`);
 }
 

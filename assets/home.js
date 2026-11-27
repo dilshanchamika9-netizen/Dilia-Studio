@@ -1,4 +1,4 @@
-// Dilia home "Orbit": search, Today on Dilia, the four worlds as planets, journeys as constellations, world cards,
+// Dilia home: search (rotating task hints), Today on Dilia, journeys as constellations, world cards,
 // light/dark switch, and "drop a file to see what fits". Everything is worked out on this device. Text via textContent only.
 {
   const T = DiliaSearch.all(), byId = Object.fromEntries(T.map(t => [t.id, t]));
@@ -18,9 +18,17 @@
   [['compress PDF', 'compress-pdf/', '#e5007d'], ['time in London', 'time-zone-converter/', '#009fe3'], ['sudoku', 'daily-sudoku/', '#7a5cff'], ['sign a PDF guide', 'blog/sign-pdf-without-printing/', '#f0a800']]
     .forEach(([n, h, c]) => { const a = link(h, '', n), i = el('i'); i.style.background = c; a.prepend(i); tries.append(a); });
 
+  // The hint in the box cycles through real tasks every 3 s and stops for good once the box is used (D2, DR-02 §5.1).
+  const HINTS = ['merge PDF', 'compress a photo to 100 KB', 'public holidays 2027', 'sign a PDF', 'QR code for Wi-Fi', 'word counter', 'daily sudoku'];
+  if (!reduce) {
+    let hi = 0; const q = $('q');
+    const tick = setInterval(() => { hi = (hi + 1) % HINTS.length; q.placeholder = 'Try \u201c' + HINTS[hi] + '\u201d'; }, 3000);
+    const stop = () => { clearInterval(tick); q.placeholder = 'Search tools, planners and games'; };
+    q.addEventListener('focus', stop, { once: true });
+  }
+
   /* ---------- counts ---------- */
-  $('corecount').textContent = plus(ready.length) + ' TASKS · ' + games.length + ' GAMES';
-  $('corecount').dataset.n = ready.length;
+  document.body.dataset.tools = ready.length;
   $('w-tk').textContent = plus(ready.length) + ' tasks';
   $('w-pk').textContent = games.length + ' games';
   $('w-rk').textContent = 'News and ' + GUIDES.length + ' guides';
@@ -30,9 +38,10 @@
 
   /* ---------- Today on Dilia ---------- */
   const now = new Date();
-  const doy = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(now.getFullYear(), 0, 1)) / 864e5) + 1;
-  const bits = [now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }), 'Day ' + doy];
-  try { const f = new Intl.DateTimeFormat('en-GB-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }); if (f.resolvedOptions().calendar === 'islamic-umalqura') bits.push(f.format(now)); } catch (e) { /* no Hijri support */ }
+  const loc = navigator.language || 'en';
+  const bits = [now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })];
+  // A second calendar only when the visitor's locale defaults to one (e.g. ar-SA = Hijri, fa = Persian, th = Buddhist).
+  try { const cal = new Intl.DateTimeFormat(loc).resolvedOptions().calendar; if (cal && cal !== 'gregory' && cal !== 'iso8601') bits.push(new Intl.DateTimeFormat('en-GB-u-ca-' + cal, { day: 'numeric', month: 'long', year: 'numeric' }).format(now)); } catch (e) { /* only Gregorian */ }
   $('t-date').textContent = bits.join(' · ');
   const key = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
   const pickDay = (list, salt) => list[((key + salt) * 2654435761 >>> 0) % list.length];
@@ -49,11 +58,19 @@
   const gd = pickDay(GUIDES, 7); $('t-read').href = 'blog/' + gd[0] + '/'; $('t-rt').textContent = gd[1];
   // Life: next public holiday where this device is. Country from the time zone, then the browser language.
   const TZC = { 'Asia/Dubai': 'AE', 'Asia/Muscat': 'OM', 'Asia/Riyadh': 'SA', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH', 'Asia/Kuwait': 'KW', 'Asia/Colombo': 'LK', 'Asia/Kolkata': 'IN', 'Asia/Calcutta': 'IN', 'Asia/Karachi': 'PK', 'Asia/Dhaka': 'BD', 'Asia/Kathmandu': 'NP', 'Asia/Manila': 'PH', 'Asia/Jakarta': 'ID', 'Asia/Singapore': 'SG', 'Asia/Kuala_Lumpur': 'MY', 'Asia/Bangkok': 'TH', 'Asia/Tokyo': 'JP', 'Asia/Seoul': 'KR', 'Asia/Shanghai': 'CN', 'Asia/Hong_Kong': 'HK', 'Asia/Cairo': 'EG', 'Africa/Cairo': 'EG', 'Asia/Amman': 'JO', 'Asia/Beirut': 'LB', 'Asia/Baghdad': 'IQ', 'Asia/Tehran': 'IR', 'Europe/Istanbul': 'TR', 'Europe/London': 'GB', 'Europe/Dublin': 'IE', 'Europe/Paris': 'FR', 'Europe/Berlin': 'DE', 'Europe/Madrid': 'ES', 'Europe/Rome': 'IT', 'Europe/Amsterdam': 'NL', 'Europe/Lisbon': 'PT', 'Europe/Moscow': 'RU', 'Africa/Lagos': 'NG', 'Africa/Nairobi': 'KE', 'Africa/Johannesburg': 'ZA', 'America/New_York': 'US', 'America/Chicago': 'US', 'America/Denver': 'US', 'America/Los_Angeles': 'US', 'America/Toronto': 'CA', 'America/Vancouver': 'CA', 'America/Mexico_City': 'MX', 'America/Sao_Paulo': 'BR', 'America/Argentina/Buenos_Aires': 'AR', 'Australia/Sydney': 'AU', 'Australia/Melbourne': 'AU', 'Pacific/Auckland': 'NZ' };
-  (async () => {
+  const CCKEY = 'dilia-life-country';   // same choice as the Life hub (plain string)
+  const ccGet = () => { try { return localStorage.getItem(CCKEY) || ''; } catch (e) { return ''; } };
+  const ccSet = v => { try { localStorage.setItem(CCKEY, v); } catch (e) { /* private mode */ } };
+  const guessCC = () => {
+    let cc = ''; try { cc = TZC[Intl.DateTimeFormat().resolvedOptions().timeZone] || ''; } catch (e) { /* ignore */ }
+    if (!cc) cc = (navigator.languages || [navigator.language]).map(l => (l.split('-')[1] || '').toUpperCase()).find(x => /^[A-Z]{2}$/.test(x)) || '';
+    return cc;
+  };
+  const regionName = cc => { try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(cc); } catch (e) { return cc; } };
+  async function showHoliday(cc) {
+    $('t-lt').textContent = 'Public holidays'; $('t-sub').textContent = 'Find the next day off in 249 countries'; $('t-life').href = 'public-holidays/';
+    if (!cc) return;
     try {
-      let cc = ''; try { cc = TZC[Intl.DateTimeFormat().resolvedOptions().timeZone] || ''; } catch (e) { /* ignore */ }
-      if (!cc) { const r = (navigator.languages || [navigator.language]).map(l => (l.split('-')[1] || '').toUpperCase()).find(x => /^[A-Z]{2}$/.test(x)); cc = r || ''; }
-      if (!cc) return;
       const res = await fetch('assets/holidays/' + cc + '.json'); if (!res.ok) return;
       const data = await res.json(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       let next = null;
@@ -61,51 +78,22 @@
         const [m, d] = md.split('-').map(Number), dt = new Date(y, m - 1, d);
         if (dt >= today && (!next || dt < next.dt)) next = { dt, name };
       }
-      if (!next) return;
+      if (!next || $('t-cc').value !== cc) return;
       const days = Math.round((next.dt - today) / 864e5);
-      let country = cc; try { country = new Intl.DisplayNames(['en'], { type: 'region' }).of(cc); } catch (e) { /* keep code */ }
       $('t-lt').textContent = next.name + (days === 0 ? ' is today' : days === 1 ? ' is tomorrow' : ' in ' + days + ' days');
-      $('t-sub').textContent = next.dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + country;
+      $('t-sub').textContent = next.dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + regionName(cc);
     } catch (e) { /* leave the general card */ }
+  }
+  (async () => {
+    const sel = $('t-cc');
+    let codes = []; try { const r = await fetch('assets/holidays/index.json'); if (r.ok) codes = (await r.json()).countries || []; } catch (e) { /* list stays empty */ }
+    codes.map(c => [c, regionName(c)]).sort((a, b) => a[1].localeCompare(b[1])).forEach(([c, n]) => { const o = el('option', '', n); o.value = c; sel.append(o); });
+    let cc = ccGet() || guessCC(); if (!codes.includes(cc)) cc = '';
+    sel.value = cc; showHoliday(cc);
+    sel.addEventListener('change', () => { ccSet(sel.value); showHoliday(sel.value); });
   })();
-  $('t-sub').textContent = 'Find the next day off in 249 countries';
 
-  /* ---------- the four planets ---------- */
-  const W = {
-    tools: { name: 'Tools', href: 'tools.html', c: '#e5007d', t: 'var(--w-tools-t)', line: plus(ready.length) + ' tasks', items: [['Merge PDF', 'merge-pdf/'], ['Compress image', 'compress-image/'], ['QR code generator', 'qr-code-generator/']] },
-    life: { name: 'Life', href: 'life/', c: '#009fe3', t: 'var(--w-life-t)', line: 'Time and plans', items: [['Public holidays', 'public-holidays/'], ['Time zone converter', 'time-zone-converter/'], ['Date difference', 'date-difference-calculator/']] },
-    play: { name: 'Play', href: 'play/', c: '#7a5cff', t: 'var(--w-play-t)', line: games.length + ' games', items: [['Daily path', 'daily-path/'], ['Daily sudoku', 'daily-sudoku/'], ['Typing test', 'typing-test/']] },
-    read: { name: 'Pulse', href: 'news/', c: '#f0a800', t: 'var(--w-read-t)', fg: '#0b1220', line: 'Dilia Pulse news and ' + GUIDES.length + ' guides', items: [['Dilia Pulse: tech and business news', 'news/']].concat(GUIDES.slice(0, 2).map(g => [g[1].replace(/^How to /, ''), 'blog/' + g[0] + '/'])) }
-  };
-  const spin = $('spin'), pv = $('pv'), planets = {};
-  let shown = '';
-  function preview(k) {
-    if (shown === k) return; shown = k; const w = W[k];
-    Object.entries(planets).forEach(([j, p]) => p.classList.toggle('on', j === k));
-    pv.style.setProperty('--c', w.c); pv.style.setProperty('--t', w.t); pv.style.setProperty('--fg', w.fg || '#fff');
-    const h = el('div', 'ph'); h.append(el('i'), el('b', '', w.name), el('span', '', w.line));
-    const ul = el('ul'); w.items.forEach(([n, href]) => { const a = link(href, '', ''); a.append(el('span', '', n[0].toUpperCase()), document.createTextNode(n)); const li = el('li'); li.append(a); ul.append(li); });
-    const go = link(w.href, 'go', 'Enter ' + w.name + ' →'); go.addEventListener('click', e => warp(e, k));
-    pv.replaceChildren(h, ul, go);
-  }
-  function warp(e, k) {
-    if (reduce || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
-    e.preventDefault(); const w = W[k];
-    const o = el('div', 'ob-warp'); o.style.background = w.c; o.style.color = w.fg || '#fff';
-    if (e.clientX) { o.style.setProperty('--x', e.clientX + 'px'); o.style.setProperty('--y', e.clientY + 'px'); }
-    const inner = el('div'); inner.append(el('p', '', 'ENTERING'), el('b', '', w.name)); o.append(inner); document.body.append(o);
-    setTimeout(() => { location.href = w.href; }, 520);
-  }
-  Object.keys(W).forEach((k, i) => {
-    const arm = el('div', 'ob-arm'); arm.style.setProperty('--a', (i * 90 + 20) + 'deg');
-    const un = el('div', 'ob-unspin'), up = el('div', 'ob-up');
-    const p = link(W[k].href, 'planet p-' + k, W[k].name); p.setAttribute('aria-label', 'Enter ' + W[k].name);
-    p.addEventListener('mouseenter', () => preview(k)); p.addEventListener('focus', () => preview(k));
-    p.addEventListener('click', e => warp(e, k));
-    planets[k] = p; up.append(p); un.append(up); arm.append(un); spin.append(arm);
-  });
-  preview('tools');
-  addEventListener('pageshow', e => { if (e.persisted) document.querySelectorAll('.ob-warp').forEach(o => o.remove()); });
+  const W = { tools: { c: '#e5007d' }, life: { c: '#009fe3' }, play: { c: '#7a5cff' }, read: { c: '#f0a800' } };
 
   /* ---------- journeys ---------- */
   const CW = { T: ['tools', 'Tools'], L: ['life', 'Life'], P: ['play', 'Play'], R: ['read', 'Guides'] };
@@ -140,7 +128,7 @@
     j.st.forEach(([w, n, href, x, y], i) => {
       const li = el('li', 'jstar w-' + CW[w][0] + (done.has(i) ? ' done' : '') + (i === nextI ? ' next' : ''));
       li.style.setProperty('--x', x + '%'); li.style.setProperty('--y', y + '%');
-      const a = link(href, '', ''); a.setAttribute('aria-label', 'Step ' + (i + 1) + ' of ' + j.st.length + ': ' + n + (done.has(i) ? ' (done)' : ''));
+      const a = link(href, '', '');
       const lab = el('span', 'lab'); lab.append(el('small', '', 'Step ' + (i + 1) + ' · ' + CW[w][1]), el('b', '', n));
       a.append(el('span', 'dot', done.has(i) ? '✓' : String(i + 1)), lab);
       a.addEventListener('click', () => { const all = store.get(JKEY, {}); all[j.id] = [...new Set([...(all[j.id] || []), i])]; store.set(JKEY, all); });

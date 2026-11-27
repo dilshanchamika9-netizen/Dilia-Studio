@@ -10,8 +10,10 @@
 .themebtn:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
 .nav .themebtn{margin-left:8px}
 
+:root[data-theme=dark] .wm .l{color:var(--muted)}
 :root[data-theme=dark] .nav.solid{background:#131b30e6}
 :root[data-theme=dark] .btn.dark:hover{box-shadow:0 8px 20px -8px #00000080}
+:root[data-theme=dark] .btn.btn[disabled],:root[data-theme=dark] .btn.btn:disabled{background:#0b1120;color:var(--muted)}
 :root[data-theme=dark] .relgrp b{color:var(--ink,var(--ink))}
 :root[data-theme=dark] .relgrp a{background:#131b30;color:var(--ink)}
 :root[data-theme=dark] .relgrp a:hover,:root[data-theme=dark] .relgrp a:focus-visible{color:#ff66ba}

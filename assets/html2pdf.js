@@ -128,7 +128,7 @@ async function run() {
     const r = await build();
     if (lastUrl) URL.revokeObjectURL(lastUrl);
     const blob = new Blob([r.bytes], { type: 'application/pdf' });
-    const name = cleanName(outName.value, 'Dilia-html', 'pdf');
+    const name = cleanName(outName.value, 'html', 'pdf');
     prog.style.width = '100%';
     lastUrl = URL.createObjectURL(blob); save(lastUrl, name);
     $('#doneName').textContent = name;

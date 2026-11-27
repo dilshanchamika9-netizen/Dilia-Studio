@@ -179,7 +179,7 @@ function resultBox(label, rows) {
   const bar = el('div', 'tact');
   const mk = (txt, id, cls) => { const b = el('button', 'btn ' + (cls || 'ghost') + ' sm', txt); b.type = 'button'; b.id = id; bar.append(b); return b; };
   mk('Copy result', 'tCopy', 'go').onclick = () => copyText(outText).then(() => toast('Copied.'), () => toast('Copy was blocked by the browser. Select the text and copy it yourself.', true));
-  mk('Download TXT', 'tDl').onclick = () => { const u = URL.createObjectURL(new Blob([outText], { type: 'text/plain;charset=utf-8' })); save(u, cleanName(($('#outName') || {}).value, 'Dilia-text', 'txt')); setTimeout(() => URL.revokeObjectURL(u), 4000); };
+  mk('Download TXT', 'tDl').onclick = () => { const u = URL.createObjectURL(new Blob([outText], { type: 'text/plain;charset=utf-8' })); save(u, cleanName(($('#outName') || {}).value, 'text', 'txt')); setTimeout(() => URL.revokeObjectURL(u), 4000); };
   mk('Use result as input', 'tUse').onclick = () => { IN.value = outText; run(); };
   box.append(el('p', 'tstat', rows || ''), ta, bar); OUT.append(box); box.firstChild.id = 'tStat';
   if (!outText) ['tCopy', 'tDl', 'tUse'].forEach(i => { $('#' + i).disabled = true; });
@@ -192,7 +192,7 @@ function build() {
   if (MODE === 'count') {
     const row = el('div', 'tgrid'); optsBox.append(row);
     check(row, 'skipCommon', 'Ignore common words in the top lists', true);
-    const w = el('div', 'tf'); w.append(el('label', 'lbl', 'Limit meter')); const s = el('select', 'dd'); s.id = 'limit'; ctl.limit = s; [['', 'No limit meter']].concat(LIMITS.map(l => [l[0], l[1] + ' (' + l[2].toLocaleString('en') + ')'])).forEach(([v, t]) => { const o = el('option', '', t); o.value = v; s.append(o); }); s.addEventListener('change', run); w.append(s); row.append(w);
+    const w = el('div', 'tf'); const lb = el('label', 'lbl', 'Limit meter'); lb.htmlFor = 'limit'; w.append(lb); const s = el('select', 'dd'); s.id = 'limit'; ctl.limit = s; [['', 'No limit meter']].concat(LIMITS.map(l => [l[0], l[1] + ' (' + l[2].toLocaleString('en') + ')'])).forEach(([v, t]) => { const o = el('option', '', t); o.value = v; s.append(o); }); s.addEventListener('change', run); w.append(s); row.append(w);
     s.value = PRESET === 'limit' ? 'x' : '';
   } else if (MODE === 'case') {
     const row = el('div', 'tgrid wide'); optsBox.append(row);

@@ -12,7 +12,7 @@
   --mist:#f5f6f8;
   --ink:#0b1220;
   --text:#3a4252;
-  --muted:#6b7280;
+  --muted:#5d6573;
   --line:#e5e7eb;
   --line2:#d6d9df;
   --magenta:#e5007d;
@@ -41,7 +41,7 @@ a{color:inherit}
 /* Dilia lockup: ONE component. "Dilia" is the dominant element; the line name is small, light and muted (about 48% of the wordmark). */
 .wm{display:inline-flex;align-items:baseline;gap:7px;white-space:nowrap}
 .wm .w{font:800 25px/1 var(--font);font-variation-settings:"wdth" 125;letter-spacing:-.025em;color:var(--ink)}
-.wm .l{font:400 12px/1 var(--font);font-variation-settings:"wdth" 110;letter-spacing:.01em;color:var(--muted)}
+.wm .l{font:650 12px/1 var(--font);font-variation-settings:"wdth" 110;letter-spacing:.02em;color:#4b5563}
 
 /* navigation */
 .nav{position:sticky;top:0;z-index:40;transition:background .3s,box-shadow .3s}
@@ -61,7 +61,7 @@ a{color:inherit}
 .btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--ink);background:transparent}
 .btn.sm{min-height:38px;padding:0 16px;font-size:14px}
 .btn svg{width:17px;height:17px}
-.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.btn[disabled],.btn.btn:disabled{opacity:1;background:#e5e7eb;color:#4b5563;cursor:not-allowed;transform:none;box-shadow:none}   /* D10: neutral, AA contrast; the reason sits next to it */
 .arrow{transition:transform .2s var(--ease)}
 .btn:hover .arrow{transform:translateX(3px)}
 
@@ -95,14 +95,16 @@ h3{font-size:20px;font-weight:700;letter-spacing:-.015em;line-height:1.2}
   .foot .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
   .foot .wrap>div:first-child{grid-column:1/-1}
 }
+@media (max-width:600px){
+  .wm{flex-direction:column;align-items:flex-start;gap:3px}
+  .wm .l{font-size:11px}
+}
 @media (max-width:520px){
-  .wm .l{display:none}
   .links{gap:12px;font-size:14px}
   .links .adot{display:none}
   .nav .wrap{height:64px;gap:14px}
-  .wm{flex-direction:column;align-items:flex-start;gap:3px}
   .wm .w{font-size:21px}
-  .wm .l{font-size:11px}
+  .wm .l{font-size:10px}
   .brand svg{width:29px;height:29px}
   .links{gap:16px;font-size:14px}
   .nav .btn{display:none}

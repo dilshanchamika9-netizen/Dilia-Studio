@@ -20,6 +20,8 @@ step "Fill forms: My details" python3 dev/tests/test-autofill.py
 step "Reader: Comments panel" python3 dev/tests/test-comments.py
 step "Reader: zoom, print dialog, copy, highlight, OCR prompt, Edit button (APP-01..08)" python3 dev/tests/test-reader-app.py
 step "Home page and Life/Play hubs" python3 dev/tests/test-home.py
+step "Director Review 02 defects D1-D18 stay fixed" python3 dev/tests/test-defects.py
+step "File-name rule: downloads keep the uploaded name" python3 dev/tests/test-filenames.py
 step "Light/dark switch on every page family" python3 dev/tests/test-theme.py
 step "Daily puzzles: one answer, 400 days" node dev/tests/test-playgen.js
 step "Merge rules" node dev/tests/test-merge.js
@@ -55,5 +57,10 @@ step "Pack engine" node dev/tests/test-pack.js
 step "Booklet, packing, documents" python3 dev/tests/test-packdocs.py
 step "News fetch script" python3 dev/tests/test-news-fetch.py
 step "News page" python3 dev/tests/test-news.py
+# Accessibility and Lighthouse (DR-02 §11.1, §15): test tools pinned, installed outside the site, never shipped
+export AXE_DIR="${AXE_DIR:-/tmp/dilia-qa}"
+if [ ! -x "$AXE_DIR/node_modules/.bin/lighthouse" ]; then mkdir -p "$AXE_DIR" && (cd "$AXE_DIR" && npm init -y >/dev/null && npm i --no-audit --no-fund --silent axe-core@4.14.1 lighthouse@12.8.2 >/dev/null 2>&1); fi
+step "Accessibility: axe on 24 templates, light and dark, 1440 and 390 (zero serious/critical)" python3 dev/tests/test-axe.py
+step "Lighthouse: SEO 100 and accessibility 95+ on every template (performance reported)" python3 dev/tests/test-lighthouse.py
 echo; [ $fail = 0 ] && echo "GATE PASSED" || echo "GATE FAILED"
 exit $fail

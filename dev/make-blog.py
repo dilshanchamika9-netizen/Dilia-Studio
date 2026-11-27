@@ -15,6 +15,7 @@ def shell(depth):
     h = h.replace('</head>', f'<link rel="stylesheet" href="{up}assets/blog.css">\n</head>', 1)
     assert 'blog.css' in h and 'reader.css' not in h and 'rel="manifest"' not in h
     h = re.sub(r'<body class="[^"]*"', '<body class="blog"', h, count=1)
+    h = h.replace('<span class="l">PDF</span>', '<span class="l">Guides</span>', 1)   # D6: lockup names this line
     t = tail.replace('../assets/', up + 'assets/').replace('<script src="' + up + 'assets/viewer.js"></script>', '').replace('<script src="../assets/viewer.js"></script>', '')
     # these pages need no tool scripts: keep search palette, menu and common only
     t = re.sub(r'<section class="rabout[^"]*".*?</section>\n?', '', t, flags=re.S)            # reader-only text

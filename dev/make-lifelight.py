@@ -13,7 +13,7 @@ def bg(v):
     m = re.fullmatch(r'#ffffff([0-9a-f]{2})', v)
     if m: a = int(m.group(1), 16); return '#0b1220%02x' % max(8, min(40, a))
     if v in ('#141b38',): return '#e6e9f4'
-    if v.startswith('#2b3560'): return '#c3c9e0'
+    if v.startswith('#2b3560'): return '#5d6573'   # past holiday tile: white text stays AA
     if v.startswith('#1d2a4a') or v.startswith('#162040') or v.startswith('#121a30'): return '#e9ecf6'
     return None
 def twin(prop, val):

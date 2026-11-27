@@ -34,6 +34,7 @@ for f in pages:
             if u.startswith('javascript:'): probs.append(f'{rel}: javascript: link')
             continue
         path, _, frag = u.partition('#'); path = path.split('?')[0]
+        if path.startswith('/Dilia-Studio/'): path = str(ROOT) + '/' + path[len('/Dilia-Studio/'):]   # 404.html links absolutely (site path on GitHub Pages)
         tgt = f if not path else (f.parent / urllib.parse.unquote(path)).resolve()
         if path and (tgt.is_dir() or path.endswith('/')): tgt = tgt / 'index.html'
         if not tgt.exists(): probs.append(f'{rel}: broken link {u}'); continue
