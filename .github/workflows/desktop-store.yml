@@ -96,12 +96,33 @@ jobs:
           Start-Sleep -Seconds 2
           Remove-AppxPackage -Package $p.PackageFullName
           "REMOVED: still installed = $([bool](Get-AppxPackage -Name Dilia.DiliaPDF))" | Tee-Object -Append -FilePath $R
+      - name: Screenshots of the real app window (Store listing images)
+        continue-on-error: true
+        working-directory: desktop
+        run: |
+          Add-Type -TypeDefinition @"
+          using System; using System.Runtime.InteropServices;
+          public class Res {
+            [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Ansi)] public struct DM { [MarshalAs(UnmanagedType.ByValTStr, SizeConst=32)] public string n; public ushort sv, dv, sz, de; public uint f; public int px, py; public uint o, df; public short c, yr, pq, sc, tt; [MarshalAs(UnmanagedType.ByValTStr, SizeConst=32)] public string fn; public ushort lg; public uint bits, w, h, fl, fr; public uint ic, im, mt, dt, r1, r2, pw, ph; }
+            [DllImport("user32.dll")] public static extern bool EnumDisplaySettings(string d, int m, ref DM dm);
+            [DllImport("user32.dll")] public static extern int ChangeDisplaySettings(ref DM dm, int f);
+          }
+          "@
+          $dm = New-Object Res+DM; $dm.sz = [System.Runtime.InteropServices.Marshal]::SizeOf($dm); $bi = -1; $bw = 0; $bh = 0; $i = 0
+          while ([Res]::EnumDisplaySettings($null, $i, [ref]$dm)) { if ($dm.w -ge 1920 -and $dm.h -ge 1080 -and ($bi -lt 0 -or $dm.w * $dm.h -lt $bw * $bh)) { $bi = $i; $bw = $dm.w; $bh = $dm.h }; $i++ }
+          "display modes seen: $i; chosen index $bi = ${bw}x${bh}"
+          if ($bi -ge 0) { [void][Res]::EnumDisplaySettings($null, $bi, [ref]$dm); $dm.f = 0x180000; "ChangeDisplaySettings: $([Res]::ChangeDisplaySettings([ref]$dm, 0))" }
+          Start-Sleep -Seconds 3
+          $exe = Get-ChildItem dist/win-unpacked/*.exe | Where-Object { $_.Name -notmatch 'Uninstall' } | Select-Object -First 1
+          node test/store-shots.js $exe.FullName "$env:RUNNER_TEMP\shots" 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\shots-log.txt"
       - name: Publish package and report (pre-release store-v<version>)
         if: always()
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           $ver = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
           $files = @("$env:RUNNER_TEMP\store-report.txt")
+          $files += Get-ChildItem "$env:RUNNER_TEMP\shots\*.png" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+          if (Test-Path "$env:RUNNER_TEMP\shots-log.txt") { $files += "$env:RUNNER_TEMP\shots-log.txt" }
           $w = Join-Path $env:RUNNER_TEMP 'wack.xml'; if (Test-Path $w) { $files += $w }
           $p = Get-ChildItem desktop/dist/*.appx -ErrorAction SilentlyContinue | Select-Object -First 1; if ($p) { $files += $p.FullName }
           gh release delete "store-v$ver" --cleanup-tag --yes 2>$null

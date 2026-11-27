@@ -45,6 +45,7 @@ const missing = [];
       if (fs.existsSync(path.join(DST, file))) return m;
       return a + LIVE + '/' + (t === '.' ? '' : t.replace(/^\.\//, '') + (isDir && !t.endsWith('/') ? '/' : '')) + b;
     });
+    html = html.replace(/\s*<a class="opt"[^>]*>[\s\S]*?<\/a>/gi, '');          // Life, Play, Pulse are website sections, not part of this app
     fs.writeFileSync(path.join(DST, r), html);
     for (const x of html.matchAll(/\s(?:src|href)="([^"#?]+)"/gi)) {
       const h = x[1]; if (/^[a-z][a-z0-9+.-]*:/i.test(h) || h.startsWith('//')) continue;
@@ -61,5 +62,10 @@ for (const l of fs.readFileSync(path.join(SRC, '_headers'), 'utf8').split(/\r?\n
   if (m && m[1] !== 'Strict-Transport-Security') H[m[1]] = m[2].trim();
 }
 for (const k of ['Content-Security-Policy', 'X-Content-Type-Options', 'Referrer-Policy', 'Permissions-Policy']) if (!H[k] || /[\r\n]/.test(H[k])) throw new Error('security header missing or broken: ' + k);
+// the tool lists (menu, search) only offer the PDF tools in this app
+const TL = path.join(DST, 'assets', 'tools.js');
+if (fs.existsSync(TL)) fs.appendFileSync(TL, "\n;(function () { var drop = ['Image', 'QR', 'Calc', 'Text', 'Play']; if (window.DILIA_TOOLS) window.DILIA_TOOLS = window.DILIA_TOOLS.filter(function (g) { return drop.indexOf(g[0]) < 0; }); if (window.DILIA_LINES) window.DILIA_LINES = window.DILIA_LINES.filter(function (l) { return l.id === 'pdf'; }); })();\n");
+const ML = path.join(DST, 'assets', 'menu.js');
+if (fs.existsSync(ML)) fs.writeFileSync(ML, fs.readFileSync(ML, 'utf8').replace('Try compress, sign, QR, HEIC', 'Try merge, compress, sign, OCR'));
 fs.writeFileSync(path.join(DST, 'headers.json'), JSON.stringify(H, null, 1));
 console.log('site copied:', n, 'files');
