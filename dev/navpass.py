@@ -5,13 +5,32 @@ CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=
 NAV = re.compile(r'<nav class="links" aria-label="Main">.*?</nav>', re.S)
 SKIP = {'dev', 'node_modules', '.git', 'desktop'}
 
-def nav(p):
+def nav(p, area=''):
+    cur = lambda a: ' aria-current="page"' if a == area else ''
     return ('<nav class="links" aria-label="Main">\n'
-      '      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"><i class="adot t"></i>Tools' + CHEV + '</button>\n'
-      f'      <a class="opt" href="{p}life/"><i class="adot l"></i>Life</a>\n'
-      f'      <a class="opt" href="{p}play/"><i class="adot p"></i>Play</a>\n'
-      f'      <a class="opt" href="{p}news/"><i class="adot r"></i>Pulse</a>\n'
+      '      <button type="button" class="mbtn" data-menu aria-expanded="false" aria-controls="mega"' + (' data-current' if area == 'tools' else '') + '><i class="adot t"></i>Tools' + CHEV + '</button>\n'
+      f'      <a class="opt area-l" href="{p}life/"{cur("life")}><i class="adot l"></i>Life</a>\n'
+      f'      <a class="opt area-p" href="{p}play/"{cur("play")}><i class="adot p"></i>Play</a>\n'
+      f'      <a class="opt area-r" href="{p}news/"{cur("pulse")}><i class="adot r"></i>Pulse</a>\n'
       '    </nav>')
+
+def area_of(t):
+    m = re.search(r'<span class="wm"><span class="w">Dilia</span> ?<span class="l">([^<]*)</span>', t)
+    line = m.group(1) if m else ''
+    return {'Life': 'life', 'Play': 'play', 'Pulse': 'pulse', 'Guides': ''}.get(line, 'tools' if line else '')
+
+# One footer on every page (concept C). Only links to pages that exist.
+FCOLS = [('PDF', [('Merge PDF', 'merge-pdf/'), ('Compress PDF', 'compress-pdf/'), ('Split PDF', 'split-pdf/'), ('Sign PDF', 'sign-pdf/'), ('PDF to JPG', 'pdf-to-jpg/'), ('All PDF tools', 'pdf/')]),
+         ('Image', [('Compress image', 'compress-image/'), ('Resize image', 'resize-image/'), ('HEIC to JPG', 'heic-to-jpg/'), ('Crop image', 'crop-image/'), ('All image tools', 'image/')]),
+         ('Life', [('Public holidays', 'public-holidays/'), ('World clock', 'world-clock/'), ('Holiday planner', 'holiday-planner/'), ('Trip planner', 'trip-planner/'), ('All of Life', 'life/')]),
+         ('Play', [('Daily path', 'daily-path/'), ('Daily sudoku', 'daily-sudoku/'), ('Solitaire', 'solitaire/'), ('Chess', 'chess/'), ('All games', 'play/')]),
+         ('Dilia', [('All tools', 'tools.html'), ('Pulse', 'news/'), ('Guides', 'blog/'), ('Privacy', 'privacy/')])]
+FOOT = re.compile(r'<footer class="(?:foot|sfoot)">.*?</footer>', re.S)
+def footer(p):
+    cols = ''.join(f'<div><h2>{h}</h2><ul>' + ''.join(f'<li><a href="{p}{u}">{n}</a></li>' for n, u in l) + '</ul></div>' for h, l in FCOLS)
+    return (f'<footer class="sfoot"><div class="wrap"><div class="cols"><div><a class="brand" href="{p or "./"}"><svg><use href="#mark"/></svg><span class="wm"><span class="w">Dilia</span></span></a>'
+            f'<p>Everyday tools that work on your device. Free, no sign-up.</p></div>{cols}</div>'
+            '<div class="bot"><span>&copy; <span data-year></span> Dilia</span><span>Nothing you add leaves your device.</span></div></div></footer>')
 
 # GitHub Pages ignores _headers, so the same Content-Security-Policy goes into every page as a meta tag.
 # frame-ancestors only works as a real header (browsers ignore it in a meta tag), so it is left out here.
@@ -50,7 +69,9 @@ def run():
         s = f.read_text()
         if '<nav class="links" aria-label="Main">' not in s: continue
         p = '../' * (len(rel.parts) - 1)
-        t = NAV.sub(lambda m: nav(p), s, count=1)
+        t = NAV.sub(lambda m: nav(p, area_of(s)), s, count=1)
+        if not rel.parts[0] == 'news':                        # Pulse keeps its own masthead footer
+            t = FOOT.sub(lambda m: footer(p), t, count=1) if FOOT.search(t) else (re.sub(r'(</main>)(?![\s\S]*</main>)', lambda m: m.group(1) + '\n' + footer(p), t, count=1))
         t = t.replace(f'<li><a href="{p}blog/">Read</a></li>', f'<li><a href="{p}news/">Pulse</a></li><li><a href="{p}blog/">Guides</a></li>')   # footer: Read was renamed Pulse (owner, 25 Nov 2026)
         t = t.replace(f'<li><a href="{p}news/">Read</a></li>', f'<li><a href="{p}news/">Pulse</a></li>')
         t = a11y_names(t)

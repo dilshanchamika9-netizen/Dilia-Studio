@@ -61,7 +61,7 @@ with sync_playwright() as p:
     ok(pg.evaluate("(()=>{const b=document.querySelector('header .sbtn');return b.classList.contains('only') && b.querySelector('.sl').offsetWidth===0})()"), 'D1: Home header search is not icon-only')
     ok(pg.inner_text('h1').startswith('Get it done.'), 'D2: Home headline is not the §5.1 one')
     ok(pg.locator('.planet').count() == 0 and 'Point at a planet' not in pg.content(), 'D3: planets still on Home')
-    ok(pg.locator('.ob-demo').is_visible(), 'D2: live demo missing at 1440')
+    ok(pg.locator('.ed-demo').is_visible(), 'D2: live demo missing at 1440')
     dt = pg.inner_text('#t-date'); ok('AH' not in dt and 'Jumada' not in dt and 'Day ' not in dt, f'D5: date line for an en-US visitor: {dt}')
     pg.wait_for_function("document.getElementById('t-cc').options.length > 200", timeout=5000)
     ok(pg.input_value('#t-cc') == 'GB', f'D4: country from the visitor time zone should be GB, got {pg.input_value("#t-cc")}')

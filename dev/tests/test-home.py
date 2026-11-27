@@ -39,33 +39,22 @@ async def main():
                     cnt = int(await pg.evaluate("document.body.dataset.tools"))
                     ready = await pg.evaluate("DiliaSearch.all().filter(t=>t.ready && t.group!=='Play').length")
                     ok(cnt == ready and cnt > 100, f'tool count {cnt} vs {ready}')
-                    items = await pg.evaluate("[...document.querySelectorAll('#door-tools li')].map(l=>+l.textContent.split('· ')[1])")
-                    ok(len(items) == 5 and sum(items) == ready, f'Tools door counts {items} sum != {ready}')
+                    items = await pg.evaluate("[...document.querySelectorAll('[data-count]')].map(l=>parseInt(l.textContent))")
+                    ok(len(items) == 5 and sum(items) == ready, f'toolkit counts {items} sum != {ready}')
+                    ok(await pg.locator('#mu a').count() == 8, 'most used tools missing')
                     tl = await pg.get_attribute('#t-tool', 'href')
                     ok(tl and tl.endswith('/') and (await pg.inner_text('#t-tn')).strip(), 'tool of the day missing')
                     ok(not await pg.is_visible('#plist'), 'search list shows before the box is used')
                     # Planets are gone (DR-02 D3); the live demo shows instead
-                    ok(await pg.locator('.planet').count() == 0 and await pg.locator('.ob-demo').is_visible(), 'demo / planets')
+                    ok(await pg.locator('.planet').count() == 0 and (await pg.locator('.ed-demo').is_visible() or w < 1000), 'demo / planets')
                     # Today: life card shows a holiday (UAE time zone in this test), read card is a real guide
                     ok(await pg.get_attribute('#t-read', 'href') != 'blog/', 'guide of the day missing')
                     lt = await pg.inner_text('#t-lt'); ok(any(x in lt for x in (' in ', ' today', ' tomorrow')) and 'United Arab Emirates' in await pg.inner_text('#t-sub'), f'next holiday card: {lt}')
-                    gs = await pg.evaluate("[...new Set([...document.querySelectorAll('#jstars a, #t-read, #tries a')].map(a=>a.href))]")
+                    gs = await pg.evaluate("[...new Set([...document.querySelectorAll('#mu a, .kit, .tdc, #t-read')].map(a=>a.href))]")
                     for h in gs:
                         try: code = urllib.request.urlopen(h).status
                         except Exception as e: code = str(e)
                         ok(code == 200, f'home link {h} -> {code}')
-                    # Journeys: every tab, every step link resolves; clicking a step marks it done and survives reload
-                    for i in range(4):
-                        await pg.click(f'#jtabs button >> nth={i}'); await pg.wait_for_timeout(80)
-                        for h in await pg.evaluate("[...document.querySelectorAll('#jstars a')].map(a=>a.href)"):
-                            try: code = urllib.request.urlopen(h).status
-                            except Exception as e: code = str(e)
-                            ok(code == 200, f'journey {i} link {h} -> {code}')
-                    await pg.click('#jtabs button >> nth=0')
-                    await pg.evaluate("document.querySelector('#jstars a').addEventListener('click',e=>e.preventDefault())")
-                    await pg.click('#jstars a >> nth=0'); await pg.reload(); await pg.wait_for_timeout(400)
-                    ok('1 of 5' in await pg.inner_text('#jdone') and 'done' in (await pg.get_attribute('#jstars li >> nth=0', 'class')), 'journey progress not saved')
-                    await pg.click('#jreset'); ok('Tap step 1' in await pg.inner_text('#jdone'), 'journey reset')
                     # Light by default; the switch turns dark and is remembered
                     ok(await pg.evaluate("document.documentElement.dataset.theme") is None, 'not light by default')
                     await pg.click('.themebtn'); await pg.reload(); await pg.wait_for_timeout(300)

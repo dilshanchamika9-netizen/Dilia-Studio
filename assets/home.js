@@ -1,5 +1,5 @@
-// Dilia home: search (rotating task hints), Today on Dilia, journeys as constellations, world cards,
-// light/dark switch, and "drop a file to see what fits". Everything is worked out on this device. Text via textContent only.
+// Dilia home (concept C "Editorial"): search with rotating task hints, toolkit counts, most used tools, Today on Dilia,
+// holiday country picker, and "drop a file to see what fits". Everything is worked out on this device. Text via textContent only.
 {
   const T = DiliaSearch.all(), byId = Object.fromEntries(T.map(t => [t.id, t]));
   const $ = id => document.getElementById(id);
@@ -14,10 +14,6 @@
 
   /* ---------- search ---------- */
   DiliaSearch.mount($('q'), $('plist'), 4);
-  const tries = $('tries');
-  [['compress PDF', 'compress-pdf/', '#e5007d'], ['time in London', 'time-zone-converter/', '#009fe3'], ['sudoku', 'daily-sudoku/', '#7a5cff'], ['sign a PDF guide', 'blog/sign-pdf-without-printing/', '#f0a800']]
-    .forEach(([n, h, c]) => { const a = link(h, '', n), i = el('i'); i.style.background = c; a.prepend(i); tries.append(a); });
-
   // The hint in the box cycles through real tasks every 3 s and stops for good once the box is used (D2, DR-02 §5.1).
   const HINTS = ['merge PDF', 'compress a photo to 100 KB', 'public holidays 2027', 'sign a PDF', 'QR code for Wi-Fi', 'word counter', 'daily sudoku'];
   if (!reduce) {
@@ -27,14 +23,16 @@
     q.addEventListener('focus', stop, { once: true });
   }
 
-  /* ---------- counts ---------- */
+  /* ---------- toolkit counts and most used ---------- */
   document.body.dataset.tools = ready.length;
-  $('w-tk').textContent = plus(ready.length) + ' tasks';
-  $('w-pk').textContent = games.length + ' games';
-  $('w-rk').textContent = 'News and ' + GUIDES.length + ' guides';
   const n = g => ready.filter(t => t.group === g).length;
   const nPdf = ready.length - n('Image') - n('QR') - n('Text') - n('Calc');
-  [['PDF', nPdf], ['Image', n('Image')], ['Text', n('Text')], ['QR codes', n('QR')], ['Calculators', n('Calc')]].forEach(([k, v]) => { if (v) $('door-tools').append(el('li', '', k + ' · ' + v)); });
+  document.querySelectorAll('[data-count]').forEach(e => { const v = e.dataset.count === 'pdf' ? nPdf : n(e.dataset.count); e.textContent = v + ' tools'; });
+  $('n-all').textContent = plus(ready.length);
+  [['merge', 'Merge PDF'], ['compress', 'Compress PDF'], ['pdf2img', 'PDF to JPG'], ['img2pdf', 'JPG to PDF'], ['pxcompress', 'Compress image'], ['pxresize', 'Resize image'], ['sign', 'Sign PDF'], ['qrmain', 'QR code generator']]
+    .filter(([id]) => byId[id] && byId[id].ready).forEach(([id, label]) => {
+      const t = byId[id], a = link(diliaUrl(t), '', ''); a.innerHTML = diliaIcon(t.icon, 'ico'); a.append(label); $('mu').append(a);
+    });
 
   /* ---------- Today on Dilia ---------- */
   const now = new Date();
@@ -92,52 +90,6 @@
     sel.value = cc; showHoliday(cc);
     sel.addEventListener('change', () => { ccSet(sel.value); showHoliday(sel.value); });
   })();
-
-  const W = { tools: { c: '#e5007d' }, life: { c: '#009fe3' }, play: { c: '#7a5cff' }, read: { c: '#f0a800' } };
-
-  /* ---------- journeys ---------- */
-  const CW = { T: ['tools', 'Tools'], L: ['life', 'Life'], P: ['play', 'Play'], R: ['read', 'Guides'] };
-  const J = [
-    { id: 'cv', n: 'Send your CV', sub: 'Make it, sign it, send it', st: [['T', 'Edit your CV PDF', 'edit-pdf/', 10, 62], ['T', 'Sign the cover letter', 'sign-pdf/', 28, 30], ['T', 'Join CV and letter', 'merge-pdf/', 48, 60], ['T', 'Shrink for email', 'compress-pdf/', 68, 28], ['L', 'Count days to deadline', 'date-difference-calculator/', 88, 56]] },
-    { id: 'trip', n: 'Trip abroad', sub: 'Plan, sort the papers, go', st: [['L', 'Holidays where you go', 'public-holidays/', 10, 36], ['L', 'Time zone for calls', 'time-zone-converter/', 28, 66], ['T', 'Scan passport to PDF', 'scan-to-pdf/', 48, 30], ['T', 'Photo to a size limit', 'compress-image-to-size/', 68, 62], ['P', 'Puzzles for the flight', 'play/', 88, 32]] },
-    { id: 'inv', n: 'Small business invoice', sub: 'Price it, send it, get paid', st: [['T', 'Add VAT to the price', 'vat-calculator/', 10, 50], ['T', 'Receipts to one PDF', 'jpg-to-pdf/', 28, 24], ['T', 'Payment QR code', 'qr-code-generator/', 48, 60], ['T', 'Sign the invoice', 'sign-pdf/', 68, 28], ['R', 'Lock it with a password', 'blog/protect-pdf-with-password/', 88, 58]] },
-    { id: 'break', n: 'Coffee break', sub: 'Ten minutes, three games', st: [['P', 'Reaction warm-up', 'reaction-time/', 14, 56], ['P', "Today's path", 'daily-path/', 38, 28], ['P', 'Daily sudoku', 'daily-sudoku/', 62, 62], ['R', 'One quick guide', 'blog/', 86, 32]] }
-  ];
-  const JKEY = 'dilia-journeys-v1';
-  let ji = Math.min(J.length - 1, Math.max(0, store.get('dilia-journey-tab', 0) | 0));
-  const tabs = $('jtabs');
-  J.forEach((j, i) => { const b = el('button', '', j.n); b.type = 'button'; b.setAttribute('role', 'tab'); b.addEventListener('click', () => { ji = i; store.set('dilia-journey-tab', i); drawJ(); }); tabs.append(b); });
-  const SVG = 'http://www.w3.org/2000/svg', lines = $('jlines');
-  const dust = []; for (let i = 0; i < 40; i++) { const c = document.createElementNS(SVG, 'circle'); c.setAttribute('class', 'dust'); const r1 = ((i * 2654435761) >>> 0) / 4294967296, r2 = ((i * 2246822519 + 3266489917) >>> 0) / 4294967296; c.setAttribute('cx', Math.round(r1 * 1000)); c.setAttribute('cy', Math.round(r2 * 480)); c.setAttribute('r', 1 + (i % 3) * 0.6); c.style.animationDelay = (i % 7) * 0.5 + 's'; dust.push(c); }
-  function drawJ() {
-    const j = J[ji], done = new Set(store.get(JKEY, {})[j.id] || []);
-    [...tabs.children].forEach((b, i) => b.setAttribute('aria-selected', i === ji ? 'true' : 'false'));
-    $('jname').textContent = j.n; $('jsub').textContent = j.sub;
-    const cnt = j.st.filter((s, i) => done.has(i)).length, nextI = j.st.findIndex((s, i) => !done.has(i));
-    $('jbar').style.width = Math.round(cnt / j.st.length * 100) + '%';
-    $('jdone').textContent = cnt === 0 ? 'Tap step 1 to start' : cnt === j.st.length ? 'Constellation complete ✦' : cnt + ' of ' + j.st.length + ' steps done';
-    $('jreset').hidden = cnt === 0;
-    lines.replaceChildren(...dust);
-    j.st.slice(1).forEach((b, i) => {
-      const a = j.st[i], lit = done.has(i) && done.has(i + 1), l = document.createElementNS(SVG, 'line');
-      l.setAttribute('x1', a[3] * 10); l.setAttribute('y1', a[4] * 4.8); l.setAttribute('x2', b[3] * 10); l.setAttribute('y2', b[4] * 4.8);
-      if (lit) { l.setAttribute('stroke', W[CW[b[0]][0]].c); l.setAttribute('stroke-width', 3); l.setAttribute('stroke-opacity', .9); } else l.setAttribute('class', 'todo');
-      lines.append(l);
-    });
-    const ol = $('jstars'); ol.replaceChildren();
-    j.st.forEach(([w, n, href, x, y], i) => {
-      const li = el('li', 'jstar w-' + CW[w][0] + (done.has(i) ? ' done' : '') + (i === nextI ? ' next' : ''));
-      li.style.setProperty('--x', x + '%'); li.style.setProperty('--y', y + '%');
-      const a = link(href, '', '');
-      const lab = el('span', 'lab'); lab.append(el('small', '', 'Step ' + (i + 1) + ' · ' + CW[w][1]), el('b', '', n));
-      a.append(el('span', 'dot', done.has(i) ? '✓' : String(i + 1)), lab);
-      a.addEventListener('click', () => { const all = store.get(JKEY, {}); all[j.id] = [...new Set([...(all[j.id] || []), i])]; store.set(JKEY, all); });
-      li.append(a); ol.append(li);
-    });
-  }
-  $('jreset').addEventListener('click', () => { const all = store.get(JKEY, {}); delete all[J[ji].id]; store.set(JKEY, all); drawJ(); });
-  drawJ();
-  addEventListener('pageshow', e => { if (e.persisted) drawJ(); });
 
   /* ---------- drop a file anywhere: show the tools that fit, then open one with the file ready ---------- */
   const veil = $('veil'), fit = $('fit');
