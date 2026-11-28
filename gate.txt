@@ -1,0 +1,380 @@
+commit 5051eda9b07b108943131006b6574e46f7502493  ref refs/heads/staging  run 46140148407  Sat Nov 28 11:50:26 UTC 2026
+
+=== Static security gate
+security-check: OK (233 vendor files pinned)
+--- PASS
+
+=== Whole-site audit (links, anchors, ids, page basics, CSP meta)
+audit: 343 pages, 0 problems
+--- PASS
+
+=== Generated pages match their sources
+--- PASS
+
+=== Pulse story rules (quotes, sources, allegation wording, disclosure)
+21 stories checked
+PULSE RULES OK
+--- PASS
+
+=== Pulse rule checks catch bad stories
+ok   good story passes 
+ok   long quote caught 
+ok   quote per source caught 
+ok   short scare quotes allowed 
+ok   single news source caught 
+ok   single SEC source allowed 
+ok   duplicate source caught 
+ok   lawsuit without allegation caught 
+ok   lawsuit with allegation passes 
+ok   advice caught 
+ok   Best Buy not flagged 
+ok   maker note required 
+ok   maker note passes 
+figures ['10', '5.0']
+ok   number found
+ok   wrong number caught ['5.0']
+ok   normalise
+FAILS []
+--- PASS
+
+=== Calculator maths
+unit OK
+--- PASS
+
+=== All pages: security policy, errors, no outside requests
+291 pages checked, 0 with problems
+--- PASS
+
+=== Calculator pages
+58 checks, 0 failed
+--- PASS
+
+=== Hostile PDF guard
+PASS guard loaded
+PASS main thread has no qpdf
+PASS normal file loads (10 pages) ['ok', 10, 48.09999999997672]
+PASS locked file: same "encrypted" message ['err', 'Input document to `PDFDocument.load` is encrypted. You can use `PDFDocument.load(..., { ignoreEncryption: true })` if you wish to load the document anyways.', 3.400000000023283]
+PASS looping page tree refused in worker, page alive ['err', 'Maximum call stack size exceeded', 4.099999999976717]
+PASS page responsive after hostile file
+PASS time limit stops the job with the slow message ['err', 'This file took too long to read, so Dilia stopped it to keep your browser responsive. It may be damaged or built to freeze apps.', 4.400000000023283]
+PASS after a stop, a fresh worker reads normally ['ok', 10, 62.90000000002328]
+PASS qpdf runs in worker, caller bytes intact [0, 6440, 5597]
+PASS qpdf time limit stops the job This file took too long to read, so Dilia stopped it to keep your browser responsive. It may be damaged or built to freeze apps.
+PASS same bytes are not re-checked 2
+PASS no CSP or console errors
+FAILS []
+--- PASS
+
+=== Fill forms: My details
+PASS My details button present on the fill-form page
+PASS 14 fields found 14
+PASS first name filled Alex
+PASS last name filled
+PASS email filled
+PASS phone filled
+PASS existing value NOT overwritten Existing Co
+PASS street address filled
+PASS city, postcode, country filled
+PASS full name filled from first+last Alex Example
+PASS bank account name NOT filled
+PASS father's name NOT filled
+PASS comments NOT filled
+PASS multiline address field filled
+PASS formVals recorded (will be saved into PDF) ['Mailing_Address_Lines', 'Full_Name', 'Country', 'Postcode', 'City', 'Street_Address', 'Mobile_Phone', 'Email_Address', 'Last_Name', 'First_Name']
+PASS stored on this device only (localStorage)
+PASS undo removes the autofill in one step
+PASS remembered after reload
+PASS forget empties the form
+PASS forget removes the stored copy
+PASS unticked: nothing stored
+PASS saved PDF contains the filled values (earlier typed Temp kept, not overwritten) {'First_Name': 'Temp', 'Last_Name': 'Example', 'Email_Address': 'd@example.com', 'Mobile_Phone': None}
+PASS no button on other editors
+PASS no console errors
+FAILS []
+--- PASS
+
+=== Reader: Comments panel
+PASS Comments tab exists
+['Page 1 · Note | Alex Ex · 2026-11-20 | Check the total here', 'Page 1 · Highlight | No text', 'Page 4 · Text box | <script>alert(1)</script> Signed copy needed', 'Page 6 · Note | Final page note']
+PASS 4 marks listed (popups excluded) 4
+PASS note shows page, type, author, date, text
+PASS highlight without text says No text
+PASS text box on page 4
+PASS hostile text shown as text, not run
+PASS summary line
+PASS click jumps to page 6 6
+PASS PDF without marks says so ['This PDF has no comments, notes or highlights.']
+PASS no console errors
+FAILS []
+--- PASS
+
+=== Reader: zoom, print dialog, copy, highlight, OCR prompt, Edit button (APP-01..08)
+PASS APP-08 Edit button visible on the top bar
+PASS APP-08 Edit button sits in the toolbar
+PASS APP-01 five small pinch events zoom gently (1-8%, was 5 full steps = +75%)
+PASS APP-01 one mouse-wheel notch zooms about 20%
+PASS APP-01 point under the pointer stays put while zooming
+PASS APP-01 pages re-render sharp after zooming
+PASS APP-04 print dialog with live preview opens
+PASS APP-04 dialog has "Pages to print"
+PASS APP-04 dialog has "Current view"
+PASS APP-04 dialog has "Odd pages only"
+PASS APP-04 dialog has "Reverse pages"
+PASS APP-04 dialog has "Fit"
+PASS APP-04 dialog has "Actual size"
+PASS APP-04 dialog has "Shrink oversized pages"
+PASS APP-04 dialog has "Custom scale"
+PASS APP-04 dialog has "Poster"
+PASS APP-04 dialog has "Multiple"
+PASS APP-04 dialog has "Booklet"
+PASS APP-04 dialog has "Auto portrait/landscape"
+PASS APP-04 dialog has "Paper size"
+PASS APP-04 dialog has "Document and markups"
+PASS APP-04 dialog has "Form fields only"
+PASS APP-04 dialog has "Summarise comments"
+PASS APP-04 dialog has "greyscale"
+PASS APP-04 dialog has "Save ink/toner"
+PASS APP-04 dialog has "High quality"
+PASS APP-04 dialog has "Scale:"
+PASS APP-04 Auto: the one landscape page is turned to fit portrait A4 (3 of 4 pages are portrait)
+PASS APP-02 Fit: a landscape page alone prints on landscape A4
+PASS APP-02/03 Fit keeps the whole page 6 mm inside every sheet edge
+PASS APP-03 red bottom-edge line is printed, clear of the 6 mm edge
+PASS APP-02 TOTAL row (dark text at the bottom) is printed above the safe edge
+PASS APP-04 Actual size prints at 100%
+PASS APP-04 Custom scale 50%
+PASS APP-04 Multiple: 4 pages on 1 sheet
+PASS APP-04 Booklet: 4 pages = 1 folded sheet, 2 sides
+PASS APP-04 Poster at 200% tiles one page over several sheets
+PASS APP-04 bad page range blocks Print with a message
+PASS APP-04 even pages, reversed
+PASS APP-04 Print sends one image per sheet to the printer
+PASS APP-04 paper size is set for the printer (A4 landscape)
+PASS print leaves no images behind
+PASS APP-04 printed output: 4 pages, no blank extra page
+PASS APP-04 printed output is A4 portrait (Auto, most pages portrait)
+PASS APP-07 selection bar appears (Copy, Highlight, Underline, Strike)
+PASS APP-06 Ctrl+C copies the selected text
+PASS APP-06 right-click menu has Copy, Underline, Strike through
+PASS APP-06 right-click > Copy copies
+PASS APP-07 highlight saved into the PDF as a Highlight annotation with an appearance
+PASS APP-07 tab marked unsaved (Ctrl+S writes it)
+PASS APP-07 highlight covers the selected line
+PASS APP-07 highlight shows on the page (yellow pixels)
+PASS APP-07 underline saved as Underline
+PASS APP-07 strike saved as StrikeOut
+PASS APP-07 Ctrl+Z removes the last mark
+PASS APP-05 page with no text explains why and offers Recognise text
+PASS APP-05 right-click on that page offers OCR
+PASS APP-05 Recognise text opens the OCR tool on this document
+PASS APP-08 Edit opens the edit tool
+PASS no page errors or CSP errors
+FAILS []
+--- PASS
+
+=== Home page and Life/Play hubs
+219 checks, 0 failed
+--- PASS
+
+=== Director Review 02 defects D1-D18 stay fixed
+1795 checks, 0 failed
+--- PASS
+
+=== File-name rule: downloads keep the uploaded name
+26 checks, 0 failed
+--- PASS
+
+=== Light/dark switch on every page family
+492 checks, ok
+--- PASS
+
+=== Daily puzzles: one answer, 400 days
+400 days, 100 levels, mines and 120 solitaire deals checked, slowest board 333 ms, 0 problems
+--- PASS
+
+=== Merge rules
+merge rules: 0 problems
+--- PASS
+
+=== Play: hub and daily games played through
+332 checks, 0 failed
+--- PASS
+
+=== Arcade rules: snake, typing score, word lists
+arcade rules OK
+--- PASS
+
+=== Arcade: snake, reaction time, typing test
+235 checks, 0 failed
+--- PASS
+
+=== Party tools: fair random picks
+party rng: all checks ok
+--- PASS
+
+=== Party tools: wheel, picker, teams, dice, coin, numbers
+172 checks, 0 failed
+--- PASS
+
+=== Party tools 2: bingo, quiz, scoreboard, Secret Santa
+214 checks, 0 failed
+--- PASS
+
+=== Card games: rules and solvers
+cards: 2958 checks, 0 failed
+--- PASS
+
+=== Card games: FreeCell, Pyramid, TriPeaks
+220 checks, 0 failed
+--- PASS
+
+=== Chess: rules, perft, engine
+ok? rnbqkbnr/pppppppp/8/8/8/8 781 ms
+ok? r3k2r/p1ppqpb1/bn2pnp1/3P 644 ms
+ok? 8/2p5/3p4/KP5r/1R3p1k/8/4 144 ms
+ok? r3k2r/Pppp1ppp/1b3nbN/nP6 68 ms
+ok? rnbq1k1r/pp1Pbppp/2p5/8/2 336 ms
+ok? r4rk1/1pp1qppp/p1np1n2/2b 541 ms
+eval restored true 0 0 24 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+ALL PERFT OK
+ENGINE OK
+--- PASS
+
+=== Chess: page
+FAILS [] ok 58
+--- PASS
+
+=== Checkers and reversi: rules and computer
+BOARD GAMES OK
+--- PASS
+
+=== Checkers and reversi: pages
+FAILS [] ok 62
+--- PASS
+
+=== Ludo: rules and computer
+win rate in 4 players vs three random: random 0.24 casual 0.46 expert 0.70
+LUDO OK
+--- PASS
+
+=== Ludo: page
+FAILS [] ok 26
+--- PASS
+
+=== Backgammon: rules and computer
+level3 vs random 16/16
+level4 vs random 10/10
+BACKGAMMON OK 1923
+--- PASS
+
+=== Word and crossword engines
+WORD OK 10
+CROSSWORD OK 362
+--- PASS
+
+=== Chess puzzles verified
+CHESS PUZZLES OK 440
+--- PASS
+
+=== Holiday planner: engine
+HOLIDAY PLANNER OK 223
+--- PASS
+
+=== Holiday planner: page
+FAILS [] ok 48
+--- PASS
+
+=== Festival dates
+FESTIVALS OK 291
+--- PASS
+
+=== Life pages
+FAILS [] ok 312
+--- PASS
+
+=== Puzzle rules
+PUZZLES OK
+--- PASS
+
+=== Arcade and puzzle pages
+FAILS [] ok 194
+--- PASS
+
+=== Win celebration
+FAILS [] ok 34
+--- PASS
+
+=== Life time pages
+FAILS [] ok 59
+--- PASS
+
+=== Team leave engine
+team engine ok 18
+--- PASS
+
+=== Team leave page
+FAILS [] ok 29
+--- PASS
+
+=== Year planner page
+FAILS [] ok 24
+--- PASS
+
+=== Pack engine
+pack engine ok 20
+--- PASS
+
+=== Booklet, packing, documents
+FAILS [] ok 58
+--- PASS
+
+=== News fetch script
+FAILS [] ok 22
+--- PASS
+
+=== News page
+FAILS [] ok 101
+--- PASS
+
+=== Accessibility: axe on 24 templates, light and dark, 1440 and 390 (zero serious/critical)
+96 page checks, 0 serious/critical issues
+--- PASS
+
+=== Lighthouse: SEO 100 and accessibility 95+ on every template (performance reported)
+/                                         SEO 100  A11y 100  BP 100  Perf  93  LCP  2.9s  CLS 0.000
+/tools.html                               SEO 100  A11y 100  BP 100  Perf  87  LCP  2.1s  CLS 0.230
+/pdf/                                     SEO 100  A11y  98  BP 100  Perf  86  LCP  2.3s  CLS 0.230
+/merge-pdf/                               SEO 100  A11y 100  BP 100  Perf  71  LCP  4.8s  CLS 0.000
+/compress-pdf/                            SEO 100  A11y 100  BP 100  Perf  71  LCP  4.8s  CLS 0.000
+/edit-pdf/                                SEO 100  A11y 100  BP 100  Perf  69  LCP  5.0s  CLS 0.000
+/sign-pdf/                                SEO 100  A11y 100  BP 100  Perf  68  LCP  5.0s  CLS 0.000
+/compress-image/                          SEO 100  A11y 100  BP 100  Perf  95  LCP  2.6s  CLS 0.000
+/qr-code-generator/                       SEO 100  A11y 100  BP 100  Perf  71  LCP  4.8s  CLS 0.041
+/word-counter/                            SEO 100  A11y 100  BP 100  Perf  97  LCP  2.3s  CLS 0.000
+/percentage-calculator/                   SEO 100  A11y 100  BP 100  Perf  92  LCP  2.3s  CLS 0.145
+/life/                                    SEO 100  A11y 100  BP 100  Perf  91  LCP  3.0s  CLS 0.083
+/public-holidays/                         SEO 100  A11y 100  BP 100  Perf  93  LCP  3.0s  CLS 0.057
+/world-clock/                             SEO 100  A11y 100  BP 100  Perf  72  LCP  3.0s  CLS 0.501
+/trip-planner/                            SEO 100  A11y 100  BP 100  Perf  88  LCP  3.0s  CLS 0.135
+/play/                                    SEO 100  A11y 100  BP 100  Perf  90  LCP  3.2s  CLS 0.000
+/daily-sudoku/                            SEO 100  A11y 100  BP 100  Perf  81  LCP  2.6s  CLS 0.284
+/solitaire/                               SEO 100  A11y 100  BP 100  Perf  94  LCP  2.7s  CLS 0.050
+/news/                                    SEO 100  A11y 100  BP 100  Perf  92  LCP  2.9s  CLS 0.000
+/news/dell-ai-backlog-132-billion/        SEO 100  A11y 100  BP 100  Perf  96  LCP  2.4s  CLS 0.000
+/blog/                                    SEO 100  A11y 100  BP 100  Perf  97  LCP  2.4s  CLS 0.000
+/blog/merge-pdf-files/                    SEO 100  A11y 100  BP 100  Perf  98  LCP  2.3s  CLS 0.000
+/privacy/                                 SEO 100  A11y 100  BP 100  Perf  98  LCP  2.1s  CLS 0.000
+23 templates, 0 failed
+--- PASS
+
+GATE PASSED
+
+=== Known vulnerabilities in vendored libraries
+vendor-audit (npm advisories): 16 libraries checked, 0 with known vulnerabilities
+--- PASS
+
+=== Secret scan
+no secrets
+--- PASS
+
+OVERALL: PASSED, will go live
