@@ -282,3 +282,30 @@ body.work{background:var(--mist)}
 .inapp .nav,.inapp .ws-head,.inapp .dropveil{display:none!important}
 .inapp body{background:#f4f5f8}
 .inapp .ws-page{padding-top:12px}
+
+/* ===== Concept C tool pages (owner pick 27 Nov 2026): centred title, 3-step progress, rounded stage cards ===== */
+body.work{background:#fbfbfc}
+.ws-head{padding:44px 0 32px;text-align:center}
+.ws-head>div{display:flex;flex-direction:column;align-items:center}
+.ws-head .crumb{margin:0 0 12px;font-weight:550}
+.ws-head h1{font-size:clamp(34px,4.4vw,54px);font-weight:850;line-height:1.04;letter-spacing:-.04em;color:var(--ink)}
+.ws-head .lead{margin:12px auto 0;max-width:36em;font-size:18px;color:#4b5563}
+.steps{list-style:none;margin:26px auto 0;padding:0;display:flex;align-items:center;width:min(560px,100%)}
+.steps li{flex:1;display:flex;align-items:center;gap:10px;font:650 14px/1 var(--font);color:#5d6573;white-space:nowrap}
+.steps li::after{content:"";flex:1;height:1px;background:var(--line2);margin:0 12px}
+.steps li:last-child{flex:none}.steps li:last-child::after{display:none}
+.steps i{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line2);font:700 13px/1 var(--font);font-style:normal;background:#fff}
+.steps .s1{color:var(--ink)}.steps .s1 i{background:var(--ink);border-color:var(--ink);color:#fff}
+.ws-page:has(.ws[data-state=full]) .steps .s1 i,.ws-page:has(#done:not([hidden])) .steps .s2 i{background:#ecfdf3;border-color:#ecfdf3;color:#15803d;font-size:0}
+.ws-page:has(.ws[data-state=full]) .steps .s1 i::before,.ws-page:has(#done:not([hidden])) .steps .s2 i::before{content:"✓";font-size:13px}
+.ws-page:has(.ws[data-state=full]) .steps .s1{color:#5d6573}
+.ws-page:has(.ws[data-state=full]) .steps .s2{color:var(--ink)}.ws-page:has(.ws[data-state=full]) .steps .s2 i{background:var(--ink);border-color:var(--ink);color:#fff}
+.ws-page:has(#done:not([hidden])) .steps .s2{color:#5d6573}
+.ws-page:has(#done:not([hidden])) .steps .s3{color:var(--ink)}.ws-page:has(#done:not([hidden])) .steps .s3 i{background:var(--ink);border-color:var(--ink);color:#fff}
+.board{border-radius:28px;box-shadow:0 0 0 1px #0b122012,0 18px 40px -24px #0b122040;padding:24px}
+.side-in{border-radius:24px;box-shadow:0 0 0 1px #0b122012,0 18px 40px -24px #0b122040}
+.dropzone{border-radius:20px}
+.go:not([disabled]){border-radius:999px;background:var(--ink);color:#fff;box-shadow:0 10px 24px -12px #0b122080}
+.go:not([disabled]):hover{background:#1f2633}
+html[data-theme=dark] .go:not([disabled]){background:#f3f5fa;color:#0b1220}
+@media (max-width:600px){.ws-head{padding:28px 0 22px}.ws-head .lead{font-size:16px}.steps li span{display:none}.steps{width:min(240px,100%)}.board{border-radius:22px;padding:14px}}

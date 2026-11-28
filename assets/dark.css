@@ -87,6 +87,17 @@
 :root[data-theme=dark] .cmpbox{background:repeating-conic-gradient(#0b1120 0 25%,#131b30 0 50%) 0 0/16px 16px}
 :root[data-theme=dark] .memeprev canvas{box-shadow:0 12px 30px -14px #00000066}
 :root[data-theme=dark] .inapp body{background:#0b1120}
+:root[data-theme=dark] body.work{background:#0b1120}
+:root[data-theme=dark] .ws-head .lead{color:var(--muted)}
+:root[data-theme=dark] .steps li{color:var(--muted)}
+:root[data-theme=dark] .steps i{background:#131b30}
+:root[data-theme=dark] .ws-page:has(.ws[data-state=full]) .steps .s1 i,:root[data-theme=dark] .ws-page:has(#done:not([hidden])) .steps .s2 i{background:#00ff6926}
+:root[data-theme=dark] .ws-page:has(.ws[data-state=full]) .steps .s1{color:var(--muted)}
+:root[data-theme=dark] .ws-page:has(#done:not([hidden])) .steps .s2{color:var(--muted)}
+:root[data-theme=dark] .board{box-shadow:0 0 0 1px #0b122012,0 18px 40px -24px #00000040}
+:root[data-theme=dark] .side-in{box-shadow:0 0 0 1px #0b122012,0 18px 40px -24px #00000040}
+:root[data-theme=dark] .go:not([disabled]){box-shadow:0 10px 24px -12px #00000080}
+:root[data-theme=dark] html[data-theme=dark] .go:not([disabled]){background:#0049ff26;color:var(--ink)}
 :root[data-theme=dark] .tcard{background:#131b30;box-shadow:0 0 0 1px var(--line),0 10px 30px -18px #00000040}
 :root[data-theme=dark] .tcard textarea{background:#131b30}
 :root[data-theme=dark] .tf input[type=text],:root[data-theme=dark] .tf input[type=number]{background:#131b30}

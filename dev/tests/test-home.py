@@ -47,6 +47,12 @@ async def main():
                     ok(not await pg.is_visible('#plist'), 'search list shows before the box is used')
                     # Planets are gone (DR-02 D3); the live demo shows instead
                     ok(await pg.locator('.planet').count() == 0 and (await pg.locator('.ed-demo').is_visible() or w < 1000), 'demo / planets')
+                    # Microsoft Store (owner 28 Nov 2026): shown to everyone, every Store link goes to the real listing in a new tab
+                    st = await pg.evaluate("[...document.querySelectorAll('a[href*=\"apps.microsoft.com\"]')].map(a=>[a.href,a.target,a.rel])")
+                    ok(len(st) == 3 and all(h == 'https://apps.microsoft.com/detail/9P8PSN4PBZ5H' and t == '_blank' and 'noopener' in r for h,t,r in st), f'store links {st}')
+                    ok(await pg.locator('.st-ms').is_visible() and await pg.locator('.st-pill').is_visible(), 'store card / pill hidden')
+                    ok(await pg.evaluate('document.documentElement.scrollWidth') <= w, 'page scrolls sideways')
+                    ok('Emily Carter' in await pg.inner_html('.st-sig'), 'signature name')
                     # Today: life card shows a holiday (UAE time zone in this test), read card is a real guide
                     ok(await pg.get_attribute('#t-read', 'href') != 'blog/', 'guide of the day missing')
                     lt = await pg.inner_text('#t-lt'); ok(any(x in lt for x in (' in ', ' today', ' tomorrow')) and 'United Arab Emirates' in await pg.inner_text('#t-sub'), f'next holiday card: {lt}')

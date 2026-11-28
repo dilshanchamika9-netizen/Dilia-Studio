@@ -19,6 +19,13 @@ def area_of(t):
     line = m.group(1) if m else ''
     return {'Life': 'life', 'Play': 'play', 'Pulse': 'pulse', 'Guides': ''}.get(line, 'tools' if line else '')
 
+# Tool pages (concept C): a 3-step progress line under the title. CSS lights the steps from the workspace state.
+STEPS = '<ol class="steps" aria-label="Steps"><li class="s1"><i>1</i><span>Add your file</span></li><li class="s2"><i>2</i><span>Set it up</span></li><li class="s3"><i>3</i><span>Download</span></li></ol>'
+WSHEAD = re.compile(r'(<div class="ws-head wrap">\s*<div>.*?<p class="lead">.*?</p>)(\s*)(?!<ol class="steps")', re.S)
+def steps(t):
+    if '<ol class="steps"' in t or '<div class="ws-head wrap">' not in t: return t
+    return WSHEAD.sub(lambda m: m.group(1) + '\n      ' + STEPS + m.group(2), t, count=1)
+
 # One footer on every page (concept C). Only links to pages that exist.
 FCOLS = [('PDF', [('Merge PDF', 'merge-pdf/'), ('Compress PDF', 'compress-pdf/'), ('Split PDF', 'split-pdf/'), ('Sign PDF', 'sign-pdf/'), ('PDF to JPG', 'pdf-to-jpg/'), ('All PDF tools', 'pdf/')]),
          ('Image', [('Compress image', 'compress-image/'), ('Resize image', 'resize-image/'), ('HEIC to JPG', 'heic-to-jpg/'), ('Crop image', 'crop-image/'), ('All image tools', 'image/')]),
@@ -75,6 +82,7 @@ def run():
         t = t.replace(f'<li><a href="{p}blog/">Read</a></li>', f'<li><a href="{p}news/">Pulse</a></li><li><a href="{p}blog/">Guides</a></li>')   # footer: Read was renamed Pulse (owner, 25 Nov 2026)
         t = t.replace(f'<li><a href="{p}news/">Read</a></li>', f'<li><a href="{p}news/">Pulse</a></li>')
         t = a11y_names(t)
+        t = steps(t)
         if 'assets/dark.css' not in t:
             t = re.sub(r'(<link rel="stylesheet" href="[^"]*assets/[a-z\-]+\.css">)(?![\s\S]*<link rel="stylesheet")', lambda m: m.group(1) + f'\n<link rel="stylesheet" href="{p}assets/dark.css">', t, count=1)
         if 'assets/theme.js' not in t:
